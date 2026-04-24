@@ -90,7 +90,7 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
                 scalar_t rk = Ah[kk * rp + j];
                 scalar_t rr = Ah[r * rp + j];
                 Ah[kk * rp + j] = c0 * rk + s0 * rr;
-                Ah[r * rp + j] = -s0 * rk + c0 * rr;
+                Ah[r * rp + j] = -s0 * rk + c0 * rr
             }
             for (int j = j0; j < j1; j++) {
                 scalar_t rk = Ah[(kk + 1) * rp + j];
@@ -153,9 +153,17 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
     // TODO (student): this dispatches into LAPACK for r^2/2 flops, which
     // is the wrong tool at small r and introduces nested-threading hazards
     // when called from fast_incremental_update_batched. Inline the loop.
-    auto vw = torch::linalg_solve_triangular(L, w.unsqueeze(1), false).squeeze(1);
-    const scalar_t* vw_d = vw.data_ptr<scalar_t>();
-
+    // auto vw = torch::linalg_solve_triangular(L, w.unsqueeze(1), false).squeeze(1);
+    // const scalar_t* vw_d = vw.data_ptr<scalar_t>();
+    const scalar_t* w_d = w.data_ptr<scalar_t>();
+    std::vector<scalar_t> vw_d(r);
+    for (int i = 0; i < r; i++) {
+        scalar_t sum = w_d[i];
+        for (int j = 0; j < i; j++) {
+            sum -= L_rm[i*r+j]*vw_d[j];
+        }
+        vw_d[i] = sum / L_rm[i*r+i];
+    }
     // Rank-1 correction: Ah[:r, :r] += v_z v_w^T.
     for (int i = 0; i < r; i++) {
         const scalar_t vzi = vz_d[i];
