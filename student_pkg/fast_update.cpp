@@ -32,45 +32,44 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
     // and z are updated. Fusing pairs keeps z hot across two rotations.
     int k = 0;
     for (; k + 1 < r; k += 2) {
-        scalar_t a0 = Lcm[k * r + k], b0 = z_d[k];
+        scalar_t a0 = L_rm[k * r + k], b0 = z_d[k];
         scalar_t rho0 = std::sqrt(a0 * a0 + b0 * b0);
         scalar_t c0 = a0 / rho0, s0 = b0 / rho0;
         cs[k] = c0; ss[k] = s0;
 
-        for (int i = 0; i < r; i++) {
-            scalar_t lv = Lcm[k * r + i], zv = z_d[i];
-            Lcm[k * r + i] = c0 * lv + s0 * zv;
+        // Iterate starting from k because elements above the diagonal are strictly 0
+        for (int i = k; i < r; i++) {
+            scalar_t lv = L_rm[i * r + k], zv = z_d[i];
+            L_rm[i * r + k] = c0 * lv + s0 * zv;
             z_d[i] = -s0 * lv + c0 * zv;
         }
 
-        scalar_t a1 = Lcm[(k + 1) * r + (k + 1)], b1 = z_d[k + 1];
+        scalar_t a1 = L_rm[(k + 1) * r + (k + 1)], b1 = z_d[k + 1];
         scalar_t rho1 = std::sqrt(a1 * a1 + b1 * b1);
         scalar_t c1 = a1 / rho1, s1 = b1 / rho1;
         cs[k + 1] = c1; ss[k + 1] = s1;
 
-        for (int i = 0; i < r; i++) {
-            scalar_t lv = Lcm[(k + 1) * r + i], zv = z_d[i];
-            Lcm[(k + 1) * r + i] = c1 * lv + s1 * zv;
+        // Iterate starting from k + 1
+        for (int i = k + 1; i < r; i++) {
+            scalar_t lv = L_rm[i * r + (k + 1)], zv = z_d[i];
+            L_rm[i * r + (k + 1)] = c1 * lv + s1 * zv;
             z_d[i] = -s1 * lv + c1 * zv;
         }
     }
+    
     // Odd r: one leftover rotation.
     if (k < r) {
-        scalar_t a = Lcm[k * r + k], b = z_d[k];
+        scalar_t a = L_rm[k * r + k], b = z_d[k];
         scalar_t rho = std::sqrt(a * a + b * b);
         scalar_t c = a / rho, s = b / rho;
         cs[k] = c; ss[k] = s;
-        for (int i = 0; i < r; i++) {
-            scalar_t lv = Lcm[k * r + i], zv = z_d[i];
-            Lcm[k * r + i] = c * lv + s * zv;
+        
+        for (int i = k; i < r; i++) {
+            scalar_t lv = L_rm[i * r + k], zv = z_d[i];
+            L_rm[i * r + k] = c * lv + s * zv;
             z_d[i] = -s * lv + c * zv;
         }
     }
-
-    for (int i = 0; i < r; i++)
-        for (int j = 0; j < r; j++)
-            L_rm[i * r + j] = Lcm[j * r + i];
-
     // Phase 2: Pad Aw into Ah (row-major, size (r+1) x (r+1)).
     std::vector<scalar_t> Ah(rp * rp, 0);
     const scalar_t* Aw_d = Aw.data_ptr<scalar_t>();
