@@ -32,6 +32,8 @@ pip install -r requirements.txt
 python setup_ext.py build_ext --inplace
 ```
 
+On FarmShare, once you have created a venv using uv, run `source .venv/bin/activate`.
+
 The second command produces `fast_cholesky.*.so` in the current directory.
 Keep it next to the `.py` files so `import fast_cholesky` works.
 
