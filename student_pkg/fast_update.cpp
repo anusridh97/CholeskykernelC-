@@ -90,7 +90,7 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
                 scalar_t rk = Ah[kk * rp + j];
                 scalar_t rr = Ah[r * rp + j];
                 Ah[kk * rp + j] = c0 * rk + s0 * rr;
-                Ah[r * rp + j] = -s0 * rk + c0 * rr
+                Ah[r * rp + j] = -s0 * rk + c0 * rr;
             }
             for (int j = j0; j < j1; j++) {
                 scalar_t rk = Ah[(kk + 1) * rp + j];
