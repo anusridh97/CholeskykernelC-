@@ -2,6 +2,49 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#ifdef __AVX512F__
+#include <immintrin.h>
+#endif
+
+template <typename scalar_t>
+inline void givens_contiguous(scalar_t* __restrict__ X, scalar_t* __restrict Y, scalar_t c, scalar_t s, int len) {
+    int i = 0;
+#ifdef __AVX512F__
+    if constexpr(std::is_same_v<scalar_t, float>) {
+        __m512 vc = _mm512_set1_ps(c);
+        __m512 vs = _mm512_set1_ps(s);
+        __m512 vms = _mm512_set1_ps(-s);
+        for (; i+15 < len; i+=16) {
+            __m512 vx = _mm512_loadu_ps(X + i);
+            __m512 vy = _mm512_loadu_ps(Y + i);
+            __m512 nx = _mm512_fmadd_ps(vc, vx, _mm512_mul_ps(vs, vy));
+            __m512 ny = _mm512_fmadd_ps(vms, vx, _mm512_mul_ps(vc, vy));
+            _mm512_storeu_ps(X + i, nx);
+            _mm512_storeu_ps(Y + i, ny);
+        }
+    } else if constexpr(std::is_same_v<scalar_t, double>) {
+        __m512d vc = _mm512_set1_pd(c);
+        __m512d vs = _mm512_set1_pd(s);
+        __m512d vms = _mm512_set1_pd(-s);
+        for (; i + 7 < len; i += 8) {
+            __m512d vx = _mm512_loadu_pd(X + i);
+            __m512d vy = _mm512_loadu_pd(Y + i);
+            __m512d nx = _mm512_fmadd_pd(vc, vx, _mm512_mul_pd(vs, vy));
+            __m512d ny = _mm512_fmadd_pd(vms, vx, _mm512_mul_pd(vc, vy));
+            _mm512_storeu_pd(X + i, nx);
+            _mm512_storeu_pd(Y + i, ny);
+        }
+    }
+#endif
+    // fallback (scalar)
+    for (; i<len; i++) {
+        scalar_t lv = X[i];
+        scalar_t zv = Y[i];
+        X[i] = c*lv + s*zv;
+        Y[i] = -s*lv + c*zv;
+    }
+}
+
 
 // Core single-update implementation. Templated on scalar type so we can
 // instantiate for float and double without runtime dispatch inside the
@@ -82,30 +125,19 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
     // Left sweep: Q_k^T mixes rows k and r. Panelled over columns for cache.
     for (int j0 = 0; j0 < rp; j0 += NB) {
         int j1 = std::min(j0 + NB, rp);
+        int len = j1 - j0;
         for (int kk = 0; kk < r - 1; kk += 2) {
-            scalar_t c0 = cs[kk], s0 = ss[kk];
-            scalar_t c1 = cs[kk + 1], s1 = ss[kk + 1];
-            for (int j = j0; j < j1; j++) {
-                scalar_t rk = Ah[kk * rp + j];
-                scalar_t rr = Ah[r * rp + j];
-                Ah[kk * rp + j] = c0 * rk + s0 * rr;
-                Ah[r * rp + j] = -s0 * rk + c0 * rr;
-            }
-            for (int j = j0; j < j1; j++) {
-                scalar_t rk = Ah[(kk + 1) * rp + j];
-                scalar_t rr = Ah[r * rp + j];
-                Ah[(kk + 1) * rp + j] = c1 * rk + s1 * rr;
-                Ah[r * rp + j] = -s1 * rk + c1 * rr;
-            }
+            scalar_t c0 = cs[kk];
+            scalar_t s0 = ss[kk];
+            scalar_t c1 = cs[kk+1];
+            scalar_t s1 = ss[kk+1];
+            givens_contiguous(&Ah[kk*rp+j0], &Ah[r*rp+j0], c0, s0, len);
+            givens_contiguous(&Ah[(kk+1)*rp+j0], &Ah[r*rp+j0], c1, s1, len);
+              
         }
         if (r % 2 == 1) {
             scalar_t c = cs[r - 1], s = ss[r - 1];
-            for (int j = j0; j < j1; j++) {
-                scalar_t rk = Ah[(r - 1) * rp + j];
-                scalar_t rr = Ah[r * rp + j];
-                Ah[(r - 1) * rp + j] = c * rk + s * rr;
-                Ah[r * rp + j] = -s * rk + c * rr;
-            }
+            givens_contiguous(&Ah[(r-1)*rp+j0], &Ah[r*rp+j0], c, s, len);
         }
     }
 

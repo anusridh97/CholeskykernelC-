@@ -7,7 +7,7 @@ setup(
         CppExtension(
             "fast_cholesky",
             ["fast_update.cpp"],
-            extra_compile_args=["-O3", "-march=native", "-ffast-math"],
+            extra_compile_args=["-O3", "-march=native", "-ffast-math", "-mavx512f"],
         )
     ],
     cmdclass={"build_ext": BuildExtension},
