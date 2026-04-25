@@ -211,7 +211,7 @@ def _fused_doublesided_kernel(
         tl.store(Aw_out_ptr + i * r + cols_p, cur + vzi * vw_vec, mask=cols_p < r)
 
 
-def incremental_update_triton(L, Aw, z, w):
+def incremental_update_triton(L, Aw, z, w, num_warps=None):
     """Fused Triton update. Modifies L in place to L+.
 
     Requires r <= 1024 so r fits in a single BLOCK of at most 1024.
@@ -226,17 +226,20 @@ def incremental_update_triton(L, Aw, z, w):
     BLOCK = triton.next_power_of_2(r)
     assert BLOCK <= 1024, f"r={r} too large for single-block kernel"
 
-    vz = torch.empty(r, dtype=L.dtype, device=L.device)
+    vz = z.clone()
     Aw_out = torch.empty_like(Aw)
     cs = torch.empty(r, dtype=L.dtype, device=L.device)
     ss = torch.empty(r, dtype=L.dtype, device=L.device)
 
-    z_work = z.clone()
     w_work = w.clone()
 
+    launch_kwargs = {"r": r, "BLOCK": BLOCK}
+    if num_warps is not None:
+        launch_kwargs["num_warps"] = num_warps
+
     _fused_doublesided_kernel[(1,)](
-        L, Aw, z_work, w_work, vz, Aw_out, cs, ss,
-        r=r, BLOCK=BLOCK,
+        L, Aw, vz, w_work, vz, Aw_out, cs, ss,
+        **launch_kwargs,
     )
 
     return Aw_out, vz
