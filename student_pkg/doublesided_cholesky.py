@@ -128,11 +128,11 @@ def _givens_params_tri(a, b):
     s = tl.where(zero, 0.0, tl.where(b_big, s1, s2))
     return c, s
 
-
+#  added AhT_ptr for transpose matrix (todo 5)
 @triton.jit
 def _fused_doublesided_kernel(
     L_ptr, Aw_ptr, z_ptr, w_ptr,
-    vz_ptr, Ah_ptr, cs_ptr, ss_ptr,
+    vz_ptr, Ah_ptr, AhT_ptr, cs_ptr, ss_ptr,
     r: tl.constexpr,
     RP: tl.constexpr,
     BLOCK: tl.constexpr,
@@ -188,27 +188,31 @@ def _fused_doublesided_kernel(
         tl.store(Ah_ptr + k * RP + cols_p, c * rk + s * rr, mask=mask_rp)
         tl.store(Ah_ptr + r * RP + cols_p, -s * rk + c * rr, mask=mask_rp)
 
-    # Right sweep: SLOW PATH, see KNOWN ISSUE above. The intended plan is
-    # to transpose Ah into a (RP x RP) scratch buffer, run the sweep over
-    # rows of the transpose (which are columns of the original), and
-    # transpose back. That requires a second SRAM-sized scratch region.
-    # The version below is the fallback that works but wastes memory traffic.
+    # Right sweep via transpose:
+    #   1) transpose Ah -> AhT
+    #   2) run the same row-mixing sweep on AhT
+    #   3) transpose AhT -> Ah
+
+    # AhT[j, i] = Ah[i, j]
+    for i in range(RP):
+        row = tl.load(Ah_ptr + i * RP + cols_p, mask=mask_rp, other=0.0)
+        tl.store(AhT_ptr + cols_p * RP + i, row, mask=mask_rp)
+
+    # Sweep rows k and r of AhT; these are columns k and r of Ah.
     for k in range(r):
         c = tl.load(cs_ptr + k)
         s = tl.load(ss_ptr + k)
 
-        for i in range(RP):
-            row = tl.load(Ah_ptr + i * RP + cols_p, mask=mask_rp, other=0.0)
+        rk = tl.load(AhT_ptr + k * RP + cols_p, mask=mask_rp, other=0.0)
+        rr = tl.load(AhT_ptr + r * RP + cols_p, mask=mask_rp, other=0.0)
 
-            val_k = tl.sum(tl.where(cols_p == k, row, 0.0))
-            val_r = tl.sum(tl.where(cols_p == r, row, 0.0))
+        tl.store(AhT_ptr + k * RP + cols_p, c * rk + s * rr, mask=mask_rp)
+        tl.store(AhT_ptr + r * RP + cols_p, -s * rk + c * rr, mask=mask_rp)
 
-            new_k = c * val_k + s * val_r
-            new_r = -s * val_k + c * val_r
-
-            row = tl.where(cols_p == k, new_k, row)
-            row = tl.where(cols_p == r, new_r, row)
-            tl.store(Ah_ptr + i * RP + cols_p, row, mask=mask_rp)
+    # Transpose back: Ah[i, j] = AhT[j, i]
+    for i in range(RP):
+        row = tl.load(AhT_ptr + i * RP + cols_p, mask=mask_rp, other=0.0)
+        tl.store(Ah_ptr + cols_p * RP + i, row, mask=mask_rp)
 
     # Phase 3: recover v_z.
     e_last = 1.0
@@ -218,18 +222,18 @@ def _fused_doublesided_kernel(
         tl.store(vz_ptr + k, s * e_last)
         e_last = c * e_last
 
-    # Phase 4: forward substitution with f64 accumulation. Overwrites w_ptr
+    # Phase 4: forward substitution with f32 accumulation. Overwrites w_ptr
     # with v_w.
     for k in range(r):
-        wk = tl.load(w_ptr + k).to(tl.float64)
+        wk = tl.load(w_ptr + k).to(tl.float32)
         L_row = tl.load(L_ptr + k * r + cols, mask=cols < r, other=0.0)
         vw_prev = tl.load(w_ptr + cols, mask=cols < r, other=0.0)
 
-        contrib = tl.where(cols < k, L_row.to(tl.float64) * vw_prev.to(tl.float64), 0.0)
+        contrib = tl.where(cols < k, L_row.to(tl.float32) * vw_prev.to(tl.float32), 0.0)
         acc = tl.sum(contrib, axis=0)
 
         Lkk = tl.sum(tl.where(cols == k, L_row, 0.0))
-        vw_k = ((wk - acc) / Lkk.to(tl.float64)).to(L_row.dtype)
+        vw_k = ((wk - acc) / Lkk.to(tl.float32)).to(L_row.dtype)
         tl.store(w_ptr + k, vw_k)
 
     # Rank-1 correction: Ah[:r, :r] += v_z v_w^T.
@@ -258,6 +262,7 @@ def incremental_update_triton(L, Aw, z, w):
 
     vz = torch.empty(r, dtype=L.dtype, device=L.device)
     Ah = torch.empty(rp, rp, dtype=L.dtype, device=L.device)
+    AhT = torch.empty(rp, rp, dtype=L.dtype, device=L.device)
     cs = torch.empty(r, dtype=L.dtype, device=L.device)
     ss = torch.empty(r, dtype=L.dtype, device=L.device)
 
@@ -265,7 +270,7 @@ def incremental_update_triton(L, Aw, z, w):
     w_work = w.clone()
 
     _fused_doublesided_kernel[(1,)](
-        L, Aw, z_work, w_work, vz, Ah, cs, ss,
+        L, Aw, z_work, w_work, vz, Ah, AhT, cs, ss,
         r=r, RP=rp, BLOCK=BLOCK,
     )
 
