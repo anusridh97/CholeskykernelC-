@@ -1,0 +1,15 @@
+# build artifacts
+build/
+*.so
+*.egg-info/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# test / tool caches
+.pytest_cache/
+
+# virtual environment
+.venv/

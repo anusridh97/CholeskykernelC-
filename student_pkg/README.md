@@ -72,3 +72,12 @@ larger project and is described inside `doublesided_cholesky.py`.
 Run everything under `torch.no_grad()`. The update modifies L in place.
 Matrices are row-major contiguous. Float32 is the default; float64 is
 supported and used for correctness tests.
+
+**Contiguity requirement.** `torch.linalg.cholesky` returns a column-major
+tensor (LAPACK convention, strides `(1, r)`). The C++ extension assumes
+row-major input: if a non-contiguous tensor is passed, `L.contiguous()`
+inside the wrapper silently allocates a temporary copy, modifies that copy,
+and the caller's tensor is never updated. Always call `.contiguous()` once
+on the initial Cholesky factor before storing it (e.g. as an optimizer
+buffer). After that, `fast_incremental_update` keeps L row-major in-place
+and no further copies are made.
