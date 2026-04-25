@@ -32,7 +32,7 @@ def random_problem(r, dtype=torch.float64, seed=0):
     torch.manual_seed(seed)
     A = torch.randn(r, r, dtype=dtype)
     G = A @ A.T + r * torch.eye(r, dtype=dtype)
-    L = torch.linalg.cholesky(G)
+    L = torch.linalg.cholesky(G).contiguous()
     M = torch.randn(r, r, dtype=dtype)
     Linv = torch.linalg.inv(L)
     Aw = Linv @ M @ Linv.T
