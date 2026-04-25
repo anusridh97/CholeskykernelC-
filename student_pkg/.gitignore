@@ -11,5 +11,12 @@ __pycache__/
 # test / tool caches
 .pytest_cache/
 
+# local tool/session markers
+.codex
+
+# Slurm outputs
+slurm-*.out
+triton-*.out
+
 # virtual environment
 .venv/

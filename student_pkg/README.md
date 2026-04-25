@@ -56,8 +56,12 @@ OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
     python -m tests.bench_timing
 ```
 
-Expected output on a reasonable CPU, float32, r = 128: the fast path is
-around 100x faster than refact. The speedup grows with r.
+Expected output depends heavily on the CPU, PyTorch/LAPACK build, and
+whether the Cholesky factor is stored row-major as described below. On
+FarmShare with the current PyTorch environment, the single-update CPU
+extension is roughly 5x faster than refact at r = 128 and roughly 8x
+faster at r = 1024. A 100x result at r = 128 is not expected with this
+benchmark when the PyTorch refact baseline is already sub-millisecond.
 
 ## What to work on
 

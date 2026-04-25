@@ -18,29 +18,28 @@ correctness test passes.
 
 ## 2. Inline the Phase 4 triangular solve
 
-Difficulty: easy. Expected speedup: 10 to 25 percent at small r.
+Status: done. Difficulty: easy. Expected speedup: 10 to 25 percent at
+small r.
 
-Phase 4 currently calls `torch::linalg_solve_triangular`, which dispatches
-into LAPACK for r^2 / 2 flops. At r = 128 that is a function call for
-about 8K flops, and worse, LAPACK may spawn threads that collide with
-`at::parallel_for` in the batched path.
+Phase 4 originally called `torch::linalg_solve_triangular`, which
+dispatched into LAPACK for r^2 / 2 flops. At r = 128 that was a function
+call for about 8K flops, and worse, LAPACK could spawn threads that
+collide with `at::parallel_for` in the batched path.
 
-Replace the call with an inline forward substitution loop. The function
-is solving L+ * v_w = w for v_w given lower-triangular L+.
+The implementation now uses an inline forward substitution loop. The
+function is solving L+ * v_w = w for v_w given lower-triangular L+.
 
 ## 3. Remove the column-major round trip in Phase 1
 
-Difficulty: easy. Expected speedup: 10 to 20 percent at r from 64 to 256.
+Status: done. Difficulty: easy. Expected speedup: 10 to 20 percent at r
+from 64 to 256.
 
-The Phase 1 code copies L from row-major to `Lcm` in column-major, runs
-the rotation loop, then copies back. That is 2 * r^2 of pointless memory
-traffic. The inner rotation loop only touches one column of L at a time,
-which is already a contiguous slice in row-major if you transpose the
-indexing.
+The old Phase 1 code copied L from row-major to `Lcm` in column-major,
+ran the rotation loop, then copied back. That was 2 * r^2 of pointless
+memory traffic.
 
-Work directly on `L_rm`. Use the index `L_rm[i * r + k]` where the old
-code used `Lcm[k * r + i]`. Verify correctness first (the tests will
-catch it), then measure.
+The implementation now works directly on `L_rm` using
+`L_rm[i * r + k]`, and the correctness tests cover the change.
 
 ## 4. Hand-vectorize the rotation inner loops
 
@@ -68,26 +67,21 @@ scalar version for other machines.
 
 ## 5. Fix the Triton right sweep
 
-Difficulty: hard. Expected speedup: significant on the GPU path;
-currently the right sweep is O(r^2 * BLOCK) memory traffic instead of
+Status: done. Difficulty: hard. Expected speedup: significant on the GPU
+path; the old right sweep was O(r^2 * BLOCK) memory traffic instead of
 O(r^2).
 
-See the KNOWN ISSUE note in `doublesided_cholesky.py`. The current
-implementation loads a full row from `Ah_ptr`, patches two entries, and
-writes the row back, once per (k, i) pair. The intended plan is:
+The implementation uses the more ambitious single-output layout rather
+than the transpose-scratch plan:
 
-  a. Transpose Ah into a second (RP x RP) scratch buffer. You need to
-     allocate this scratch from Python and pass a pointer in.
-  b. Run the rotation sweep over rows of the transpose, which are the
-     original columns. This reuses the Phase 2 left-sweep code almost
-     verbatim.
-  c. Transpose back into Ah_ptr.
+  a. Keep the padded row and padded column virtual in Triton registers.
+  b. Materialize only the returned top-left r x r block.
+  c. Run the right sweep directly over column vectors, so each column pair
+     is loaded and stored once per rotation.
 
-Alternatively, restructure Phase 2 entirely to operate on a single
-SRAM-resident tile whose layout supports both row and column sweeps
-efficiently. That is more ambitious but cleaner.
-
-Verify with `test_triton_matches_ground_truth` after each change.
+Verified on FarmShare GPU with `test_triton_matches_ground_truth`. This
+improves single-update timings, but the large practical GPU win is still
+expected to require Task 6 batching.
 
 ## 6. Batched GPU kernel (stretch)
 

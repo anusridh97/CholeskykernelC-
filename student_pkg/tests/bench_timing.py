@@ -21,7 +21,10 @@ def bench_one(r, n_repeats, use_fast_cholesky):
     torch.manual_seed(42)
     A = torch.randn(r, r)
     G = A @ A.T + r * torch.eye(r)
-    L = torch.linalg.cholesky(G)
+    # torch.linalg.cholesky returns LAPACK/Fortran-style strides. The C++
+    # extension is designed for row-major L, so make the stored factor
+    # contiguous once, as callers are expected to do in production.
+    L = torch.linalg.cholesky(G).contiguous()
     M = torch.randn(r, r)
     Linv = torch.linalg.inv(L)
     Aw = Linv @ M @ Linv.T

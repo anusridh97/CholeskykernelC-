@@ -11,8 +11,8 @@ This file provides two things:
      used for correctness checking. It is slow and should not be benchmarked.
 
   2. A fused Triton kernel (incremental_update_triton) that runs as a single
-     GPU block with SRAM-resident working sets. Gated at r <= 1023 so that
-     r+1 fits in a single power-of-two BLOCK up to 1024.
+     GPU block. Gated at r <= 1024 so that r fits in a single power-of-two
+     BLOCK up to 1024.
 
 For the fast CPU path, see fast_update.cpp / the fast_cholesky extension.
 Intended to be called inside torch.no_grad(); no autograd graph is built.
@@ -100,119 +100,86 @@ def incremental_update_reference(L, Aw, z, w):
 
 # Fused Triton Kernel
 #
-# KNOWN ISSUE (see TODO.md item 5): Phase 2's right sweep is currently
-# implemented as a nested loop with a full row load/store per (k, i) pair.
-# This is functionally correct but is O(r^2 * BLOCK) memory traffic for
-# an O(r^2) algorithm. The intended implementation transposes Ah into
-# scratch, sweeps rows (which are the original columns), then transposes
-# back; the comment inside the kernel describes this but the code falls
-# back to the slow row-by-row version. Fixing this is the main GPU-side
-# project for students.
+# Phase 2's right sweep updates column vectors directly. That avoids the
+# old row-patching O(r^2 * BLOCK) memory traffic without paying for full
+# global-memory transposes through a second scratch matrix.
 
 @triton.jit
 def _givens_params_tri(a, b):
-    abs_a = tl.abs(a)
-    abs_b = tl.abs(b)
-    zero = abs_b == 0.0
-    b_big = abs_b > abs_a
-
-    t1 = -a / (b + tl.where(zero, 1.0, 0.0))
-    s1 = 1.0 / tl.sqrt(1.0 + t1 * t1)
-    c1 = s1 * t1
-
-    t2 = -b / (a + tl.where(abs_a == 0.0, 1.0, 0.0))
-    c2 = 1.0 / tl.sqrt(1.0 + t2 * t2)
-    s2 = c2 * t2
-
-    c = tl.where(zero, 1.0, tl.where(b_big, c1, c2))
-    s = tl.where(zero, 0.0, tl.where(b_big, s1, s2))
+    rho = tl.sqrt(a * a + b * b)
+    zero = rho == 0.0
+    c = tl.where(zero, 1.0, a / rho)
+    s = tl.where(zero, 0.0, b / rho)
     return c, s
 
-#  added AhT_ptr for transpose matrix (todo 5)
+
 @triton.jit
 def _fused_doublesided_kernel(
     L_ptr, Aw_ptr, z_ptr, w_ptr,
-    vz_ptr, Ah_ptr, AhT_ptr, cs_ptr, ss_ptr,
+    vz_ptr, Aw_out_ptr, cs_ptr, ss_ptr,
     r: tl.constexpr,
-    RP: tl.constexpr,
     BLOCK: tl.constexpr,
 ):
-    """SRAM-resident fused kernel. BLOCK must be a power of two >= r+1.
+    """Single-update fused kernel. BLOCK must be a power of two >= r.
 
-    All matrix data should ideally be loaded into registers/SRAM once per
-    phase and written back once at the end. See KNOWN ISSUE above for the
-    right-sweep memory traffic problem.
+    Phase 2 keeps the padded row/column virtual and only writes the returned
+    r x r top-left block.
     """
 
     # Phase 1: Rank-1 Cholesky update.
-    cols = tl.arange(0, BLOCK)
+    idx = tl.arange(0, BLOCK)
 
     for k in range(r):
-        mask_r = cols < r
-        L_row = tl.load(L_ptr + k * r + cols, mask=mask_r, other=0.0)
-        z_vec = tl.load(z_ptr + cols, mask=mask_r, other=0.0)
+        mask_r = idx < r
+        L_col = tl.load(L_ptr + idx * r + k, mask=mask_r, other=0.0)
+        z_vec = tl.load(z_ptr + idx, mask=mask_r, other=0.0)
 
-        Lkk = tl.sum(tl.where(cols == k, L_row, 0.0))
-        zk = tl.sum(tl.where(cols == k, z_vec, 0.0))
+        Lkk = tl.sum(tl.where(idx == k, L_col, 0.0))
+        zk = tl.sum(tl.where(idx == k, z_vec, 0.0))
         c, s = _givens_params_tri(Lkk, zk)
 
         tl.store(cs_ptr + k, c)
         tl.store(ss_ptr + k, s)
 
-        active = mask_r & (cols >= k)
-        new_L = c * L_row + s * z_vec
-        new_z = -s * L_row + c * z_vec
-        tl.store(L_ptr + k * r + cols, tl.where(active, new_L, L_row), mask=mask_r)
-        tl.store(z_ptr + cols, tl.where(active, new_z, z_vec), mask=mask_r)
+        active = mask_r & (idx >= k)
+        new_L = c * L_col + s * z_vec
+        new_z = -s * L_col + c * z_vec
+        tl.store(L_ptr + idx * r + k, new_L, mask=active)
+        tl.store(z_ptr + idx, tl.where(active, new_z, z_vec), mask=mask_r)
 
-    # Phase 2: Double-sided propagation.
+    # Phase 2: Double-sided propagation. The padded row and column start as
+    # zeros; only the top-left r x r block is materialized in Aw_out_ptr.
     cols_p = tl.arange(0, BLOCK)
-    mask_rp = cols_p < RP
+    mask_r = cols_p < r
+    pad_row = tl.zeros((BLOCK,), dtype=tl.float32)
 
-    for i in range(r):
-        mask_aw = cols_p < r
-        aw_row = tl.load(Aw_ptr + i * r + cols_p, mask=mask_aw, other=0.0)
-        padded = tl.where(mask_aw, aw_row, 0.0)
-        tl.store(Ah_ptr + i * RP + cols_p, padded, mask=mask_rp)
-
-    tl.store(Ah_ptr + r * RP + cols_p, 0.0, mask=mask_rp)
-
-    # Left sweep: Q_k^T mixes rows k and r.
+    # Left sweep: Q_k^T mixes row k with the virtual padded row.
     for k in range(r):
         c = tl.load(cs_ptr + k)
         s = tl.load(ss_ptr + k)
 
-        rk = tl.load(Ah_ptr + k * RP + cols_p, mask=mask_rp, other=0.0)
-        rr = tl.load(Ah_ptr + r * RP + cols_p, mask=mask_rp, other=0.0)
+        rk = tl.load(Aw_ptr + k * r + cols_p, mask=mask_r, other=0.0)
+        rr = pad_row
 
-        tl.store(Ah_ptr + k * RP + cols_p, c * rk + s * rr, mask=mask_rp)
-        tl.store(Ah_ptr + r * RP + cols_p, -s * rk + c * rr, mask=mask_rp)
+        tl.store(Aw_out_ptr + k * r + cols_p, c * rk + s * rr, mask=mask_r)
+        pad_row = -s * rk + c * rr
 
-    # Right sweep via transpose:
-    #   1) transpose Ah -> AhT
-    #   2) run the same row-mixing sweep on AhT
-    #   3) transpose AhT -> Ah
+    # Right sweep: Q_k mixes columns k and r. Vectorize over rows so each
+    # column is loaded and stored once per rotation. The padded column stays
+    # in registers and is discarded because only the top-left block is needed.
+    rows = tl.arange(0, BLOCK)
+    row_mask = rows < r
+    pad_col = tl.zeros((BLOCK,), dtype=tl.float32)
 
-    # AhT[j, i] = Ah[i, j]
-    for i in range(RP):
-        row = tl.load(Ah_ptr + i * RP + cols_p, mask=mask_rp, other=0.0)
-        tl.store(AhT_ptr + cols_p * RP + i, row, mask=mask_rp)
-
-    # Sweep rows k and r of AhT; these are columns k and r of Ah.
     for k in range(r):
         c = tl.load(cs_ptr + k)
         s = tl.load(ss_ptr + k)
 
-        rk = tl.load(AhT_ptr + k * RP + cols_p, mask=mask_rp, other=0.0)
-        rr = tl.load(AhT_ptr + r * RP + cols_p, mask=mask_rp, other=0.0)
+        ck = tl.load(Aw_out_ptr + rows * r + k, mask=row_mask, other=0.0)
+        cr = pad_col
 
-        tl.store(AhT_ptr + k * RP + cols_p, c * rk + s * rr, mask=mask_rp)
-        tl.store(AhT_ptr + r * RP + cols_p, -s * rk + c * rr, mask=mask_rp)
-
-    # Transpose back: Ah[i, j] = AhT[j, i]
-    for i in range(RP):
-        row = tl.load(AhT_ptr + i * RP + cols_p, mask=mask_rp, other=0.0)
-        tl.store(Ah_ptr + cols_p * RP + i, row, mask=mask_rp)
+        tl.store(Aw_out_ptr + rows * r + k, c * ck + s * cr, mask=row_mask)
+        pad_col = -s * ck + c * cr
 
     # Phase 3: recover v_z.
     e_last = 1.0
@@ -226,28 +193,28 @@ def _fused_doublesided_kernel(
     # with v_w.
     for k in range(r):
         wk = tl.load(w_ptr + k).to(tl.float32)
-        L_row = tl.load(L_ptr + k * r + cols, mask=cols < r, other=0.0)
-        vw_prev = tl.load(w_ptr + cols, mask=cols < r, other=0.0)
+        L_row = tl.load(L_ptr + k * r + idx, mask=idx < r, other=0.0)
+        vw_prev = tl.load(w_ptr + idx, mask=idx < r, other=0.0)
 
-        contrib = tl.where(cols < k, L_row.to(tl.float32) * vw_prev.to(tl.float32), 0.0)
+        contrib = tl.where(idx < k, L_row.to(tl.float32) * vw_prev.to(tl.float32), 0.0)
         acc = tl.sum(contrib, axis=0)
 
-        Lkk = tl.sum(tl.where(cols == k, L_row, 0.0))
+        Lkk = tl.sum(tl.where(idx == k, L_row, 0.0))
         vw_k = ((wk - acc) / Lkk.to(tl.float32)).to(L_row.dtype)
         tl.store(w_ptr + k, vw_k)
 
-    # Rank-1 correction: Ah[:r, :r] += v_z v_w^T.
+    # Rank-1 correction: Aw_out += v_z v_w^T.
     for i in range(r):
         vzi = tl.load(vz_ptr + i)
         vw_vec = tl.load(w_ptr + cols_p, mask=cols_p < r, other=0.0)
-        cur = tl.load(Ah_ptr + i * RP + cols_p, mask=cols_p < r, other=0.0)
-        tl.store(Ah_ptr + i * RP + cols_p, cur + vzi * vw_vec, mask=cols_p < r)
+        cur = tl.load(Aw_out_ptr + i * r + cols_p, mask=cols_p < r, other=0.0)
+        tl.store(Aw_out_ptr + i * r + cols_p, cur + vzi * vw_vec, mask=cols_p < r)
 
 
 def incremental_update_triton(L, Aw, z, w):
     """Fused Triton update. Modifies L in place to L+.
 
-    Requires r <= 1023 so r+1 fits in a single BLOCK of at most 1024.
+    Requires r <= 1024 so r fits in a single BLOCK of at most 1024.
     For larger r, use the C++ extension or tile the kernel.
 
     Returns:
@@ -255,14 +222,12 @@ def incremental_update_triton(L, Aw, z, w):
         vz: (r,) the vector (L+)^{-1} z.
     """
     r = L.shape[0]
-    rp = r + 1
 
-    BLOCK = triton.next_power_of_2(rp)
+    BLOCK = triton.next_power_of_2(r)
     assert BLOCK <= 1024, f"r={r} too large for single-block kernel"
 
     vz = torch.empty(r, dtype=L.dtype, device=L.device)
-    Ah = torch.empty(rp, rp, dtype=L.dtype, device=L.device)
-    AhT = torch.empty(rp, rp, dtype=L.dtype, device=L.device)
+    Aw_out = torch.empty_like(Aw)
     cs = torch.empty(r, dtype=L.dtype, device=L.device)
     ss = torch.empty(r, dtype=L.dtype, device=L.device)
 
@@ -270,8 +235,8 @@ def incremental_update_triton(L, Aw, z, w):
     w_work = w.clone()
 
     _fused_doublesided_kernel[(1,)](
-        L, Aw, z_work, w_work, vz, Ah, AhT, cs, ss,
-        r=r, RP=rp, BLOCK=BLOCK,
+        L, Aw, z_work, w_work, vz, Aw_out, cs, ss,
+        r=r, BLOCK=BLOCK,
     )
 
-    return Ah[:r, :r].contiguous(), vz
+    return Aw_out, vz

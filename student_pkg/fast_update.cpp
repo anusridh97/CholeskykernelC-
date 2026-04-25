@@ -45,6 +45,118 @@ inline void givens_contiguous(scalar_t* __restrict__ X, scalar_t* __restrict Y, 
     }
 }
 
+template <typename scalar_t>
+inline void givens_from_input_contiguous(
+    scalar_t* __restrict__ X,
+    const scalar_t* __restrict__ X_in,
+    scalar_t* __restrict__ Y,
+    scalar_t c,
+    scalar_t s,
+    int len
+) {
+    int i = 0;
+#ifdef __AVX512F__
+    if constexpr(std::is_same_v<scalar_t, float>) {
+        __m512 vc = _mm512_set1_ps(c);
+        __m512 vs = _mm512_set1_ps(s);
+        __m512 vms = _mm512_set1_ps(-s);
+        for (; i + 15 < len; i += 16) {
+            __m512 vx = _mm512_loadu_ps(X_in + i);
+            __m512 vy = _mm512_loadu_ps(Y + i);
+            __m512 nx = _mm512_fmadd_ps(vc, vx, _mm512_mul_ps(vs, vy));
+            __m512 ny = _mm512_fmadd_ps(vms, vx, _mm512_mul_ps(vc, vy));
+            _mm512_storeu_ps(X + i, nx);
+            _mm512_storeu_ps(Y + i, ny);
+        }
+    } else if constexpr(std::is_same_v<scalar_t, double>) {
+        __m512d vc = _mm512_set1_pd(c);
+        __m512d vs = _mm512_set1_pd(s);
+        __m512d vms = _mm512_set1_pd(-s);
+        for (; i + 7 < len; i += 8) {
+            __m512d vx = _mm512_loadu_pd(X_in + i);
+            __m512d vy = _mm512_loadu_pd(Y + i);
+            __m512d nx = _mm512_fmadd_pd(vc, vx, _mm512_mul_pd(vs, vy));
+            __m512d ny = _mm512_fmadd_pd(vms, vx, _mm512_mul_pd(vc, vy));
+            _mm512_storeu_pd(X + i, nx);
+            _mm512_storeu_pd(Y + i, ny);
+        }
+    }
+#endif
+    for (; i < len; i++) {
+        scalar_t lv = X_in[i];
+        scalar_t zv = Y[i];
+        X[i] = c * lv + s * zv;
+        Y[i] = -s * lv + c * zv;
+    }
+}
+
+template <typename scalar_t>
+inline void add_scaled_contiguous(
+    scalar_t* __restrict__ X,
+    const scalar_t* __restrict__ Y,
+    scalar_t a,
+    int len
+) {
+    int i = 0;
+#ifdef __AVX512F__
+    if constexpr(std::is_same_v<scalar_t, float>) {
+        __m512 va = _mm512_set1_ps(a);
+        for (; i + 15 < len; i += 16) {
+            __m512 vx = _mm512_loadu_ps(X + i);
+            __m512 vy = _mm512_loadu_ps(Y + i);
+            _mm512_storeu_ps(X + i, _mm512_fmadd_ps(va, vy, vx));
+        }
+    } else if constexpr(std::is_same_v<scalar_t, double>) {
+        __m512d va = _mm512_set1_pd(a);
+        for (; i + 7 < len; i += 8) {
+            __m512d vx = _mm512_loadu_pd(X + i);
+            __m512d vy = _mm512_loadu_pd(Y + i);
+            _mm512_storeu_pd(X + i, _mm512_fmadd_pd(va, vy, vx));
+        }
+    }
+#endif
+    for (; i < len; i++)
+        X[i] += a * Y[i];
+}
+
+template <typename scalar_t>
+inline scalar_t dot_contiguous(
+    const scalar_t* __restrict__ X,
+    const scalar_t* __restrict__ Y,
+    int len
+) {
+    int i = 0;
+    scalar_t total = scalar_t(0);
+#ifdef __AVX512F__
+    if constexpr(std::is_same_v<scalar_t, float>) {
+        __m512 vacc = _mm512_setzero_ps();
+        for (; i + 15 < len; i += 16) {
+            __m512 vx = _mm512_loadu_ps(X + i);
+            __m512 vy = _mm512_loadu_ps(Y + i);
+            vacc = _mm512_fmadd_ps(vx, vy, vacc);
+        }
+        alignas(64) float tmp[16];
+        _mm512_store_ps(tmp, vacc);
+        for (int j = 0; j < 16; j++)
+            total += tmp[j];
+    } else if constexpr(std::is_same_v<scalar_t, double>) {
+        __m512d vacc = _mm512_setzero_pd();
+        for (; i + 7 < len; i += 8) {
+            __m512d vx = _mm512_loadu_pd(X + i);
+            __m512d vy = _mm512_loadu_pd(Y + i);
+            vacc = _mm512_fmadd_pd(vx, vy, vacc);
+        }
+        alignas(64) double tmp[8];
+        _mm512_store_pd(tmp, vacc);
+        for (int j = 0; j < 8; j++)
+            total += tmp[j];
+    }
+#endif
+    for (; i < len; i++)
+        total += X[i] * Y[i];
+    return total;
+}
+
 
 // Core single-update implementation. Templated on scalar type so we can
 // instantiate for float and double without runtime dispatch inside the
@@ -54,14 +166,16 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
     torch::Tensor L, torch::Tensor Aw, torch::Tensor z, torch::Tensor w
 ) {
     const int r = L.size(0);
-    const int rp = r + 1;
     auto opts = L.options();
 
     scalar_t* L_rm = L.data_ptr<scalar_t>();
     scalar_t* z_d = z.data_ptr<scalar_t>();
-    std::vector<scalar_t> cs(r), ss(r);
-
-   
+    std::vector<scalar_t> scratch(5 * r, scalar_t(0));
+    scalar_t* cs = scratch.data();
+    scalar_t* ss = cs + r;
+    scalar_t* row_pad = ss + r;
+    scalar_t* col_pad = row_pad + r;
+    scalar_t* vw_d = col_pad + r;
 
     // Phase 1: Rank-1 Cholesky update via paired Givens rotations.
     // Each rotation k zeros z_d[k] using L[k,k], then both L's k-th column
@@ -73,8 +187,7 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
         scalar_t c0 = a0 / rho0, s0 = b0 / rho0;
         cs[k] = c0; ss[k] = s0;
 
-        // Iterate starting from k because elements above the diagonal are strictly 0
-        for (int i = 0; i < r; i++) {
+        for (int i = k; i < r; i++) {
             scalar_t lv = L_rm[i * r + k];
             scalar_t zv = z_d[i];
             L_rm[i * r + k] = c0 * lv + s0 * zv;
@@ -88,89 +201,31 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
         cs[k + 1] = c1;
         ss[k + 1] = s1;
 
-        for (int i = 0; i < r; i++) {
+        for (int i = k + 1; i < r; i++) {
             scalar_t lv = L_rm[i * r + (k + 1)];
             scalar_t zv = z_d[i];
             L_rm[i * r + (k + 1)] = c1 * lv + s1 * zv;
             z_d[i] = -s1 * lv + c1 * zv;
         }
     }
-    
-    // Odd r: one leftover rotation.
+
     if (k < r) {
         scalar_t a = L_rm[k * r + k], b = z_d[k];
         scalar_t rho = std::sqrt(a * a + b * b);
         scalar_t c = a / rho, s = b / rho;
-        cs[k] = c; 
+        cs[k] = c;
         ss[k] = s;
-        
-        for (int i = 0; i < r; i++) {
+
+        for (int i = k; i < r; i++) {
             scalar_t lv = L_rm[i * r + k];
             scalar_t zv = z_d[i];
             L_rm[i * r + k] = c * lv + s * zv;
             z_d[i] = -s * lv + c * zv;
         }
     }
-    // Phase 2: Pad Aw into Ah (row-major, size (r+1) x (r+1)).
-    std::vector<scalar_t> Ah(rp * rp, 0);
-    const scalar_t* Aw_d = Aw.data_ptr<scalar_t>();
-    for (int i = 0; i < r; i++)
-        for (int j = 0; j < r; j++)
-            Ah[i * rp + j] = Aw_d[i * r + j];
-
-    constexpr int NB = 32;
-
-    // Left sweep: Q_k^T mixes rows k and r. Panelled over columns for cache.
-    for (int j0 = 0; j0 < rp; j0 += NB) {
-        int j1 = std::min(j0 + NB, rp);
-        int len = j1 - j0;
-        for (int kk = 0; kk < r - 1; kk += 2) {
-            scalar_t c0 = cs[kk];
-            scalar_t s0 = ss[kk];
-            scalar_t c1 = cs[kk+1];
-            scalar_t s1 = ss[kk+1];
-            givens_contiguous(&Ah[kk*rp+j0], &Ah[r*rp+j0], c0, s0, len);
-            givens_contiguous(&Ah[(kk+1)*rp+j0], &Ah[r*rp+j0], c1, s1, len);
-              
-        }
-        if (r % 2 == 1) {
-            scalar_t c = cs[r - 1], s = ss[r - 1];
-            givens_contiguous(&Ah[(r-1)*rp+j0], &Ah[r*rp+j0], c, s, len);
-        }
-    }
-
-    // Right sweep: Q_k mixes columns k and r. Panelled over rows.
-    for (int i0 = 0; i0 < rp; i0 += NB) {
-        int i1 = std::min(i0 + NB, rp);
-        for (int kk = 0; kk < r - 1; kk += 2) {
-            scalar_t c0 = cs[kk], s0 = ss[kk];
-            scalar_t c1 = cs[kk + 1], s1 = ss[kk + 1];
-            for (int i = i0; i < i1; i++) {
-                scalar_t ck = Ah[i * rp + kk];
-                scalar_t cr = Ah[i * rp + r];
-                Ah[i * rp + kk] = c0 * ck + s0 * cr;
-                Ah[i * rp + r] = -s0 * ck + c0 * cr;
-            }
-            for (int i = i0; i < i1; i++) {
-                scalar_t ck = Ah[i * rp + (kk + 1)];
-                scalar_t cr = Ah[i * rp + r];
-                Ah[i * rp + (kk + 1)] = c1 * ck + s1 * cr;
-                Ah[i * rp + r] = -s1 * ck + c1 * cr;
-            }
-        }
-        if (r % 2 == 1) {
-            scalar_t c = cs[r - 1], s = ss[r - 1];
-            for (int i = i0; i < i1; i++) {
-                scalar_t ck = Ah[i * rp + (r - 1)];
-                scalar_t cr = Ah[i * rp + r];
-                Ah[i * rp + (r - 1)] = c * ck + s * cr;
-                Ah[i * rp + r] = -s * ck + c * cr;
-            }
-        }
-    }
 
     // Phase 3: recover v_z = (L+)^{-1} z from the rotation sequence.
-    auto vz = torch::zeros({r}, opts);
+    auto vz = torch::empty({r}, opts);
     scalar_t* vz_d = vz.data_ptr<scalar_t>();
     scalar_t e_last = 1.0;
     for (int kk = 0; kk < r; kk++) {
@@ -179,32 +234,66 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
     }
 
     // Phase 4: solve (L+) v_w = w by forward substitution.
-    // TODO (student): this dispatches into LAPACK for r^2/2 flops, which
-    // is the wrong tool at small r and introduces nested-threading hazards
-    // when called from fast_incremental_update_batched. Inline the loop.
-    // auto vw = torch::linalg_solve_triangular(L, w.unsqueeze(1), false).squeeze(1);
-    // const scalar_t* vw_d = vw.data_ptr<scalar_t>();
     const scalar_t* w_d = w.data_ptr<scalar_t>();
-    std::vector<scalar_t> vw_d(r);
     for (int i = 0; i < r; i++) {
-        scalar_t sum = w_d[i];
-        for (int j = 0; j < i; j++) {
-            sum -= L_rm[i*r+j]*vw_d[j];
-        }
+        scalar_t sum = w_d[i] - dot_contiguous(&L_rm[i * r], vw_d, i);
         vw_d[i] = sum / L_rm[i*r+i];
     }
-    // Rank-1 correction: Ah[:r, :r] += v_z v_w^T.
-    for (int i = 0; i < r; i++) {
-        const scalar_t vzi = vz_d[i];
-        for (int j = 0; j < r; j++)
-            Ah[i * rp + j] += vzi * vw_d[j];
+
+    // Phase 2: Apply Q^T [Aw 0; 0 0] Q without materializing the padded
+    // (r+1) x (r+1) matrix. Aw_out is the top-left block, while row_pad and
+    // col_pad represent the virtual padded row and column.
+    auto Aw_out = torch::empty_like(Aw);
+    const scalar_t* Aw_in = Aw.data_ptr<scalar_t>();
+    scalar_t* Aw_d = Aw_out.data_ptr<scalar_t>();
+
+    // Left sweep: Q_k^T mixes row k with the virtual padded row.
+    for (int kk = 0; kk < r - 1; kk += 2) {
+        givens_from_input_contiguous(
+            &Aw_d[kk * r], &Aw_in[kk * r], row_pad, cs[kk], ss[kk], r
+        );
+        givens_from_input_contiguous(
+            &Aw_d[(kk + 1) * r], &Aw_in[(kk + 1) * r], row_pad,
+            cs[kk + 1], ss[kk + 1], r
+        );
     }
 
-    auto Aw_out = torch::zeros({r, r}, opts);
-    scalar_t* out_d = Aw_out.data_ptr<scalar_t>();
-    for (int i = 0; i < r; i++)
-        for (int j = 0; j < r; j++)
-            out_d[i * r + j] = Ah[i * rp + j];
+    if (r % 2 == 1) {
+        givens_from_input_contiguous(
+            &Aw_d[(r - 1) * r], &Aw_in[(r - 1) * r], row_pad,
+            cs[r - 1], ss[r - 1], r
+        );
+    }
+
+    // Right sweep: Q_k mixes column k with the virtual padded column.
+    // Process one row at a time to keep Aw_out accesses contiguous.
+    for (int i = 0; i < r; i++) {
+        scalar_t cr = col_pad[i];
+        scalar_t* row = &Aw_d[i * r];
+        int kk = 0;
+        for (; kk < r - 1; kk += 2) {
+            scalar_t c0 = cs[kk], s0 = ss[kk];
+            scalar_t c1 = cs[kk + 1], s1 = ss[kk + 1];
+
+            scalar_t ck0 = row[kk];
+            row[kk] = c0 * ck0 + s0 * cr;
+            cr = -s0 * ck0 + c0 * cr;
+
+            scalar_t ck1 = row[kk + 1];
+            row[kk + 1] = c1 * ck1 + s1 * cr;
+            cr = -s1 * ck1 + c1 * cr;
+        }
+
+        if (kk < r) {
+            scalar_t c = cs[kk], s = ss[kk];
+            scalar_t ck = row[kk];
+            row[kk] = c * ck + s * cr;
+            cr = -s * ck + c * cr;
+        }
+
+        col_pad[i] = cr;
+        add_scaled_contiguous(row, vw_d, vz_d[i], r);
+    }
 
     return {Aw_out, vz};
 }
