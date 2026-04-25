@@ -5,7 +5,7 @@ Given:  L, A_w = L^{-1} M L^{-T}, z, w
 Update: G+ = G + z z^T,  M+ = M + z w^T
 Compute: L+, A_w+ = (L+)^{-1} M+ (L+)^{-T}
 
-This file provides two things:
+This file provides three things:
 
   1. A pure-PyTorch reference implementation (incremental_update_reference)
      used for correctness checking. It is slow and should not be benchmarked.
@@ -13,6 +13,10 @@ This file provides two things:
   2. A fused Triton kernel (incremental_update_triton) that runs as a single
      GPU block. Gated at r <= 1024 so that r fits in a single power-of-two
      BLOCK up to 1024.
+
+  3. An experimental tiled Triton path (incremental_update_triton_tiled) that
+     keeps dependency-limited setup work single-block, but parallelizes the
+     double-sided propagation and rank-1 correction across row/column tiles.
 
 For the fast CPU path, see fast_update.cpp / the fast_cholesky extension.
 Intended to be called inside torch.no_grad(); no autograd graph is built.
@@ -211,6 +215,138 @@ def _fused_doublesided_kernel(
         tl.store(Aw_out_ptr + i * r + cols_p, cur + vzi * vw_vec, mask=cols_p < r)
 
 
+@triton.jit
+def _cholesky_update_kernel(
+    L_ptr, z_ptr, vz_ptr, cs_ptr, ss_ptr,
+    r: tl.constexpr,
+    BLOCK: tl.constexpr,
+):
+    """Rank-1 Cholesky update plus v_z recovery.
+
+    This phase remains single-block because each rotation depends on the
+    updated padded column produced by all previous rotations.
+    """
+    idx = tl.arange(0, BLOCK)
+    mask_r = idx < r
+
+    for k in range(r):
+        L_col = tl.load(L_ptr + idx * r + k, mask=mask_r, other=0.0)
+        z_vec = tl.load(z_ptr + idx, mask=mask_r, other=0.0)
+
+        Lkk = tl.sum(tl.where(idx == k, L_col, 0.0))
+        zk = tl.sum(tl.where(idx == k, z_vec, 0.0))
+        c, s = _givens_params_tri(Lkk, zk)
+
+        tl.store(cs_ptr + k, c)
+        tl.store(ss_ptr + k, s)
+
+        active = mask_r & (idx >= k)
+        new_L = c * L_col + s * z_vec
+        new_z = -s * L_col + c * z_vec
+        tl.store(L_ptr + idx * r + k, new_L, mask=active)
+        tl.store(z_ptr + idx, tl.where(active, new_z, z_vec), mask=mask_r)
+
+    e_last = 1.0
+    for k in range(r):
+        c = tl.load(cs_ptr + k)
+        s = tl.load(ss_ptr + k)
+        tl.store(vz_ptr + k, s * e_last)
+        e_last = c * e_last
+
+
+@triton.jit
+def _left_sweep_cols_kernel(
+    Aw_ptr, Aw_mid_ptr, cs_ptr, ss_ptr,
+    r: tl.constexpr,
+    TILE_COLS: tl.constexpr,
+):
+    """Apply Q_k^T row rotations over independent column tiles."""
+    pid_col = tl.program_id(0)
+    cols = pid_col * TILE_COLS + tl.arange(0, TILE_COLS)
+    mask = cols < r
+    pad_row = tl.zeros((TILE_COLS,), dtype=tl.float32)
+
+    for k in range(r):
+        c = tl.load(cs_ptr + k)
+        s = tl.load(ss_ptr + k)
+
+        rk = tl.load(Aw_ptr + k * r + cols, mask=mask, other=0.0)
+        rr = pad_row
+
+        tl.store(Aw_mid_ptr + k * r + cols, c * rk + s * rr, mask=mask)
+        pad_row = -s * rk + c * rr
+
+
+@triton.jit
+def _right_sweep_rows_kernel(
+    Aw_mid_ptr, Aw_out_ptr, cs_ptr, ss_ptr,
+    r: tl.constexpr,
+    TILE_ROWS: tl.constexpr,
+):
+    """Apply Q_k column rotations over independent row tiles."""
+    pid_row = tl.program_id(0)
+    rows = pid_row * TILE_ROWS + tl.arange(0, TILE_ROWS)
+    mask = rows < r
+    pad_col = tl.zeros((TILE_ROWS,), dtype=tl.float32)
+
+    for k in range(r):
+        c = tl.load(cs_ptr + k)
+        s = tl.load(ss_ptr + k)
+
+        ck = tl.load(Aw_mid_ptr + rows * r + k, mask=mask, other=0.0)
+        cr = pad_col
+
+        tl.store(Aw_out_ptr + rows * r + k, c * ck + s * cr, mask=mask)
+        pad_col = -s * ck + c * cr
+
+
+@triton.jit
+def _solve_vw_kernel(
+    L_ptr, w_ptr,
+    r: tl.constexpr,
+    BLOCK: tl.constexpr,
+):
+    """Forward substitution for v_w = L^{-1} w."""
+    idx = tl.arange(0, BLOCK)
+    mask_r = idx < r
+
+    for k in range(r):
+        wk = tl.load(w_ptr + k).to(tl.float32)
+        L_row = tl.load(L_ptr + k * r + idx, mask=mask_r, other=0.0)
+        vw_prev = tl.load(w_ptr + idx, mask=mask_r, other=0.0)
+
+        contrib = tl.where(idx < k, L_row.to(tl.float32) * vw_prev.to(tl.float32), 0.0)
+        acc = tl.sum(contrib, axis=0)
+
+        Lkk = tl.sum(tl.where(idx == k, L_row, 0.0))
+        vw_k = ((wk - acc) / Lkk.to(tl.float32)).to(L_row.dtype)
+        tl.store(w_ptr + k, vw_k)
+
+
+@triton.jit
+def _rank1_add_kernel(
+    Aw_out_ptr, vz_ptr, vw_ptr,
+    r: tl.constexpr,
+    BLOCK_M: tl.constexpr,
+    BLOCK_N: tl.constexpr,
+):
+    """Add v_z v_w^T to Aw_out over 2D tiles."""
+    pid_m = tl.program_id(0)
+    pid_n = tl.program_id(1)
+
+    rows = pid_m * BLOCK_M + tl.arange(0, BLOCK_M)
+    cols = pid_n * BLOCK_N + tl.arange(0, BLOCK_N)
+    mask = (rows[:, None] < r) & (cols[None, :] < r)
+
+    cur = tl.load(Aw_out_ptr + rows[:, None] * r + cols[None, :], mask=mask, other=0.0)
+    vz = tl.load(vz_ptr + rows, mask=rows < r, other=0.0)
+    vw = tl.load(vw_ptr + cols, mask=cols < r, other=0.0)
+
+    tl.store(Aw_out_ptr + rows[:, None] * r + cols[None, :],
+             cur + vz[:, None] * vw[None, :],
+             mask=mask)
+
+
 def incremental_update_triton(L, Aw, z, w, num_warps=None):
     """Fused Triton update. Modifies L in place to L+.
 
@@ -240,6 +376,84 @@ def incremental_update_triton(L, Aw, z, w, num_warps=None):
     _fused_doublesided_kernel[(1,)](
         L, Aw, vz, w_work, vz, Aw_out, cs, ss,
         **launch_kwargs,
+    )
+
+    return Aw_out, vz
+
+
+def incremental_update_triton_tiled(
+    L,
+    Aw,
+    z,
+    w,
+    tile_rows=64,
+    tile_cols=64,
+    block_m=16,
+    block_n=64,
+    num_warps=None,
+):
+    """Multi-block Triton update.
+
+    This keeps the sequential rank-1 Cholesky update and triangular solve as
+    single-block kernels, but parallelizes the double-sided propagation and
+    final rank-1 correction over row/column tiles.
+
+    Returns:
+        Aw_new: (r, r) updated whitened operator.
+        vz: (r,) the vector (L+)^{-1} z.
+    """
+    r = L.shape[0]
+
+    BLOCK = triton.next_power_of_2(r)
+    assert BLOCK <= 1024, f"r={r} too large for single-block setup kernels"
+    assert triton.next_power_of_2(tile_rows) == tile_rows, "tile_rows must be a power of two"
+    assert triton.next_power_of_2(tile_cols) == tile_cols, "tile_cols must be a power of two"
+    assert triton.next_power_of_2(block_m) == block_m, "block_m must be a power of two"
+    assert triton.next_power_of_2(block_n) == block_n, "block_n must be a power of two"
+
+    z_work = z.clone()
+    vz = torch.empty(r, dtype=L.dtype, device=L.device)
+    cs = torch.empty(r, dtype=L.dtype, device=L.device)
+    ss = torch.empty(r, dtype=L.dtype, device=L.device)
+    Aw_mid = torch.empty_like(Aw)
+    Aw_out = torch.empty_like(Aw)
+    w_work = w.clone()
+
+    setup_kwargs = {"r": r, "BLOCK": BLOCK}
+    sweep_kwargs = {}
+    if num_warps is not None:
+        setup_kwargs["num_warps"] = num_warps
+        sweep_kwargs["num_warps"] = num_warps
+
+    _cholesky_update_kernel[(1,)](
+        L, z_work, vz, cs, ss,
+        **setup_kwargs,
+    )
+
+    col_grid = (triton.cdiv(r, tile_cols),)
+    _left_sweep_cols_kernel[col_grid](
+        Aw, Aw_mid, cs, ss,
+        r=r, TILE_COLS=tile_cols,
+        **sweep_kwargs,
+    )
+
+    row_grid = (triton.cdiv(r, tile_rows),)
+    _right_sweep_rows_kernel[row_grid](
+        Aw_mid, Aw_out, cs, ss,
+        r=r, TILE_ROWS=tile_rows,
+        **sweep_kwargs,
+    )
+
+    _solve_vw_kernel[(1,)](
+        L, w_work,
+        **setup_kwargs,
+    )
+
+    rank1_grid = (triton.cdiv(r, block_m), triton.cdiv(r, block_n))
+    _rank1_add_kernel[rank1_grid](
+        Aw_out, vz, w_work,
+        r=r, BLOCK_M=block_m, BLOCK_N=block_n,
+        **sweep_kwargs,
     )
 
     return Aw_out, vz

@@ -39,4 +39,4 @@ if torch.cuda.is_available():
     print("gpu:", torch.cuda.get_device_name(0))
 PY
 
-python -m pytest tests/test_correctness.py::test_triton_matches_ground_truth -v
+python -m pytest tests/test_correctness.py -k triton -v

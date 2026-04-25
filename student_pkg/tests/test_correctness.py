@@ -139,3 +139,60 @@ def test_triton_matches_ground_truth(r):
     # Looser tolerance for float32.
     assert L_err < 1e-4, f"L+ error {L_err:.2e}"
     assert Aw_err < 1e-4, f"Aw+ error {Aw_err:.2e}"
+
+
+@pytest.mark.parametrize("r", [16, 64, 256])
+def test_tiled_triton_matches_ground_truth(r):
+    """Tiled Triton kernel should match full re-factorization on GPU."""
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    from doublesided_cholesky import incremental_update_triton_tiled
+
+    G, L, M, Aw, z, w = random_problem(r, dtype=torch.float32)
+    G, L, M, Aw, z, w = [t.cuda() for t in (G, L, M, Aw, z, w)]
+    L_exact, Aw_exact = ground_truth(G, M, z, w)
+
+    L_test = L.clone()
+    Aw_test, _ = incremental_update_triton_tiled(
+        L_test, Aw.clone(), z.clone(), w.clone()
+    )
+
+    L_err = (torch.norm(L_test - L_exact) / torch.norm(L_exact)).item()
+    Aw_err = (torch.norm(Aw_test - Aw_exact) / torch.norm(Aw_exact)).item()
+
+    assert L_err < 1e-4, f"L+ error {L_err:.2e}"
+    assert Aw_err < 1e-4, f"Aw+ error {Aw_err:.2e}"
+
+
+@pytest.mark.parametrize("r", [16, 64, 256])
+def test_tiled_triton_matches_fused_triton(r):
+    """Tiled Triton path should agree with the single-kernel baseline."""
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    from doublesided_cholesky import (
+        incremental_update_triton,
+        incremental_update_triton_tiled,
+    )
+
+    _, L, _, Aw, z, w = random_problem(r, dtype=torch.float32)
+    L, Aw, z, w = [t.cuda() for t in (L, Aw, z, w)]
+
+    L_fused = L.clone()
+    Aw_fused, vz_fused = incremental_update_triton(
+        L_fused, Aw.clone(), z.clone(), w.clone()
+    )
+
+    L_tiled = L.clone()
+    Aw_tiled, vz_tiled = incremental_update_triton_tiled(
+        L_tiled, Aw.clone(), z.clone(), w.clone()
+    )
+
+    L_err = (torch.norm(L_tiled - L_fused) / torch.norm(L_fused)).item()
+    Aw_err = (torch.norm(Aw_tiled - Aw_fused) / torch.norm(Aw_fused)).item()
+    vz_err = (torch.norm(vz_tiled - vz_fused) / torch.norm(vz_fused)).item()
+
+    assert L_err < 1e-6, f"L+ disagreement {L_err:.2e}"
+    assert Aw_err < 1e-5, f"Aw+ disagreement {Aw_err:.2e}"
+    assert vz_err < 1e-6, f"vz disagreement {vz_err:.2e}"

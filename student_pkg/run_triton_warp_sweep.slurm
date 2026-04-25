@@ -24,7 +24,7 @@ import time
 
 import torch
 
-from doublesided_cholesky import incremental_update_triton
+from doublesided_cholesky import incremental_update_triton, incremental_update_triton_tiled
 
 
 def make_problem(r, device):
@@ -63,11 +63,19 @@ def time_wall(fn, repeats):
     return statistics.median(times)
 
 
-def bench_gpu_resident(r, num_warps, repeats):
+def run_update(impl, L, Aw, z, w, num_warps):
+    if impl == "fused":
+        return incremental_update_triton(L, Aw, z, w, num_warps=num_warps)
+    if impl == "tiled":
+        return incremental_update_triton_tiled(L, Aw, z, w, num_warps=num_warps)
+    raise ValueError(f"unknown implementation: {impl}")
+
+
+def bench_gpu_resident(r, num_warps, repeats, impl):
     _, L, _, Aw, z, w = make_problem(r, "cuda")
 
     def triton_update():
-        incremental_update_triton(L.clone(), Aw, z, w, num_warps=num_warps)
+        run_update(impl, L.clone(), Aw, z, w, num_warps)
 
     for _ in range(10):
         triton_update()
@@ -76,7 +84,7 @@ def bench_gpu_resident(r, num_warps, repeats):
     return time_cuda(triton_update, repeats), time_wall(triton_update, repeats)
 
 
-def bench_with_transfers(r, num_warps, repeats):
+def bench_with_transfers(r, num_warps, repeats, impl):
     _, L_cpu, _, Aw_cpu, z_cpu, w_cpu = make_problem(r, "cpu")
     L_cpu = L_cpu.pin_memory()
     Aw_cpu = Aw_cpu.pin_memory()
@@ -88,7 +96,7 @@ def bench_with_transfers(r, num_warps, repeats):
         Aw = Aw_cpu.to("cuda", non_blocking=True)
         z = z_cpu.to("cuda", non_blocking=True)
         w = w_cpu.to("cuda", non_blocking=True)
-        Aw_out, vz = incremental_update_triton(L, Aw, z, w, num_warps=num_warps)
+        Aw_out, vz = run_update(impl, L, Aw, z, w, num_warps)
         Aw_out.cpu()
         vz.cpu()
 
@@ -103,14 +111,15 @@ print("device:", torch.cuda.get_device_name(0))
 print("CUDA event timing excludes CPU launch overhead.")
 print("Roundtrip wall timing includes H2D inputs, D2H outputs, CPU launch overhead, and GPU execution.")
 print()
-print(f"{'r':>6}  {'warps':>5}  {'gpu event ms':>12}  {'gpu wall ms':>11}  {'roundtrip ms':>12}")
-print("-" * 58)
+print(f"{'impl':>6}  {'r':>6}  {'warps':>5}  {'gpu event ms':>12}  {'gpu wall ms':>11}  {'roundtrip ms':>12}")
+print("-" * 66)
 
 for r in [16, 32, 64, 128, 256, 512]:
     repeats = 100 if r <= 128 else 40 if r <= 256 else 20
     for num_warps in [1, 2, 4, 8]:
-        event_ms, wall_ms = bench_gpu_resident(r, num_warps, repeats)
-        roundtrip_ms = bench_with_transfers(r, num_warps, max(10, repeats // 2))
-        print(f"{r:>6}  {num_warps:>5}  {event_ms:>12.4f}  {wall_ms:>11.4f}  {roundtrip_ms:>12.4f}")
+        for impl in ["fused", "tiled"]:
+            event_ms, wall_ms = bench_gpu_resident(r, num_warps, repeats, impl)
+            roundtrip_ms = bench_with_transfers(r, num_warps, max(10, repeats // 2), impl)
+            print(f"{impl:>6}  {r:>6}  {num_warps:>5}  {event_ms:>12.4f}  {wall_ms:>11.4f}  {roundtrip_ms:>12.4f}")
     print()
 PY
