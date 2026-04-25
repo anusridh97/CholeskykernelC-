@@ -61,14 +61,7 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
     scalar_t* z_d = z.data_ptr<scalar_t>();
     std::vector<scalar_t> cs(r), ss(r);
 
-    // Column-major L for contiguous column access in Phase 1.
-    // TODO (student): this copy is 2*r^2 of pointless memory traffic.
-    // The inner loops only touch one column at a time, which is already
-    // contiguous if we keep L row-major and iterate rows. Drop the copy.
-    std::vector<scalar_t> Lcm(r * r);
-    for (int i = 0; i < r; i++)
-        for (int j = 0; j < r; j++)
-            Lcm[j * r + i] = L_rm[i * r + j];
+   
 
     // Phase 1: Rank-1 Cholesky update via paired Givens rotations.
     // Each rotation k zeros z_d[k] using L[k,k], then both L's k-th column
@@ -81,20 +74,23 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
         cs[k] = c0; ss[k] = s0;
 
         // Iterate starting from k because elements above the diagonal are strictly 0
-        for (int i = k; i < r; i++) {
-            scalar_t lv = L_rm[i * r + k], zv = z_d[i];
+        for (int i = 0; i < r; i++) {
+            scalar_t lv = L_rm[i * r + k];
+            scalar_t zv = z_d[i];
             L_rm[i * r + k] = c0 * lv + s0 * zv;
             z_d[i] = -s0 * lv + c0 * zv;
         }
 
         scalar_t a1 = L_rm[(k + 1) * r + (k + 1)], b1 = z_d[k + 1];
         scalar_t rho1 = std::sqrt(a1 * a1 + b1 * b1);
-        scalar_t c1 = a1 / rho1, s1 = b1 / rho1;
-        cs[k + 1] = c1; ss[k + 1] = s1;
+        scalar_t c1 = a1 / rho1;
+        scalar_t s1 = b1 / rho1;
+        cs[k + 1] = c1;
+        ss[k + 1] = s1;
 
-        // Iterate starting from k + 1
-        for (int i = k + 1; i < r; i++) {
-            scalar_t lv = L_rm[i * r + (k + 1)], zv = z_d[i];
+        for (int i = 0; i < r; i++) {
+            scalar_t lv = L_rm[i * r + (k + 1)];
+            scalar_t zv = z_d[i];
             L_rm[i * r + (k + 1)] = c1 * lv + s1 * zv;
             z_d[i] = -s1 * lv + c1 * zv;
         }
@@ -105,10 +101,12 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
         scalar_t a = L_rm[k * r + k], b = z_d[k];
         scalar_t rho = std::sqrt(a * a + b * b);
         scalar_t c = a / rho, s = b / rho;
-        cs[k] = c; ss[k] = s;
+        cs[k] = c; 
+        ss[k] = s;
         
-        for (int i = k; i < r; i++) {
-            scalar_t lv = L_rm[i * r + k], zv = z_d[i];
+        for (int i = 0; i < r; i++) {
+            scalar_t lv = L_rm[i * r + k];
+            scalar_t zv = z_d[i];
             L_rm[i * r + k] = c * lv + s * zv;
             z_d[i] = -s * lv + c * zv;
         }
