@@ -166,10 +166,22 @@ def _fused_doublesided_kernel(
     off_ah  = pid * RP * RP    # stride for (RP, RP) scratch: Ah
 
     # Phase 1: Rank-1 Cholesky update.
-    # rows/cols are the same arange; Phase 1 uses 'rows' to emphasise that
-    # we're sweeping row-indices to access column k; Phase 2/4 keep 'cols'.
+    #
+    # 'rows' and 'cols' are the same tl.arange(0, BLOCK) vector — they are
+    # aliases, not different data.  The two names exist to make the access
+    # pattern self-documenting:
+    #
+    #   Phase 1  uses 'rows': the index sweeps row positions to load an
+    #            entire column at once (L_ptr + rows*r + k  →  column k).
+    #
+    #   Phase 2 left sweep / Phase 4  use 'cols': the index sweeps column
+    #            positions to load an entire row at once (L_ptr + k*r + cols
+    #            →  row k).
+    #
+    # Both are just [0, 1, ..., BLOCK-1]; the name signals which matrix
+    # dimension is being vectorised over.
     rows = tl.arange(0, BLOCK)
-    cols = rows
+    cols = rows  # same vector; renamed below when sweeping columns not rows
 
     for k in range(r):
         mask_r = rows < r
