@@ -53,7 +53,7 @@ from doublesided_cholesky import incremental_update_triton, incremental_update_t
 
 REPS    = 20
 WARMUP  = 3
-T_SIZES = [1, 4, 16, 64, 128]
+T_SIZES = [1, 4, 16, 64, 128, 256, 512]
 R_SIZES = [16, 64, 128, 256]
 
 

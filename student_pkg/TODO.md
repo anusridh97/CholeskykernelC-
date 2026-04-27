@@ -85,14 +85,13 @@ expected to require Task 6 batching.
 
 ## 6. Batched GPU kernel (stretch)
 
-Difficulty: hard. Expected speedup: depends on batch size.
+Status: done. Difficulty: hard. Expected speedup: ~T (linear in batch size).
 
-The current Triton kernel launches with grid `(1,)` and works on a single
-update. Extend it to process a batch of T independent updates in parallel,
-one per program instance. Each program instance reads its own slice of
-L, Aw, z, w and writes its own slice of Aw_new, vz. The existing SRAM
-working set per program is fine; just add a `pid = tl.program_id(0)`
-and offset all pointers by `pid * r * r` or `pid * r`.
+`incremental_update_triton_batched` launches the same fused kernel with
+grid `(T,)` and offsets all pointers by `pid * r * r` or `pid * r`. The
+register-virtualized propagation from Task 5 is preserved, so each program
+keeps its own pad row/column in registers without any extra scratch.
 
-Useful when running many parallel Bayesian optimization replicates or
-ensemble updates.
+Verified by `test_triton_batched_matches_single` and benchmarked by
+`tests/bench_batched.py`. Useful when running many parallel Bayesian
+optimization replicates or ensemble updates.
