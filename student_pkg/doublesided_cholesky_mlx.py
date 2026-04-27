@@ -301,7 +301,7 @@ _KERNEL_SOURCE = r"""
         }
         z_work[lane] = z[off_vec + lane];
     }
-    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    SYNC_TG_DEV();
 
     // ---- Phase 1: Rank-1 Cholesky update via Givens rotations on [L | z].
     for (uint k = 0; k < R; k++) {
@@ -326,7 +326,7 @@ _KERNEL_SOURCE = r"""
         }
         // Cross-warp barrier: cs/ss/L_new/z_work writes from this iter must
         // be visible to next iter's reads.
-        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+        SYNC_TG_DEV();
     }
 
     // ---- Phase 2 left sweep: Q_k^T mixes row k with the virtual padded row.
@@ -345,7 +345,7 @@ _KERNEL_SOURCE = r"""
     }
     // Left-sweep wrote rows; right-sweep reads columns. Same multi-warp race
     // we hit in the Triton port — the barrier is mandatory.
-    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    SYNC_TG_DEV();
 
     // ---- Phase 2 right sweep: Q_k mixes column k with the virtual padded column.
     // In-place on Aw_new. Each lane owns one column.
@@ -360,7 +360,7 @@ _KERNEL_SOURCE = r"""
         }
         pad_col = -s * ck + c * cr;
     }
-    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    SYNC_TG_DEV();
 
     // ---- Phase 3: recover v_z from the rotation chain.
     if (lane == 0) {
@@ -370,31 +370,43 @@ _KERNEL_SOURCE = r"""
             e_last = cs[k] * e_last;
         }
     }
-    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    SYNC_TG_DEV();
 
     // ---- Phase 4: forward substitution L+ * v_w = w. vw lives in
     // threadgroup memory because the rank-1 correction needs a vector view.
     if (active) {
         vw[lane] = w[off_vec + lane];
     }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
+    SYNC_TG();
 
     for (uint k = 0; k < R; k++) {
         float L_row = active ? L_new[off_mat + k * R + lane] : 0.0f;
         float vw_i  = active ? vw[lane] : 0.0f;
         float contrib = (lane < k) ? (L_row * vw_i) : 0.0f;
 
-        // Threadgroup-wide tree reduction (no simdgroup intrinsics so this
-        // works without simd_lane_id / simd_group_id which MLX does not auto-
-        // expose to the source body).
+#if BLOCK <= 32
+        // Single SIMD group: simd_sum is a register-only reduction with no
+        // memory traffic and no barriers. Replaces a log2(BLOCK)+1 chain of
+        // threadgroup writes + barriers in the tree path below.
+        float acc = simd_sum(contrib);
+        if (lane == 0) {
+            float wk  = vw[k];
+            float Lkk = L_new[off_mat + k * R + k];
+            vw[k] = (wk - acc) / Lkk;
+        }
+        SYNC_TG();
+#else
+        // Multi-simdgroup: fall back to a threadgroup-wide tree reduction
+        // through reduce_buf. simd_sum would only sum within each 32-lane
+        // simdgroup, which is wrong for BLOCK > 32.
         reduce_buf[lane] = contrib;
-        threadgroup_barrier(mem_flags::mem_threadgroup);
+        SYNC_TG();
 
         for (uint stride = BLOCK / 2; stride > 0; stride /= 2) {
             if (lane < stride) {
                 reduce_buf[lane] += reduce_buf[lane + stride];
             }
-            threadgroup_barrier(mem_flags::mem_threadgroup);
+            SYNC_TG();
         }
 
         if (lane == 0) {
@@ -403,7 +415,8 @@ _KERNEL_SOURCE = r"""
             float Lkk = L_new[off_mat + k * R + k];
             vw[k] = (wk - acc) / Lkk;
         }
-        threadgroup_barrier(mem_flags::mem_threadgroup);
+        SYNC_TG();
+#endif
     }
 
     // ---- Rank-1 correction: Aw_new += v_z v_w^T. Each lane owns one column.
@@ -438,7 +451,29 @@ def _make_kernel(r: int):
     if BLOCK > 1024:
         raise ValueError(f"r={r} too large; BLOCK={BLOCK} exceeds Metal threadgroup max")
 
-    header = f"#define R {r}\n#define BLOCK {BLOCK}\n" + _GIVENS_HEADER
+    # Apple GPU SIMD group is 32 lanes. When BLOCK <= 32, every active lane
+    # lives in the same simdgroup, so simdgroup_barrier is sufficient and
+    # avoids the per-call cost of serializing all simdgroups in the
+    # threadgroup. When BLOCK > 32 we fall back to the full threadgroup
+    # barrier — same code as before the variant.
+    if BLOCK <= 32:
+        sync_macros = (
+            "#define SYNC_TG_DEV() simdgroup_barrier("
+            "mem_flags::mem_threadgroup | mem_flags::mem_device)\n"
+            "#define SYNC_TG() simdgroup_barrier(mem_flags::mem_threadgroup)\n"
+        )
+    else:
+        sync_macros = (
+            "#define SYNC_TG_DEV() threadgroup_barrier("
+            "mem_flags::mem_threadgroup | mem_flags::mem_device)\n"
+            "#define SYNC_TG() threadgroup_barrier(mem_flags::mem_threadgroup)\n"
+        )
+
+    header = (
+        f"#define R {r}\n#define BLOCK {BLOCK}\n"
+        + sync_macros
+        + _GIVENS_HEADER
+    )
     return mx.fast.metal_kernel(
         name=f"fused_doublesided_kernel_r{r}",
         input_names=["L", "Aw", "z", "w"],

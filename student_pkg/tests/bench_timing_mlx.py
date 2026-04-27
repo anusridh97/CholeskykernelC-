@@ -68,8 +68,9 @@ def time_call(fn, reps, warmup=5):
 def refactor_update(G, M, z, w):
     G_new = G + mx.outer(z, z)
     M_new = M + mx.outer(z, w)
-    L_new = mx.linalg.cholesky(G_new)
-    Linv_new = mx.linalg.inv(L_new)
+    # mx.linalg.{cholesky,inv} are CPU-only in current MLX; matmul stays on GPU.
+    L_new = mx.linalg.cholesky(G_new, stream=mx.cpu)
+    Linv_new = mx.linalg.inv(L_new, stream=mx.cpu)
     return L_new, Linv_new @ M_new @ Linv_new.T
 
 
