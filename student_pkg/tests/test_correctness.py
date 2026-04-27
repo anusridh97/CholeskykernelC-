@@ -196,3 +196,37 @@ def test_tiled_triton_matches_fused_triton(r):
     assert L_err < 1e-6, f"L+ disagreement {L_err:.2e}"
     assert Aw_err < 1e-5, f"Aw+ disagreement {Aw_err:.2e}"
     assert vz_err < 1e-6, f"vz disagreement {vz_err:.2e}"
+
+
+def test_triton_batched_matches_single():
+    """Batched Triton path should match T independent single calls."""
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    from doublesided_cholesky import incremental_update_triton, incremental_update_triton_batched
+
+    r = 32
+    T = 5
+    L_stack  = torch.zeros(T, r, r, dtype=torch.float32).cuda()
+    Aw_stack = torch.zeros(T, r, r, dtype=torch.float32).cuda()
+    z_stack  = torch.zeros(T, r,    dtype=torch.float32).cuda()
+    w_stack  = torch.zeros(T, r,    dtype=torch.float32).cuda()
+
+    single_aw = []
+    for t in range(T):
+        _, L, _, Aw, z, w = random_problem(r, dtype=torch.float32, seed=t)
+        L, Aw, z, w = L.cuda(), Aw.cuda(), z.cuda(), w.cuda()
+        L_stack[t]  = L
+        Aw_stack[t] = Aw
+        z_stack[t]  = z
+        w_stack[t]  = w
+        Aw_out, _ = incremental_update_triton(L.clone(), Aw.clone(), z.clone(), w.clone())
+        single_aw.append(Aw_out)
+
+    Aw_batched, _ = incremental_update_triton_batched(
+        L_stack.clone(), Aw_stack.clone(), z_stack.clone(), w_stack.clone()
+    )
+
+    for t in range(T):
+        err = (torch.norm(Aw_batched[t] - single_aw[t]) / torch.norm(single_aw[t])).item()
+        assert err < 1e-5, f"batched slice {t}: err={err:.2e}"
