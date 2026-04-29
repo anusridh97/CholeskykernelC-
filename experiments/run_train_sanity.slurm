@@ -51,7 +51,7 @@ echo
 python train.py \
     --config sanity \
     --out_dir "$CKPT_DIR" \
-    --micro_batch 2
+    --micro_batch "${SKA_MICRO_BATCH:-8}"
 
 echo "Sanity training done. Final checkpoint:"
 ls -lt "$CKPT_DIR"/ckpt_*.pt | head -n 1

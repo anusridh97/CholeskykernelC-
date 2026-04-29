@@ -46,7 +46,7 @@ CONFIGS = {
         "weight_decay": 0.01,
         "grad_clip": 1.0,
         "save_every_tokens": int(50e6),
-        "log_every_steps": 10,
+        "log_every_steps": 2,                # tight feedback for sanity
     },
     "prod": {                                # 4-GPU Farmshare default
         "model_fn": make_340m_model,
@@ -78,20 +78,29 @@ CONFIGS = {
 
 # ------------------------------ Data pipeline --------------------------- #
 
-class SlimPajamaStream(IterableDataset):
-    """Streams SlimPajama via HuggingFace datasets, tokenizes on the fly,
+class TextStream(IterableDataset):
+    """Streams a public web-text corpus via HuggingFace, tokenizes on the fly,
     and yields (ctx_len + 1)-token windows packed across documents.
+
+    Default is HuggingFaceFW/fineweb-edu (sample-10BT subset), which is the
+    current de-facto standard for academic LM pretraining: public, high
+    quality, streaming-friendly. Override via SKA_DATASET / SKA_DATASET_NAME
+    env vars if you have access to a different corpus.
     """
 
     def __init__(self, tokenizer, ctx_len: int, seed: int = 0):
         from datasets import load_dataset
         self.ctx_len = ctx_len
         self.tokenizer = tokenizer
-        self.ds = load_dataset(
-            "cerebras/SlimPajama-627B",
-            split="train",
-            streaming=True,
-        ).shuffle(seed=seed, buffer_size=10_000)
+
+        ds_path = os.environ.get("SKA_DATASET", "HuggingFaceFW/fineweb-edu")
+        ds_name = os.environ.get("SKA_DATASET_NAME", "sample-10BT")
+        ds_split = os.environ.get("SKA_DATASET_SPLIT", "train")
+
+        kwargs = {"path": ds_path, "split": ds_split, "streaming": True}
+        if ds_name:
+            kwargs["name"] = ds_name
+        self.ds = load_dataset(**kwargs).shuffle(seed=seed, buffer_size=10_000)
 
     def __iter__(self):
         buffer = []
@@ -108,7 +117,7 @@ class SlimPajamaStream(IterableDataset):
 
 
 def make_dataloader(tokenizer, ctx_len, micro_batch_size, num_workers=2, seed=0):
-    ds = SlimPajamaStream(tokenizer, ctx_len, seed=seed)
+    ds = TextStream(tokenizer, ctx_len, seed=seed)
     return DataLoader(
         ds,
         batch_size=micro_batch_size,
