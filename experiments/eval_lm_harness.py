@@ -134,7 +134,7 @@ class SKAEvalLM:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ckpt", type=str, required=True)
-    parser.add_argument("--tokenizer", type=str, default="meta-llama/Llama-2-7b-hf")
+    parser.add_argument("--tokenizer", type=str, default="gpt2")
     parser.add_argument("--config", choices=["sanity", "prod"], default="prod")
     parser.add_argument("--tasks", type=str, required=True,
                         help="Comma-separated lm-eval task names")

@@ -144,7 +144,9 @@ def main():
     parser.add_argument("--out_dir", type=str, default="./checkpoints")
     parser.add_argument("--micro_batch", type=int, default=4,
                         help="per-GPU micro batch size (sequences)")
-    parser.add_argument("--tokenizer", type=str, default="meta-llama/Llama-2-7b-hf")
+    parser.add_argument("--tokenizer", type=str, default="gpt2",
+                        help="HF tokenizer name. gpt2 (default) matches PDN's setup and is "
+                             "fully public; switch to a Llama tokenizer if you have access.")
     parser.add_argument("--resume", type=str, default=None)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()

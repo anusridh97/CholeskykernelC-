@@ -78,7 +78,7 @@ echo
 python eval_sniah.py \
     --ckpt "$CKPT" \
     --config "$CONFIG" \
-    --tokenizer "meta-llama/Llama-2-7b-hf" \
+    --tokenizer "gpt2" \
     --lengths $LENGTHS \
     --variants $VARIANTS \
     --n_examples "$N_EX" \

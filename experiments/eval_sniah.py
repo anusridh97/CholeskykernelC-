@@ -153,7 +153,7 @@ def evaluate_variant_at_length(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ckpt", type=str, required=True)
-    parser.add_argument("--tokenizer", type=str, default="meta-llama/Llama-2-7b-hf")
+    parser.add_argument("--tokenizer", type=str, default="gpt2")
     parser.add_argument("--config", choices=["sanity", "prod"], default="prod")
     parser.add_argument("--lengths", type=int, nargs="+",
                         default=[2048, 4096, 8192, 16384, 32768])

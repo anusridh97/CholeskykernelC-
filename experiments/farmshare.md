@@ -111,17 +111,39 @@ The math is broken and no amount of compute will save you.
 
 ---
 
-## 4. HuggingFace login (1 minute)
+## 4. HuggingFace authentication (1 minute)
 
-SlimPajama is a gated dataset. Once per Farmshare account:
+SlimPajama is a gated dataset. The most reliable approach is the
+`HF_TOKEN` environment variable, which works regardless of which CLI
+version is installed (`huggingface-cli` was renamed to `hf` in newer
+`huggingface_hub` releases; both currently exist as aliases but only
+the env var is guaranteed to be picked up by every code path).
+
+Get a read-token from https://huggingface.co/settings/tokens. Then:
 
 ```bash
-huggingface-cli login
-# Paste your read-token. Choose Y when asked about git credential helper.
-huggingface-cli whoami     # confirm
+echo 'export HF_TOKEN=hf_XXXXXXXXXXXXXX' >> ~/.bashrc
+source ~/.bashrc
 ```
 
-Token persists across SLURM jobs because it lives in `~/.cache/huggingface`.
+Verify auth works programmatically (this is the path the training
+job uses, so this is the canonical test):
+
+```bash
+source ~/git/CholeskykernelC-/student_pkg/.venv/bin/activate
+python -c "from huggingface_hub import HfApi; print(HfApi().whoami())"
+# Should print {'name': '<your_username>', ...}
+```
+
+If you prefer the CLI:
+
+```bash
+hf auth login            # newer huggingface_hub (>= 0.32)
+huggingface-cli login    # older versions, still works as alias
+```
+
+Both write to `~/.cache/huggingface/token`. If the env var is set,
+SLURM jobs pick it up via `--export=ALL` (the default).
 
 ---
 
@@ -221,14 +243,6 @@ tail -f logs/ska-sanity-<jobid>.out
 
 What to expect in the first 5 minutes:
 
-```
-Job 12345 on sh-gpu-X
-GPU: GPU 0: NVIDIA L40S (UUID: GPU-...)
-
-Model: ~152M params
-Global batch: ~XXX seqs (250000 tokens)
-step      1 | tokens     0.3M | loss 10.XX | lr X.XXe-04 | tps   X.XK | eta X.XXh
-step     50 | tokens    12.5M | loss  9.XX | ...
 ```
 
 By 100M tokens (end of run) loss should be in the 6.0-6.5 range. If
@@ -527,6 +541,42 @@ Expected for FP32. Either:
 1. Add `.bfloat16()` to the model load in `eval_sniah.py`.
 2. Drop the 32K context length from `--lengths` and document
    the limitation.
+
+### Job hangs after the GPU header line, no `step 1` output
+
+Most likely the first SlimPajama stream pull. Wait 2-5 minutes; if
+the first log line appears, you were just being impatient.
+
+If 10 minutes pass with no progress, the issue is usually HF auth:
+
+```bash
+# On a login node:
+source ~/git/CholeskykernelC-/student_pkg/.venv/bin/activate
+python -c "from huggingface_hub import HfApi; print(HfApi().whoami())"
+```
+
+If this errors with 401, your token didn't get picked up. Set
+HF_TOKEN explicitly (section 4) and resubmit:
+
+```bash
+scancel <jobid>
+echo 'export HF_TOKEN=hf_XXXX' >> ~/.bashrc
+source ~/.bashrc
+sbatch experiments/run_train_sanity.slurm
+```
+
+Also helpful for diagnosis while a job is running:
+
+```bash
+# Is the GPU actually doing anything?
+ssh oat-01 "nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv -l 2"
+# - util > 0 + memory > 0: training is initializing, just hasn't hit log_every yet.
+# - util = 0 + memory > 0: stuck in Triton JIT compile or similar. Wait longer.
+# - util = 0 + memory = 0: not started yet, probably HF download.
+
+# Stderr often has more clues than stdout:
+tail -n 50 logs/ska-sanity-<jobid>.err
+```
 
 ### SlimPajama streaming hangs or times out
 

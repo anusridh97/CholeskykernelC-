@@ -66,7 +66,7 @@ echo
 python eval_lm_harness.py \
     --ckpt "$CKPT" \
     --config "$CONFIG" \
-    --tokenizer "meta-llama/Llama-2-7b-hf" \
+    --tokenizer "gpt2" \
     --tasks "${COMMONSENSE_TASKS},${ICR_TASKS}" \
     --batch_size 8 \
     --max_length 2048 \

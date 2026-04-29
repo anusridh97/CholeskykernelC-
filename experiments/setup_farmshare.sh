@@ -76,10 +76,18 @@ echo
 echo "Setup complete."
 echo
 echo "Next steps:"
-echo "  1. (Optional) login to HuggingFace for SlimPajama:"
-echo "       huggingface-cli login"
+echo
+echo "  1. Set HF_TOKEN for SlimPajama (the dataset is gated):"
+echo "       Get a read-token from https://huggingface.co/settings/tokens"
+echo "       echo 'export HF_TOKEN=<your_token>' >> ~/.bashrc"
+echo "       source ~/.bashrc"
+echo "     Verify it works:"
+echo "       python -c 'from huggingface_hub import HfApi; print(HfApi().whoami())'"
+echo "     The newer CLI uses 'hf' instead of 'huggingface-cli'; either way,"
+echo "     setting HF_TOKEN directly is the most reliable path."
+echo
 echo "  2. Submit the sanity training to verify GPU path:"
 echo "       sbatch experiments/run_train_sanity.slurm"
-echo "  3. Once sanity passes, kick off the main run:"
-echo "       bash experiments/submit_chain.sh prod 2"
-echo "       (the '2' submits two chained 24h jobs; adjust for your token target)"
+echo
+echo "  3. Once sanity passes, kick off the main run on 4 L40S:"
+echo "       RUN_EVAL=1 bash experiments/submit_chain.sh prod 3"
