@@ -176,6 +176,10 @@ def main():
     tok = AutoTokenizer.from_pretrained(args.tokenizer)
     if tok.pad_token_id is None:
         tok.pad_token_id = tok.eos_token_id
+    # GPT-2 ships with model_max_length=1024 which spams warnings when we
+    # tokenize text longer than that. We do our own ctx_len-based windowing,
+    # so disable the tokenizer's max-length check.
+    tok.model_max_length = int(1e9)
 
     model = cfg["model_fn"](vocab_size=tok.vocab_size).to(device)
     if is_main:

@@ -151,6 +151,7 @@ def main():
     tok = AutoTokenizer.from_pretrained(args.tokenizer)
     if tok.pad_token_id is None:
         tok.pad_token_id = tok.eos_token_id
+    tok.model_max_length = int(1e9)
 
     model_fn = make_340m_model if args.config == "prod" else make_165m_model
     model = model_fn(vocab_size=tok.vocab_size).to(device)
