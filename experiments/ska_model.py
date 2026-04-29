@@ -2,24 +2,22 @@
 340M Llama-style transformer with SKA replacing attention.
 
 Architecture matches PDN's Appendix E.1 spec for the 340M setting:
-  - d_model = 1024
-  - n_heads = 8
-  - head_dim = 128
-  - n_layers = 24
-  - SwiGLU MLP, expansion factor 4
+  - d_model   = 1024
+  - n_heads   = 8
+  - head_dim  = 128
+  - n_layers  = 24
+  - SwiGLU MLP with intermediate dim 2560 (sized to match PDN's 340M)
   - RMSNorm pre-norm
   - tied input/output embeddings
-  - 50K vocab (LLaMA tokenizer subset is fine for now)
+  - LLaMA tokenizer (50272 vocab)
 
-Total parameter count:
-  embeddings:   50K * 1024            = 51.2M
-  per-layer SKA: 4 * 1024^2            = 4.2M  (q,k,v,o)
-  per-layer MLP: 1024 * 4096 * 3       = 12.6M
-  per-layer norms: ~2K                 = ~0
-  per-layer total                      = ~16.8M
-  24 layers                            = 403M (slightly over 340M target)
-
-To hit 340M exactly, we use n_layers = 22 below; bump to 24 if budget allows.
+Parameter accounting:
+  embeddings (tied):           50272 * 1024              = 51.5M
+  per-layer SKA (q,k,v,o):     4 * 1024^2                =  4.2M
+  per-layer SwiGLU (w1,w2,w3): 3 * 1024 * 2560           =  7.9M
+  per-layer total                                         = ~12.1M
+  24 layers                                               = 290M
+  total                                                   = ~341M
 """
 
 import math
@@ -150,8 +148,8 @@ def make_340m_model(vocab_size: int = 50272) -> SKAModel:
         d_model=1024,
         n_heads=8,
         head_dim=128,
-        n_layers=22,
-        d_ff=4096,
+        n_layers=24,
+        d_ff=2560,
         lambda_ridge=1.0,
     )
 

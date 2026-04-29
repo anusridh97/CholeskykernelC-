@@ -31,6 +31,15 @@ fi
 # shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
 
+# Load CUDA so the C++ extension and Triton see nvcc/CUDA libs.
+# Skip silently if `module` isn't on PATH (e.g., running outside Farmshare).
+if command -v module >/dev/null 2>&1; then
+    module load cuda || true
+    if [ -z "${CUDA_HOME:-}" ] && command -v nvcc >/dev/null 2>&1; then
+        export CUDA_HOME="$(dirname "$(dirname "$(which nvcc)")")"
+    fi
+fi
+
 # Core deps. Pin torch to a CUDA-12.x build (Farmshare GPU nodes run CUDA 12.x).
 uv pip install --upgrade pip
 uv pip install \
@@ -44,7 +53,7 @@ uv pip install \
     "pytest" \
     "pybind11" \
     "matplotlib" \
-    "lm_eval[full]"
+    "lm_eval"
 
 # Build the C++ extension (CPU correctness path, kernel debugging).
 python setup_ext.py build_ext --inplace

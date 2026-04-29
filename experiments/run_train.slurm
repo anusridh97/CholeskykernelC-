@@ -33,6 +33,13 @@ if [ -d "$REPO_ROOT/student_pkg" ]; then
 elif [ -d "$REPO_ROOT/../student_pkg" ]; then
     REPO_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
 fi
+
+# Load CUDA so Triton and torch can find nvcc + the runtime.
+module load cuda 2>/dev/null || true
+if [ -z "${CUDA_HOME:-}" ] && command -v nvcc >/dev/null 2>&1; then
+    export CUDA_HOME="$(dirname "$(dirname "$(which nvcc)")")"
+fi
+
 # shellcheck disable=SC1091
 source "$REPO_ROOT/student_pkg/.venv/bin/activate"
 
