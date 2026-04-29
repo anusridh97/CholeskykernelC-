@@ -1,33 +1,34 @@
 #!/bin/bash
 #SBATCH --job-name=ska-train
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:l40s:4
+#SBATCH --gres=gpu:4
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=128G
-#SBATCH --time=24:00:00
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=200G
+#SBATCH --time=48:00:00
 #SBATCH --output=logs/ska-train-%j.out
 #SBATCH --error=logs/ska-train-%j.err
 
-# Production training of 340M SKA model on SlimPajama.
+# Production training of the SKA model on SlimPajama.
+# Configured for 4 L40S on a single node (Farmshare oat-XX), 48h time cap.
 #
-# This script auto-resumes from the most recent checkpoint in CKPT_DIR if
-# present, so the same script can be submitted multiple times to run beyond
-# the 24h time cap. Use submit_chain.sh to fire a chain of dependent jobs.
+# Auto-resumes from the most recent checkpoint in CKPT_DIR, so the same
+# script can be submitted multiple times to span longer runs. Use
+# submit_chain.sh to fire a chain of dependent jobs.
 #
 # Override the config via the SKA_CONFIG env var when submitting:
-#   sbatch --export=ALL,SKA_CONFIG=prod   experiments/run_train.slurm
-#   sbatch --export=ALL,SKA_CONFIG=sanity experiments/run_train.slurm
+#   sbatch --export=ALL,SKA_CONFIG=prod        experiments/run_train.slurm
+#   sbatch --export=ALL,SKA_CONFIG=prod_1gpu   experiments/run_train.slurm  (fallback)
+#   sbatch --export=ALL,SKA_CONFIG=sanity      experiments/run_train.slurm
 
 set -euo pipefail
 
 cd "${SLURM_SUBMIT_DIR:-.}"
 mkdir -p logs
 
-# Activate venv (lives in student_pkg/.venv per the existing kernel slurm scripts).
+# Locate the repo root (handles submission from either repo root or experiments/).
 REPO_ROOT="$(pwd)"
-# If submitted from experiments/, walk up.
 if [ -d "$REPO_ROOT/student_pkg" ]; then
     :
 elif [ -d "$REPO_ROOT/../student_pkg" ]; then
@@ -43,16 +44,16 @@ fi
 # shellcheck disable=SC1091
 source "$REPO_ROOT/student_pkg/.venv/bin/activate"
 
-# Threading: leave 4 CPU cores per GPU for dataloader/tokenizer.
+# Threading: 32 CPUs across 4 GPUs = 8 CPU threads per GPU for dataloading.
 N_GPUS="${SLURM_GPUS_ON_NODE:-4}"
-THREADS_PER_GPU=$(( ${SLURM_CPUS_PER_TASK:-16} / N_GPUS ))
+THREADS_PER_GPU=$(( ${SLURM_CPUS_PER_TASK:-32} / N_GPUS ))
 export OMP_NUM_THREADS=$THREADS_PER_GPU
 export MKL_NUM_THREADS=$THREADS_PER_GPU
 export OPENBLAS_NUM_THREADS=$THREADS_PER_GPU
 export TOKENIZERS_PARALLELISM=false
 export NCCL_DEBUG=WARN
 
-# HF cache: keep on Farmshare's scratch or home, not /tmp (per-job ephemeral).
+# HF cache: keep on home or scratch, not /tmp (per-job ephemeral).
 export HF_HOME="${HF_HOME:-$HOME/hf_cache}"
 mkdir -p "$HF_HOME"
 
@@ -71,33 +72,42 @@ else
     echo "No checkpoint found in $CKPT_DIR; starting from scratch."
 fi
 
-# Per-GPU micro batch.
+# Per-GPU micro batch (one L40S has 48 GB; pick what fits at FP32 ctx 2048).
 case "$CONFIG" in
-    sanity) MICRO_BATCH=2 ;;
-    prod)   MICRO_BATCH=4 ;;
+    sanity)    MICRO_BATCH=2 ;;
+    prod_1gpu) MICRO_BATCH=4 ;;
+    prod)      MICRO_BATCH=4 ;;
     *) echo "Unknown SKA_CONFIG=$CONFIG"; exit 1 ;;
 esac
 
 cd "$REPO_ROOT/experiments"
 
 echo "Job $SLURM_JOB_ID on $(hostname)"
-echo "GPUs: $(nvidia-smi -L | tr '\n' '|')"
+echo "GPUs: $(nvidia-smi -L | tr '\n' ' | ')"
 echo "Config: $CONFIG | micro batch: $MICRO_BATCH | n_gpus: $N_GPUS"
 echo "Checkpoint dir: $CKPT_DIR"
 echo
 
-# Pick a free port on this node so multiple chained jobs do not collide.
+# Pick a free port on this node so multiple jobs do not collide.
 MASTER_PORT=$((20000 + SLURM_JOB_ID % 10000))
 
-torchrun \
-    --standalone \
-    --nproc_per_node "$N_GPUS" \
-    --master_port "$MASTER_PORT" \
-    train.py \
+if [ "$N_GPUS" -gt 1 ]; then
+    torchrun \
+        --standalone \
+        --nproc_per_node "$N_GPUS" \
+        --master_port "$MASTER_PORT" \
+        train.py \
+            --config "$CONFIG" \
+            --out_dir "$CKPT_DIR" \
+            --micro_batch "$MICRO_BATCH" \
+            $RESUME_FLAG
+else
+    python train.py \
         --config "$CONFIG" \
         --out_dir "$CKPT_DIR" \
         --micro_batch "$MICRO_BATCH" \
         $RESUME_FLAG
+fi
 
 echo "Training segment finished. Latest checkpoint:"
 ls -lt "$CKPT_DIR"/ckpt_*.pt 2>/dev/null | head -n 1 || echo "  (none)"

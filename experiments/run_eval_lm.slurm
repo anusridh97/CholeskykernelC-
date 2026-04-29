@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ska-eval-lm
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:l40s:1
+#SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4

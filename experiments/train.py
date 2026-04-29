@@ -48,17 +48,30 @@ CONFIGS = {
         "save_every_tokens": int(50e6),
         "log_every_steps": 10,
     },
-    "prod": {
+    "prod": {                                # 4-GPU Farmshare default
         "model_fn": make_340m_model,
-        "total_tokens": int(5e9),           # 5B
-        "warmup_tokens": int(0.2e9),         # 200M (PDN uses 500M, scaled down)
-        "batch_tokens": int(0.5e6),
+        "total_tokens": int(8e9),           # 8B; ~half PDN's 15B, fits 4-5 days on 4 L40S
+        "warmup_tokens": int(0.4e9),         # 400M (5% of total; PDN uses 500M)
+        "batch_tokens": int(0.5e6),         # PDN-matched global batch
         "ctx_len": 2048,
         "peak_lr": 3e-4,                    # slightly below PDN's 4e-4 for safety
         "min_lr": 3e-5,
         "weight_decay": 0.01,
         "grad_clip": 1.0,
-        "save_every_tokens": int(1e9),
+        "save_every_tokens": int(1e9),       # checkpoint every 1B tokens
+        "log_every_steps": 50,
+    },
+    "prod_1gpu": {                          # single-L40S Farmshare default
+        "model_fn": make_340m_model,
+        "total_tokens": int(3e9),           # 3B; fits 5-6 chained 24h jobs at FP32
+        "warmup_tokens": int(0.15e9),        # 150M (5% of total)
+        "batch_tokens": int(0.25e6),         # smaller global batch on 1 GPU
+        "ctx_len": 2048,
+        "peak_lr": 2.5e-4,
+        "min_lr": 2.5e-5,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "save_every_tokens": int(0.5e9),     # checkpoint every 500M tokens
         "log_every_steps": 50,
     },
 }

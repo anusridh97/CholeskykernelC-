@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Submit a chain of dependent training jobs to survive the 24h time cap.
 #
-# Usage:
-#   bash submit_chain.sh prod 2        # 2 chained 24h jobs (~48h total wall)
-#   bash submit_chain.sh prod 3        # 3 chained jobs (~72h total wall)
-#   bash submit_chain.sh sanity 1      # one sanity run
+# Recommended Farmshare configs:
+#   bash submit_chain.sh prod 3        # 340M, ~8B tokens, 4 L40S, 3 chained 48h jobs
+#   bash submit_chain.sh prod_1gpu 6   # 340M, ~3B tokens, 1 L40S fallback
+#   bash submit_chain.sh sanity 1      # 165M sanity run, 1 L40S
 #
-# Each job auto-resumes from the latest checkpoint left by the previous job.
-# After the final job, fire eval automatically by setting RUN_EVAL=1:
-#   RUN_EVAL=1 bash submit_chain.sh prod 2
+# Each job auto-resumes from the latest checkpoint. After the final job,
+# fire eval automatically by setting RUN_EVAL=1:
+#   RUN_EVAL=1 bash submit_chain.sh prod_1gpu 3
 
 set -euo pipefail
 
