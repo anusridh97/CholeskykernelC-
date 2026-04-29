@@ -72,11 +72,11 @@ else
     echo "No checkpoint found in $CKPT_DIR; starting from scratch."
 fi
 
-# Per-GPU micro batch (one L40S has 48 GB; pick what fits at FP32 ctx 2048).
+# Per-GPU micro batch (one L40S has 48 GB; conservative defaults for FP32 ctx 2048).
 case "$CONFIG" in
     sanity)    MICRO_BATCH=2 ;;
-    prod_1gpu) MICRO_BATCH=4 ;;
-    prod)      MICRO_BATCH=4 ;;
+    prod_1gpu) MICRO_BATCH=2 ;;
+    prod)      MICRO_BATCH=2 ;;
     *) echo "Unknown SKA_CONFIG=$CONFIG"; exit 1 ;;
 esac
 

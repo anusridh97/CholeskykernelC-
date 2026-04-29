@@ -78,12 +78,14 @@ class SKAModel(nn.Module):
         d_ff: int | None = None,
         lambda_ridge: float = 1.0,
         tie_weights: bool = True,
+        grad_checkpoint: bool = True,
     ):
         super().__init__()
         if d_ff is None:
             d_ff = 4 * d_model
         self.vocab_size = vocab_size
         self.d_model = d_model
+        self.grad_checkpoint = grad_checkpoint
         self.embed = nn.Embedding(vocab_size, d_model)
         self.layers = nn.ModuleList(
             [
@@ -116,9 +118,17 @@ class SKAModel(nn.Module):
         """
         x = self.embed(input_ids)
         new_states = [] if states is None else None
+        # Gradient checkpointing only during training without state passing
+        # (inference uses states for KV-cache-style streaming and doesn't
+        # need recompute).
+        use_ckpt = self.grad_checkpoint and self.training and states is None
         for i, layer in enumerate(self.layers):
             s = None if states is None else states[i]
-            x, s_out = layer(x, state=s)
+            if use_ckpt:
+                from torch.utils.checkpoint import checkpoint
+                x, s_out = checkpoint(layer, x, s, use_reentrant=False)
+            else:
+                x, s_out = layer(x, state=s)
             if states is None:
                 new_states.append(s_out)
             else:
