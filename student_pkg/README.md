@@ -71,11 +71,40 @@ triangular solve in Phase 4 instead of calling LAPACK. Both are small
 edits with measurable impact. The Triton right-sweep rewrite is the
 larger project and is described inside `doublesided_cholesky.py`.
 
+## Linear-attention experiment (SKA vs PDN)
+
+The `experiments/` directory at the repo root contains a self-contained
+framework for replicating the Preconditioned DeltaNet (Tumma et al.,
+arXiv:2604.21100) S-NIAH long-context benchmark using this kernel as
+the exact-preconditioning recurrence in place of PDN's diagonal
+approximation. See `experiments/README.md` for the math contract,
+`experiments/PLAN.md` for the one-week schedule and budget, and
+`experiments/ska_recurrence.py` for the autograd.Function wrapper with
+hand-derived closed-form backward through the double-sided Cholesky
+update.
+
+Quick start on Stanford Farmshare (run from the repo root):
+
+```bash
+python experiments/ska_recurrence.py        # local correctness + gradcheck
+bash   experiments/setup_farmshare.sh       # one-shot login-node setup
+sbatch experiments/run_train_sanity.slurm   # 165M, 100M tokens, 1 L40S
+bash   experiments/submit_chain.sh prod 2   # 340M, 5B tokens, 4 L40S chained
+sbatch experiments/run_eval_sniah.slurm     # S-NIAH at 5 ctx lengths
+```
+
+The legacy RunPod scripts (`setup_runpod.sh`, `launch_training.sh`,
+`launch_eval.sh`) still work if you want to rent paid GPUs instead.
+
 ## Conventions
 
-Run everything under `torch.no_grad()`. The update modifies L in place.
-Matrices are row-major contiguous. Float32 is the default; float64 is
-supported and used for correctness tests.
+The bare kernel modifies L in place and is intended to be called under
+`torch.no_grad()` for the GP / BO / NG applications in the paper. For
+the linear-attention experiment in `experiments/`, the kernel is wrapped
+in a `torch.autograd.Function` (see `experiments/ska_recurrence.py`)
+with a hand-derived closed-form backward, so it is differentiable in
+that context. Matrices are row-major contiguous. Float32 is the
+default; float64 is supported and used for correctness tests.
 
 **Contiguity requirement.** `torch.linalg.cholesky` returns a column-major
 tensor (LAPACK convention, strides `(1, r)`). The C++ extension assumes
