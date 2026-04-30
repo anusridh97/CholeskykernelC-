@@ -162,12 +162,89 @@ def _forward_triton(L, Aw, z, w):
 # autograd.Function: manual backward
 # ---------------------------------------------------------------------------
 
+def _per_token_backward_step(
+    L, Aw, z, w,
+    L_new, vz, vw, k_tilde, T_mat,
+    grad_L_new, grad_Aw_new, grad_k_tilde,
+):
+    """Apply the seven-step manual backward for one SKA token.
+
+    Inputs are the same tensors `_SKAUpdate.forward` would have saved
+    (L, Aw, z, w are the inputs; L_new, vz, vw, k_tilde, T_mat are the
+    forward outputs / intermediates) plus the upstream output gradients.
+
+    Returns (grad_L, grad_Aw, grad_z, grad_w). The chunkwise backward
+    calls this function C times in reverse token order.
+    """
+    if grad_L_new is None:
+        grad_L_new = torch.zeros_like(L_new)
+    if grad_Aw_new is None:
+        grad_Aw_new = torch.zeros_like(L_new)
+    if grad_k_tilde is None:
+        grad_k_tilde = torch.zeros_like(vz)
+
+    L_newT = L_new.transpose(-1, -2)
+    T_T = T_mat.transpose(-1, -2)
+    Aw_T = Aw.transpose(-1, -2)
+
+    # --- Step 1: k_tilde = L_new^{-T} v_z ---
+    grad_vz = torch.linalg.solve_triangular(
+        L_new, grad_k_tilde.unsqueeze(-1), upper=False
+    ).squeeze(-1)
+    outer1 = k_tilde.unsqueeze(-1) * grad_k_tilde.unsqueeze(-2)
+    update1 = torch.linalg.solve_triangular(
+        L_new, outer1.transpose(-1, -2), upper=False
+    ).transpose(-1, -2)
+    grad_L_new = grad_L_new - update1
+
+    # --- Step 2: A_w_new = T A_w T^T + v_z v_w^T ---
+    grad_T = grad_Aw_new @ T_mat @ Aw_T + grad_Aw_new.transpose(-1, -2) @ T_mat @ Aw
+    grad_Aw = T_T @ grad_Aw_new @ T_mat
+    grad_vz = grad_vz + (grad_Aw_new @ vw.unsqueeze(-1)).squeeze(-1)
+    grad_vw = (grad_Aw_new.transpose(-1, -2) @ vz.unsqueeze(-1)).squeeze(-1)
+
+    # --- Step 3: T = L_new^{-1} L ---
+    Linv_T_grad_T = torch.linalg.solve_triangular(L_newT, grad_T, upper=True)
+    grad_L_new = grad_L_new - Linv_T_grad_T @ T_T
+    grad_L_from_T = Linv_T_grad_T
+
+    # --- Step 4: v_z = L_new^{-1} z ---
+    Linv_T_grad_vz = torch.linalg.solve_triangular(
+        L_newT, grad_vz.unsqueeze(-1), upper=True
+    ).squeeze(-1)
+    grad_L_new = grad_L_new - Linv_T_grad_vz.unsqueeze(-1) * vz.unsqueeze(-2)
+    grad_z_direct = Linv_T_grad_vz
+
+    # --- Step 5: v_w = L_new^{-1} w ---
+    Linv_T_grad_vw = torch.linalg.solve_triangular(
+        L_newT, grad_vw.unsqueeze(-1), upper=True
+    ).squeeze(-1)
+    grad_L_new = grad_L_new - Linv_T_grad_vw.unsqueeze(-1) * vw.unsqueeze(-2)
+    grad_w = Linv_T_grad_vw
+
+    # --- Step 6: G_new = L_new L_new^T (Cholesky adjoint) ---
+    M_aux = L_newT @ grad_L_new
+    P = torch.tril(M_aux, diagonal=-1) + 0.5 * torch.diag_embed(
+        torch.diagonal(M_aux, dim1=-2, dim2=-1)
+    )
+    Y = torch.linalg.solve_triangular(L_newT, P, upper=True)
+    grad_G_new = torch.linalg.solve_triangular(
+        L_newT, Y.transpose(-1, -2), upper=True
+    ).transpose(-1, -2)
+
+    # --- Step 7: G_new = L L^T + z z^T ---
+    H = grad_G_new + grad_G_new.transpose(-1, -2)
+    grad_L = grad_L_from_T + H @ L
+    grad_z = grad_z_direct + (H @ z.unsqueeze(-1)).squeeze(-1)
+
+    return grad_L, grad_Aw, grad_z, grad_w
+
+
 class _SKAUpdate(torch.autograd.Function):
-    """Per-step SKA update with manual backward.
+    """Per-token SKA update with manual backward.
 
     Forward returns (L_new, Aw_new, k_tilde).
-    Backward implements the seven-step adjoint computation derived in the
-    docstring of `ska_recurrence.py` and the corresponding paper section.
+    Backward calls _per_token_backward_step.
     """
 
     @staticmethod
@@ -179,104 +256,191 @@ class _SKAUpdate(torch.autograd.Function):
             with torch.no_grad():
                 L_new, Aw_new, vz, vw, k_tilde = _forward_reference(L, Aw, z, w)
 
-        # Transport matrix T = L_new^{-1} L (one lower-triangular solve).
         T_mat = torch.linalg.solve_triangular(L_new, L, upper=False)
-
         ctx.save_for_backward(L, Aw, z, w, L_new, vz, vw, k_tilde, T_mat)
         return L_new.contiguous(), Aw_new.contiguous(), k_tilde.contiguous()
 
     @staticmethod
     def backward(ctx, grad_L_new, grad_Aw_new, grad_k_tilde):
         L, Aw, z, w, L_new, vz, vw, k_tilde, T_mat = ctx.saved_tensors
-
-        # Replace any None grad with zero (autograd convention).
-        if grad_L_new is None:
-            grad_L_new = torch.zeros_like(L_new)
-        if grad_Aw_new is None:
-            grad_Aw_new = torch.zeros_like(L_new)
-        if grad_k_tilde is None:
-            grad_k_tilde = torch.zeros_like(vz)
-
-        L_newT = L_new.transpose(-1, -2)
-        T_T = T_mat.transpose(-1, -2)
-        Aw_T = Aw.transpose(-1, -2)
-
-        # --- Step 1: k_tilde = L_new^{-T} v_z ---
-        # grad_vz_init = L_new^{-1} grad_k_tilde
-        grad_vz = torch.linalg.solve_triangular(
-            L_new, grad_k_tilde.unsqueeze(-1), upper=False
-        ).squeeze(-1)
-        # grad_L_new -= k_tilde grad_k_tilde^T L_new^{-T}
-        outer1 = k_tilde.unsqueeze(-1) * grad_k_tilde.unsqueeze(-2)
-        update1 = torch.linalg.solve_triangular(
-            L_new, outer1.transpose(-1, -2), upper=False
-        ).transpose(-1, -2)
-        grad_L_new = grad_L_new - update1
-
-        # --- Step 2: A_w_new = T A_w T^T + v_z v_w^T ---
-        grad_T = grad_Aw_new @ T_mat @ Aw_T + grad_Aw_new.transpose(-1, -2) @ T_mat @ Aw
-        grad_Aw = T_T @ grad_Aw_new @ T_mat
-        grad_vz = grad_vz + (grad_Aw_new @ vw.unsqueeze(-1)).squeeze(-1)
-        grad_vw = (grad_Aw_new.transpose(-1, -2) @ vz.unsqueeze(-1)).squeeze(-1)
-
-        # --- Step 3: T = L_new^{-1} L ---
-        Linv_T_grad_T = torch.linalg.solve_triangular(L_newT, grad_T, upper=True)
-        grad_L_new = grad_L_new - Linv_T_grad_T @ T_T
-        grad_L_from_T = Linv_T_grad_T  # combined later in Step 7
-
-        # --- Step 4: v_z = L_new^{-1} z ---
-        Linv_T_grad_vz = torch.linalg.solve_triangular(
-            L_newT, grad_vz.unsqueeze(-1), upper=True
-        ).squeeze(-1)
-        grad_L_new = grad_L_new - Linv_T_grad_vz.unsqueeze(-1) * vz.unsqueeze(-2)
-        grad_z_direct = Linv_T_grad_vz
-
-        # --- Step 5: v_w = L_new^{-1} w ---
-        Linv_T_grad_vw = torch.linalg.solve_triangular(
-            L_newT, grad_vw.unsqueeze(-1), upper=True
-        ).squeeze(-1)
-        grad_L_new = grad_L_new - Linv_T_grad_vw.unsqueeze(-1) * vw.unsqueeze(-2)
-        grad_w = Linv_T_grad_vw
-
-        # --- Step 6: G_new = L_new L_new^T (Cholesky adjoint) ---
-        # Standard formula: grad_G_new = L_new^{-T} P L_new^{-1}
-        # Two solves:
-        #   Y = L_new^{-T} P                        (left solve by L_new^{-T})
-        #   grad_G_new = Y @ L_new^{-1}             (right solve by L_new^{-1})
-        # For the right solve we use A @ L^{-1} = (L^{-T} A^T)^T:
-        #   solve_triangular(L_new.T, Y.T, upper=True).T
-        M_aux = L_newT @ grad_L_new
-        P = torch.tril(M_aux, diagonal=-1) + 0.5 * torch.diag_embed(
-            torch.diagonal(M_aux, dim1=-2, dim2=-1)
+        return _per_token_backward_step(
+            L, Aw, z, w, L_new, vz, vw, k_tilde, T_mat,
+            grad_L_new, grad_Aw_new, grad_k_tilde,
         )
-        Y = torch.linalg.solve_triangular(L_newT, P, upper=True)
-        grad_G_new = torch.linalg.solve_triangular(
-            L_newT, Y.transpose(-1, -2), upper=True
-        ).transpose(-1, -2)
-
-        # --- Step 7: G_new = L L^T + z z^T ---
-        H = grad_G_new + grad_G_new.transpose(-1, -2)
-        grad_L = grad_L_from_T + H @ L
-        grad_z = grad_z_direct + (H @ z.unsqueeze(-1)).squeeze(-1)
-
-        return grad_L, grad_Aw, grad_z, grad_w
 
 
 def ska_step(L, Aw, k, v):
     """One SKA recurrence step with manual backward.
 
     Args:
-      L:  (T, r, r) lower triangular Cholesky factor of G_t.
-      Aw: (T, r, r) whitened cross-Gram, A_w = L^{-1} M L^{-T}.
-      k:  (T, r) per-token key (z in the paper).
-      v:  (T, r) per-token value (w in the paper).
+      L:  (BH, r, r) lower triangular Cholesky factor of G_t.
+      Aw: (BH, r, r) whitened cross-Gram, A_w = L^{-1} M L^{-T}.
+      k:  (BH, r) per-token key (z in the paper).
+      v:  (BH, r) per-token value (w in the paper).
 
     Returns:
-      L_new:   (T, r, r)  Cholesky of G_t + k k^T.
-      Aw_new:  (T, r, r)  whitened cross-Gram after the update.
-      k_tilde: (T, r)     exact normalized write key, k_tilde = G_new^{-1} k.
+      L_new:   (BH, r, r)  Cholesky of G_t + k k^T.
+      Aw_new:  (BH, r, r)  whitened cross-Gram after the update.
+      k_tilde: (BH, r)     exact normalized write key, k_tilde = G_new^{-1} k.
     """
     return _SKAUpdate.apply(L, Aw, k, v)
+
+
+# ---------------------------------------------------------------------------
+# Chunkwise SKA update
+#
+# The per-token loop in ska_layer.py used to call ska_step (and thus _SKAUpdate
+# .apply) once per token. With C tokens per chunk and 24 layers and ctx 2048,
+# that means ~50K autograd.Function invocations per micro-step, which dominates
+# wall time. The chunkwise version below lets the layer call ONE
+# autograd.Function per chunk; internally it still calls the per-token Triton
+# kernel C times, but the autograd graph collapses to chunk granularity.
+#
+# Numerically identical to running ska_step C times back-to-back.
+# Math is unchanged; this is purely a graph-size optimization.
+# ---------------------------------------------------------------------------
+
+
+def _chunk_forward(L, Aw, K, V):
+    """Run the per-token forward kernel C times, collecting all intermediates.
+
+    Args:
+      L:  (BH, r, r) initial Cholesky factor at the chunk start.
+      Aw: (BH, r, r) initial whitened operator at the chunk start.
+      K:  (BH, C, r) per-token keys for the chunk.
+      V:  (BH, C, r) per-token values for the chunk.
+
+    Returns:
+      L_new:   (BH, r, r) at chunk end
+      Aw_new:  (BH, r, r) at chunk end
+      K_tilde: (BH, C, r) preconditioned write keys, one per token
+      saved:   tuple of per-token intermediates needed for the backward.
+               Each element is a list of length C of shape (BH, r, r) or (BH, r).
+    """
+    BH, C, r = K.shape
+    L_curr = L
+    Aw_curr = Aw
+
+    L_seq = [L]              # L_0, L_1, ..., L_C  (length C+1)
+    Aw_seq = [Aw]            # Aw_0, Aw_1, ..., Aw_C
+    vz_seq = []              # length C
+    vw_seq = []
+    k_tilde_seq = []
+    T_mat_seq = []
+
+    use_triton = _HAVE_TRITON and L.is_cuda
+
+    for c in range(C):
+        z_c = K[:, c]
+        w_c = V[:, c]
+        if use_triton:
+            L_curr, Aw_curr, vz_c, vw_c, k_tilde_c = _forward_triton(
+                L_curr, Aw_curr, z_c, w_c
+            )
+        else:
+            with torch.no_grad():
+                L_curr, Aw_curr, vz_c, vw_c, k_tilde_c = _forward_reference(
+                    L_curr, Aw_curr, z_c, w_c
+                )
+        T_c = torch.linalg.solve_triangular(L_curr, L_seq[-1], upper=False)
+        L_seq.append(L_curr.contiguous())
+        Aw_seq.append(Aw_curr.contiguous())
+        vz_seq.append(vz_c)
+        vw_seq.append(vw_c)
+        k_tilde_seq.append(k_tilde_c)
+        T_mat_seq.append(T_c)
+
+    K_tilde = torch.stack(k_tilde_seq, dim=1)  # (BH, C, r)
+    return L_curr, Aw_curr, K_tilde, (L_seq, Aw_seq, vz_seq, vw_seq, k_tilde_seq, T_mat_seq)
+
+
+class _SKAChunkUpdate(torch.autograd.Function):
+    """C-token SKA update; one autograd.Function per chunk (vs per token).
+
+    Forward signature: (L, Aw, K, V) -> (L_new, Aw_new, K_tilde)
+      L:  (BH, r, r)
+      Aw: (BH, r, r)
+      K:  (BH, C, r)
+      V:  (BH, C, r)
+
+    Backward applies _per_token_backward_step C times in reverse, recovering
+    the per-token intermediates from the saved sequence built in forward.
+
+    Memory cost: stores L_c, Aw_c, etc. for c = 0..C in a Python list.
+    For C=64, BH=128, r=128, that's about 4 GB per chunk, which is fine.
+    If memory becomes a bottleneck, we can switch to recompute-from-final
+    via the inverse Givens rotations (orthogonal so cheap to invert).
+    """
+
+    @staticmethod
+    def forward(ctx, L, Aw, K, V):
+        L_new, Aw_new, K_tilde, saved = _chunk_forward(L, Aw, K, V)
+        ctx.K = K
+        ctx.V = V
+        ctx.saved_seq = saved
+        return L_new.contiguous(), Aw_new.contiguous(), K_tilde.contiguous()
+
+    @staticmethod
+    def backward(ctx, grad_L_new, grad_Aw_new, grad_K_tilde):
+        K = ctx.K
+        V = ctx.V
+        L_seq, Aw_seq, vz_seq, vw_seq, k_tilde_seq, T_mat_seq = ctx.saved_seq
+
+        BH, C, r = K.shape
+        if grad_L_new is None:
+            grad_L_new = torch.zeros(BH, r, r, dtype=K.dtype, device=K.device)
+        if grad_Aw_new is None:
+            grad_Aw_new = torch.zeros(BH, r, r, dtype=K.dtype, device=K.device)
+        if grad_K_tilde is None:
+            grad_K_tilde = torch.zeros(BH, C, r, dtype=K.dtype, device=K.device)
+
+        grad_K = torch.zeros_like(K)
+        grad_V = torch.zeros_like(V)
+
+        # Walk backward through the C tokens.
+        grad_L_curr = grad_L_new
+        grad_Aw_curr = grad_Aw_new
+        for c in reversed(range(C)):
+            grad_L_c, grad_Aw_c, grad_z_c, grad_w_c = _per_token_backward_step(
+                L=L_seq[c],
+                Aw=Aw_seq[c],
+                z=K[:, c],
+                w=V[:, c],
+                L_new=L_seq[c + 1],
+                vz=vz_seq[c],
+                vw=vw_seq[c],
+                k_tilde=k_tilde_seq[c],
+                T_mat=T_mat_seq[c],
+                grad_L_new=grad_L_curr,
+                grad_Aw_new=grad_Aw_curr,
+                grad_k_tilde=grad_K_tilde[:, c],
+            )
+            grad_K[:, c] = grad_z_c
+            grad_V[:, c] = grad_w_c
+            grad_L_curr = grad_L_c
+            grad_Aw_curr = grad_Aw_c
+
+        return grad_L_curr, grad_Aw_curr, grad_K, grad_V
+
+
+def ska_chunk(L, Aw, K, V):
+    """C-token SKA update with one autograd.Function per chunk.
+
+    Numerically equivalent to calling ska_step C times in a row, but
+    creates only ONE autograd graph node per chunk instead of C.
+
+    Args:
+      L:  (BH, r, r) lower triangular Cholesky factor at chunk start.
+      Aw: (BH, r, r) whitened cross-Gram at chunk start.
+      K:  (BH, C, r) per-token keys for the chunk.
+      V:  (BH, C, r) per-token values for the chunk.
+
+    Returns:
+      L_new:   (BH, r, r)
+      Aw_new:  (BH, r, r)
+      K_tilde: (BH, C, r) exact preconditioned write keys, one per token.
+    """
+    return _SKAChunkUpdate.apply(L, Aw, K, V)
 
 
 # ---------------------------------------------------------------------------
@@ -400,6 +564,79 @@ def _multi_step_check(T_seq=8, r=4, dtype=torch.float64):
     return max(err_k.item(), err_v.item())
 
 
+def _check_chunk_matches_per_token(C=4, BH=2, r=4, dtype=torch.float64):
+    """Chunkwise forward + backward must equal C per-token calls in a row."""
+    torch.manual_seed(0)
+    A = torch.randn(BH, r, r, dtype=dtype)
+    G = A @ A.transpose(-1, -2) + 2 * r * torch.eye(r, dtype=dtype)
+    L0 = torch.linalg.cholesky(G).contiguous()
+    Aw0 = torch.randn(BH, r, r, dtype=dtype) * 0.1
+    K = torch.randn(BH, C, r, dtype=dtype) * 0.1
+    V = torch.randn(BH, C, r, dtype=dtype) * 0.1
+
+    # Path A: per-token rollout via ska_step.
+    L_a = L0.clone().requires_grad_(True)
+    Aw_a = Aw0.clone().requires_grad_(True)
+    K_a = K.clone().requires_grad_(True)
+    V_a = V.clone().requires_grad_(True)
+    L_curr = L_a
+    Aw_curr = Aw_a
+    K_tilde_a_list = []
+    for c in range(C):
+        L_curr, Aw_curr, kt = ska_step(L_curr, Aw_curr, K_a[:, c], V_a[:, c])
+        K_tilde_a_list.append(kt)
+    K_tilde_a = torch.stack(K_tilde_a_list, dim=1)
+    loss_a = 1.3 * L_curr.sum() + 0.7 * Aw_curr.sum() + 2.1 * K_tilde_a.sum()
+    loss_a.backward()
+
+    # Path B: ska_chunk in one shot.
+    L_b = L0.clone().requires_grad_(True)
+    Aw_b = Aw0.clone().requires_grad_(True)
+    K_b = K.clone().requires_grad_(True)
+    V_b = V.clone().requires_grad_(True)
+    L_n, Aw_n, K_tilde_b = ska_chunk(L_b, Aw_b, K_b, V_b)
+    loss_b = 1.3 * L_n.sum() + 0.7 * Aw_n.sum() + 2.1 * K_tilde_b.sum()
+    loss_b.backward()
+
+    err_K_tilde = (K_tilde_a - K_tilde_b).norm() / (K_tilde_a.norm() + 1e-30)
+    err_L = (L_curr - L_n).norm() / (L_curr.norm() + 1e-30)
+    err_Aw = (Aw_curr - Aw_n).norm() / (Aw_curr.norm() + 1e-30)
+    print(f"  forward K_tilde rel err: {err_K_tilde.item():.2e}")
+    print(f"  forward L_new   rel err: {err_L.item():.2e}")
+    print(f"  forward Aw_new  rel err: {err_Aw.item():.2e}")
+
+    rows = [("L", L_a.grad, L_b.grad),
+            ("Aw", Aw_a.grad, Aw_b.grad),
+            ("K", K_a.grad, K_b.grad),
+            ("V", V_a.grad, V_b.grad)]
+    max_err = 0.0
+    for name, ga, gb in rows:
+        err = (ga - gb).norm() / (ga.norm() + 1e-30)
+        max_err = max(max_err, err.item())
+        print(f"  grad_{name:<2}: rel err {err.item():.2e}")
+    return max_err
+
+
+def _gradcheck_chunk(C=2, BH=1, r=4):
+    """gradcheck on ska_chunk."""
+    torch.manual_seed(0)
+    dtype = torch.float64
+    A = torch.randn(BH, r, r, dtype=dtype)
+    G = A @ A.transpose(-1, -2) + 2 * r * torch.eye(r, dtype=dtype)
+    L = torch.linalg.cholesky(G).contiguous().requires_grad_(True)
+    Aw = (torch.randn(BH, r, r, dtype=dtype) * 0.1).requires_grad_(True)
+    K = (torch.randn(BH, C, r, dtype=dtype) * 0.1).requires_grad_(True)
+    V = (torch.randn(BH, C, r, dtype=dtype) * 0.1).requires_grad_(True)
+
+    def fn(L_, Aw_, K_, V_):
+        L_n, Aw_n, K_tilde = ska_chunk(L_, Aw_, K_, V_)
+        return 1.3 * L_n.sum() + 0.7 * Aw_n.sum() + 2.1 * K_tilde.sum()
+
+    ok = torch.autograd.gradcheck(fn, (L, Aw, K, V), atol=1e-4, eps=1e-6)
+    print(f"  gradcheck (chunk): {ok}")
+    return ok
+
+
 if __name__ == "__main__":
     print("== Forward consistency (Triton vs reference) ==")
     _check_forward_consistency(T=4, r=8)
@@ -407,10 +644,16 @@ if __name__ == "__main__":
     print("== Manual backward vs autograd-through-reference ==")
     _check_manual_vs_autograd(T=2, r=4)
     print()
-    print("== gradcheck ==")
+    print("== gradcheck (per-token) ==")
     _gradcheck(T=1, r=4)
     print()
-    print("== Multi-step BPTT ==")
+    print("== Multi-step BPTT (per-token) ==")
     _multi_step_check(T_seq=8, r=4)
+    print()
+    print("== Chunkwise == per-token ==")
+    _check_chunk_matches_per_token(C=4, BH=2, r=4)
+    print()
+    print("== gradcheck (chunkwise) ==")
+    _gradcheck_chunk(C=2, BH=1, r=4)
     print()
     print("OK")

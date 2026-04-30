@@ -48,6 +48,7 @@ class SKABlock(nn.Module):
         head_dim: int,
         d_ff: int,
         lambda_ridge: float,
+        chunk_size: int = 64,
     ):
         super().__init__()
         self.norm1 = nn.RMSNorm(d_model)
@@ -56,6 +57,7 @@ class SKABlock(nn.Module):
             n_heads=n_heads,
             head_dim=head_dim,
             lambda_ridge=lambda_ridge,
+            chunk_size=chunk_size,
         )
         self.norm2 = nn.RMSNorm(d_model)
         self.mlp = SwiGLU(d_model, d_ff)
@@ -78,7 +80,8 @@ class SKAModel(nn.Module):
         d_ff: int | None = None,
         lambda_ridge: float = 1.0,
         tie_weights: bool = True,
-        grad_checkpoint: bool = True,
+        grad_checkpoint: bool = False,
+        chunk_size: int = 64,
     ):
         super().__init__()
         if d_ff is None:
@@ -89,7 +92,7 @@ class SKAModel(nn.Module):
         self.embed = nn.Embedding(vocab_size, d_model)
         self.layers = nn.ModuleList(
             [
-                SKABlock(d_model, n_heads, head_dim, d_ff, lambda_ridge)
+                SKABlock(d_model, n_heads, head_dim, d_ff, lambda_ridge, chunk_size=chunk_size)
                 for _ in range(n_layers)
             ]
         )

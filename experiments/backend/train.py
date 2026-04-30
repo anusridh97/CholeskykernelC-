@@ -58,8 +58,8 @@ CONFIGS = {
         "min_lr": 3e-5,
         "weight_decay": 0.01,
         "grad_clip": 1.0,
-        "save_every_tokens": int(1e9),       # checkpoint every 1B tokens
-        "log_every_steps": 50,
+        "save_every_tokens": int(0.5e9),     # checkpoint every 500M tokens
+        "log_every_steps": 5,                # tighter feedback so we can see progress
     },
     "prod_1gpu": {                          # single-L40S Farmshare default
         "model_fn": make_340m_model,
@@ -73,6 +73,19 @@ CONFIGS = {
         "grad_clip": 1.0,
         "save_every_tokens": int(0.5e9),     # checkpoint every 500M tokens
         "log_every_steps": 50,
+    },
+    "scaled_down": {                         # 4-L40S realistic week-long run
+        "model_fn": make_165m_model,         # 152M params, 12 layers
+        "total_tokens": int(1e9),           # 1B tokens
+        "warmup_tokens": int(50e6),          # 50M
+        "batch_tokens": int(0.25e6),
+        "ctx_len": 1024,                    # half the per-step kernel calls
+        "peak_lr": 3e-4,
+        "min_lr": 3e-5,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "save_every_tokens": int(0.1e9),     # checkpoint every 100M tokens
+        "log_every_steps": 5,
     },
     "prod_scg": {                            # SCG default (8x H100/H200 or A100)
         "model_fn": make_340m_model,

@@ -39,7 +39,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ska_recurrence import ska_step
+from ska_recurrence import ska_step, ska_chunk
 
 
 _CONV_KERNEL = 4  # K in the short conv; matches PDN's setup
@@ -102,6 +102,7 @@ class SKALayer(nn.Module):
         head_dim: int,
         lambda_ridge: float = 1.0,
         conv_kernel: int = _CONV_KERNEL,
+        chunk_size: int = 64,
     ):
         super().__init__()
         assert head_dim * n_heads == d_model, (
@@ -113,6 +114,7 @@ class SKALayer(nn.Module):
         self.lambda_ridge = lambda_ridge
         self.r = head_dim
         self.K = conv_kernel
+        self.chunk_size = chunk_size
 
         self.q_proj = nn.Linear(d_model, d_model, bias=False)
         self.k_proj = nn.Linear(d_model, d_model, bias=False)
@@ -175,39 +177,63 @@ class SKALayer(nn.Module):
         k = k.view(B, T, H, r)
         v = v.view(B, T, H, r)
 
-        # KEY KERNEL UTILIZATION FIX:
-        # Pre-permute to (T, BH, r) and make contiguous ONCE outside the loop,
-        # so each per-step slice is a contiguous (BH, r) view with no memcpy.
+        # CHUNKWISE PROCESSING.
+        # Lay out as (BH, T, r) so each chunk slice (BH, C, r) is contiguous.
+        # Each chunk makes ONE ska_chunk autograd.Function call (instead of
+        # C ska_step calls), reducing the autograd graph by C times.
         BH = B * H
-        q_seq = q.permute(1, 0, 2, 3).reshape(T, BH, r).contiguous()
-        k_seq = k.permute(1, 0, 2, 3).reshape(T, BH, r).contiguous()
-        v_seq = v.permute(1, 0, 2, 3).reshape(T, BH, r).contiguous()
+        q_chunked = q.permute(0, 2, 1, 3).reshape(BH, T, r).contiguous()
+        k_chunked = k.permute(0, 2, 1, 3).reshape(BH, T, r).contiguous()
+        v_chunked = v.permute(0, 2, 1, 3).reshape(BH, T, r).contiguous()
 
         L_flat = L.reshape(BH, r, r).contiguous()
         Aw_flat = Aw.reshape(BH, r, r).contiguous()
         S_flat = S.reshape(BH, r, r).contiguous()
 
-        # Pre-allocate output in (T, BH, r) layout; fill in the inner loop.
-        out_seq = torch.empty(T, BH, r, device=x.device, dtype=x.dtype)
+        out_chunked = torch.empty(BH, T, r, device=x.device, dtype=x.dtype)
 
-        for t in range(T):
-            k_t = k_seq[t]                                          # (BH, r) contiguous view
-            v_t = v_seq[t]
-            q_t = q_seq[t]
+        C = min(self.chunk_size, T)
+        N_chunks_full = T // C
+        T_full = N_chunks_full * C
 
-            # Triton kernel call (batched over BH).
+        for ci in range(N_chunks_full):
+            ts = slice(ci * C, (ci + 1) * C)
+            K_chunk = k_chunked[:, ts]      # (BH, C, r)
+            V_chunk = v_chunked[:, ts]
+            Q_chunk = q_chunked[:, ts]
+
+            # ONE autograd.Function call for the whole chunk.
+            L_flat, Aw_flat, K_tilde = ska_chunk(L_flat, Aw_flat, K_chunk, V_chunk)
+
+            # Within-chunk ATK state update. Plain torch ops; small per-token
+            # loop here (C iterations) is cheap because each op is just a few
+            # einsums on a (BH, r, r) state. No autograd.Function dispatch.
+            for t in range(C):
+                k_t = K_chunk[:, t]
+                v_t = V_chunk[:, t]
+                q_t = Q_chunk[:, t]
+                kt_t = K_tilde[:, t]
+
+                Sk = torch.einsum("brc,bc->br", S_flat, k_t)
+                err = v_t - Sk
+                S_flat = S_flat + torch.einsum("br,bc->brc", err, kt_t)
+                out_chunked[:, ci * C + t] = torch.einsum("brc,bc->br", S_flat, q_t)
+
+        # Handle any tail tokens (T % C != 0). Falls back to per-token ska_step.
+        for t in range(T_full, T):
+            k_t = k_chunked[:, t]
+            v_t = v_chunked[:, t]
+            q_t = q_chunked[:, t]
+
             L_flat, Aw_flat, k_tilde = ska_step(L_flat, Aw_flat, k_t, v_t)
 
-            # ATK state update: S = S + (v - S k) k_tilde^T
             Sk = torch.einsum("brc,bc->br", S_flat, k_t)
             err = v_t - Sk
             S_flat = S_flat + torch.einsum("br,bc->brc", err, k_tilde)
+            out_chunked[:, t] = torch.einsum("brc,bc->br", S_flat, q_t)
 
-            # Output: o_t = S q_t
-            out_seq[t] = torch.einsum("brc,bc->br", S_flat, q_t)
-
-        # (T, BH, r) -> (B, T, H, r) -> (B, T, D)
-        y = out_seq.view(T, B, H, r).permute(1, 0, 2, 3).contiguous()
+        # (BH, T, r) -> (B, H, T, r) -> (B, T, H, r)
+        y = out_chunked.view(B, H, T, r).permute(0, 2, 1, 3).contiguous()
         y = self.head_norm(y).view(B, T, D)
         y = self.o_proj(y)
 
