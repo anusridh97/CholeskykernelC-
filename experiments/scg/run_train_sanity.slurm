@@ -50,10 +50,15 @@ echo "Job $SLURM_JOB_ID on $(hostname)"
 echo "GPU: $(nvidia-smi -L)"
 echo
 
+# Optional extra flags (e.g. --retrieval_ratio 0.15 --wandb_project ska-pretrain).
+# Passed verbatim to train.py. See experiments/backend/train.py argparse for options.
+EXTRA_ARGS="${SKA_EXTRA_ARGS:-}"
+
 python train.py \
     --config sanity \
     --out_dir "$CKPT_DIR" \
-    --micro_batch "${SKA_MICRO_BATCH:-2}"
+    --micro_batch "${SKA_MICRO_BATCH:-2}" \
+    $EXTRA_ARGS
 
 echo "Sanity training done. Final checkpoint:"
 ls -lt "$CKPT_DIR"/ckpt_*.pt | head -n 1

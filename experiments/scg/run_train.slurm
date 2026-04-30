@@ -105,6 +105,10 @@ echo
 
 MASTER_PORT=$((20000 + SLURM_JOB_ID % 10000))
 
+# Optional extra flags (e.g. --retrieval_ratio 0.15 --wandb_project ska-pretrain).
+# Passed verbatim to train.py. See experiments/backend/train.py argparse for options.
+EXTRA_ARGS="${SKA_EXTRA_ARGS:-}"
+
 if [ "$N_GPUS" -gt 1 ]; then
     torchrun \
         --standalone \
@@ -114,13 +118,13 @@ if [ "$N_GPUS" -gt 1 ]; then
             --config "$CONFIG" \
             --out_dir "$CKPT_DIR" \
             --micro_batch "$MICRO_BATCH" \
-            $RESUME_FLAG
+            $RESUME_FLAG $EXTRA_ARGS
 else
     python train.py \
         --config "$CONFIG" \
         --out_dir "$CKPT_DIR" \
         --micro_batch "$MICRO_BATCH" \
-        $RESUME_FLAG
+        $RESUME_FLAG $EXTRA_ARGS
 fi
 
 echo "Training segment finished. Latest checkpoint:"

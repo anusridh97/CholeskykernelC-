@@ -142,14 +142,91 @@ class TextStream(IterableDataset):
                 yield {"input_ids": input_ids, "labels": labels}
 
 
-def make_dataloader(tokenizer, ctx_len, micro_batch_size, num_workers=2, seed=0):
-    ds = TextStream(tokenizer, ctx_len, seed=seed)
+def make_dataloader(
+    tokenizer,
+    ctx_len,
+    micro_batch_size,
+    num_workers=2,
+    seed=0,
+    retrieval_ratio: float = 0.0,
+):
+    """Build the training DataLoader.
+
+    With retrieval_ratio > 0, mixes synthetic S-NIAH-style retrieval
+    examples (RetrievalStream) into the FineWeb text stream at the given
+    sampling probability. retrieval_ratio = 0.0 (default) is a no-op;
+    behavior is identical to the original FineWeb-only loader.
+    """
+    text_ds = TextStream(tokenizer, ctx_len, seed=seed)
+    if retrieval_ratio > 0.0:
+        from retrieval_data import RetrievalStream, MixedStream
+        retrieval_ds = RetrievalStream(
+            tokenizer, ctx_len, seed=seed + 999_999
+        )
+        ds = MixedStream(
+            primary=text_ds,
+            secondary=retrieval_ds,
+            secondary_ratio=retrieval_ratio,
+            seed=seed + 333_333,
+        )
+    else:
+        ds = text_ds
     return DataLoader(
         ds,
         batch_size=micro_batch_size,
         num_workers=num_workers,
         pin_memory=True,
     )
+
+
+# ---------------------------- Health metrics ---------------------------- #
+
+@torch.no_grad()
+def compute_health(states):
+    """Cheap per-layer summary of SKA operator state.
+
+    For each layer's state tuple (L, Aw, S, conv_q, conv_k, conv_v):
+      - aw_max_abs:  max |A_w_ij|, a quick proxy for spectral growth.
+      - aw_fro:      Frobenius norm of A_w averaged over (B, H).
+      - l_diag_min:  smallest diag entry of L (PD safety, should stay > 0).
+      - l_diag_max:  largest diag entry of L (drift indicator).
+
+    Aggregated across layers as max/mean. All scalar, all on CPU. Costs
+    O(B * H * r^2) per layer, dominated by .abs().max() reductions; no
+    SVD, no power iteration. Safe to call every ~100-200 grad steps.
+
+    Returns an empty dict if `states` is None or empty.
+    """
+    if not states:
+        return {}
+
+    aw_max_abs = []
+    aw_fro = []
+    l_diag_min = []
+    l_diag_max = []
+
+    for layer_state in states:
+        L, Aw = layer_state[0], layer_state[1]
+        L_f = L.detach().float()
+        Aw_f = Aw.detach().float()
+
+        aw_max_abs.append(Aw_f.abs().amax().item())
+        # Frobenius norm per (B, H) sample, then mean.
+        aw_fro.append(
+            torch.linalg.matrix_norm(Aw_f, ord="fro").mean().item()
+        )
+        diag = torch.diagonal(L_f, dim1=-2, dim2=-1)  # (B, H, r)
+        l_diag_min.append(diag.min().item())
+        l_diag_max.append(diag.max().item())
+
+    return {
+        "aw_max_abs_layer_max": max(aw_max_abs),
+        "aw_max_abs_layer_mean": sum(aw_max_abs) / len(aw_max_abs),
+        "aw_fro_layer_max": max(aw_fro),
+        "aw_fro_layer_mean": sum(aw_fro) / len(aw_fro),
+        "l_diag_min_layer_min": min(l_diag_min),
+        "l_diag_max_layer_max": max(l_diag_max),
+    }
 
 
 # ----------------------------- LR schedule ------------------------------ #
@@ -184,6 +261,36 @@ def main():
                              "fully public; switch to a Llama tokenizer if you have access.")
     parser.add_argument("--resume", type=str, default=None)
     parser.add_argument("--seed", type=int, default=0)
+    # ----- Optional ports from ska-distill (all default-off) ----- #
+    parser.add_argument(
+        "--retrieval_ratio",
+        type=float,
+        default=0.0,
+        help="Fraction of training samples drawn from synthetic retrieval "
+        "data (S-NIAH-style fact-distractor-question templates). 0.0 "
+        "disables; 0.10-0.20 is a reasonable starting point for boosting "
+        "long-context recall.",
+    )
+    parser.add_argument(
+        "--wandb_project",
+        type=str,
+        default="",
+        help="WandB project name. Empty string disables WandB entirely.",
+    )
+    parser.add_argument(
+        "--wandb_run_name",
+        type=str,
+        default=None,
+        help="WandB run name. Defaults to '{config}-seed{seed}'.",
+    )
+    parser.add_argument(
+        "--health_every_steps",
+        type=int,
+        default=200,
+        help="Sample SKA operator health metrics (max sigma(A_w), min "
+        "diag(L), etc.) every N gradient steps. Only logged when WandB "
+        "is enabled. Set to 0 to disable.",
+    )
     args = parser.parse_args()
 
     cfg = CONFIGS[args.config]
@@ -228,7 +335,34 @@ def main():
         print(f"Global batch: {sequences_per_batch_global} seqs ({cfg['batch_tokens']} tokens)")
         print(f"Per-GPU micro batch: {args.micro_batch}, grad accum: {grad_accum}")
 
-    loader = make_dataloader(tok, cfg["ctx_len"], args.micro_batch, num_workers=2, seed=args.seed + global_rank)
+    loader = make_dataloader(
+        tok,
+        cfg["ctx_len"],
+        args.micro_batch,
+        num_workers=2,
+        seed=args.seed + global_rank,
+        retrieval_ratio=args.retrieval_ratio,
+    )
+
+    # -------------------- WandB (optional, rank-0 only) -------------------- #
+    use_wandb = bool(args.wandb_project) and is_main
+    wandb_run = None
+    if use_wandb:
+        import wandb
+        run_name = args.wandb_run_name or f"{args.config}-seed{args.seed}"
+        wandb_run = wandb.init(
+            project=args.wandb_project,
+            name=run_name,
+            config={
+                **{k: v for k, v in cfg.items() if k != "model_fn"},
+                "config_name": args.config,
+                "world_size": world_size,
+                "micro_batch": args.micro_batch,
+                "tokenizer": args.tokenizer,
+                "retrieval_ratio": args.retrieval_ratio,
+                "seed": args.seed,
+            },
+        )
 
     # -------------------- Resume -------------------- #
     start_tokens = 0
@@ -262,11 +396,27 @@ def main():
         labels = batch["labels"].to(device, non_blocking=True)
 
         # Forward + backward, scaled for grad accumulation.
-        out = (model.module if world_size > 1 else model)(input_ids, labels=labels) \
-              if False else model(input_ids, labels=labels)
+        out = model(input_ids, labels=labels)
         loss = out["loss"] / grad_accum
         loss.backward()
         step += 1
+
+        # Optionally sample SKA operator health metrics from this forward's
+        # states. Done before optim.step() / zero_grad() so we still have
+        # `out` alive. The states are detached + reduced to scalars inside
+        # compute_health(), so no extra autograd memory is held.
+        sampled_health = None
+        if (
+            use_wandb
+            and args.health_every_steps > 0
+            and (step % grad_accum == 0)
+            and ((grad_step + 1) % args.health_every_steps == 0)
+        ):
+            try:
+                sampled_health = compute_health(out.get("states"))
+            except Exception as e:  # never let a diag failure kill training
+                if is_main:
+                    print(f"[health] skipped: {e}", flush=True)
 
         # Step optimizer when we've accumulated a full global batch.
         if step % grad_accum == 0:
@@ -281,7 +431,9 @@ def main():
             )
             for pg in optim.param_groups:
                 pg["lr"] = lr
-            torch.nn.utils.clip_grad_norm_(model.parameters(), cfg["grad_clip"])
+            grad_norm = torch.nn.utils.clip_grad_norm_(
+                model.parameters(), cfg["grad_clip"]
+            )
             optim.step()
             optim.zero_grad(set_to_none=True)
 
@@ -296,6 +448,22 @@ def main():
                     flush=True,
                 )
 
+            # WandB logging: every grad step (not gated by log_every_steps),
+            # so loss curves stay smooth even on long runs.
+            if use_wandb:
+                log_data = {
+                    "train/loss": loss.item() * grad_accum,
+                    "train/lr": lr,
+                    "train/grad_norm": float(grad_norm),
+                    "train/tokens": tokens_seen,
+                    "train/tps": (tokens_seen - start_tokens)
+                    / max(1, time.time() - t_start),
+                }
+                if sampled_health:
+                    for k, v in sampled_health.items():
+                        log_data[f"health/{k}"] = v
+                wandb_run.log(log_data, step=grad_step)
+
             # Periodic checkpoint.
             if is_main and tokens_seen - last_save >= cfg["save_every_tokens"]:
                 ckpt_path = out_dir / f"ckpt_{tokens_seen}.pt"
@@ -305,6 +473,7 @@ def main():
                         "optim": optim.state_dict(),
                         "tokens": tokens_seen,
                         "config": args.config,
+                        "retrieval_ratio": args.retrieval_ratio,
                     },
                     ckpt_path,
                 )
@@ -320,10 +489,14 @@ def main():
                 "optim": optim.state_dict(),
                 "tokens": tokens_seen,
                 "config": args.config,
+                "retrieval_ratio": args.retrieval_ratio,
             },
             ckpt_path,
         )
         print(f"Done. Final checkpoint: {ckpt_path}")
+
+    if use_wandb and wandb_run is not None:
+        wandb_run.finish()
 
     if world_size > 1:
         dist.destroy_process_group()

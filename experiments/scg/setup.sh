@@ -30,6 +30,30 @@ if command -v module >/dev/null 2>&1; then
     if [ -z "${CUDA_HOME:-}" ] && command -v nvcc >/dev/null 2>&1; then
         export CUDA_HOME="$(dirname "$(dirname "$(which nvcc)")")"
     fi
+
+    # SCG's system GCC is 4.8.5 which doesn't support C++17. Many modern
+    # Python packages (contourpy, etc.) need C++17 to build from source.
+    # Load a newer GCC if one is available. Override via SCG_GCC_MOD.
+    GCC_MOD="${SCG_GCC_MOD:-}"
+    if [ -z "$GCC_MOD" ]; then
+        # Auto-detect: pick the newest gcc/X.Y.Z module the user can load.
+        for cand in gcc/14 gcc/13 gcc/12 gcc/11 gcc/10 gcc/9.3.0 gcc/9 gcc; do
+            if module load "$cand" 2>/dev/null; then
+                GCC_MOD="$cand"
+                break
+            fi
+        done
+    else
+        module load "$GCC_MOD" 2>/dev/null || true
+    fi
+    if [ -n "$GCC_MOD" ]; then
+        echo "Loaded GCC module: $GCC_MOD"
+        echo "  c++ version: $(c++ --version | head -1 || echo 'unknown')"
+    else
+        echo "Warning: could not load any gcc module."
+        echo "Run 'module avail gcc' and re-export SCG_GCC_MOD=<name>."
+        echo "Will fall back to wheel-only installs for packages that need compilation."
+    fi
 fi
 
 # Install uv if not present.
@@ -48,20 +72,30 @@ fi
 # shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
 
-# Core deps.
+# Core deps. Pinned to versions with manylinux2014 wheels so we don't need
+# to compile against SCG's old system toolchain.
+#
+# Notes:
+#   - contourpy<1.3 has wheels for older glibc.
+#   - pyarrow<17 has wheels for manylinux2014 (RHEL-7-style hosts).
+#   - lm_eval is intentionally OMITTED here. It pulls libcst / pyarrow >=20
+#     as build-system requires and fights with old toolchains. Install it
+#     later in a separate venv for the evaluation phase only.
 uv pip install --upgrade pip
+
 uv pip install \
     "torch==2.4.0" \
     "triton>=3.0.0" \
     "transformers>=4.43" \
-    "datasets>=2.20" \
+    "datasets>=2.20,<3" \
     "accelerate>=0.33" \
     "huggingface_hub>=0.24" \
     "numpy<2" \
+    "pyarrow<17" \
     "pytest" \
     "pybind11" \
-    "matplotlib" \
-    "lm_eval"
+    "contourpy<1.3" \
+    "matplotlib"
 
 # Build the C++ extension (CPU correctness path).
 cd "$REPO_ROOT/student_pkg"
