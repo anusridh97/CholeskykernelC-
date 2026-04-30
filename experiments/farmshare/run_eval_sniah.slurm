@@ -24,9 +24,11 @@ cd "${SLURM_SUBMIT_DIR:-.}"
 mkdir -p logs results
 
 REPO_ROOT="$(pwd)"
-if [ -d "$REPO_ROOT/../student_pkg" ]; then
+for _ in 1 2 3 4 5; do
+    [ -d "$REPO_ROOT/student_pkg" ] && break
     REPO_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
-fi
+done
+[ -d "$REPO_ROOT/student_pkg" ] || { echo "Cannot find student_pkg/ above the submit dir."; exit 1; }
 
 module load cuda 2>/dev/null || true
 if [ -z "${CUDA_HOME:-}" ] && command -v nvcc >/dev/null 2>&1; then
@@ -63,7 +65,7 @@ SEED="${SKA_SEED:-0}"
 
 OUT="$REPO_ROOT/results/sniah_$(basename "$CKPT" .pt)_seed${SEED}.csv"
 
-cd "$REPO_ROOT/experiments"
+cd "$REPO_ROOT/experiments/backend"
 
 echo "Job $SLURM_JOB_ID on $(hostname)"
 echo "GPU:        $(nvidia-smi -L)"

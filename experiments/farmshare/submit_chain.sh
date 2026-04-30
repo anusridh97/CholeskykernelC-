@@ -16,8 +16,9 @@ CONFIG="${1:-prod}"
 N_JOBS="${2:-2}"
 RUN_EVAL="${RUN_EVAL:-0}"
 
-REPO_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." &> /dev/null && pwd)"
-EXP_DIR="$REPO_ROOT/experiments"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." &> /dev/null && pwd)"
+EXP_DIR="$SCRIPT_DIR"
 mkdir -p "$REPO_ROOT/logs" "$REPO_ROOT/checkpoints/${CONFIG}"
 
 echo "Submitting chain: config=$CONFIG, n_jobs=$N_JOBS"

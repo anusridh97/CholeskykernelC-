@@ -4,7 +4,8 @@
 
 set -euo pipefail
 
-REPO_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." &> /dev/null && pwd)
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/../.." &> /dev/null && pwd)
 echo "Repo root: $REPO_ROOT"
 
 # 1. System deps (RunPod images vary; this is idempotent).
@@ -43,7 +44,7 @@ echo "--- Kernel correctness ---"
 python -m pytest tests/test_correctness.py -v -k "triton or reference" || true
 
 echo "--- SKA wrapper sanity ---"
-cd "$REPO_ROOT/experiments"
+cd "$REPO_ROOT/experiments/backend"
 python ska_recurrence.py
 
 echo "--- Model sizing ---"
@@ -51,5 +52,5 @@ python ska_model.py
 
 echo
 echo "Setup complete. To start training:"
-echo "  bash experiments/launch_training.sh sanity   # 1 GPU, 1h, ~\$3"
-echo "  bash experiments/launch_training.sh prod     # 4 GPUs, ~14h, ~\$170"
+echo "  bash experiments/runpod/launch_training.sh sanity   # 1 GPU, 1h, ~\$3"
+echo "  bash experiments/runpod/launch_training.sh prod     # 4 GPUs, ~14h, ~\$170"

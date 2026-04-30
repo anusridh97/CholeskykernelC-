@@ -8,7 +8,8 @@
 
 set -euo pipefail
 
-REPO_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." &> /dev/null && pwd)
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/../.." &> /dev/null && pwd)
 VENV_DIR="$REPO_ROOT/student_pkg/.venv"
 echo "Repo root: $REPO_ROOT"
 echo "Venv:      $VENV_DIR"
@@ -65,7 +66,7 @@ python -m pytest tests/test_correctness.py -v -k "reference" || true
 
 echo
 echo "--- SKA recurrence + manual backward (CPU) ---"
-cd "$REPO_ROOT/experiments"
+cd "$REPO_ROOT/experiments/backend"
 python ska_recurrence.py
 
 echo
@@ -87,7 +88,7 @@ echo "     The newer CLI uses 'hf' instead of 'huggingface-cli'; either way,"
 echo "     setting HF_TOKEN directly is the most reliable path."
 echo
 echo "  2. Submit the sanity training to verify GPU path:"
-echo "       sbatch experiments/run_train_sanity.slurm"
+echo "       sbatch experiments/farmshare/run_train_sanity.slurm"
 echo
 echo "  3. Once sanity passes, kick off the main run on 4 L40S:"
-echo "       RUN_EVAL=1 bash experiments/submit_chain.sh prod 3"
+echo "       RUN_EVAL=1 bash experiments/farmshare/submit_chain.sh prod 3"

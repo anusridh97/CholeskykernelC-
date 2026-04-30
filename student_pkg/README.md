@@ -83,18 +83,30 @@ approximation. See `experiments/README.md` for the math contract,
 hand-derived closed-form backward through the double-sided Cholesky
 update.
 
+The `experiments/` directory is organized into:
+
+```
+experiments/
+├── backend/        cluster-agnostic Python (model, kernel wrapper, training, evals)
+├── farmshare/      Stanford Farmshare (free)
+├── scg/            Stanford SCG (free, faster H100/H200 if available)
+└── runpod/         legacy paid-cloud launchers
+```
+
 Quick start on Stanford Farmshare (run from the repo root):
 
 ```bash
-python experiments/ska_recurrence.py        # local correctness + gradcheck
-bash   experiments/setup_farmshare.sh       # one-shot login-node setup
-sbatch experiments/run_train_sanity.slurm   # 165M, 100M tokens, 1 L40S
-bash   experiments/submit_chain.sh prod 2   # 340M, 5B tokens, 4 L40S chained
-sbatch experiments/run_eval_sniah.slurm     # S-NIAH at 5 ctx lengths
+python experiments/backend/ska_recurrence.py     # local correctness + gradcheck
+bash   experiments/farmshare/setup.sh            # one-shot login-node setup
+sbatch experiments/farmshare/run_train_sanity.slurm
+bash   experiments/farmshare/submit_chain.sh prod 3
+sbatch experiments/farmshare/run_eval_sniah.slurm
 ```
 
-The legacy RunPod scripts (`setup_runpod.sh`, `launch_training.sh`,
-`launch_eval.sh`) still work if you want to rent paid GPUs instead.
+For SCG, swap `farmshare` for `scg` in the paths and read
+`experiments/scg/README.md` for the SCG-specific submission env vars.
+
+See `experiments/README.md` for the full layout overview.
 
 ## Conventions
 

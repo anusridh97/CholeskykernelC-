@@ -27,9 +27,20 @@ from pathlib import Path
 
 import torch
 
-# Make the kernel importable.
+# Make the kernel importable. Walk upward from this file looking for the
+# student_pkg directory so this module works whether located at experiments/,
+# experiments/backend/, or anywhere else under the repo root.
 _HERE = Path(__file__).resolve().parent
-_STUDENT = _HERE.parent / "student_pkg"
+_STUDENT = None
+for _p in [_HERE, *_HERE.parents]:
+    if (_p / "student_pkg").is_dir():
+        _STUDENT = _p / "student_pkg"
+        break
+if _STUDENT is None:
+    raise RuntimeError(
+        f"Cannot locate student_pkg/ above {_HERE}; expected the kernel package "
+        f"to live somewhere on the path from this file to the repo root."
+    )
 if str(_STUDENT) not in sys.path:
     sys.path.insert(0, str(_STUDENT))
 

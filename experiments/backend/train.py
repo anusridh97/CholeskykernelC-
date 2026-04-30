@@ -74,6 +74,19 @@ CONFIGS = {
         "save_every_tokens": int(0.5e9),     # checkpoint every 500M tokens
         "log_every_steps": 50,
     },
+    "prod_scg": {                            # SCG default (8x H100/H200 or A100)
+        "model_fn": make_340m_model,
+        "total_tokens": int(15e9),          # 15B; matches PDN exactly
+        "warmup_tokens": int(0.5e9),         # 500M (PDN-matched)
+        "batch_tokens": int(0.5e6),         # PDN-matched global batch
+        "ctx_len": 2048,
+        "peak_lr": 4e-4,                    # PDN-matched
+        "min_lr": 4e-5,                     # PDN-matched
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "save_every_tokens": int(0.25e9),    # frequent checkpoints (preempt insurance)
+        "log_every_steps": 50,
+    },
 }
 
 # ------------------------------ Data pipeline --------------------------- #

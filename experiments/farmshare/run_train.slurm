@@ -29,11 +29,11 @@ mkdir -p logs
 
 # Locate the repo root (handles submission from either repo root or experiments/).
 REPO_ROOT="$(pwd)"
-if [ -d "$REPO_ROOT/student_pkg" ]; then
-    :
-elif [ -d "$REPO_ROOT/../student_pkg" ]; then
+for _ in 1 2 3 4 5; do
+    [ -d "$REPO_ROOT/student_pkg" ] && break
     REPO_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
-fi
+done
+[ -d "$REPO_ROOT/student_pkg" ] || { echo "Cannot find student_pkg/ above the submit dir."; exit 1; }
 
 # Load CUDA so Triton and torch can find nvcc + the runtime.
 module load cuda 2>/dev/null || true
@@ -81,7 +81,7 @@ case "$CONFIG" in
     *) echo "Unknown SKA_CONFIG=$CONFIG"; exit 1 ;;
 esac
 
-cd "$REPO_ROOT/experiments"
+cd "$REPO_ROOT/experiments/backend"
 
 echo "Job $SLURM_JOB_ID on $(hostname)"
 echo "GPUs: $(nvidia-smi -L | tr '\n' ' | ')"

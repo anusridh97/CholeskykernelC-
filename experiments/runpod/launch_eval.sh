@@ -8,8 +8,9 @@ set -euo pipefail
 CKPT="${1:?usage: launch_eval.sh <ckpt_path> [config]}"
 CONFIG="${2:-prod}"
 
-REPO_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." &> /dev/null && pwd)
-EXP_DIR="$REPO_ROOT/experiments"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/../.." &> /dev/null && pwd)
+EXP_DIR="$REPO_ROOT/experiments/backend"
 RESULTS_DIR="$REPO_ROOT/results"
 
 mkdir -p "$RESULTS_DIR"
@@ -25,11 +26,11 @@ echo "Output: $OUT"
 python eval_sniah.py \
     --ckpt "$CKPT" \
     --config "$CONFIG" \
-    --tokenizer "meta-llama/Llama-2-7b-hf" \
+    --tokenizer "gpt2" \
     --lengths 2048 4096 8192 16384 32768 \
     --variants 1 2 3 \
     --n_examples 100 \
     --out "$OUT" \
     --seed 0
 
-echo "Done. Plot with experiments/plot_sniah.py"
+echo "Done. Plot with experiments/backend/plot_sniah.py"

@@ -6,8 +6,9 @@
 set -euo pipefail
 
 CONFIG="${1:-prod}"
-REPO_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." &> /dev/null && pwd)
-EXP_DIR="$REPO_ROOT/experiments"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/../.." &> /dev/null && pwd)
+EXP_DIR="$REPO_ROOT/experiments/backend"
 CKPT_DIR="$REPO_ROOT/checkpoints/${CONFIG}_$(date +%Y%m%d_%H%M%S)"
 LOG_DIR="$REPO_ROOT/logs"
 
