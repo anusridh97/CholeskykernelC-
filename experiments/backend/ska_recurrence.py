@@ -55,6 +55,15 @@ try:
 except Exception:
     _HAVE_TRITON = False
 
+# The chunk kernel is a separate import so missing-on-old-Triton degrades
+# gracefully (we just fall back to the per-token loop).
+try:
+    from doublesided_cholesky import incremental_chunk_update_triton
+    _HAVE_CHUNK_KERNEL = True
+except Exception:
+    incremental_chunk_update_triton = None  # type: ignore
+    _HAVE_CHUNK_KERNEL = False
+
 
 # ---------------------------------------------------------------------------
 # Forward: high-level reference (autograd-friendly; used as CPU fallback)
@@ -304,6 +313,12 @@ def ska_step(L, Aw, k, v):
 def _chunk_forward(L, Aw, K, V):
     """Run the per-token forward kernel C times, collecting all intermediates.
 
+    Saved intermediates are written into preallocated stacked tensors
+    instead of Python lists. Numerically identical to the previous
+    list-based version (verified by test_chunk_forward_equivalence.py),
+    but eliminates per-iteration Python list overhead and gives the
+    backward an O(1) `[c]`-style index into a contiguous buffer.
+
     Args:
       L:  (BH, r, r) initial Cholesky factor at the chunk start.
       Aw: (BH, r, r) initial whitened operator at the chunk start.
@@ -314,19 +329,47 @@ def _chunk_forward(L, Aw, K, V):
       L_new:   (BH, r, r) at chunk end
       Aw_new:  (BH, r, r) at chunk end
       K_tilde: (BH, C, r) preconditioned write keys, one per token
-      saved:   tuple of per-token intermediates needed for the backward.
-               Each element is a list of length C of shape (BH, r, r) or (BH, r).
+      saved:   stacked tensors (L_seq, Aw_seq, vz_seq, vw_seq,
+               k_tilde_seq, T_mat_seq) where:
+                 L_seq, Aw_seq:   (BH, C+1, r, r)
+                 T_mat_seq:       (BH, C, r, r)
+                 vz_seq, vw_seq, k_tilde_seq: (BH, C, r)
     """
     BH, C, r = K.shape
+
+    # Fast path: single-launch fused chunk kernel on CUDA, for r <= 128.
+    # All five phases of the per-token kernel run sequentially inside one
+    # GPU program per (b,h); k_tilde and T are computed via two batched
+    # solve_triangular calls afterwards. Total: 3 launches per chunk (vs
+    # ~3*C launches for the per-token path).
+    #
+    # _chunk_forward is only ever called from _SKAChunkUpdate.forward, which
+    # is a custom autograd Function, so autograd is already disabled on the
+    # internal ops. Safe to call the kernel directly.
+    if _HAVE_CHUNK_KERNEL and L.is_cuda and r <= 128:
+        L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq = (
+            incremental_chunk_update_triton(L, Aw, K, V)
+        )
+        L_curr = L_seq[:, -1]
+        Aw_curr = Aw_seq[:, -1]
+        return L_curr, Aw_curr, kt_seq, (L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq)
+
+    # Fallback path: per-token loop. Used on CPU (reference path), for
+    # r > 128, or if the chunk kernel failed to import. Numerically
+    # identical to the fast path within fp32 noise.
+    device, dtype = L.device, L.dtype
+    L_seq  = torch.empty(BH, C + 1, r, r, device=device, dtype=dtype)
+    Aw_seq = torch.empty(BH, C + 1, r, r, device=device, dtype=dtype)
+    vz_seq = torch.empty(BH, C, r, device=device, dtype=dtype)
+    vw_seq = torch.empty(BH, C, r, device=device, dtype=dtype)
+    kt_seq = torch.empty(BH, C, r, device=device, dtype=dtype)
+    T_seq  = torch.empty(BH, C, r, r, device=device, dtype=dtype)
+
+    L_seq[:, 0]  = L
+    Aw_seq[:, 0] = Aw
+
     L_curr = L
     Aw_curr = Aw
-
-    L_seq = [L]              # L_0, L_1, ..., L_C  (length C+1)
-    Aw_seq = [Aw]            # Aw_0, Aw_1, ..., Aw_C
-    vz_seq = []              # length C
-    vw_seq = []
-    k_tilde_seq = []
-    T_mat_seq = []
 
     use_triton = _HAVE_TRITON and L.is_cuda
 
@@ -342,16 +385,15 @@ def _chunk_forward(L, Aw, K, V):
                 L_curr, Aw_curr, vz_c, vw_c, k_tilde_c = _forward_reference(
                     L_curr, Aw_curr, z_c, w_c
                 )
-        T_c = torch.linalg.solve_triangular(L_curr, L_seq[-1], upper=False)
-        L_seq.append(L_curr.contiguous())
-        Aw_seq.append(Aw_curr.contiguous())
-        vz_seq.append(vz_c)
-        vw_seq.append(vw_c)
-        k_tilde_seq.append(k_tilde_c)
-        T_mat_seq.append(T_c)
+        T_c = torch.linalg.solve_triangular(L_curr, L_seq[:, c], upper=False)
+        L_seq[:, c + 1]  = L_curr
+        Aw_seq[:, c + 1] = Aw_curr
+        vz_seq[:, c]     = vz_c
+        vw_seq[:, c]     = vw_c
+        kt_seq[:, c]     = k_tilde_c
+        T_seq[:, c]      = T_c
 
-    K_tilde = torch.stack(k_tilde_seq, dim=1)  # (BH, C, r)
-    return L_curr, Aw_curr, K_tilde, (L_seq, Aw_seq, vz_seq, vw_seq, k_tilde_seq, T_mat_seq)
+    return L_curr, Aw_curr, kt_seq, (L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq)
 
 
 class _SKAChunkUpdate(torch.autograd.Function):
@@ -384,7 +426,8 @@ class _SKAChunkUpdate(torch.autograd.Function):
     def backward(ctx, grad_L_new, grad_Aw_new, grad_K_tilde):
         K = ctx.K
         V = ctx.V
-        L_seq, Aw_seq, vz_seq, vw_seq, k_tilde_seq, T_mat_seq = ctx.saved_seq
+        # Saved sequences are now stacked tensors, indexable with [:, c].
+        L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq = ctx.saved_seq
 
         BH, C, r = K.shape
         if grad_L_new is None:
@@ -402,15 +445,15 @@ class _SKAChunkUpdate(torch.autograd.Function):
         grad_Aw_curr = grad_Aw_new
         for c in reversed(range(C)):
             grad_L_c, grad_Aw_c, grad_z_c, grad_w_c = _per_token_backward_step(
-                L=L_seq[c],
-                Aw=Aw_seq[c],
+                L=L_seq[:, c],
+                Aw=Aw_seq[:, c],
                 z=K[:, c],
                 w=V[:, c],
-                L_new=L_seq[c + 1],
-                vz=vz_seq[c],
-                vw=vw_seq[c],
-                k_tilde=k_tilde_seq[c],
-                T_mat=T_mat_seq[c],
+                L_new=L_seq[:, c + 1],
+                vz=vz_seq[:, c],
+                vw=vw_seq[:, c],
+                k_tilde=kt_seq[:, c],
+                T_mat=T_seq[:, c],
                 grad_L_new=grad_L_curr,
                 grad_Aw_new=grad_Aw_curr,
                 grad_k_tilde=grad_K_tilde[:, c],

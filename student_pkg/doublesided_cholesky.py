@@ -520,3 +520,244 @@ def incremental_update_triton_batched(L, Aw, z, w, num_warps=None):
     )
 
     return Aw_out, vz
+
+
+# ===========================================================================
+# CHUNK-FUSED KERNEL
+#
+# Processes C sequential per-token rank-1 updates inside ONE GPU program per
+# (b,h) slot, instead of issuing C kernel launches from Python. Replaces the
+# per-token `for c in range(C)` loop in
+# experiments/backend/ska_recurrence.py:_chunk_forward.
+#
+# Per token, runs the same five phases as _fused_doublesided_kernel:
+#   Phase 1: Givens rank-1 Cholesky update of L (L_curr -> L_new).
+#   Phase 2: Double-sided propagation of A_w (left + right sweep).
+#   Phase 3: Recover v_z = (L_new)^{-1} z from the saved Givens (c, s).
+#   Phase 4: Forward solve v_w = L_new^{-1} w.
+#   Phase 7: Rank-1 correction A_w += v_z v_w^T.
+#
+# Two outputs that the per-token kernel computed via separate launches outside
+# the kernel are deliberately moved to a single batched PyTorch call AFTER
+# this kernel finishes (so the kernel itself is simpler):
+#   k_tilde_t = (L_new_t)^{-T} v_z_t      (one batched back-solve)
+#   T_t       = L_new_t^{-1} L_curr_t     (one batched forward-solve)
+#
+# Memory layout for outputs (matches what
+# experiments/backend/ska_recurrence._chunk_forward writes):
+#   L_seq:  (BH, C+1, r, r)    L_seq[:, 0] = initial L; the kernel fills 1..C.
+#   Aw_seq: (BH, C+1, r, r)    Aw_seq[:, 0] = initial Aw; kernel fills 1..C.
+#   vz_seq: (BH, C, r)
+#   vw_seq: (BH, C, r)
+# ===========================================================================
+
+
+@triton.jit
+def _fused_chunk_kernel(
+    L_seq_ptr,       # (BH, C+1, r, r) - slot 0 holds initial L; kernel fills 1..C
+    Aw_seq_ptr,      # (BH, C+1, r, r) - slot 0 holds initial Aw; kernel fills 1..C
+    K_ptr,           # (BH, C, r) per-token keys
+    V_ptr,           # (BH, C, r) per-token values
+    vz_seq_ptr,      # (BH, C, r) per-token v_z
+    vw_seq_ptr,      # (BH, C, r) per-token v_w
+    cs_ptr, ss_ptr,  # (BH, r)    per-program scratch (overwritten each c)
+    r: tl.constexpr,
+    C: tl.constexpr,
+    BLOCK: tl.constexpr,
+):
+    """One GPU program per (b,h); processes all C tokens sequentially in SRAM.
+
+    BLOCK must be a power of two with BLOCK >= r and BLOCK <= 1024.
+    """
+    pid = tl.program_id(0)
+
+    # Per-program base offsets.
+    seq_mat_stride = (C + 1) * r * r          # L_seq, Aw_seq stride between BH slots
+    seq_vec_stride = C * r                    # vz_seq, vw_seq, K, V stride
+    L_seq_base  = L_seq_ptr  + pid * seq_mat_stride
+    Aw_seq_base = Aw_seq_ptr + pid * seq_mat_stride
+    K_base      = K_ptr      + pid * seq_vec_stride
+    V_base      = V_ptr      + pid * seq_vec_stride
+    vz_base     = vz_seq_ptr + pid * seq_vec_stride
+    vw_base     = vw_seq_ptr + pid * seq_vec_stride
+    cs_base     = cs_ptr     + pid * r
+    ss_base     = ss_ptr     + pid * r
+
+    idx = tl.arange(0, BLOCK)
+    mask_r = idx < r
+
+    # Outer C-token loop. We use plain `range` so r and C are constexpr to
+    # the compiler; the inner phase loops also unroll. For r=128, C=64 this
+    # is a large IR but well within Triton's compile budget on Triton >= 3.0.
+    for c in range(C):
+        L_curr_ptr  = L_seq_base  + c * r * r
+        L_new_ptr   = L_seq_base  + (c + 1) * r * r
+        Aw_curr_ptr = Aw_seq_base + c * r * r
+        Aw_new_ptr  = Aw_seq_base + (c + 1) * r * r
+        z_in_ptr    = K_base + c * r
+        w_in_ptr    = V_base + c * r
+        vz_out_ptr  = vz_base + c * r
+        vw_out_ptr  = vw_base + c * r
+
+        # ---------------- Phase 1: Givens rank-1 Cholesky update ---------------
+        # Read column k from L_curr, write column k to L_new (zeros above
+        # diagonal preserved). Track z in registers across the k loop.
+        z = tl.load(z_in_ptr + idx, mask=mask_r, other=0.0)
+        for k in range(r):
+            L_col = tl.load(L_curr_ptr + idx * r + k, mask=mask_r, other=0.0)
+            Lkk = tl.sum(tl.where(idx == k, L_col, 0.0))
+            zk  = tl.sum(tl.where(idx == k, z,     0.0))
+            cval, sval = _givens_params_tri(Lkk, zk)
+            tl.store(cs_base + k, cval)
+            tl.store(ss_base + k, sval)
+
+            active = mask_r & (idx >= k)
+            new_L = cval * L_col + sval * z
+            # Lower-triangular structure: idx<k stays 0, idx>=k gets rotated.
+            tl.store(L_new_ptr + idx * r + k,
+                     tl.where(active, new_L, 0.0),
+                     mask=mask_r)
+
+            new_z = -sval * L_col + cval * z
+            z = tl.where(active, new_z, z)
+        tl.debug_barrier()
+
+        # ---------------- Phase 2 left sweep: Aw_curr -> Aw_new ----------------
+        cols_p = tl.arange(0, BLOCK)
+        mask_cols = cols_p < r
+        pad_row = tl.zeros((BLOCK,), dtype=tl.float32)
+        for k in range(r):
+            cval = tl.load(cs_base + k)
+            sval = tl.load(ss_base + k)
+            rk = tl.load(Aw_curr_ptr + k * r + cols_p, mask=mask_cols, other=0.0)
+            rr = pad_row
+            tl.store(Aw_new_ptr + k * r + cols_p, cval * rk + sval * rr, mask=mask_cols)
+            pad_row = -sval * rk + cval * rr
+        tl.debug_barrier()
+
+        # ---------------- Phase 2 right sweep: Aw_new in-place ----------------
+        rows_p = tl.arange(0, BLOCK)
+        mask_rows = rows_p < r
+        pad_col = tl.zeros((BLOCK,), dtype=tl.float32)
+        for k in range(r):
+            cval = tl.load(cs_base + k)
+            sval = tl.load(ss_base + k)
+            ck = tl.load(Aw_new_ptr + rows_p * r + k, mask=mask_rows, other=0.0)
+            cr = pad_col
+            tl.store(Aw_new_ptr + rows_p * r + k, cval * ck + sval * cr, mask=mask_rows)
+            pad_col = -sval * ck + cval * cr
+
+        # ---------------- Phase 3: recover v_z via Givens ----------------
+        e_last = 1.0
+        for k in range(r):
+            cval = tl.load(cs_base + k)
+            sval = tl.load(ss_base + k)
+            tl.store(vz_out_ptr + k, sval * e_last)
+            e_last = cval * e_last
+
+        # ---------------- Phase 4: forward solve v_w = L_new^{-1} w ----------------
+        # Writes vw_out_ptr incrementally; iteration k uses vw_out_ptr at
+        # indices < k (already-written) and writes index k.
+        for k in range(r):
+            wk = tl.load(w_in_ptr + k).to(tl.float32)
+            L_row = tl.load(L_new_ptr + k * r + idx, mask=mask_r, other=0.0)
+            vw_prev = tl.load(vw_out_ptr + idx, mask=mask_r, other=0.0)
+
+            contrib = tl.where(idx < k,
+                               L_row.to(tl.float32) * vw_prev.to(tl.float32),
+                               0.0)
+            acc = tl.sum(contrib, axis=0)
+
+            Lkk = tl.sum(tl.where(idx == k, L_row, 0.0))
+            vw_k = ((wk - acc) / Lkk.to(tl.float32)).to(L_row.dtype)
+            tl.store(vw_out_ptr + k, vw_k)
+        tl.debug_barrier()
+
+        # ---------------- Phase 7: Aw_new += v_z v_w^T ----------------
+        for i in range(r):
+            vzi = tl.load(vz_out_ptr + i)
+            vw_vec = tl.load(vw_out_ptr + cols_p, mask=mask_cols, other=0.0)
+            cur = tl.load(Aw_new_ptr + i * r + cols_p, mask=mask_cols, other=0.0)
+            tl.store(Aw_new_ptr + i * r + cols_p,
+                     cur + vzi * vw_vec,
+                     mask=mask_cols)
+
+
+def incremental_chunk_update_triton(L, Aw, K, V, num_warps=None):
+    """Single-launch C-token SKA chunk update.
+
+    Replaces the per-token Python loop in ska_recurrence._chunk_forward.
+
+    Args:
+        L:  (BH, r, r) initial Cholesky factor at chunk start.
+        Aw: (BH, r, r) initial whitened operator at chunk start.
+        K:  (BH, C, r) keys for the chunk.
+        V:  (BH, C, r) values for the chunk.
+
+    Returns:
+        L_seq:  (BH, C+1, r, r)  L_t for t=0..C
+        Aw_seq: (BH, C+1, r, r)  Aw_t for t=0..C
+        vz_seq: (BH, C, r)
+        vw_seq: (BH, C, r)
+        kt_seq: (BH, C, r)       k_tilde_t = L_new_t^{-T} v_z_t
+        T_seq:  (BH, C, r, r)    T_t = L_new_t^{-1} L_curr_t
+
+    Constraint: r <= 128 (so 2 * r*r * 4 bytes = 128KB stays in H200 SRAM
+    headroom). Larger r should fall back to per-token kernels.
+    """
+    BH, r1, r2 = L.shape
+    assert r1 == r2, f"L must be square, got {L.shape}"
+    BH2, C, r3 = K.shape
+    assert BH == BH2 and r1 == r3, (
+        f"shape mismatch: L {L.shape} K {K.shape}"
+    )
+    r = r1
+    assert r <= 128, f"chunk kernel requires r<=128 for SRAM budget, got r={r}"
+
+    BLOCK = triton.next_power_of_2(r)
+    assert BLOCK <= 1024
+
+    device, dtype = L.device, L.dtype
+
+    # Allocate stacked saves. Use zeros for L_seq so upper-triangular slots
+    # stay 0 (the kernel only writes the lower-triangle entries of L_new).
+    L_seq  = torch.zeros(BH, C + 1, r, r, device=device, dtype=dtype)
+    Aw_seq = torch.empty(BH, C + 1, r, r, device=device, dtype=dtype)
+    vz_seq = torch.empty(BH, C, r, device=device, dtype=dtype)
+    vw_seq = torch.empty(BH, C, r, device=device, dtype=dtype)
+
+    # Seed slot 0 with the initial state. The kernel will fill slots 1..C.
+    L_seq[:, 0]  = L
+    Aw_seq[:, 0] = Aw
+
+    cs = torch.empty(BH, r, device=device, dtype=dtype)
+    ss = torch.empty(BH, r, device=device, dtype=dtype)
+
+    launch_kwargs = {"r": r, "C": C, "BLOCK": BLOCK}
+    if num_warps is not None:
+        launch_kwargs["num_warps"] = num_warps
+
+    _fused_chunk_kernel[(BH,)](
+        L_seq, Aw_seq, K, V, vz_seq, vw_seq, cs, ss,
+        **launch_kwargs,
+    )
+
+    # Post-kernel batched solves (each is one PyTorch launch, batched
+    # over BH and C). These are the two ops that ska_recurrence used to
+    # call once per token, contributing 2C launches per chunk.
+
+    # k_tilde_t = (L_new_t)^{-T} v_z_t
+    # L_new_t lives at L_seq[:, 1:]; transpose to upper-triangular.
+    L_new_T = L_seq[:, 1:].transpose(-2, -1).contiguous()  # (BH, C, r, r)
+    kt_seq = torch.linalg.solve_triangular(
+        L_new_T, vz_seq.unsqueeze(-1), upper=True
+    ).squeeze(-1)
+
+    # T_t = L_new_t^{-1} L_curr_t  (each token: r columns of forward solve)
+    T_seq = torch.linalg.solve_triangular(
+        L_seq[:, 1:].contiguous(),
+        L_seq[:, :-1].contiguous(),
+        upper=False,
+    )
+
+    return L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq
