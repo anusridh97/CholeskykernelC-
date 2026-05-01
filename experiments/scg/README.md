@@ -177,7 +177,7 @@ to your account.
 Submit:
 
 ```bash
-export SKA_EXTRA_ARGS="--grad_checkpoint" 
+export SKA_EXTRA_ARGS="--grad_checkpoint"
 
 SKA_MICRO_BATCH=1 sbatch \
     --export=ALL,HF_TOKEN="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",SKA_MICRO_BATCH=1 \

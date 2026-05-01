@@ -320,16 +320,28 @@ def main():
     is_main = global_rank == 0
     device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
 
-    # Auto-set the ATK-compile kill switch when grad_checkpoint is on.
-    # Reason: torch.compile's AOT-autograd path conflicts with
-    # torch.utils.checkpoint's RNG fork in PyTorch <= 2.4. The check has
-    # to happen BEFORE ska_layer is imported by the model (so it picks up
-    # the env var on first call to _get_atk_chunk_fn).
+    # Workaround: torch.compile (Inductor AOT autograd) conflicts with
+    # torch.utils.checkpoint's RNG fork on PyTorch <= 2.4. The checkpoint
+    # recompute calls torch.random.fork_rng, which Inductor's FakeTensor
+    # mode rejects when tracing the joint forward+backward graph.
+    #
+    # Fix: replace fork_rng with a no-op for the duration of training.
+    # This is safe specifically because the SKA architecture has no
+    # stochastic operations (no dropout, no random masking), so we don't
+    # actually need RNG state preservation across checkpoint recompute.
+    # Without this, we'd have to choose between ATK torch.compile (1.9x
+    # forward speedup) and grad_checkpoint (memory bound). With it, both
+    # coexist.
     if args.grad_checkpoint:
-        os.environ["SKA_NO_COMPILE_ATK"] = "1"
+        import contextlib
+        @contextlib.contextmanager
+        def _noop_fork_rng(*args, **kwargs):
+            yield
+        torch.random.fork_rng = _noop_fork_rng
         if is_main:
-            print("Note: --grad_checkpoint is on, disabling ATK torch.compile "
-                  "(known conflict with checkpoint's fork_rng).")
+            print("Note: --grad_checkpoint is on. Patched torch.random.fork_rng "
+                  "to no-op so it coexists with ATK torch.compile (safe because "
+                  "SKA has no stochastic ops).")
 
     # Enable TF32 on Ampere+ tensor cores (H100/H200/A100). ~2-4x faster
     # matmul/einsum at a small precision cost (10-bit mantissa during the
