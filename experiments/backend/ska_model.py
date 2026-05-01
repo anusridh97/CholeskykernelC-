@@ -125,6 +125,26 @@ class SKAModel(nn.Module):
         # (inference uses states for KV-cache-style streaming and doesn't
         # need recompute).
         use_ckpt = self.grad_checkpoint and self.training and states is None
+
+        # CRITICAL: detach `s_out` (the per-layer (L, Aw, S, conv_q, conv_k,
+        # conv_v) tuple) before storing it during training. Otherwise its
+        # autograd grad_fn chain pins the chunk Function's saved tensors
+        # (L_seq, Aw_seq, T_seq, ...) for ALL layers in memory until the
+        # model output is freed. With 12 layers x 16 chunks each saving
+        # ~150 MB of stacked tensors, that's 30-100 GB of pinned memory,
+        # which is exactly what was causing the OOM during checkpoint's
+        # backward recompute.
+        # Detaching is safe: states are only consumed by (a) inference
+        # state-passing (no autograd needed) and (b) health metrics (which
+        # already calls .detach() internally).
+        def _detach_state(s):
+            if s is None:
+                return None
+            return tuple(
+                t.detach() if isinstance(t, torch.Tensor) else t
+                for t in s
+            )
+
         for i, layer in enumerate(self.layers):
             s = None if states is None else states[i]
             if use_ckpt:
@@ -133,9 +153,9 @@ class SKAModel(nn.Module):
             else:
                 x, s_out = layer(x, state=s)
             if states is None:
-                new_states.append(s_out)
+                new_states.append(_detach_state(s_out))
             else:
-                states[i] = s_out
+                states[i] = _detach_state(s_out)
         x = self.norm_f(x)
         logits = self.lm_head(x)
 
