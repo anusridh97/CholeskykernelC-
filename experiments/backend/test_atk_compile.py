@@ -30,12 +30,39 @@ from ska_layer import _atk_chunk_update_eager, atk_chunk_update, _get_atk_chunk_
 
 
 def _make_inputs(BH: int, C: int, r: int, device, dtype, seed: int = 0):
+    """Generate inputs that mirror the real distribution the SKA layer feeds.
+
+    In ska_layer.py the keys are L2-normalized to unit norm before the
+    chunk update (line 171-172), and K_tilde inherits a similar bounded-
+    norm property from the Cholesky kernel. With raw N(0,1) inputs, the
+    recurrence S_t = S_{t-1} + (v_t - S_{t-1} k_t) k_tilde_t^T blows up
+    after a handful of iterations because (I - k k_tilde^T) is not a
+    contraction for arbitrary k, k_tilde.
+
+    Mirroring the layer's normalization keeps the test in the regime
+    that actually matters: bounded recurrence, no NaN, real signal on
+    eager vs compiled differences.
+    """
     g = torch.Generator(device=device).manual_seed(seed)
-    S = torch.randn(BH, r, r, device=device, dtype=dtype, generator=g)
-    K = torch.randn(BH, C, r, device=device, dtype=dtype, generator=g)
-    V = torch.randn(BH, C, r, device=device, dtype=dtype, generator=g)
-    Q = torch.randn(BH, C, r, device=device, dtype=dtype, generator=g)
-    KT = torch.randn(BH, C, r, device=device, dtype=dtype, generator=g)
+
+    # Initial state: small, like the L_0 = sqrt(lambda) * I + zero S_0
+    # init in SKALayer._init_state. We scale random init to ~0.1 so the
+    # first few updates dominate (the operator quickly forgets initial S).
+    S = torch.randn(BH, r, r, device=device, dtype=dtype, generator=g) * 0.1
+
+    # Keys: L2-normalized along the per-token feature dim, matching
+    # _l2_normalize(F.silu(k_post)) in the layer.
+    def _unit_norm(x):
+        return x / x.norm(dim=-1, keepdim=True).clamp(min=1e-6)
+
+    K  = _unit_norm(torch.randn(BH, C, r, device=device, dtype=dtype, generator=g))
+    KT = _unit_norm(torch.randn(BH, C, r, device=device, dtype=dtype, generator=g))
+
+    # V and Q are not L2-normalized in the layer, but they are SiLU
+    # outputs of bounded-magnitude linear projections. Moderate scale
+    # (std ~0.5) keeps them realistic without overpowering the keys.
+    V = torch.randn(BH, C, r, device=device, dtype=dtype, generator=g) * 0.5
+    Q = torch.randn(BH, C, r, device=device, dtype=dtype, generator=g) * 0.5
     return S, K, V, Q, KT
 
 
