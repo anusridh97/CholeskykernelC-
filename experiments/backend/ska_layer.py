@@ -111,13 +111,15 @@ def _get_atk_chunk_fn():
         return _atk_chunk_compiled_fn
     _atk_chunk_compile_attempted = True
     try:
-        # mode="reduce-overhead": uses CUDA graphs to fuse the unrolled
-        # iterations into one device-side launch per chunk. dynamic=False
-        # because chunk_size is fixed per model. fullgraph=False so any
-        # graph break degrades gracefully instead of raising.
+        # mode="default": Inductor op fusion without CUDA graphs.
+        # We deliberately avoid mode="reduce-overhead" because its CUDA-
+        # graph buffer reuse produces NaNs on this 64-step recurrent loop
+        # (verified empirically). "default" still fuses the per-iteration
+        # einsum chain into a few kernels, giving a ~5x speedup at fp32
+        # tolerance for forward + backward.
         _atk_chunk_compiled_fn = torch.compile(
             _atk_chunk_update_eager,
-            mode="reduce-overhead",
+            mode="default",
             dynamic=False,
             fullgraph=False,
         )

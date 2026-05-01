@@ -306,6 +306,17 @@ def main():
     is_main = global_rank == 0
     device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
 
+    # Enable TF32 on Ampere+ tensor cores (H100/H200/A100). ~2-4x faster
+    # matmul/einsum at a small precision cost (10-bit mantissa during the
+    # multiply, accumulated in fp32). Standard practice for fp32 LM
+    # pretraining; numerical impact on convergence is negligible.
+    torch.set_float32_matmul_precision("high")
+    # Also let cuDNN use its tf32 kernels for any conv ops (the short conv).
+    torch.backends.cudnn.allow_tf32 = True
+    torch.backends.cuda.matmul.allow_tf32 = True
+    if is_main:
+        print("Matmul precision: high (TF32 enabled)")
+
     out_dir = Path(args.out_dir)
     if is_main:
         out_dir.mkdir(parents=True, exist_ok=True)
