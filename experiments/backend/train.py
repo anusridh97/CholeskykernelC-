@@ -88,17 +88,22 @@ CONFIGS = {
         "log_every_steps": 5,
     },
     "prod_scg": {                            # SCG default (8x H100/H200 or A100)
+        # Trimmed from PDN's 15B / ctx 2048 to fit the SCG 36-hour budget
+        # with the current per-token-sequential SKA recurrence cost.
+        # 3B tokens at ctx 1024 is the realistic sweet spot; combined with
+        # chunk-fused kernels + bf16 + no grad_ckpt, fits in ~36-48h.
+        # Use --grad_checkpoint if memory pressure shows up at 24 layers.
         "model_fn": make_340m_model,
-        "total_tokens": int(15e9),          # 15B; matches PDN exactly
-        "warmup_tokens": int(0.5e9),         # 500M (PDN-matched)
+        "total_tokens": int(3e9),           # 3B (was 15B PDN-matched)
+        "warmup_tokens": int(0.15e9),        # 150M (5% of total)
         "batch_tokens": int(0.5e6),         # PDN-matched global batch
-        "ctx_len": 2048,
+        "ctx_len": 1024,                    # halved from 2048 for ~2x throughput
         "peak_lr": 4e-4,                    # PDN-matched
         "min_lr": 4e-5,                     # PDN-matched
         "weight_decay": 0.01,
         "grad_clip": 1.0,
-        "save_every_tokens": int(0.25e9),    # frequent checkpoints (preempt insurance)
-        "log_every_steps": 50,
+        "save_every_tokens": int(0.1e9),     # frequent checkpoints (preempt insurance)
+        "log_every_steps": 20,
     },
 }
 
@@ -299,6 +304,15 @@ def main():
         "peak VRAM by roughly n_layers× at ~30%% extra wall time. Use "
         "for sanity at ctx>=1024 or any prod run that's tight on VRAM.",
     )
+    parser.add_argument(
+        "--bf16",
+        action="store_true",
+        help="Wrap model forward in torch.amp.autocast(dtype=bfloat16). "
+        "Roughly 1.5-2x speedup on H200/H100 tensor cores via TF32->bf16 "
+        "on projections, MLP, and lm_head. The SKA Cholesky Triton "
+        "kernel stays in fp32 internally because the rank-1 update is "
+        "precision-sensitive; only the surrounding linear ops benefit.",
+    )
     args = parser.parse_args()
 
     cfg = CONFIGS[args.config]
@@ -421,7 +435,15 @@ def main():
         labels = batch["labels"].to(device, non_blocking=True)
 
         # Forward + backward, scaled for grad accumulation.
-        out = model(input_ids, labels=labels)
+        # bf16 autocast covers projections, MLP, lm_head; the SKA Triton
+        # kernel internally casts back to fp32 since Cholesky is precision-
+        # sensitive. Result: tensor-core speedup on the matmul-heavy ops
+        # without destabilizing the operator state.
+        if args.bf16:
+            with torch.amp.autocast("cuda", dtype=torch.bfloat16):
+                out = model(input_ids, labels=labels)
+        else:
+            out = model(input_ids, labels=labels)
         loss = out["loss"] / grad_accum
         loss.backward()
         step += 1

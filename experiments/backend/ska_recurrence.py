@@ -182,8 +182,15 @@ def _per_token_backward_step(
     (L, Aw, z, w are the inputs; L_new, vz, vw, k_tilde, T_mat are the
     forward outputs / intermediates) plus the upstream output gradients.
 
-    Returns (grad_L, grad_Aw, grad_z, grad_w). The chunkwise backward
-    calls this function C times in reverse token order.
+    Returns (grad_L, grad_Aw, grad_z, grad_w).
+
+    Optimized: solve_triangular calls with the same LHS are batched into
+    one call with stacked right-hand-sides. Numerically identical to the
+    step-by-step formulation; verified by `_check_chunk_matches_per_token`
+    (chunk vs per-token equivalence) and `_gradcheck_chunk` (formal
+    gradcheck) below in this file. Reduces solve_triangular launches per
+    token from 7 to 4, which compounds across the C-token loop in
+    `_SKAChunkUpdate.backward`.
     """
     if grad_L_new is None:
         grad_L_new = torch.zeros_like(L_new)
@@ -195,15 +202,20 @@ def _per_token_backward_step(
     L_newT = L_new.transpose(-1, -2)
     T_T = T_mat.transpose(-1, -2)
     Aw_T = Aw.transpose(-1, -2)
+    r = L_new.shape[-1]
 
     # --- Step 1: k_tilde = L_new^{-T} v_z ---
-    grad_vz = torch.linalg.solve_triangular(
-        L_new, grad_k_tilde.unsqueeze(-1), upper=False
-    ).squeeze(-1)
-    outer1 = k_tilde.unsqueeze(-1) * grad_k_tilde.unsqueeze(-2)
-    update1 = torch.linalg.solve_triangular(
-        L_new, outer1.transpose(-1, -2), upper=False
-    ).transpose(-1, -2)
+    # Two lower-triangular solves on L_new, batched into one call:
+    #   col 0:    grad_k_tilde   -> grad_vz                        (was solve #1)
+    #   cols 1..r: outer1^T      -> update1^T                      (was solve #2)
+    outer1 = k_tilde.unsqueeze(-1) * grad_k_tilde.unsqueeze(-2)        # (BH, r, r)
+    step1_rhs = torch.cat(
+        [grad_k_tilde.unsqueeze(-1), outer1.transpose(-1, -2)],
+        dim=-1,
+    )                                                                    # (BH, r, r+1)
+    step1_solve = torch.linalg.solve_triangular(L_new, step1_rhs, upper=False)
+    grad_vz = step1_solve[..., 0]                                        # (BH, r)
+    update1 = step1_solve[..., 1:].transpose(-1, -2)                     # (BH, r, r)
     grad_L_new = grad_L_new - update1
 
     # --- Step 2: A_w_new = T A_w T^T + v_z v_w^T ---
@@ -212,26 +224,34 @@ def _per_token_backward_step(
     grad_vz = grad_vz + (grad_Aw_new @ vw.unsqueeze(-1)).squeeze(-1)
     grad_vw = (grad_Aw_new.transpose(-1, -2) @ vz.unsqueeze(-1)).squeeze(-1)
 
-    # --- Step 3: T = L_new^{-1} L ---
-    Linv_T_grad_T = torch.linalg.solve_triangular(L_newT, grad_T, upper=True)
+    # --- Steps 3, 4, 5: three upper-triangular solves on L_newT, batched ---
+    #   cols 0..r-1: grad_T          -> Linv_T_grad_T                   (was solve #3)
+    #   col r:        grad_vz         -> Linv_T_grad_vz                  (was solve #4)
+    #   col r+1:      grad_vw         -> Linv_T_grad_vw                  (was solve #5)
+    step345_rhs = torch.cat(
+        [grad_T, grad_vz.unsqueeze(-1), grad_vw.unsqueeze(-1)],
+        dim=-1,
+    )                                                                    # (BH, r, r+2)
+    step345_solve = torch.linalg.solve_triangular(L_newT, step345_rhs, upper=True)
+    Linv_T_grad_T  = step345_solve[..., :r]                             # (BH, r, r)
+    Linv_T_grad_vz = step345_solve[..., r]                               # (BH, r)
+    Linv_T_grad_vw = step345_solve[..., r + 1]                           # (BH, r)
+
+    # Apply the per-step grad_L_new updates that the original code did
+    # right after each individual solve.
+    # Step 3: grad_L_new -= Linv_T_grad_T @ T_T
     grad_L_new = grad_L_new - Linv_T_grad_T @ T_T
     grad_L_from_T = Linv_T_grad_T
-
-    # --- Step 4: v_z = L_new^{-1} z ---
-    Linv_T_grad_vz = torch.linalg.solve_triangular(
-        L_newT, grad_vz.unsqueeze(-1), upper=True
-    ).squeeze(-1)
+    # Step 4: grad_L_new -= Linv_T_grad_vz outer vz
     grad_L_new = grad_L_new - Linv_T_grad_vz.unsqueeze(-1) * vz.unsqueeze(-2)
     grad_z_direct = Linv_T_grad_vz
-
-    # --- Step 5: v_w = L_new^{-1} w ---
-    Linv_T_grad_vw = torch.linalg.solve_triangular(
-        L_newT, grad_vw.unsqueeze(-1), upper=True
-    ).squeeze(-1)
+    # Step 5: grad_L_new -= Linv_T_grad_vw outer vw
     grad_L_new = grad_L_new - Linv_T_grad_vw.unsqueeze(-1) * vw.unsqueeze(-2)
     grad_w = Linv_T_grad_vw
 
     # --- Step 6: G_new = L_new L_new^T (Cholesky adjoint) ---
+    # Two sequential solves on L_newT (the second depends on the first), so
+    # we cannot batch these without restructuring the Cholesky-adjoint math.
     M_aux = L_newT @ grad_L_new
     P = torch.tril(M_aux, diagonal=-1) + 0.5 * torch.diag_embed(
         torch.diagonal(M_aux, dim1=-2, dim2=-1)
