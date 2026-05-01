@@ -320,6 +320,17 @@ def main():
     is_main = global_rank == 0
     device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
 
+    # Auto-set the ATK-compile kill switch when grad_checkpoint is on.
+    # Reason: torch.compile's AOT-autograd path conflicts with
+    # torch.utils.checkpoint's RNG fork in PyTorch <= 2.4. The check has
+    # to happen BEFORE ska_layer is imported by the model (so it picks up
+    # the env var on first call to _get_atk_chunk_fn).
+    if args.grad_checkpoint:
+        os.environ["SKA_NO_COMPILE_ATK"] = "1"
+        if is_main:
+            print("Note: --grad_checkpoint is on, disabling ATK torch.compile "
+                  "(known conflict with checkpoint's fork_rng).")
+
     # Enable TF32 on Ampere+ tensor cores (H100/H200/A100). ~2-4x faster
     # matmul/einsum at a small precision cost (10-bit mantissa during the
     # multiply, accumulated in fp32). Standard practice for fp32 LM

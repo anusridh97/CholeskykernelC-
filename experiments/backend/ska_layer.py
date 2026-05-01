@@ -105,17 +105,39 @@ _atk_chunk_compile_attempted = False
 
 
 def _get_atk_chunk_fn():
-    """Return the (lazily-compiled) ATK chunk update fn."""
+    """Return the (lazily-compiled) ATK chunk update fn.
+
+    The torch.compile path gives ~1.9x speedup on this within-chunk loop
+    via Inductor op fusion. It is INCOMPATIBLE with `torch.utils.checkpoint`
+    in PyTorch <= 2.4: the checkpoint's recompute path forks the CUDA RNG
+    state, and Inductor's AOT-autograd FakeTensor tracing rejects the
+    clone of that uint8 RNG buffer. With the chunk-fused forward kernel
+    in place, the autograd graph is already compact (one node per chunk
+    instead of one per token), so dropping grad_checkpoint and keeping
+    compile is the right tradeoff for production runs.
+
+    Kill switch: set the env var SKA_NO_COMPILE_ATK=1 to force the eager
+    path. Use this when running with --grad_checkpoint (which conflicts
+    with compile), or for debugging if the compiled path misbehaves.
+    """
+    import os
     global _atk_chunk_compiled_fn, _atk_chunk_compile_attempted
     if _atk_chunk_compile_attempted:
         return _atk_chunk_compiled_fn
     _atk_chunk_compile_attempted = True
+
+    if os.environ.get("SKA_NO_COMPILE_ATK", "0") == "1":
+        print("[ska_layer] SKA_NO_COMPILE_ATK=1 set; using eager ATK loop "
+              "(necessary when --grad_checkpoint is on).")
+        _atk_chunk_compiled_fn = _atk_chunk_update_eager
+        return _atk_chunk_compiled_fn
+
     try:
         # mode="default": Inductor op fusion without CUDA graphs.
         # We deliberately avoid mode="reduce-overhead" because its CUDA-
         # graph buffer reuse produces NaNs on this 64-step recurrent loop
         # (verified empirically). "default" still fuses the per-iteration
-        # einsum chain into a few kernels, giving a ~5x speedup at fp32
+        # einsum chain into a few kernels, giving a ~1.9x speedup at fp32
         # tolerance for forward + backward.
         _atk_chunk_compiled_fn = torch.compile(
             _atk_chunk_update_eager,
