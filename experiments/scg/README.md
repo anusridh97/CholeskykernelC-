@@ -177,7 +177,8 @@ to your account.
 Submit:
 
 ```bash
-sbatch \
+SKA_MICRO_BATCH=1 sbatch \
+    --export=ALL,HF_TOKEN="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",SKA_MICRO_BATCH=1 \
     --partition="$SCG_PARTITION" \
     --account="$SCG_ACCOUNT" \
     --gres="${SCG_EVAL_GRES:-gpu:1}" \

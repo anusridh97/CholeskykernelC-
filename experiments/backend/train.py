@@ -40,7 +40,7 @@ CONFIGS = {
         "total_tokens": int(100e6),         # 100M
         "warmup_tokens": int(5e6),
         "batch_tokens": int(0.25e6),         # 250K (smaller for tiny model)
-        "ctx_len": 2048,
+        "ctx_len": 1024,                    # halved from 2048 for memory/throughput
         "peak_lr": 4e-4,
         "min_lr": 4e-5,
         "weight_decay": 0.01,
@@ -291,6 +291,14 @@ def main():
         "diag(L), etc.) every N gradient steps. Only logged when WandB "
         "is enabled. Set to 0 to disable.",
     )
+    parser.add_argument(
+        "--grad_checkpoint",
+        action="store_true",
+        help="Enable gradient checkpointing (recompute layer forwards "
+        "during backward instead of retaining all intermediates). Cuts "
+        "peak VRAM by roughly n_layers× at ~30%% extra wall time. Use "
+        "for sanity at ctx>=1024 or any prod run that's tight on VRAM.",
+    )
     args = parser.parse_args()
 
     cfg = CONFIGS[args.config]
@@ -315,6 +323,12 @@ def main():
     tok.model_max_length = int(1e9)
 
     model = cfg["model_fn"](vocab_size=tok.vocab_size).to(device)
+    if args.grad_checkpoint:
+        # Flip the SKAModel's flag; ska_model.py:127 reads this attribute
+        # at every forward and wraps each layer in torch.utils.checkpoint.
+        model.grad_checkpoint = True
+        if is_main:
+            print("Gradient checkpointing: ON")
     if is_main:
         print(f"Model: {model.num_parameters() / 1e6:.1f}M params")
 

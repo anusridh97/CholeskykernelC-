@@ -86,11 +86,15 @@ else
 fi
 
 # Per-GPU micro batch.
+# NOTE: SKA's chunkwise autograd retains per-token Cholesky intermediates
+# (L, Aw, z, w, L_new, vz, vw, k_tilde, T_mat) for the closed-form backward.
+# Memory scales as B * H * r^2 * ctx_len * n_layers. For ctx_len=2048,
+# r=128, the per-batch overhead is ~50 GB. Keep micro_batch conservative.
 case "$CONFIG" in
-    sanity)    MICRO_BATCH=2 ;;
-    prod_1gpu) MICRO_BATCH=2 ;;
-    prod)      MICRO_BATCH=4 ;;
-    prod_scg)  MICRO_BATCH=16 ;;       # H200 has 141 GB; can go bigger
+    sanity)    MICRO_BATCH=1 ;;        # 152M, ctx 2048, ~70 GB on H200
+    prod_1gpu) MICRO_BATCH=1 ;;        # 340M, ctx 2048, OOMs at 2 on L40S
+    prod)      MICRO_BATCH=2 ;;        # 340M, ctx 2048, ~80 GB on L40S 4x
+    prod_scg)  MICRO_BATCH=4 ;;        # 340M, ctx 2048, ~120 GB on H200 8x
     *) echo "Unknown SKA_CONFIG=$CONFIG"; exit 1 ;;
 esac
 MICRO_BATCH="${SKA_MICRO_BATCH:-$MICRO_BATCH}"

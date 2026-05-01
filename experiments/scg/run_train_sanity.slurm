@@ -57,7 +57,7 @@ EXTRA_ARGS="${SKA_EXTRA_ARGS:-}"
 python train.py \
     --config sanity \
     --out_dir "$CKPT_DIR" \
-    --micro_batch "${SKA_MICRO_BATCH:-2}" \
+    --micro_batch "${SKA_MICRO_BATCH:-1}" \
     $EXTRA_ARGS
 
 echo "Sanity training done. Final checkpoint:"

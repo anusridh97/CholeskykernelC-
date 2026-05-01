@@ -91,11 +91,14 @@ uv pip install \
     "accelerate>=0.33" \
     "huggingface_hub>=0.24" \
     "numpy<2" \
+    "pandas<2.3" \
     "pyarrow<17" \
     "pytest" \
     "pybind11" \
     "contourpy<1.3" \
-    "matplotlib"
+    "matplotlib" \
+    "setuptools" \
+    "wheel"
 
 # Build the C++ extension (CPU correctness path).
 cd "$REPO_ROOT/student_pkg"
