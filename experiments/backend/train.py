@@ -320,47 +320,19 @@ def main():
     is_main = global_rank == 0
     device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
 
-    # Workaround: torch.compile (Inductor AOT autograd) conflicts with
-    # torch.utils.checkpoint's RNG state preservation on PyTorch <= 2.4.
-    # Checkpoint always tries to fork and restore CUDA RNG state during
-    # recompute (the `preserve_rng_state` flag is forced True under
-    # torch.compile), and Inductor's FakeTensor tracer rejects the
-    # uint8 RNG buffer .clone() call.
-    #
-    # Fix: monkey-patch the THREE entry points that touch the CUDA RNG
-    # state inside checkpoint:
-    #   torch.random.fork_rng        -> no-op context manager
-    #   torch.utils.checkpoint.get_device_states  -> returns empty
-    #   torch.utils.checkpoint.set_device_states  -> no-op
-    # This is safe specifically because the SKA architecture has no
-    # stochastic operations (no dropout, no random masking), so we don't
-    # actually need RNG state preservation across checkpoint recompute.
-    # Without these patches, we'd have to choose between ATK torch.compile
-    # (1.9x forward speedup) and grad_checkpoint (memory bound). With them,
-    # both coexist.
+    # When --grad_checkpoint is on, force the ATK torch.compile path off.
+    # PyTorch 2.4's Inductor + torch.utils.checkpoint(use_reentrant=False)
+    # have multiple known incompatibilities (fork_rng, set_device_states,
+    # pack_hook on grad_fn-bearing tensors). Rather than chase each entry
+    # point with monkey-patches, we just disable the ATK compile under
+    # checkpoint. The eager ATK loop is correct and the chunk-fused
+    # forward kernel + batched-solve backward already give us the bulk
+    # of the speedup; ATK compile was a 1.9x nice-to-have.
     if args.grad_checkpoint:
-        import contextlib
-        import torch.utils.checkpoint as _ckpt_mod
-
-        @contextlib.contextmanager
-        def _noop_fork_rng(*args, **kwargs):
-            yield
-        torch.random.fork_rng = _noop_fork_rng
-
-        # set_device_states is what was actually firing in the second
-        # error trace; it calls torch.cuda.set_rng_state which clones
-        # the uint8 RNG buffer that Inductor's FakeTensor rejects.
-        _ckpt_mod.set_device_states = lambda *args, **kwargs: None
-
-        # get_device_states is called pre-forward to capture state; it
-        # returns ([devices], [states]). Returning empty lists means the
-        # set_device_states no-op above gets nothing to restore.
-        _ckpt_mod.get_device_states = lambda *args, **kwargs: ([], [])
-
+        os.environ["SKA_NO_COMPILE_ATK"] = "1"
         if is_main:
-            print("Note: --grad_checkpoint is on. Patched fork_rng + "
-                  "get/set_device_states to no-op so checkpoint coexists "
-                  "with ATK torch.compile (safe: SKA has no stochastic ops).")
+            print("Note: --grad_checkpoint is on, disabling ATK torch.compile "
+                  "(PyTorch 2.4 Inductor + checkpoint incompatibility).")
 
     # Enable TF32 on Ampere+ tensor cores (H100/H200/A100). ~2-4x faster
     # matmul/einsum at a small precision cost (10-bit mantissa during the
