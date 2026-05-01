@@ -437,17 +437,27 @@ class _SKAChunkUpdate(torch.autograd.Function):
     @staticmethod
     def forward(ctx, L, Aw, K, V):
         L_new, Aw_new, K_tilde, saved = _chunk_forward(L, Aw, K, V)
-        ctx.K = K
-        ctx.V = V
-        ctx.saved_seq = saved
+        L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq = saved
+        # CRITICAL: use ctx.save_for_backward, NOT ctx.foo = tensor.
+        # Python attributes on ctx are NOT tracked by autograd's lifecycle,
+        # so the GPU tensors they reference leak across iterations. The
+        # debug_memory.py probe showed ~48 ctx objects accumulating per
+        # forward+backward cycle, holding ~3.5 GB of saved tensors that
+        # never got freed. save_for_backward fixes this by registering
+        # the tensors with the autograd machinery, which clears them
+        # after backward() runs.
+        ctx.save_for_backward(
+            K, V, L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq
+        )
         return L_new.contiguous(), Aw_new.contiguous(), K_tilde.contiguous()
 
     @staticmethod
     def backward(ctx, grad_L_new, grad_Aw_new, grad_K_tilde):
-        K = ctx.K
-        V = ctx.V
-        # Saved sequences are now stacked tensors, indexable with [:, c].
-        L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq = ctx.saved_seq
+        # Read from ctx.saved_tensors (set by save_for_backward), NOT
+        # from ctx.foo Python attrs. PyTorch auto-clears saved_tensors
+        # after this backward returns, so chunk Function ctxs no longer
+        # leak across iterations.
+        (K, V, L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq) = ctx.saved_tensors
 
         BH, C, r = K.shape
         if grad_L_new is None:
