@@ -39,14 +39,14 @@ CONFIGS = {
         "model_fn": make_165m_model,
         "total_tokens": int(100e6),         # 100M
         "warmup_tokens": int(5e6),
-        "batch_tokens": int(0.25e6),         # 250K (smaller for tiny model)
+        "batch_tokens": int(50e3),           # 50K (was 250K; cut for faster feedback)
         "ctx_len": 1024,                    # halved from 2048 for memory/throughput
         "peak_lr": 4e-4,
         "min_lr": 4e-5,
         "weight_decay": 0.01,
         "grad_clip": 1.0,
         "save_every_tokens": int(50e6),
-        "log_every_steps": 2,                # tight feedback for sanity
+        "log_every_steps": 1,                # log every grad step for tight feedback
     },
     "prod": {                                # 4-GPU Farmshare default
         "model_fn": make_340m_model,

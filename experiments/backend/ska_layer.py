@@ -49,6 +49,93 @@ def _l2_normalize(x, dim=-1, eps=1e-6):
     return x / (x.norm(dim=dim, keepdim=True) + eps)
 
 
+# ---------------------- Fused within-chunk ATK update ---------------------- #
+#
+# The ATK regression-state recurrence
+#     S_t = S_{t-1} + (v_t - S_{t-1} k_t) k_tilde_t^T
+#     o_t = S_t q_t
+# is sequential in t, so it cannot be parallelized across the chunk.
+# But the per-iteration body is just three small einsums plus a subtract,
+# and a naive Python loop incurs ~4 CUDA kernel launches per token.
+# At ctx_len=1024, n_layers=12, that is ~50,000 launches per forward pass,
+# which dominates wall time on H200 where each math op is microseconds.
+#
+# The helper below is the same loop in a form torch.compile can ingest.
+# With mode="reduce-overhead", Inductor unrolls C iterations and fuses the
+# einsum chain into a small number of kernels (often captured in a CUDA
+# graph), eliminating most of the launch overhead.
+#
+# Eager and compiled paths must produce numerically identical outputs and
+# gradients; verified by experiments/backend/test_atk_compile.py.
+
+def _atk_chunk_update_eager(S_init, K_chunk, V_chunk, Q_chunk, K_tilde):
+    """Reference ATK regression-state update for one chunk.
+
+    Args:
+        S_init: (BH, r, r) state at the chunk boundary.
+        K_chunk: (BH, C, r) keys.
+        V_chunk: (BH, C, r) values.
+        Q_chunk: (BH, C, r) queries.
+        K_tilde: (BH, C, r) preconditioned keys from ska_chunk.
+    Returns:
+        S_final: (BH, r, r) state after C iterations.
+        out: (BH, C, r) outputs o_t = S_t q_t.
+    """
+    BH, C, r = K_chunk.shape
+    out_list = []
+    S_curr = S_init
+    for t in range(C):
+        k_t = K_chunk[:, t]
+        v_t = V_chunk[:, t]
+        q_t = Q_chunk[:, t]
+        kt_t = K_tilde[:, t]
+        Sk = torch.einsum("brc,bc->br", S_curr, k_t)
+        err = v_t - Sk
+        S_curr = S_curr + torch.einsum("br,bc->brc", err, kt_t)
+        out_list.append(torch.einsum("brc,bc->br", S_curr, q_t))
+    out = torch.stack(out_list, dim=1)
+    return S_curr, out
+
+
+# Compile lazily so we don't pay the cost in import/inference where it's
+# not needed. Falls back to eager if torch.compile is unavailable or
+# fails (e.g. backend errors on a particular GPU).
+_atk_chunk_compiled_fn = None
+_atk_chunk_compile_attempted = False
+
+
+def _get_atk_chunk_fn():
+    """Return the (lazily-compiled) ATK chunk update fn."""
+    global _atk_chunk_compiled_fn, _atk_chunk_compile_attempted
+    if _atk_chunk_compile_attempted:
+        return _atk_chunk_compiled_fn
+    _atk_chunk_compile_attempted = True
+    try:
+        # mode="reduce-overhead": uses CUDA graphs to fuse the unrolled
+        # iterations into one device-side launch per chunk. dynamic=False
+        # because chunk_size is fixed per model. fullgraph=False so any
+        # graph break degrades gracefully instead of raising.
+        _atk_chunk_compiled_fn = torch.compile(
+            _atk_chunk_update_eager,
+            mode="reduce-overhead",
+            dynamic=False,
+            fullgraph=False,
+        )
+    except Exception as e:                                  # pragma: no cover
+        print(
+            f"[ska_layer] torch.compile of ATK chunk failed ({type(e).__name__}: {e}); "
+            f"falling back to eager Python loop."
+        )
+        _atk_chunk_compiled_fn = _atk_chunk_update_eager
+    return _atk_chunk_compiled_fn
+
+
+def atk_chunk_update(S_init, K_chunk, V_chunk, Q_chunk, K_tilde):
+    """Public entry point: compiled ATK chunk update with eager fallback."""
+    fn = _get_atk_chunk_fn()
+    return fn(S_init, K_chunk, V_chunk, Q_chunk, K_tilde)
+
+
 def _short_conv_with_state(x, weight, bias, prev):
     """Causal short conv with optional history buffer.
 
@@ -205,19 +292,15 @@ class SKALayer(nn.Module):
             # ONE autograd.Function call for the whole chunk.
             L_flat, Aw_flat, K_tilde = ska_chunk(L_flat, Aw_flat, K_chunk, V_chunk)
 
-            # Within-chunk ATK state update. Plain torch ops; small per-token
-            # loop here (C iterations) is cheap because each op is just a few
-            # einsums on a (BH, r, r) state. No autograd.Function dispatch.
-            for t in range(C):
-                k_t = K_chunk[:, t]
-                v_t = V_chunk[:, t]
-                q_t = Q_chunk[:, t]
-                kt_t = K_tilde[:, t]
-
-                Sk = torch.einsum("brc,bc->br", S_flat, k_t)
-                err = v_t - Sk
-                S_flat = S_flat + torch.einsum("br,bc->brc", err, kt_t)
-                out_chunked[:, ci * C + t] = torch.einsum("brc,bc->br", S_flat, q_t)
+            # Within-chunk ATK state update. Compiled by torch.compile
+            # (with eager fallback) to fuse the per-token einsum chain
+            # into a single device-side launch. See atk_chunk_update
+            # docstring above for the math; numerical equivalence to the
+            # eager loop is verified by test_atk_compile.py.
+            S_flat, out_slice = atk_chunk_update(
+                S_flat, K_chunk, V_chunk, Q_chunk, K_tilde
+            )
+            out_chunked[:, ci * C : (ci + 1) * C] = out_slice
 
         # Handle any tail tokens (T % C != 0). Falls back to per-token ska_step.
         for t in range(T_full, T):
