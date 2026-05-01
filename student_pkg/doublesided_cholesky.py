@@ -761,3 +761,597 @@ def incremental_chunk_update_triton(L, Aw, K, V, num_warps=None):
     )
 
     return L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq
+
+
+# ===========================================================================
+# CHUNK-FUSED BACKWARD KERNEL
+#
+# One Triton program per (b,h) slot. Iterates the C tokens in REVERSE,
+# running the 7-step manual backward (mirroring _per_token_backward_step
+# in experiments/backend/ska_recurrence.py) entirely in one kernel launch
+# per chunk. Eliminates ~7C launches per chunk in the existing per-token
+# Python loop.
+#
+# Math contract: each iteration consumes saved (L, L_new, Aw, T, vz, vw,
+# kt, z, w) and upstream (grad_L_curr, grad_Aw_curr, grad_kt[c]) and
+# produces (grad_L_prev, grad_Aw_prev, grad_z, grad_w). After C iterations
+# (c = C-1 down to 0), the rolling (grad_L_curr, grad_Aw_curr) state holds
+# the final (grad_L_init, grad_Aw_init).
+#
+# Implementation strategy:
+# - All r×r matrices live in pre-allocated global scratch buffers (one
+#   slice per program). Triton pipelines reads/writes; bandwidth is not
+#   the bottleneck.
+# - Triangular solves use the row-by-row sequential pattern:
+#     for k in range(r):
+#       acc = sum_{i<k} L[k,i] * X[i, :]      (masked sum over loaded buffer)
+#       X[k, :] = (B[k, :] - acc) / L[k, k]
+#       store X[k, :] back to memory
+# - Matrix-matrix matmuls use tl.dot on (BLOCK, BLOCK) tiles.
+# - Matrix-vector products use the same row-loop pattern.
+#
+# Numerical correctness MUST be verified against the eager per-token loop
+# via _check_chunk_matches_per_token and _gradcheck_chunk before enabling
+# this kernel in production. Default off; opt in via SKA_USE_TRITON_CHUNK_BWD=1.
+# ===========================================================================
+
+
+@triton.jit
+def _fused_chunk_backward_kernel(
+    # ----- Saved-from-forward inputs -----
+    L_seq_ptr,         # (BH, C+1, r, r)
+    Aw_seq_ptr,        # (BH, C+1, r, r)
+    K_ptr,             # (BH, C, r)         — original z's
+    V_ptr,             # (BH, C, r)         — original w's
+    vz_seq_ptr,        # (BH, C, r)
+    vw_seq_ptr,        # (BH, C, r)
+    kt_seq_ptr,        # (BH, C, r)
+    T_seq_ptr,         # (BH, C, r, r)
+    grad_kt_ptr,       # (BH, C, r)         — upstream grad_K_tilde
+    # ----- Rolling state buffers (in/out) -----
+    grad_L_curr_ptr,   # (BH, r, r)         — init = grad_L_new from upstream
+    grad_Aw_curr_ptr,  # (BH, r, r)         — init = grad_Aw_new from upstream
+    # ----- Per-program scratch (reused each iteration) -----
+    scratch_X_ptr,     # (BH, r, r)         — primary solve output / matmul scratch
+    scratch_Y_ptr,     # (BH, r, r)         — secondary scratch (Y in step 6)
+    scratch_M_ptr,     # (BH, r, r)         — grad_T, M_aux, grad_G_new, ...
+    scratch_LfT_ptr,   # (BH, r, r)         — grad_L_from_T saved for step 7
+    scratch_v1_ptr,    # (BH, r)            — grad_vz scratch
+    scratch_v2_ptr,    # (BH, r)            — grad_vw scratch
+    scratch_v3_ptr,    # (BH, r)            — Linv_T_grad_vz / vw / grad_z_direct
+    # ----- Outputs -----
+    grad_K_ptr,        # (BH, C, r)
+    grad_V_ptr,        # (BH, C, r)
+    r: tl.constexpr,
+    C: tl.constexpr,
+    BLOCK: tl.constexpr,
+):
+    """One program per (b,h). Sequential C-iteration loop in reverse."""
+    pid = tl.program_id(0)
+
+    # Strides
+    seq_mat_stride = (C + 1) * r * r
+    seq_vec_stride = C * r
+    T_seq_stride = C * r * r
+    state_stride = r * r
+
+    # Per-program base pointers
+    L_seq_base   = L_seq_ptr   + pid * seq_mat_stride
+    Aw_seq_base  = Aw_seq_ptr  + pid * seq_mat_stride
+    K_base       = K_ptr       + pid * seq_vec_stride
+    V_base       = V_ptr       + pid * seq_vec_stride
+    vz_base      = vz_seq_ptr  + pid * seq_vec_stride
+    vw_base      = vw_seq_ptr  + pid * seq_vec_stride
+    kt_base      = kt_seq_ptr  + pid * seq_vec_stride
+    T_base       = T_seq_ptr   + pid * T_seq_stride
+    grad_kt_base = grad_kt_ptr + pid * seq_vec_stride
+    gL_curr_base = grad_L_curr_ptr  + pid * state_stride
+    gA_curr_base = grad_Aw_curr_ptr + pid * state_stride
+    sX_base      = scratch_X_ptr    + pid * state_stride
+    sY_base      = scratch_Y_ptr    + pid * state_stride
+    sM_base      = scratch_M_ptr    + pid * state_stride
+    sLfT_base    = scratch_LfT_ptr  + pid * state_stride
+    sv1_base     = scratch_v1_ptr   + pid * r
+    sv2_base     = scratch_v2_ptr   + pid * r
+    sv3_base     = scratch_v3_ptr   + pid * r
+    gK_base      = grad_K_ptr       + pid * seq_vec_stride
+    gV_base      = grad_V_ptr       + pid * seq_vec_stride
+
+    idx = tl.arange(0, BLOCK)
+    mask_r = idx < r
+    rows = tl.arange(0, BLOCK)
+    cols = tl.arange(0, BLOCK)
+    mask2d = (rows[:, None] < r) & (cols[None, :] < r)
+
+    # ===== Reverse C-iteration loop =====
+    for c_inv in range(C):
+        c = C - 1 - c_inv
+
+        # Per-token pointer offsets
+        L_ptr_c     = L_seq_base   + c * r * r            # L      (= L_seq[c])
+        L_new_ptr_c = L_seq_base   + (c + 1) * r * r      # L_new  (= L_seq[c+1])
+        Aw_ptr_c    = Aw_seq_base  + c * r * r
+        T_ptr_c     = T_base       + c * r * r
+        z_ptr_c     = K_base       + c * r
+        w_ptr_c     = V_base       + c * r
+        vz_ptr_c    = vz_base      + c * r
+        vw_ptr_c    = vw_base      + c * r
+        kt_ptr_c    = kt_base      + c * r
+        gkt_ptr_c   = grad_kt_base + c * r
+        gK_ptr_c    = gK_base      + c * r
+        gV_ptr_c    = gV_base      + c * r
+
+        # ===================================================================
+        # STEP 1: k_tilde = L_new^{-T} v_z
+        #   grad_vz = solve(L_new, grad_kt)                  [forward, vector]
+        #   outer1 = kt ⊗ grad_kt
+        #   update1 = solve(L_new, outer1.T).T               [forward, matrix]
+        #   grad_L_curr -= update1
+        # ===================================================================
+
+        # Phase 1a: vector forward solve grad_vz = L_new^{-1} grad_kt
+        # Stored to scratch_v1
+        for k in range(r):
+            gkt_k = tl.load(gkt_ptr_c + k).to(tl.float32)
+            L_row = tl.load(L_new_ptr_c + k * r + idx, mask=mask_r, other=0.0)
+            v1_prev = tl.load(sv1_base + idx, mask=mask_r, other=0.0)
+            contrib = tl.where(
+                idx < k,
+                L_row.to(tl.float32) * v1_prev.to(tl.float32),
+                0.0,
+            )
+            acc = tl.sum(contrib, axis=0)
+            Lkk = tl.sum(tl.where(idx == k, L_row, 0.0))
+            v1_k = ((gkt_k - acc) / Lkk.to(tl.float32)).to(L_row.dtype)
+            tl.store(sv1_base + k, v1_k)
+        tl.debug_barrier()
+
+        # Phase 1b: matrix forward solve X = solve(L_new, outer1.T)
+        # outer1.T[k, :] = grad_kt[k] * kt
+        # Then update1 = X.T, and grad_L_curr -= X.T
+        # Compute X into scratch_X.
+        for k in range(r):
+            gkt_k_scal = tl.load(gkt_ptr_c + k).to(tl.float32)
+            kt_vec = tl.load(kt_ptr_c + idx, mask=mask_r, other=0.0).to(tl.float32)
+            B_row = gkt_k_scal * kt_vec  # (r,) - row k of outer1.T
+            # Load X (rows < k contribute, rest masked to 0).
+            X_tile = tl.load(
+                sX_base + rows[:, None] * r + cols[None, :],
+                mask=mask2d,
+                other=0.0,
+            ).to(tl.float32)
+            X_masked = tl.where(rows[:, None] < k, X_tile, 0.0)
+            # Row k of L_new
+            L_row_full = tl.load(L_new_ptr_c + k * r + rows, mask=rows < r, other=0.0).to(tl.float32)
+            # correction[j] = sum_i L_new[k, i] * X[i, j]
+            correction = tl.sum(L_row_full[:, None] * X_masked, axis=0)  # (r,)
+            Lkk = tl.load(L_new_ptr_c + k * r + k).to(tl.float32)
+            X_k_row = (B_row - correction) / Lkk
+            tl.store(sX_base + k * r + idx, X_k_row.to(kt_vec.dtype), mask=mask_r)
+        tl.debug_barrier()
+
+        # grad_L_curr -= X.T  (i.e., grad_L_curr[i, j] -= X[j, i])
+        for i in range(r):
+            X_col_i = tl.load(sX_base + idx * r + i, mask=mask_r, other=0.0).to(tl.float32)
+            gL_row_i = tl.load(gL_curr_base + i * r + idx, mask=mask_r, other=0.0).to(tl.float32)
+            new_row = gL_row_i - X_col_i
+            tl.store(gL_curr_base + i * r + idx, new_row.to(X_col_i.dtype), mask=mask_r)
+        tl.debug_barrier()
+
+        # ===================================================================
+        # STEP 2: A_w_new = T A_w T^T + v_z v_w^T
+        #   grad_T = grad_Aw_curr @ T @ Aw_T + grad_Aw_curr.T @ T @ Aw
+        #   grad_Aw_prev = T.T @ grad_Aw_curr @ T
+        #   grad_vz += grad_Aw_curr @ vw
+        #   grad_vw = grad_Aw_curr.T @ vz
+        # ===================================================================
+
+        # Load grad_Aw_curr, T, Aw as 2D tiles.
+        gA_tile = tl.load(
+            gA_curr_base + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+        T_tile = tl.load(
+            T_ptr_c + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+        Aw_tile = tl.load(
+            Aw_ptr_c + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+
+        # gA @ T  → tmp1 (r, r)
+        tmp1 = tl.dot(gA_tile, T_tile, allow_tf32=False)
+        # tmp1 @ Aw_T = tmp1 @ Aw.T  → first half of grad_T
+        # tl.dot doesn't take .T; use trans flag if avail, or load Aw transposed.
+        # For simplicity, materialize Aw_T tile by reading transposed.
+        Aw_T_tile = tl.load(
+            Aw_ptr_c + cols[:, None] * r + rows[None, :],  # transpose access
+            mask=(cols[:, None] < r) & (rows[None, :] < r),
+            other=0.0,
+        ).to(tl.float32)
+        gradT_a = tl.dot(tmp1, Aw_T_tile, allow_tf32=False)  # (r, r)
+
+        # gA_T @ T  →  tmp2
+        gA_T_tile = tl.load(
+            gA_curr_base + cols[:, None] * r + rows[None, :],  # transpose access
+            mask=(cols[:, None] < r) & (rows[None, :] < r),
+            other=0.0,
+        ).to(tl.float32)
+        tmp2 = tl.dot(gA_T_tile, T_tile, allow_tf32=False)
+        gradT_b = tl.dot(tmp2, Aw_tile, allow_tf32=False)
+        grad_T_tile = gradT_a + gradT_b
+        tl.store(
+            sM_base + rows[:, None] * r + cols[None, :],
+            grad_T_tile.to(gA_tile.dtype),
+            mask=mask2d,
+        )
+
+        # grad_Aw_prev = T.T @ gA @ T
+        T_T_tile = tl.load(
+            T_ptr_c + cols[:, None] * r + rows[None, :],  # transpose access
+            mask=(cols[:, None] < r) & (rows[None, :] < r),
+            other=0.0,
+        ).to(tl.float32)
+        tmp3 = tl.dot(T_T_tile, gA_tile, allow_tf32=False)
+        gAw_prev = tl.dot(tmp3, T_tile, allow_tf32=False)
+        # We will overwrite grad_Aw_curr at end of iteration; for now stash to scratch_Y
+        tl.store(
+            sY_base + rows[:, None] * r + cols[None, :],
+            gAw_prev.to(gA_tile.dtype),
+            mask=mask2d,
+        )
+
+        # grad_vz += grad_Aw_curr @ vw  (matvec)
+        vw_vec = tl.load(vw_ptr_c + cols, mask=cols < r, other=0.0).to(tl.float32)
+        # gA @ vw = sum over j of gA[i, j] * vw[j]; we iterate i
+        for i in range(r):
+            gA_row_i = tl.load(
+                gA_curr_base + i * r + cols, mask=cols < r, other=0.0
+            ).to(tl.float32)
+            v_add = tl.sum(gA_row_i * vw_vec, axis=0)  # scalar
+            v1_old = tl.load(sv1_base + i).to(tl.float32)
+            tl.store(sv1_base + i, (v1_old + v_add).to(gA_row_i.dtype))
+
+        # grad_vw = grad_Aw_curr.T @ vz  (matvec)
+        vz_vec = tl.load(vz_ptr_c + cols, mask=cols < r, other=0.0).to(tl.float32)
+        for i in range(r):
+            # Column i of gA: gA[:, i]
+            gA_col_i = tl.load(
+                gA_curr_base + cols * r + i, mask=cols < r, other=0.0
+            ).to(tl.float32)
+            v_w_i = tl.sum(gA_col_i * vz_vec, axis=0)
+            tl.store(sv2_base + i, v_w_i.to(gA_col_i.dtype))
+        tl.debug_barrier()
+
+        # ===================================================================
+        # STEP 3: T = L_new^{-1} L
+        #   Linv_T_grad_T = solve(L_new.T, grad_T)            [back-solve, matrix]
+        #   grad_L_curr -= Linv_T_grad_T @ T.T
+        #   grad_L_from_T = Linv_T_grad_T  (saved for step 7)
+        # ===================================================================
+        # Back solve: solve U X = B where U = L_new^T (upper triangular)
+        # Iterate k from r-1 down to 0:
+        #   X[k, :] = (B[k, :] - sum_{j > k} U[k, j] * X[j, :]) / U[k, k]
+        # U[k, j] = L_new[j, k]  (since U = L_new^T)
+        # U[k, k] = L_new[k, k]
+        #
+        # B = grad_T (in scratch_M). Output X to scratch_X.
+        for k_rev in range(r):
+            k = r - 1 - k_rev
+            B_row = tl.load(sM_base + k * r + idx, mask=mask_r, other=0.0).to(tl.float32)
+            # Load X (rows > k contribute)
+            X_tile = tl.load(
+                sX_base + rows[:, None] * r + cols[None, :],
+                mask=mask2d, other=0.0,
+            ).to(tl.float32)
+            X_masked = tl.where(rows[:, None] > k, X_tile, 0.0)
+            # U[k, :] = L_new[:, k]  (column k of L_new)
+            U_row = tl.load(
+                L_new_ptr_c + rows * r + k, mask=rows < r, other=0.0
+            ).to(tl.float32)
+            correction = tl.sum(U_row[:, None] * X_masked, axis=0)  # (r,)
+            Ukk = tl.load(L_new_ptr_c + k * r + k).to(tl.float32)
+            X_k_row = (B_row - correction) / Ukk
+            tl.store(sX_base + k * r + idx, X_k_row.to(B_row.dtype), mask=mask_r)
+        tl.debug_barrier()
+
+        # Save grad_L_from_T = Linv_T_grad_T = scratch_X to scratch_LfT
+        for i in range(r):
+            X_row_i = tl.load(sX_base + i * r + idx, mask=mask_r, other=0.0)
+            tl.store(sLfT_base + i * r + idx, X_row_i, mask=mask_r)
+        tl.debug_barrier()
+
+        # grad_L_curr -= Linv_T_grad_T @ T.T  (i.e., scratch_X @ T.T)
+        # Compute as 2D tile op then subtract.
+        X_full = tl.load(
+            sX_base + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+        prod = tl.dot(X_full, T_T_tile, allow_tf32=False)  # T_T_tile from earlier
+        gL_full = tl.load(
+            gL_curr_base + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+        gL_new = gL_full - prod
+        tl.store(
+            gL_curr_base + rows[:, None] * r + cols[None, :],
+            gL_new.to(X_full.dtype),
+            mask=mask2d,
+        )
+        tl.debug_barrier()
+
+        # ===================================================================
+        # STEP 4: v_z = L_new^{-1} z
+        #   Linv_T_grad_vz = solve(L_new.T, grad_vz)          [back-solve, vector]
+        #   grad_L_curr -= Linv_T_grad_vz ⊗ vz
+        #   grad_z_direct = Linv_T_grad_vz                    (saved for step 7)
+        # ===================================================================
+        # Vector back solve: read grad_vz from scratch_v1, write Linv_T_grad_vz to scratch_v3
+        for k_rev in range(r):
+            k = r - 1 - k_rev
+            gvz_k = tl.load(sv1_base + k).to(tl.float32)
+            U_col = tl.load(
+                L_new_ptr_c + idx * r + k, mask=mask_r, other=0.0
+            ).to(tl.float32)  # = U row k = L_new column k
+            v3_prev = tl.load(sv3_base + idx, mask=mask_r, other=0.0).to(tl.float32)
+            contrib = tl.where(idx > k, U_col * v3_prev, 0.0)
+            acc = tl.sum(contrib, axis=0)
+            Ukk = tl.load(L_new_ptr_c + k * r + k).to(tl.float32)
+            v3_k = (gvz_k - acc) / Ukk
+            tl.store(sv3_base + k, v3_k.to(U_col.dtype))
+        tl.debug_barrier()
+
+        # grad_L_curr[i, j] -= Linv_T_grad_vz[i] * vz[j]
+        for i in range(r):
+            v3_i = tl.load(sv3_base + i).to(tl.float32)
+            row_old = tl.load(gL_curr_base + i * r + idx, mask=mask_r, other=0.0).to(tl.float32)
+            # subtract v3_i * vz[j]
+            new_row = row_old - v3_i * vz_vec
+            tl.store(gL_curr_base + i * r + idx, new_row.to(row_old.dtype), mask=mask_r)
+        tl.debug_barrier()
+
+        # grad_z_direct = scratch_v3 (will be used in step 7). Save copy to scratch_v1
+        # (we need to free sv3 for step 5).
+        for i in range(r):
+            tl.store(sv1_base + i, tl.load(sv3_base + i))
+        tl.debug_barrier()
+
+        # ===================================================================
+        # STEP 5: v_w = L_new^{-1} w
+        #   Linv_T_grad_vw = solve(L_new.T, grad_vw)          [back-solve, vector]
+        #   grad_L_curr -= Linv_T_grad_vw ⊗ vw
+        #   grad_w = Linv_T_grad_vw                           (output)
+        # ===================================================================
+        # zero out sv3 first
+        tl.store(sv3_base + idx, tl.zeros((BLOCK,), dtype=tl.float32).to(tl.float32), mask=mask_r)
+        for k_rev in range(r):
+            k = r - 1 - k_rev
+            gvw_k = tl.load(sv2_base + k).to(tl.float32)
+            U_col = tl.load(
+                L_new_ptr_c + idx * r + k, mask=mask_r, other=0.0
+            ).to(tl.float32)
+            v3_prev = tl.load(sv3_base + idx, mask=mask_r, other=0.0).to(tl.float32)
+            contrib = tl.where(idx > k, U_col * v3_prev, 0.0)
+            acc = tl.sum(contrib, axis=0)
+            Ukk = tl.load(L_new_ptr_c + k * r + k).to(tl.float32)
+            v3_k = (gvw_k - acc) / Ukk
+            tl.store(sv3_base + k, v3_k.to(U_col.dtype))
+        tl.debug_barrier()
+
+        # grad_L_curr[i, j] -= Linv_T_grad_vw[i] * vw[j]
+        for i in range(r):
+            v3_i = tl.load(sv3_base + i).to(tl.float32)
+            row_old = tl.load(gL_curr_base + i * r + idx, mask=mask_r, other=0.0).to(tl.float32)
+            new_row = row_old - v3_i * vw_vec
+            tl.store(gL_curr_base + i * r + idx, new_row.to(row_old.dtype), mask=mask_r)
+        tl.debug_barrier()
+
+        # grad_w = scratch_v3. Save to grad_V[c].
+        gw_vec = tl.load(sv3_base + idx, mask=mask_r, other=0.0)
+        tl.store(gV_ptr_c + idx, gw_vec, mask=mask_r)
+        tl.debug_barrier()
+
+        # ===================================================================
+        # STEP 6: G_new = L_new L_new^T (Cholesky adjoint)
+        #   M_aux = L_new.T @ grad_L_curr
+        #   P = tril(M_aux, -1) + 0.5 * diag(diag(M_aux))
+        #   Y = solve(L_new.T, P)                              [back-solve, matrix]
+        #   grad_G_new = solve(L_new.T, Y.T).T                 [back-solve, matrix]
+        # ===================================================================
+        # M_aux = L_new.T @ grad_L_curr
+        L_newT_tile = tl.load(
+            L_new_ptr_c + cols[:, None] * r + rows[None, :],  # transpose access
+            mask=(cols[:, None] < r) & (rows[None, :] < r),
+            other=0.0,
+        ).to(tl.float32)
+        gL_full = tl.load(
+            gL_curr_base + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+        M_aux = tl.dot(L_newT_tile, gL_full, allow_tf32=False)
+
+        # P = tril(M_aux, diag=-1) + 0.5 * diag(diag(M_aux))
+        # i.e. P[i, j] = M_aux[i, j] if i > j, 0.5 * M_aux[i, j] if i == j, 0 otherwise
+        P_tile = tl.where(
+            rows[:, None] > cols[None, :],
+            M_aux,
+            tl.where(
+                rows[:, None] == cols[None, :],
+                0.5 * M_aux,
+                0.0,
+            ),
+        )
+        tl.store(
+            sM_base + rows[:, None] * r + cols[None, :],
+            P_tile.to(gL_full.dtype),
+            mask=mask2d,
+        )
+        tl.debug_barrier()
+
+        # Y = solve(L_new.T, P)  [back-solve, matrix RHS]; output to scratch_Y
+        for k_rev in range(r):
+            k = r - 1 - k_rev
+            B_row = tl.load(sM_base + k * r + idx, mask=mask_r, other=0.0).to(tl.float32)
+            Y_tile_load = tl.load(
+                sY_base + rows[:, None] * r + cols[None, :],
+                mask=mask2d, other=0.0,
+            ).to(tl.float32)
+            Y_masked = tl.where(rows[:, None] > k, Y_tile_load, 0.0)
+            U_row = tl.load(
+                L_new_ptr_c + rows * r + k, mask=rows < r, other=0.0
+            ).to(tl.float32)
+            correction = tl.sum(U_row[:, None] * Y_masked, axis=0)
+            Ukk = tl.load(L_new_ptr_c + k * r + k).to(tl.float32)
+            Y_k_row = (B_row - correction) / Ukk
+            tl.store(sY_base + k * r + idx, Y_k_row.to(B_row.dtype), mask=mask_r)
+        tl.debug_barrier()
+
+        # grad_G_new = solve(L_new.T, Y.T).T
+        # Equivalent: solve U Z = Y.T (upper-tri back solve), then grad_G_new = Z.T
+        # We'll write Z to scratch_M, then store grad_G_new = Z.T to scratch_X.
+        # Y.T[k, :] = Y[:, k] (column k of Y).
+        for k_rev in range(r):
+            k = r - 1 - k_rev
+            # Row k of Y.T = column k of Y
+            B_row = tl.load(sY_base + idx * r + k, mask=mask_r, other=0.0).to(tl.float32)
+            Z_tile_load = tl.load(
+                sM_base + rows[:, None] * r + cols[None, :],
+                mask=mask2d, other=0.0,
+            ).to(tl.float32)
+            Z_masked = tl.where(rows[:, None] > k, Z_tile_load, 0.0)
+            U_row = tl.load(
+                L_new_ptr_c + rows * r + k, mask=rows < r, other=0.0
+            ).to(tl.float32)
+            correction = tl.sum(U_row[:, None] * Z_masked, axis=0)
+            Ukk = tl.load(L_new_ptr_c + k * r + k).to(tl.float32)
+            Z_k_row = (B_row - correction) / Ukk
+            tl.store(sM_base + k * r + idx, Z_k_row.to(B_row.dtype), mask=mask_r)
+        tl.debug_barrier()
+
+        # grad_G_new = Z.T → grad_G_new[i, j] = Z[j, i]
+        # Store to scratch_X
+        for i in range(r):
+            Z_col_i = tl.load(sM_base + idx * r + i, mask=mask_r, other=0.0)
+            tl.store(sX_base + i * r + idx, Z_col_i, mask=mask_r)
+        tl.debug_barrier()
+
+        # ===================================================================
+        # STEP 7: G_new = L L^T + z z^T
+        #   H = grad_G_new + grad_G_new.T
+        #   grad_L_prev = grad_L_from_T + H @ L
+        #   grad_z = grad_z_direct + H @ z
+        # ===================================================================
+        # H[i, j] = grad_G_new[i, j] + grad_G_new[j, i]
+        # We have grad_G_new in scratch_X.
+        gG_tile = tl.load(
+            sX_base + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+        gG_T_tile = tl.load(
+            sX_base + cols[:, None] * r + rows[None, :],  # transpose access
+            mask=(cols[:, None] < r) & (rows[None, :] < r),
+            other=0.0,
+        ).to(tl.float32)
+        H_tile = gG_tile + gG_T_tile
+        # store H to scratch_M for reuse below
+        tl.store(
+            sM_base + rows[:, None] * r + cols[None, :],
+            H_tile.to(gG_tile.dtype),
+            mask=mask2d,
+        )
+
+        # grad_L_prev = grad_L_from_T + H @ L
+        L_tile = tl.load(
+            L_ptr_c + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+        HL = tl.dot(H_tile, L_tile, allow_tf32=False)
+        gLfT_tile = tl.load(
+            sLfT_base + rows[:, None] * r + cols[None, :],
+            mask=mask2d, other=0.0,
+        ).to(tl.float32)
+        grad_L_prev = gLfT_tile + HL
+        tl.store(
+            gL_curr_base + rows[:, None] * r + cols[None, :],
+            grad_L_prev.to(gLfT_tile.dtype),
+            mask=mask2d,
+        )
+
+        # grad_z = grad_z_direct + H @ z
+        # grad_z_direct is in scratch_v1; z is at z_ptr_c
+        z_vec = tl.load(z_ptr_c + cols, mask=cols < r, other=0.0).to(tl.float32)
+        for i in range(r):
+            H_row_i = tl.load(sM_base + i * r + cols, mask=cols < r, other=0.0).to(tl.float32)
+            Hz_i = tl.sum(H_row_i * z_vec, axis=0)
+            v1_i = tl.load(sv1_base + i).to(tl.float32)
+            tl.store(gK_ptr_c + i, (v1_i + Hz_i).to(z_vec.dtype))
+        tl.debug_barrier()
+
+        # ===================================================================
+        # Update grad_Aw_curr = grad_Aw_prev (which is in scratch_Y)
+        # ===================================================================
+        for i in range(r):
+            row_i = tl.load(sY_base + i * r + idx, mask=mask_r, other=0.0)
+            tl.store(gA_curr_base + i * r + idx, row_i, mask=mask_r)
+
+        # Reset scratch_v1 for next iteration's Phase 1a
+        tl.store(sv1_base + idx, tl.zeros((BLOCK,), dtype=tl.float32).to(tl.float32), mask=mask_r)
+        tl.debug_barrier()
+
+
+def incremental_chunk_backward_triton(
+    L_seq, Aw_seq, K, V, vz_seq, vw_seq, kt_seq, T_seq,
+    grad_L_new, grad_Aw_new, grad_K_tilde,
+):
+    """Single-launch C-token SKA chunk backward.
+
+    Counterpart to incremental_chunk_update_triton. Returns grad inputs
+    matching what _per_token_backward_step would produce when called C
+    times in reverse, i.e. (grad_L_init, grad_Aw_init, grad_K, grad_V).
+
+    Args:
+        L_seq, Aw_seq:        (BH, C+1, r, r) - saved from forward
+        K, V:                 (BH, C, r)
+        vz_seq, vw_seq:       (BH, C, r)
+        kt_seq:               (BH, C, r)
+        T_seq:                (BH, C, r, r)
+        grad_L_new:           (BH, r, r) upstream
+        grad_Aw_new:          (BH, r, r) upstream
+        grad_K_tilde:         (BH, C, r) upstream
+
+    Returns:
+        grad_L_init, grad_Aw_init: (BH, r, r)
+        grad_K, grad_V:            (BH, C, r)
+    """
+    BH, C, r = K.shape
+    assert r <= 128, f"chunk backward kernel requires r<=128, got r={r}"
+    BLOCK = triton.next_power_of_2(r)
+    assert BLOCK <= 1024
+    device, dtype = K.device, K.dtype
+
+    # Output / scratch buffers.
+    grad_L_curr = grad_L_new.contiguous().clone()           # rolling state
+    grad_Aw_curr = grad_Aw_new.contiguous().clone()         # rolling state
+    scratch_X = torch.zeros(BH, r, r, device=device, dtype=dtype)
+    scratch_Y = torch.zeros(BH, r, r, device=device, dtype=dtype)
+    scratch_M = torch.zeros(BH, r, r, device=device, dtype=dtype)
+    scratch_LfT = torch.zeros(BH, r, r, device=device, dtype=dtype)
+    scratch_v1 = torch.zeros(BH, r, device=device, dtype=dtype)
+    scratch_v2 = torch.zeros(BH, r, device=device, dtype=dtype)
+    scratch_v3 = torch.zeros(BH, r, device=device, dtype=dtype)
+
+    grad_K = torch.zeros(BH, C, r, device=device, dtype=dtype)
+    grad_V = torch.zeros(BH, C, r, device=device, dtype=dtype)
+
+    _fused_chunk_backward_kernel[(BH,)](
+        L_seq, Aw_seq, K, V, vz_seq, vw_seq, kt_seq, T_seq, grad_K_tilde,
+        grad_L_curr, grad_Aw_curr,
+        scratch_X, scratch_Y, scratch_M, scratch_LfT,
+        scratch_v1, scratch_v2, scratch_v3,
+        grad_K, grad_V,
+        r=r, C=C, BLOCK=BLOCK,
+    )
+
+    # After the kernel, grad_L_curr/grad_Aw_curr hold grad_L_init/grad_Aw_init.
+    return grad_L_curr, grad_Aw_curr, grad_K, grad_V

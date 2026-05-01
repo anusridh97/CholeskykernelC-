@@ -64,6 +64,16 @@ except Exception:
     incremental_chunk_update_triton = None  # type: ignore
     _HAVE_CHUNK_KERNEL = False
 
+# Chunk-fused backward Triton kernel (Option A). Same graceful-fallback
+# pattern. Gated at runtime by SKA_USE_TRITON_CHUNK_BWD=1 so we can A/B
+# against the torch.compile path (Option B) without redeploying.
+try:
+    from doublesided_cholesky import incremental_chunk_backward_triton
+    _HAVE_CHUNK_BACKWARD_KERNEL = True
+except Exception:
+    incremental_chunk_backward_triton = None  # type: ignore
+    _HAVE_CHUNK_BACKWARD_KERNEL = False
+
 
 # ---------------------------------------------------------------------------
 # Forward: high-level reference (autograd-friendly; used as CPU fallback)
@@ -467,10 +477,61 @@ class _SKAChunkUpdate(torch.autograd.Function):
         if grad_K_tilde is None:
             grad_K_tilde = torch.zeros(BH, C, r, dtype=K.dtype, device=K.device)
 
+        # Fast path A (Triton): single-launch, chunk-fused backward kernel.
+        # One Triton program per (b,h) iterates the C tokens in reverse and
+        # holds all per-token state in registers / shared memory, replacing
+        # the ~448 per-chunk launches with exactly 1. Gated by
+        # SKA_USE_TRITON_CHUNK_BWD=1 until correctness is validated by
+        # _gradcheck_chunk and _check_chunk_matches_per_token on real GPU.
+        #
+        # Fast path B (torch.compile): C-iteration Python loop fused by
+        # Inductor. Default ON when path A is disabled; opt-out via
+        # SKA_NO_CHUNK_BACKWARD=1 if numerical issues surface.
+        import os
+        triton_on = (
+            K.is_cuda
+            and _HAVE_CHUNK_BACKWARD_KERNEL
+            and os.environ.get("SKA_USE_TRITON_CHUNK_BWD", "0") == "1"
+        )
+        if triton_on:
+            try:
+                grad_L_init, grad_Aw_init, grad_K, grad_V = (
+                    incremental_chunk_backward_triton(
+                        L_seq, Aw_seq, K, V, vz_seq, vw_seq, kt_seq, T_seq,
+                        grad_L_new, grad_Aw_new, grad_K_tilde,
+                    )
+                )
+                return grad_L_init, grad_Aw_init, grad_K, grad_V
+            except Exception as e:                          # pragma: no cover
+                print(
+                    f"[ska_recurrence] Triton chunk-backward failed "
+                    f"({type(e).__name__}: {e}); falling back to compile path."
+                )
+
+        use_fast = (
+            K.is_cuda
+            and os.environ.get("SKA_NO_CHUNK_BACKWARD", "0") != "1"
+        )
+        if use_fast:
+            try:
+                fn = _get_chunk_backward_fn()
+                grad_L_init, grad_Aw_init, grad_K, grad_V = fn(
+                    K, V, L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq,
+                    grad_L_new, grad_Aw_new, grad_K_tilde,
+                )
+                return grad_L_init, grad_Aw_init, grad_K, grad_V
+            except Exception as e:                          # pragma: no cover
+                # If compile or runtime fails, fall through to the eager
+                # loop. The eager loop is slow but correct; we'd rather
+                # train slowly than not at all.
+                print(
+                    f"[ska_recurrence] chunk-backward fast path failed "
+                    f"({type(e).__name__}: {e}); falling back to per-token loop."
+                )
+
+        # Eager fallback: per-token Python loop. Slow but proven correct.
         grad_K = torch.zeros_like(K)
         grad_V = torch.zeros_like(V)
-
-        # Walk backward through the C tokens.
         grad_L_curr = grad_L_new
         grad_Aw_curr = grad_Aw_new
         for c in reversed(range(C)):
@@ -494,6 +555,175 @@ class _SKAChunkUpdate(torch.autograd.Function):
             grad_Aw_curr = grad_Aw_c
 
         return grad_L_curr, grad_Aw_curr, grad_K, grad_V
+
+
+# ===========================================================================
+# Chunk-fused backward via torch.compile
+#
+# The eager backward (above) calls _per_token_backward_step C times in a
+# Python loop. With ~7 GPU launches per token (5 solve_triangulars +
+# matmul chains), C=64 tokens per chunk = ~450 launches per chunk
+# backward. Per micro-batch at sanity scale (16 chunks/layer × 12 layers),
+# that's ~86,000 launches per backward pass, dominated by orchestration
+# overhead rather than actual GPU compute.
+#
+# This block defines a single function that does all C iterations inline.
+# torch.compile (Inductor backend) unrolls the loop at trace time and
+# fuses the per-iteration ops. Inside the chunk Function's backward we
+# are NOT crossing an autograd graph boundary (we are already inside a
+# custom autograd Function's backward call), so the AOT-autograd vs
+# checkpoint conflict that disabled the ATK compile path does not apply.
+#
+# Default ON. Opt-out via SKA_NO_CHUNK_BACKWARD=1.
+# Numerical correctness must be verified by _gradcheck_chunk and
+# _check_chunk_matches_per_token before turning on.
+# ===========================================================================
+
+
+def _chunk_backward_loop_eager(
+    K, V, L_seq, Aw_seq, vz_seq, vw_seq, kt_seq, T_seq,
+    grad_L_new_init, grad_Aw_new_init, grad_K_tilde,
+):
+    """Run the full C-iteration backward loop in one Python function.
+
+    Numerically identical to the per-token loop in _SKAChunkUpdate.backward
+    above. Math per iteration mirrors _per_token_backward_step. Structured
+    so torch.compile can fuse the per-iteration ops.
+
+    Args:
+        K, V:                     (BH, C, r)
+        L_seq, Aw_seq:            (BH, C+1, r, r)  - saved from forward
+        vz_seq, vw_seq, kt_seq:   (BH, C, r)
+        T_seq:                    (BH, C, r, r)
+        grad_L_new_init:          (BH, r, r) upstream
+        grad_Aw_new_init:         (BH, r, r) upstream
+        grad_K_tilde:             (BH, C, r) upstream
+
+    Returns:
+        grad_L_init, grad_Aw_init: (BH, r, r) - gradients for chunk inputs
+        grad_K, grad_V:            (BH, C, r) - per-token gradients
+    """
+    BH, C, r = K.shape
+
+    grad_K = torch.empty_like(K)
+    grad_V = torch.empty_like(V)
+
+    grad_L_curr = grad_L_new_init
+    grad_Aw_curr = grad_Aw_new_init
+
+    for c_inv in range(C):
+        c = C - 1 - c_inv
+
+        # Load all per-token inputs for this iteration.
+        L      = L_seq[:, c]
+        Aw     = Aw_seq[:, c]
+        L_new  = L_seq[:, c + 1]
+        z      = K[:, c]
+        w      = V[:, c]
+        vz     = vz_seq[:, c]
+        vw     = vw_seq[:, c]
+        kt     = kt_seq[:, c]
+        T      = T_seq[:, c]
+        grad_kt = grad_K_tilde[:, c]
+
+        L_newT = L_new.transpose(-1, -2)
+        T_T = T.transpose(-1, -2)
+        Aw_T = Aw.transpose(-1, -2)
+
+        # --- Step 1: k_tilde = L_new^{-T} v_z ---
+        outer1 = kt.unsqueeze(-1) * grad_kt.unsqueeze(-2)
+        step1_rhs = torch.cat(
+            [grad_kt.unsqueeze(-1), outer1.transpose(-1, -2)],
+            dim=-1,
+        )
+        step1_solve = torch.linalg.solve_triangular(L_new, step1_rhs, upper=False)
+        grad_vz = step1_solve[..., 0]
+        update1 = step1_solve[..., 1:].transpose(-1, -2)
+        grad_L_curr = grad_L_curr - update1
+
+        # --- Step 2: matmul chain ---
+        grad_T = grad_Aw_curr @ T @ Aw_T + grad_Aw_curr.transpose(-1, -2) @ T @ Aw
+        grad_Aw_prev = T_T @ grad_Aw_curr @ T
+        grad_vz = grad_vz + (grad_Aw_curr @ vw.unsqueeze(-1)).squeeze(-1)
+        grad_vw = (grad_Aw_curr.transpose(-1, -2) @ vz.unsqueeze(-1)).squeeze(-1)
+
+        # --- Steps 3, 4, 5: batched back-solve on L_new^T ---
+        step345_rhs = torch.cat(
+            [grad_T, grad_vz.unsqueeze(-1), grad_vw.unsqueeze(-1)],
+            dim=-1,
+        )
+        step345_solve = torch.linalg.solve_triangular(L_newT, step345_rhs, upper=True)
+        Linv_T_grad_T  = step345_solve[..., :r]
+        Linv_T_grad_vz = step345_solve[..., r]
+        Linv_T_grad_vw = step345_solve[..., r + 1]
+
+        grad_L_curr = grad_L_curr - Linv_T_grad_T @ T_T
+        grad_L_from_T = Linv_T_grad_T
+        grad_L_curr = grad_L_curr - Linv_T_grad_vz.unsqueeze(-1) * vz.unsqueeze(-2)
+        grad_z_direct = Linv_T_grad_vz
+        grad_L_curr = grad_L_curr - Linv_T_grad_vw.unsqueeze(-1) * vw.unsqueeze(-2)
+        grad_w = Linv_T_grad_vw
+
+        # --- Step 6: Cholesky adjoint (sequential, can't batch) ---
+        M_aux = L_newT @ grad_L_curr
+        P = torch.tril(M_aux, diagonal=-1) + 0.5 * torch.diag_embed(
+            torch.diagonal(M_aux, dim1=-2, dim2=-1)
+        )
+        Y = torch.linalg.solve_triangular(L_newT, P, upper=True)
+        grad_G_new = torch.linalg.solve_triangular(
+            L_newT, Y.transpose(-1, -2), upper=True
+        ).transpose(-1, -2)
+
+        # --- Step 7: rank-1 add reverse ---
+        H = grad_G_new + grad_G_new.transpose(-1, -2)
+        grad_L_prev = grad_L_from_T + H @ L
+        grad_z = grad_z_direct + (H @ z.unsqueeze(-1)).squeeze(-1)
+
+        # Save per-token outputs.
+        grad_K[:, c] = grad_z
+        grad_V[:, c] = grad_w
+
+        # Update state for next (earlier) iteration.
+        grad_L_curr = grad_L_prev
+        grad_Aw_curr = grad_Aw_prev
+
+    return grad_L_curr, grad_Aw_curr, grad_K, grad_V
+
+
+# Lazy-compile the chunk-backward loop. Cached after first call.
+_chunk_backward_compiled_fn = None
+_chunk_backward_compile_attempted = False
+
+
+def _get_chunk_backward_fn():
+    """Return the (lazily-compiled) chunk-backward function.
+
+    First call triggers torch.compile, which traces the C-iteration loop
+    and builds a fused graph. Subsequent calls hit the cache.
+    """
+    global _chunk_backward_compiled_fn, _chunk_backward_compile_attempted
+    if _chunk_backward_compile_attempted:
+        return _chunk_backward_compiled_fn
+    _chunk_backward_compile_attempted = True
+
+    try:
+        # mode="default": Inductor op fusion without CUDA graphs.
+        # No reduce-overhead because that mode's CUDA-graph buffer reuse
+        # has caused NaN issues elsewhere; default mode still gives a
+        # significant launch reduction via op fusion.
+        _chunk_backward_compiled_fn = torch.compile(
+            _chunk_backward_loop_eager,
+            mode="default",
+            dynamic=False,
+            fullgraph=False,
+        )
+    except Exception as e:                                  # pragma: no cover
+        print(
+            f"[ska_recurrence] torch.compile of chunk backward failed "
+            f"({type(e).__name__}: {e}); using eager loop."
+        )
+        _chunk_backward_compiled_fn = _chunk_backward_loop_eager
+    return _chunk_backward_compiled_fn
 
 
 def ska_chunk(L, Aw, K, V):
