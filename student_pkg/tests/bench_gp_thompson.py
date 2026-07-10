@@ -136,16 +136,25 @@ def time_botorch_style(X, T, rounds, device, dtype, lengthscale=0.1, noise=0.1):
         xi = torch.randn(r, generator=gen).to(device, dtype)
         return mu + Ls @ xi
 
+    def botorch_sample(t):
+        trX = X[torch.tensor(obs_idx[t], device=device)]
+        trY = torch.tensor(obs_y[t], device=device, dtype=dtype).unsqueeze(1)
+        model = SingleTaskGP(trX, trY)
+        post = model.posterior(X)
+        return post.rsample(torch.Size([1])).reshape(-1)
+
     _sync(device)
     t0 = time.perf_counter()
     for _ in range(rounds):
         for t in range(T):
             if use_bo and obs_idx[t]:
-                trX = X[torch.tensor(obs_idx[t], device=device)]
-                trY = torch.tensor(obs_y[t], device=device, dtype=dtype).unsqueeze(1)
-                model = SingleTaskGP(trX, trY)
-                post = model.posterior(X)
-                sample = post.rsample(torch.Size([1])).reshape(-1)
+                try:
+                    sample = botorch_sample(t)
+                except Exception as exc:  # botorch/dtype/device hiccup: don't kill the run
+                    use_bo = False  # fall back for the rest of the benchmark
+                    print(f"  [botorch baseline failed ({type(exc).__name__}); "
+                          f"falling back to exact-gp]")
+                    sample = exact_gp_posterior_sample(obs_idx[t], obs_y[t])
             else:
                 sample = exact_gp_posterior_sample(obs_idx[t], obs_y[t])
             i = int(sample.argmax())
