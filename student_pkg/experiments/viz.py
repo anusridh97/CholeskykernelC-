@@ -78,9 +78,12 @@ def _save(fig, name):
 # --------------------------------------------------------------------------- #
 
 _OPT_COLORS = {
-    "AdamW": BLUE,
     "curvature (incremental)": AQUA,
-    "curvature (periodic_refact K=20)": YELLOW,
+    "curvature (Refact)": BLUE,
+    "curvature (periodic_refact N=50)": YELLOW,
+    "SOAP": VIOLET,
+    "AdamW": RED,
+    "SGD": GREEN,
 }
 
 
@@ -89,22 +92,21 @@ def render_curvature(data):
     figs = []
     training = data["training"]
 
-    # 1. Loss curves.
-    fig, ax = plt.subplots(figsize=(6.2, 4.0))
+    # 1. Loss curves. Six optimizers with several overlapping (incremental ≈
+    # Refact by construction), so a legend carries identity rather than colliding
+    # direct labels.
+    fig, ax = plt.subplots(figsize=(6.4, 4.2))
     for name, res in training.items():
         color = _OPT_COLORS.get(name, VIOLET)
         curve = res["loss_curve"]
-        ax.plot(range(1, len(curve) + 1), curve, color=color, lw=2, label=name)
-        ax.annotate(name.replace("curvature ", ""), (len(curve), curve[-1]),
-                    color=color, fontsize=9, va="center", ha="left",
-                    xytext=(4, 0), textcoords="offset points")
+        label = name.replace("curvature ", "NG ")
+        ax.plot(range(1, len(curve) + 1), curve, color=color, lw=2, label=label)
     ax.axhline(data["target"], color=MUTED, lw=1, ls="--")
     ax.annotate("target", (1, data["target"]), color=MUTED, fontsize=8,
                 va="bottom", ha="left")
-    # Direct labels carry identity, so no legend box (avoids the collision).
-    ax.set_xlim(right=len(curve) * 1.34)
-    _finish(ax, "Training loss — incremental curvature optimizer vs AdamW",
-            "step", "cross-entropy loss")
+    _finish(ax, "Training loss — natural-gradient chart vs SOAP / Adam / SGD",
+            "step", "training loss")
+    ax.legend(loc="upper right", fontsize=8.5, ncol=2)
     figs.append(("curvature_loss.png", _save(fig, "curvature_loss.png")))
 
     # 2. Per-step optimizer cost.

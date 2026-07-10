@@ -69,13 +69,11 @@ def time_sequential(X, T, rounds, device, dtype):
     _sync(device)
     t0 = time.perf_counter()
     for _ in range(rounds):
-        f = gp.thompson_sample()
+        f = gp.thompson_predict()
         idx = f.argmax(dim=1)
-        z = torch.zeros(T, gp.r, device=device, dtype=dtype)
-        z.scatter_(1, idx.unsqueeze(1), 1.0 / gp.noise)
-        w = torch.zeros_like(z)
+        z = (gp.Phi[:, idx].mT.contiguous()) / gp.noise      # (T, r): φ_{idx}/σ
         for t in range(T):
-            incremental_update_reference(gp.L[t], gp.Aw[t], z[t].clone(), w[t].clone())
+            incremental_update_reference(gp.L[t], gp.Aw[t], z[t].clone(), z[t].clone())
     _sync(device)
     return (time.perf_counter() - t0) / rounds * 1e3
 

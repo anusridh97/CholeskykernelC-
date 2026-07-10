@@ -21,7 +21,8 @@ This module hides two things from the experiments:
   * a pure-PyTorch reference fallback (per-slice ``incremental_update_reference``)
     when it is not, so the loops and their correctness checks run on CPU.
 
-The public surface is :class:`ChartBucket` (one rank) and :func:`refresh_bucket`.
+The public surface is :func:`refresh_bucket` (one batched rank-1 update over a
+stack of equal-rank charts) and :func:`gpu_kernel_available`.
 """
 
 from __future__ import annotations
@@ -82,55 +83,3 @@ def refresh_bucket(L, Aw, z, w, force_reference: bool = False):
 
         return incremental_update_triton_batched(L, Aw, z, w)
     return _refresh_reference(L, Aw, z, w)
-
-
-class ChartBucket:
-    """A batch of T equal-rank whitened-operator charts on one device.
-
-    Holds the device-resident state (L, Aw) plus a frozen projection P that maps
-    each block's raw gradient into the rank-r sketch coordinate. All state stays
-    on-device between steps; :meth:`refresh` performs the single batched update.
-    """
-
-    def __init__(self, T, r, device, dtype=torch.float32, ridge=1e-2, seed=0):
-        self.T = T
-        self.r = r
-        self.device = device
-        self.dtype = dtype
-        self.ridge = ridge
-
-        # Gram starts at ridge * I so G = ridge*I + running sketch covariance is
-        # positive definite from step 0; L = chol(G) = sqrt(ridge) * I.
-        eye = torch.eye(r, device=device, dtype=dtype)
-        self.L = (eye * (ridge ** 0.5)).unsqueeze(0).repeat(T, 1, 1).contiguous()
-        # M starts at 0, so A_w = L^{-1} M L^{-T} = 0 at init.
-        self.Aw = torch.zeros(T, r, r, device=device, dtype=dtype)
-
-        # Frozen per-block projections P_t (r x d_t). Filled in by the owner via
-        # set_projection; kept here so the whole bucket travels together.
-        self.P = None  # (T, r, d) or a list when block widths differ.
-
-    def set_projection(self, P):
-        self.P = P
-
-    def refresh(self, z, w, force_reference=False):
-        """Apply G += z z^T, M += z w^T to every chart; return (Aw, vz).
-
-        L and Aw are updated in place / replaced. z, w are (T, r).
-        """
-        Aw_new, vz = refresh_bucket(
-            self.L, self.Aw, z, w, force_reference=force_reference
-        )
-        self.Aw = Aw_new
-        return Aw_new, vz
-
-    def back_solve(self, y):
-        """Solve L^T x = y for each chart, i.e. x_t = L_t^{-T} y_t.
-
-        Combined with v_z = L^{-1} z from :meth:`refresh`, this yields the
-        natural-gradient solve G^{-1} z = L^{-T} v_z in two O(r^2) triangular
-        solves — no root, no eigendecomposition.
-        """
-        return torch.linalg.solve_triangular(
-            self.L.mT, y.unsqueeze(-1), upper=True
-        ).squeeze(-1)

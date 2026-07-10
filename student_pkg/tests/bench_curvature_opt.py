@@ -106,6 +106,13 @@ def train(make_opt, device, steps, target, batch=128, seqlen=16, vocab=32, nclas
     total = time.perf_counter() - t0
 
     opt_times.sort()
+    # Chart drift ‖C_w,inc − C_w,exact‖/‖C_w,exact‖ for the incremental method.
+    drift = None
+    if hasattr(opt, "chart_drift"):
+        try:
+            drift = opt.chart_drift()
+        except Exception:
+            drift = None
     return {
         "loss_curve": loss_curve,
         "final_loss": loss_curve[-1],
@@ -113,6 +120,7 @@ def train(make_opt, device, steps, target, batch=128, seqlen=16, vocab=32, nclas
         "total_s": total,
         "med_opt_ms": opt_times[len(opt_times) // 2] * 1e3,
         "n_blocks": getattr(opt, "num_blocks", lambda: None)(),
+        "drift": drift,
     }
 
 
@@ -182,20 +190,27 @@ def run(save=True):
     target = 0.05
     rank = 32
 
+    from experiments.soap import SOAP
+    lr_ng = 5e-2
     configs = [
+        ("SGD", lambda m: torch.optim.SGD(m.parameters(), lr=1e-2, momentum=0.9)),
         ("AdamW", lambda m: torch.optim.AdamW(m.parameters(), lr=3e-3)),
+        ("SOAP", lambda m: SOAP(m.parameters(), lr=3e-3, precondition_frequency=10)),
         ("curvature (incremental)", lambda m: IncrementalCurvatureOptimizer(
-            m.parameters(), lr=1e-2, rank=rank, refresh_mode="incremental")),
-        ("curvature (periodic_refact K=20)", lambda m: IncrementalCurvatureOptimizer(
-            m.parameters(), lr=1e-2, rank=rank,
-            refresh_mode="periodic_refact", refact_every=20)),
+            m.parameters(), lr=lr_ng, rank=rank, refresh_mode="incremental")),
+        ("curvature (Refact)", lambda m: IncrementalCurvatureOptimizer(
+            m.parameters(), lr=lr_ng, rank=rank, refresh_mode="refact")),
+        ("curvature (periodic_refact N=50)", lambda m: IncrementalCurvatureOptimizer(
+            m.parameters(), lr=lr_ng, rank=rank,
+            refresh_mode="periodic_refact", refact_every=50)),
     ]
 
     print(f"device: {device}"
           + (f"  ({torch.cuda.get_device_name(0)})" if device.type == "cuda" else ""))
     print(f"steps={steps}  target_loss={target}  rank={rank}\n")
-    print(f"{'optimizer':<34} {'final loss':>10} {'to target':>18} {'opt ms/step':>12} {'blocks':>7}")
-    print("-" * 86)
+    print(f"{'optimizer':<34} {'final loss':>10} {'to target':>18} {'opt ms/step':>12} "
+          f"{'blocks':>7} {'drift':>9}")
+    print("-" * 96)
 
     training = {}
     for name, make_opt in configs:
@@ -203,8 +218,9 @@ def run(save=True):
         training[name] = r
         reached = ("step %d @ %.2fs" % (r["reached"]["step"], r["reached"]["seconds"])
                    if r["reached"] else "not reached")
+        drift = f"{r['drift']:.1e}" if r["drift"] is not None else "—"
         print(f"{name:<34} {r['final_loss']:>10.4f} {reached:>18} "
-              f"{r['med_opt_ms']:>11.3f} {str(r['n_blocks']):>7}")
+              f"{r['med_opt_ms']:>11.3f} {str(r['n_blocks']):>7} {drift:>9}")
 
     print("\nBatched vs sequential chart refresh (across a net's same-rank blocks):")
     refresh = bench_refresh_scaling(device)

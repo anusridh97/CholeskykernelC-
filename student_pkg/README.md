@@ -73,45 +73,56 @@ larger project and is described inside `doublesided_cholesky.py`.
 
 ## GPU application experiments
 
-Two GPU experiments live in `experiments/`, each built on the batched Triton
-kernel. Both lean into the kernel's real strength — device-residency plus
-batching *many independent* whitened-operator updates into one launch — rather
-than raw speed on a single latency-bound Givens sweep.
-
-**1. Incremental curvature optimizer** (`experiments/curvature_optimizer.py`).
-Turns the §3.5 natural-gradient chart into a working optimizer. A deep net gives
-one low-rank whitened-Fisher chart *per parameter block*, so one training step is
-dozens of independent rank-1 whitened-curvature updates — the T-batch the kernel
-wants. Every step refreshes all charts in one batched launch (O(r^2) each),
-versus the amortized O(r^3) root/eigendecomposition Shampoo/SOAP/K-FAC pay
-periodically. The `periodic_refact` mode reproduces exactly that amortized
-baseline (re-cholesky every K steps, stale factor between) for a head-to-head
-comparison — the Table-4 drift/core-update story, on GPU. Benchmark against
-AdamW and the ablation:
+Two GPU experiments live in `experiments/`, both faithful to the paper's math
+and built on the batched Triton kernel. The GPU angle they add on top of the
+paper's CPU experiments is batching *many independent* whitened-operator updates
+into one launch — device-residency, not raw speed on a single latency-bound
+Givens sweep. Run everything directly (no scheduler) and auto-generate figures:
 
 ```
-python -m tests.bench_curvature_opt        # or: sbatch run_curvature_opt_bench.slurm
+python run_experiments.py            # both experiments → results/ JSON → figures/ report.html
+python run_experiments.py --only gp  # gp | curvature
+python run_experiments.py --figures-only
 ```
 
-Blocks are bucketed by rank so each launch stays dense; ragged per-block ranks
-and the fact that a single chart's sweep is latency-bound are documented in the
-module. This competes in the "explicit low-rank Fisher chart" family — it is not
-a drop-in for Shampoo's Kronecker mechanics or Muon's Newton-Schulz step.
-
-**2. Massively parallel GP Thompson sampling** (`experiments/parallel_gp_thompson.py`).
-Hundreds to thousands of independent GP surrogates (bandit arms / trust regions /
-BO seeds) on one GPU, each taking a rank-1 conditioning update per round, all in
-one launch — the purest expression of "T is where we win", scaling past the MLX
-section's T = 16. The idiomatic BoTorch/GPyTorch path conditions one model object
-at a time at O(r^3); here every arm shares a launch at O(r^2). Sweeps T and prints
-the mean simple-regret curve to confirm the arms actually optimize:
+**1. Transported-subspace natural gradient optimizer**
+(`experiments/curvature_optimizer.py`). A faithful implementation of §3.5: per
+parameter block a chart `F ≈ λI + U C Uᵀ` with an **adaptive orthonormal basis
+U**, refreshed by an `(r+1)`-eigendecomposition when residual energy
+`ρ²/‖g‖² > τ` (Fig. 2). In steady state the double-sided primitive maintains the
+whitened core `C_w = I − λ L⁻¹L⁻ᵀ` (with `z = w = Uᵀg`), and preconditioning is
+Woodbury `F⁻¹g = λ⁻¹(g − Ua) + U G⁻¹a` using the maintained factor (`G⁻¹a =
+L⁻ᵀ·v_z`, and `v_z = L⁻¹a` comes free from the kernel). The GPU contribution:
+one chart per block ⇒ a training step is dozens of independent rank-1 core
+updates, refreshed in a **single batched launch** (bucketed by rank). The
+`refresh_mode` switch gives the paper's ablation on identical charts —
+`incremental` (O(r²) primitive) vs `refact` (full re-cholesky every step) vs
+`periodic_refact` (every N steps, stale between). Baselines: **SOAP** (headline
+second-order), SGD, AdamW.
 
 ```
-python -m tests.bench_gp_thompson          # or: sbatch run_gp_thompson_bench.slurm
+python -m tests.bench_curvature_opt
+```
+
+**2. Massively parallel GP Thompson sampling**
+(`experiments/parallel_gp_thompson.py`). Faithful whitened-SVGP streaming
+conditioning (§4.4/§4.5) using the **same primitive** — `z = w = φ/σ` with
+`φ = L_uu⁻¹ k_u(x)` the whitened cross-covariance, not an ad-hoc precision
+filter. Thousands of independent GP arms are each conditioned by one rank-1
+whitened update per round, all fused into one launch — the "T is where we win"
+story, scaled past the MLX section's T = 16. Baseline is a **BoTorch** per-model
+loop (real `SingleTaskGP` when installed, else an equivalent exact-GP), which
+conditions one model at a time at O(r³); we share a launch at O(r²). Reports
+per-round cost vs T, arms/sec throughput, and the simple-regret curve.
+
+```
+python -m tests.bench_gp_thompson
 ```
 
 Both modules fall back to the pure-PyTorch reference refresh when CUDA/Triton is
-absent, so the loops and their correctness checks run on CPU too:
+absent, so the loops and their correctness checks (incremental core matches a
+full re-cholesky to machine precision; Woodbury preconditioner is exact) run on
+CPU too:
 
 ```
 python -m pytest tests/test_experiments.py -v

@@ -1,32 +1,32 @@
-"""Massively parallel GP Thompson sampling via batched rank-1 conditioning.
+"""Massively parallel GP Thompson sampling via the same double-sided primitive.
 
-Hundreds to thousands of independent GP surrogates on one GPU — parallel bandit
-arms, TuRBO-style trust regions, or many BO seeds/restarts — each taking a
-rank-1 conditioning update per round, all fused into a single kernel launch.
-This is the purest expression of "T is where we win": the MLX section only
-reached T = 16, and this scales the batched kernel to large T on real hardware.
+Thousands of independent conjugate-GP arms on one GPU, each conditioned by one
+rank-1 whitened update per round, all fused into a single batched kernel launch.
+This is the "T is where we win" story on real hardware, scaling the batched
+primitive far past the MLX section's T = 16.
 
-Why normal BoTorch/GPyTorch has a hard time with it: the idiomatic path is one
-model object per surrogate, each re-conditioned (or refit) independently and
-sequentially, at O(r^3) per model. Here every arm shares one launch and pays
-O(r^2) per rank-1 conditioning step, with all state device-resident between
-rounds.
+Faithful streaming SVGP conditioning (paper §4.4/§4.5), using the SAME primitive
+as the natural-gradient optimizer — z = w = a whitened vector, not an ad-hoc
+precision filter. Fixed inducing set Z of size r with kernel K_uu = k(Z,Z) and
+factor L_uu = chol(K_uu). For an input x the whitened cross-covariance is
 
-Setup (exact recursive Gaussian conditioning / information filter):
+    φ(x) = L_uu^{-1} k_u(x),      k_u(x) = k(Z, x) ∈ R^r.
 
-  * Each arm has the SAME fixed candidate set X (r points) and RBF prior
-    f ~ N(0, K). We maintain, per arm, the Cholesky factor L of the posterior
-    *precision* Lambda = K^{-1} + (1/sigma^2) sum_k e_{i_k} e_{i_k}^T and the
-    whitened operator A_w = L^{-1} K L^{-T}.
-  * Observing candidate i is a rank-1 precision bump  Lambda += (1/sigma^2) e_i e_i^T,
-    i.e. z = (1/sigma) e_i, w = 0 (K, hence M, stays fixed while L changes, so
-    the double-sided propagation of A_w is exercised every round).
-  * The information vector b = (1/sigma^2) sum_k y_k e_{i_k} is accumulated
-    on-device; the posterior mean mu = Lambda^{-1} b and Thompson draws
-    f = mu + L^{-T} xi come from two triangular solves with the maintained L.
+When the candidate set equals the inducing set, φ(x_j) = L_uu^⊤ e_j (the j-th row
+of L_uu), so Φ := L_uu^⊤ has φ_j as its j-th column.
 
-Ground truth for correctness is the full refactorization L = chol(Lambda),
-reusing the same equivalence the kernel's correctness tests establish.
+Whitened variational posterior q(v)=N(m,S) over v = L_uu^{-1}u, prior N(0,I).
+Streaming a noisy observation of candidate j (Gaussian noise σ) is the conjugate
+natural-gradient update (dual parameterization, Adam et al. 2021):
+
+    precision  G = S^{-1} ← G + (1/σ^2) φ_j φ_j^⊤        (rank-1: z = φ_j/σ)
+    info vec   b = G m   ← b + (y/σ^2) φ_j
+
+The double-sided primitive maintains, per arm, the Cholesky factor L=chol(G) and
+the whitened operator A_w = L^{-1} M L^{-⊤} = I − L^{-1}L^{-⊤} (M = G − I, so
+z = w = φ_j/σ) — exactly the object the paper accelerates. Thompson sampling
+draws v = m + L^{-⊤}ξ and predicts f = Φ^⊤ v over all candidates from the same
+maintained factor. Ground truth is a full re-cholesky of G.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ from .charts import refresh_bucket, gpu_kernel_available  # noqa: F401
 
 
 def rbf_kernel(X, lengthscale=0.1, jitter=1e-4):
-    """RBF/Gaussian kernel matrix for candidate points X (r, dims)."""
+    """RBF/Gaussian kernel matrix for points X (r, dims)."""
     d2 = torch.cdist(X, X) ** 2
     K = torch.exp(-0.5 * d2 / lengthscale ** 2)
     K = K + jitter * torch.eye(X.shape[0], device=X.device, dtype=X.dtype)
@@ -45,30 +45,25 @@ def rbf_kernel(X, lengthscale=0.1, jitter=1e-4):
 
 
 class BatchedGPThompson:
-    """T independent GP arms over a shared candidate set, conditioned in batch.
+    """T independent conjugate-GP arms over a shared inducing/candidate set.
+
+    Each round conditions every arm on one Thompson-selected candidate via a
+    single batched rank-1 whitened update. Arms optimize independent (per-arm
+    shifted) objectives so they are genuinely different problems.
 
     Args:
-        X: (r, dims) candidate points (shared across arms).
-        objective: callable X (r, dims) -> (r,) true function values; each arm
-            optimizes a shifted copy so arms are genuinely independent problems.
+        X: (r, dims) inducing = candidate points (shared across arms).
+        objective: callable X (r, dims) -> (r,) true values; each arm gets a
+            shifted copy.
         T: number of parallel arms.
-        noise: observation noise std sigma.
+        noise: observation noise std σ.
         lengthscale, jitter: RBF hyperparameters.
         seed: RNG seed.
         force_reference: force the CPU reference refresh (for cross-checks).
     """
 
-    def __init__(
-        self,
-        X,
-        objective,
-        T=256,
-        noise=0.1,
-        lengthscale=0.1,
-        jitter=1e-4,
-        seed=0,
-        force_reference=False,
-    ):
+    def __init__(self, X, objective, T=256, noise=0.1, lengthscale=0.1,
+                 jitter=1e-4, seed=0, force_reference=False):
         self.X = X
         self.r = X.shape[0]
         self.T = T
@@ -78,95 +73,80 @@ class BatchedGPThompson:
         self.force_reference = force_reference
         self.gen = torch.Generator(device="cpu").manual_seed(seed)
 
-        # Shared prior; each arm gets an independent objective realization by a
-        # per-arm phase shift, so they explore different landscapes.
+        # Fixed inducing kernel and whitened cross-covariance columns Φ = L_uu^⊤.
         K = rbf_kernel(X, lengthscale, jitter)
         self.K = K
-        Kinv = torch.linalg.inv(K)
-        # Prior precision factor, replicated across arms.
-        L0 = torch.linalg.cholesky(Kinv).contiguous()
-        self.L = L0.unsqueeze(0).repeat(T, 1, 1).contiguous()
-        # M = K (fixed); A_w = L^{-1} K L^{-T} refreshed each round.
-        self.Aw = self._init_aw(L0, K, T)
+        self.L_uu = torch.linalg.cholesky(K)
+        self.Phi = self.L_uu.mT.contiguous()        # (r, r): φ_j = Phi[:, j]
 
-        # Per-arm true objective values on the grid (shifted per arm).
-        base = objective(X)  # (r,)
-        shifts = torch.arange(T, device=self.device, dtype=self.dtype).reshape(T, 1)
-        self.f_true = base.unsqueeze(0) + 0.05 * torch.sin(
-            shifts + torch.arange(self.r, device=self.device, dtype=self.dtype)
-        )
-        self.f_max = self.f_true.max(dim=1).values  # (T,)
-
-        # Information vector b, accumulated on device.
+        # Per-arm state: precision factor L (init chol(I)=I), whitened core A_w=0,
+        # information vector b=0.
+        eye = torch.eye(self.r, device=self.device, dtype=self.dtype)
+        self.L = eye.unsqueeze(0).repeat(T, 1, 1).contiguous()
+        self.Aw = torch.zeros(T, self.r, self.r, device=self.device, dtype=self.dtype)
         self.b = torch.zeros(T, self.r, device=self.device, dtype=self.dtype)
-        # Per-candidate observation counts, for the refactorization ground truth.
         self.counts = torch.zeros(T, self.r, device=self.device, dtype=self.dtype)
+
+        # Per-arm objective realizations (shifted) on the grid.
+        base = objective(X)
+        shifts = torch.arange(T, device=self.device, dtype=self.dtype).reshape(T, 1)
+        grid = torch.arange(self.r, device=self.device, dtype=self.dtype)
+        self.f_true = base.unsqueeze(0) + 0.05 * torch.sin(shifts + grid)
+        self.f_max = self.f_true.max(dim=1).values
         self.regret_history = []
 
-    def _init_aw(self, L0, K, T):
-        Aw0 = torch.linalg.solve_triangular(
-            L0, K, upper=False
-        )
-        Aw0 = torch.linalg.solve_triangular(L0, Aw0.mT, upper=False).mT
-        return Aw0.unsqueeze(0).repeat(T, 1, 1).contiguous()
+    # -- posterior helpers (from the maintained precision factor L) -----------
 
-    def posterior_mean(self):
-        """mu = Lambda^{-1} b via two triangular solves with L (per arm)."""
+    def posterior_mean_v(self):
+        """m = G^{-1} b via two triangular solves with L (whitened coords)."""
         y = torch.linalg.solve_triangular(self.L, self.b.unsqueeze(-1), upper=False)
-        mu = torch.linalg.solve_triangular(self.L.mT, y, upper=True).squeeze(-1)
-        return mu
+        return torch.linalg.solve_triangular(self.L.mT, y, upper=True).squeeze(-1)
 
-    def thompson_sample(self):
-        """Draw f ~ N(mu, Lambda^{-1}) per arm: f = mu + L^{-T} xi."""
-        mu = self.posterior_mean()
+    def thompson_predict(self):
+        """Draw v ~ N(m, G^{-1}) per arm and return predictions f = Φ^⊤ v (T, r)."""
+        m = self.posterior_mean_v()
         xi = torch.randn(self.T, self.r, generator=self.gen).to(self.device, self.dtype)
-        sample = torch.linalg.solve_triangular(
-            self.L.mT, xi.unsqueeze(-1), upper=True
-        ).squeeze(-1)
-        return mu + sample
+        v = m + torch.linalg.solve_triangular(
+            self.L.mT, xi.unsqueeze(-1), upper=True).squeeze(-1)
+        return torch.einsum("ij,tj->ti", self.Phi.mT, v)  # φ_j^⊤ v for each j
 
     def step(self):
-        """One Thompson round for all T arms in a single batched conditioning.
-
-        Returns the mean instantaneous simple regret across arms this round.
-        """
+        """One batched Thompson round for all T arms; returns mean simple regret."""
         # 1. Thompson-select a candidate per arm.
-        f = self.thompson_sample()
-        idx = f.argmax(dim=1)  # (T,)
+        f = self.thompson_predict()
+        idx = f.argmax(dim=1)                                    # (T,)
+        phi = self.Phi[:, idx].mT.contiguous()                  # (T, r): φ_{idx}
 
         # 2. Observe (noisy) and accumulate the information vector.
         y = self.f_true.gather(1, idx.unsqueeze(1)).squeeze(1)
         y = y + self.noise * torch.randn(self.T, generator=self.gen).to(self.device, self.dtype)
-        self.b.scatter_add_(1, idx.unsqueeze(1), (y / self.noise ** 2).unsqueeze(1))
+        self.b = self.b + (y / self.noise ** 2).unsqueeze(1) * phi
         self.counts.scatter_add_(
-            1, idx.unsqueeze(1), torch.ones(self.T, 1, device=self.device, dtype=self.dtype)
-        )
+            1, idx.unsqueeze(1), torch.ones(self.T, 1, device=self.device, dtype=self.dtype))
 
-        # 3. Rank-1 precision update, batched: z = (1/sigma) e_i, w = 0.
-        z = torch.zeros(self.T, self.r, device=self.device, dtype=self.dtype)
-        z.scatter_(1, idx.unsqueeze(1), 1.0 / self.noise)
-        w = torch.zeros_like(z)
-        Aw_new, _ = refresh_bucket(
-            self.L, self.Aw, z, w, force_reference=self.force_reference
-        )
+        # 3. Rank-1 whitened precision update, batched: z = w = φ_{idx}/σ.
+        z = phi / self.noise
+        Aw_new, _ = refresh_bucket(self.L, self.Aw, z, z,
+                                   force_reference=self.force_reference)
         self.Aw = Aw_new
 
-        # 4. Track simple regret (best-so-far predicted optimum vs true max).
-        mu = self.posterior_mean()
-        best_pred_idx = mu.argmax(dim=1)
-        achieved = self.f_true.gather(1, best_pred_idx.unsqueeze(1)).squeeze(1)
+        # 4. Simple regret of the current posterior-mean optimum.
+        mean_f = torch.einsum("ij,tj->ti", self.Phi.mT, self.posterior_mean_v())
+        best = mean_f.argmax(dim=1)
+        achieved = self.f_true.gather(1, best.unsqueeze(1)).squeeze(1)
         regret = (self.f_max - achieved).clamp_min(0).mean().item()
         self.regret_history.append(regret)
         return regret
 
-    # -- diagnostics ---------------------------------------------------------
+    # -- diagnostics ----------------------------------------------------------
 
     @torch.no_grad()
     def refactor_ground_truth(self, counts):
-        """L, A_w from a full re-cholesky of Lambda = K^{-1} + (1/s^2)diag(counts)."""
-        Kinv = torch.linalg.inv(self.K)
-        Lam = Kinv.unsqueeze(0) + (1.0 / self.noise ** 2) * torch.diag_embed(counts)
-        L = torch.linalg.cholesky(Lam)
-        Linv_K = torch.linalg.solve_triangular(L, self.K.unsqueeze(0).expand_as(Lam), upper=False)
-        Aw = torch.linalg.solve_triangular(L, Linv_K.mT, upper=False).mT
+        """L, A_w from a full re-cholesky of G = I + (1/σ^2) Φ diag(counts) Φ^⊤."""
+        eye = torch.eye(self.r, device=self.device, dtype=self.dtype)
+        G = eye.unsqueeze(0) + (1.0 / self.noise ** 2) * (
+            self.Phi.unsqueeze(0) * counts.unsqueeze(1)) @ self.Phi.mT.unsqueeze(0)
+        L = torch.linalg.cholesky(G)
+        Linv = torch.linalg.inv(L)
+        Aw = eye - Linv @ Linv.mT
         return L, Aw

@@ -1,7 +1,7 @@
 """Correctness tests for the two GPU application experiments.
 
 These run on CPU using the pure-PyTorch reference refresh (force_reference=True),
-so they exercise the experiment logic and its equivalence to a full
+so they exercise the experiment math and its equivalence to a full
 re-factorization without needing CUDA/Triton. The batched Triton path itself is
 covered by tests/test_correctness.py::test_triton_batched_matches_single.
 
@@ -12,17 +12,16 @@ Run with:
 import pathlib
 import sys
 
-import pytest
 import torch
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
-from experiments.curvature_optimizer import IncrementalCurvatureOptimizer
+from experiments.curvature_optimizer import IncrementalCurvatureOptimizer, _orthonormal
 from experiments.parallel_gp_thompson import BatchedGPThompson
 
 
 # --------------------------------------------------------------------------- #
-# Curvature optimizer
+# Curvature optimizer — transported-subspace natural gradient (§3.5)
 # --------------------------------------------------------------------------- #
 
 
@@ -34,20 +33,16 @@ def _tiny_model(seed=0):
 
 
 def test_optimizer_reduces_loss():
-    """Incremental curvature optimizer should drive a tiny regression down."""
     torch.manual_seed(0)
     model = _tiny_model()
     X = torch.randn(64, 16)
     Y = torch.randn(64, 4)
     opt = IncrementalCurvatureOptimizer(
-        model.parameters(), lr=5e-3, rank=8, refresh_mode="incremental",
-        force_reference=True,
-    )
+        model.parameters(), lr=0.05, rank=8, damping=1.0, force_reference=True)
     loss_fn = torch.nn.MSELoss()
     first = None
     for _ in range(40):
-        pred = model(X)
-        loss = loss_fn(pred, Y)
+        loss = loss_fn(model(X), Y)
         opt.zero_grad()
         loss.backward()
         opt.step()
@@ -57,50 +52,98 @@ def test_optimizer_reduces_loss():
 
 
 def test_optimizer_buckets_by_rank():
-    """Blocks of equal clamped rank share one batched bucket."""
     model = _tiny_model()
-    opt = IncrementalCurvatureOptimizer(
-        model.parameters(), rank=8, force_reference=True
-    )
-    # Blocks with >= 8 entries clamp to r=8; the width-4 output bias gets r=4.
-    # Same-rank blocks must share a bucket, and every block lands in one.
+    opt = IncrementalCurvatureOptimizer(model.parameters(), rank=8, force_reference=True)
     summary = opt.bucket_summary()
     assert sum(summary.values()) == opt.num_blocks()
-    assert summary[8] == opt.num_blocks() - 1  # all but the width-4 bias
+    assert summary[8] == opt.num_blocks() - 1  # all but the width-4 output bias
     assert summary[4] == 1
 
 
-def test_optimizer_natural_gradient_solve_matches_refact():
-    """The subspace G^{-1} solve implied by the chart matches a fresh solve.
+def test_woodbury_preconditioner_is_exact():
+    """p = λ⁻¹ r_⊥ + U G⁻¹a must equal the dense solve (λI + U(G−λI)Uᵀ)⁻¹ g."""
+    torch.manual_seed(0)
+    d, r, lam = 40, 8, 0.7
+    gen = torch.Generator().manual_seed(1)
+    U = _orthonormal(d, r, gen, torch.device("cpu"), torch.float64)
+    G = lam * torch.eye(r, dtype=torch.float64)
+    for _ in range(20):
+        a = torch.randn(r, dtype=torch.float64)
+        G = G + torch.outer(a, a)
+    L = torch.linalg.cholesky(G)
+    g = torch.randn(d, dtype=torch.float64)
+    a = U.mT @ g
+    rv = g - U @ a
+    y = torch.linalg.solve_triangular(L, a.unsqueeze(1), upper=False)
+    x = torch.linalg.solve_triangular(L.mT, y, upper=True).squeeze(1)  # G^{-1} a
+    p = rv / lam + U @ x
+    F = lam * torch.eye(d, dtype=torch.float64) + U @ (G - lam * torch.eye(r, dtype=torch.float64)) @ U.mT
+    p_dense = torch.linalg.solve(F, g)
+    err = (torch.norm(p - p_dense) / torch.norm(p_dense)).item()
+    assert err < 1e-10, f"Woodbury preconditioner not exact: {err:.2e}"
 
-    After several incremental updates, back_solve(v_z) must equal G^{-1} s where
-    G is the exact accumulated Gram — i.e. the incremental factor stays faithful.
-    """
-    torch.manual_seed(1)
-    r, T = 12, 3
-    device = torch.device("cpu")
-    from experiments.charts import ChartBucket
 
-    bucket = ChartBucket(T=T, r=r, device=device, ridge=1e-2)
-    G = (1e-2 * torch.eye(r)).unsqueeze(0).repeat(T, 1, 1)
-    last_s = None
-    for _ in range(15):
-        s = torch.randn(T, r) * 0.3
-        G = G + s.unsqueeze(2) * s.unsqueeze(1)
-        _, vz = bucket.refresh(s, s, force_reference=True)
-        last_s = s
-    x_inc = bucket.back_solve(bucket.refresh(last_s * 0, last_s * 0, force_reference=True)[1])
-    # Compare a fresh natural-gradient solve on a probe vector.
-    probe = torch.randn(T, r)
-    x_ref = torch.linalg.solve(G, probe.unsqueeze(-1)).squeeze(-1)
-    y = torch.linalg.solve_triangular(bucket.L, probe.unsqueeze(-1), upper=False)
-    x_chart = torch.linalg.solve_triangular(bucket.L.mT, y, upper=True).squeeze(-1)
-    err = (torch.norm(x_chart - x_ref) / torch.norm(x_ref)).item()
-    assert err < 1e-4, f"chart G^-1 solve drifted from exact: {err:.2e}"
+def test_incremental_core_matches_refactorization():
+    """Incremental whitened core C_w must match a fresh re-cholesky (drift ~0)."""
+    torch.manual_seed(0)
+    m = torch.nn.Linear(16, 16, bias=False).double()
+    opt = IncrementalCurvatureOptimizer(
+        [m.weight], lr=0.0, rank=8, damping=0.7, tau=1e9,  # tau=inf → no refresh
+        refresh_mode="incremental", force_reference=True)
+    X = torch.randn(64, 16, dtype=torch.float64)
+    for _ in range(40):
+        loss = (m(X) ** 2).mean()
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
+    assert opt.chart_drift() < 1e-10, f"core drift too high: {opt.chart_drift():.2e}"
+
+
+def test_refresh_keeps_chart_orthonormal():
+    torch.manual_seed(3)
+    m = torch.nn.Linear(50, 50, bias=False).double()
+    opt = IncrementalCurvatureOptimizer(
+        [m.weight], lr=0.05, rank=8, damping=0.7, tau=0.1, force_reference=True)
+    X = torch.randn(128, 50, dtype=torch.float64)
+    for _ in range(60):
+        loss = ((m(X) - 1.0) ** 2).mean()
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
+    U = opt.blocks[0]["U"]
+    ortho = torch.norm(U.mT @ U - torch.eye(U.shape[1], dtype=torch.float64)).item()
+    assert ortho < 1e-10, f"chart lost orthonormality: {ortho:.2e}"
+    assert opt.n_refresh > 0, "refresh never triggered"
+
+
+def test_incremental_tracks_refact_optimizer():
+    """Incremental and full-refact optimizers (identical charts) should agree."""
+    def run(mode):
+        torch.manual_seed(7)
+        m = torch.nn.Sequential(
+            torch.nn.Linear(20, 32), torch.nn.Tanh(), torch.nn.Linear(32, 1)).double()
+        o = IncrementalCurvatureOptimizer(
+            m.parameters(), lr=0.1, rank=8, damping=0.7, momentum=0.0, tau=0.1,
+            refresh_mode=mode, force_reference=True)
+        X = torch.randn(128, 20, dtype=torch.float64)
+        Y = torch.randn(128, 1, dtype=torch.float64)
+        for _ in range(60):
+            l = ((m(X) - Y) ** 2).mean()
+            o.zero_grad()
+            l.backward()
+            o.step()
+        return l.item(), [p.detach().clone() for p in m.parameters()]
+
+    li, pi = run("incremental")
+    lr, pr = run("refact")
+    assert abs(li - lr) < 1e-3, f"final loss differs: {li:.5f} vs {lr:.5f}"
+    dmax = max((torch.norm(a - b) / torch.norm(b).clamp_min(1e-12)).item()
+               for a, b in zip(pi, pr))
+    assert dmax < 5e-3, f"params diverged: {dmax:.2e}"
 
 
 # --------------------------------------------------------------------------- #
-# GP Thompson sampling
+# GP Thompson sampling — whitened SVGP streaming conditioning (§4.4/§4.5)
 # --------------------------------------------------------------------------- #
 
 
@@ -112,22 +155,21 @@ def test_gp_incremental_matches_refactorization():
     """Incremental precision factor + A_w match a full re-cholesky after rounds."""
     torch.manual_seed(0)
     r, T = 24, 4
-    X = torch.rand(r, 2)
+    X = torch.rand(r, 2, dtype=torch.float64)
     gp = BatchedGPThompson(X, _objective, T=T, force_reference=True, seed=0)
     for _ in range(12):
         gp.step()
     L_ref, Aw_ref = gp.refactor_ground_truth(gp.counts)
     L_err = (torch.norm(gp.L - L_ref) / torch.norm(L_ref)).item()
     Aw_err = (torch.norm(gp.Aw - Aw_ref) / torch.norm(Aw_ref)).item()
-    assert L_err < 1e-4, f"precision factor drift {L_err:.2e}"
-    assert Aw_err < 1e-3, f"whitened operator drift {Aw_err:.2e}"
+    assert L_err < 1e-10, f"precision factor drift {L_err:.2e}"
+    assert Aw_err < 1e-9, f"whitened operator drift {Aw_err:.2e}"
 
 
 def test_gp_regret_decreases():
-    """Thompson sampling should reduce mean simple regret over rounds."""
     torch.manual_seed(0)
     r, T = 48, 16
-    X = torch.rand(r, 2)
+    X = torch.rand(r, 2, dtype=torch.float64)
     gp = BatchedGPThompson(X, _objective, T=T, force_reference=True, seed=0)
     early = []
     for i in range(30):
@@ -137,3 +179,27 @@ def test_gp_regret_decreases():
     early_mean = sum(early) / len(early)
     late = sum(gp.regret_history[-3:]) / 3
     assert late <= early_mean + 1e-6, f"regret grew: {early_mean:.4f} -> {late:.4f}"
+
+
+# --------------------------------------------------------------------------- #
+# SOAP baseline
+# --------------------------------------------------------------------------- #
+
+
+def test_soap_reduces_loss():
+    from experiments.soap import SOAP
+    torch.manual_seed(0)
+    m = torch.nn.Sequential(
+        torch.nn.Linear(20, 32), torch.nn.Tanh(), torch.nn.Linear(32, 1))
+    opt = SOAP(m.parameters(), lr=3e-3)
+    X = torch.randn(128, 20)
+    Y = torch.randn(128, 1)
+    first = None
+    for _ in range(80):
+        l = ((m(X) - Y) ** 2).mean()
+        opt.zero_grad()
+        l.backward()
+        opt.step()
+        if first is None:
+            first = l.item()
+    assert l.item() < first, f"SOAP did not reduce loss: {first:.4f} -> {l.item():.4f}"
