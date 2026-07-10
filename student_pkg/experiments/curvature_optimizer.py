@@ -38,9 +38,9 @@ form the augmented (r+1)×(r+1) core, eigendecompose it, keep the top-r
 eigenvectors R, and rotate U_{t+1} = [U | u_⊥] R (O(dr^2) basis rotation, O(r^3)
 eigendecomposition — rare, since most steps stay on the steady path).
 
-Baselines for comparison are separate optimizers (see experiments/baselines.py):
-Refact (full chol + re-whiten every step), EMA (Fisher EMA + periodic
-eigendecomposition), SGD, AdamW, and SOAP.
+Baselines for comparison: SOAP (experiments/soap.py), SGD, and AdamW, plus the
+built-in Refact / periodic_refact ablation modes below (full re-cholesky of the
+same chart every step / every N steps).
 
 The ``refresh_mode`` argument switches the *core maintenance* only, holding the
 chart machinery fixed, so the ablation is exactly "our O(r^2) primitive" vs.
