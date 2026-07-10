@@ -73,16 +73,40 @@ larger project and is described inside `doublesided_cholesky.py`.
 
 ## GPU application experiments
 
-Two GPU experiments live in `experiments/`, both faithful to the paper's math
-and built on the batched Triton kernel. The GPU angle they add on top of the
-paper's CPU experiments is batching *many independent* whitened-operator updates
-into one launch — device-residency, not raw speed on a single latency-bound
-Givens sweep. Run everything directly (no scheduler) and auto-generate figures:
+Three GPU experiments live in `experiments/`, all faithful to the paper's math
+and built on the batched Triton kernel. The GPU angle on top of the paper's CPU
+experiments is batching *many independent* whitened-operator updates into one
+launch — device-residency, not raw speed on a single latency-bound Givens sweep.
+Run everything directly (no scheduler) and auto-generate figures:
 
 ```
-python run_experiments.py            # both experiments → results/ JSON → figures/ report.html
-python run_experiments.py --only gp  # gp | curvature
+python run_experiments.py                 # all → results/ JSON → figures/ report.html
+python run_experiments.py --only dynamics # dynamics | curvature | gp
 python run_experiments.py --figures-only
+```
+
+**A note on what "double-sided" requires.** Massive parallelism alone does not
+make an experiment double-sided. For a Gaussian posterior, ordinary parallel
+Thompson sampling only needs a *sampling root* `A^{1/2}ε`, which can be
+transported one-sidedly (`R ← PᵀR`) plus a Cholesky update — scaling workers
+tests sample throughput, not double-sided maintenance. A genuine double-sided
+experiment must have the learning step *read or modify `A_t` itself*. The
+flagship below does; the parallel GP is included honestly as the one-sided
+negative control.
+
+**0. Non-symmetric dynamics Thompson sampling — flagship double-sided**
+(`experiments/dynamics_thompson.py`). Online Bayesian linear systems where the
+maintained whitened operator `A_t = L⁻¹ M_t L⁻ᵀ` with `M_t = Σ φ_i (Θ⋆φ_i)ᵀ` is
+**non-symmetric** (`z ≠ w` in the kernel), so no root `A_t = R Rᵀ` exists — the
+one-sided root-transport baseline is *mathematically inapplicable*, not merely
+slower. Model-based Thompson sampling for adaptive control reads `A_t` each round
+(`Θ̂φ = L Aᵀ L⁻¹φ`). Batched over thousands of systems in one launch. The
+benchmark reports incremental-vs-refactor latency, throughput, the symmetry gap
+`‖A−Aᵀ‖/‖A‖ ≈ 1` (proving no root exists), machine-precision A-drift, and simple
+regret.
+
+```
+python -m tests.bench_dynamics_thompson
 ```
 
 **1. Transported-subspace natural gradient optimizer**
@@ -104,16 +128,15 @@ second-order), SGD, AdamW.
 python -m tests.bench_curvature_opt
 ```
 
-**2. Massively parallel GP Thompson sampling**
+**2. Parallel GP Thompson sampling — one-sided negative control**
 (`experiments/parallel_gp_thompson.py`). Faithful whitened-SVGP streaming
 conditioning (§4.4/§4.5) using the **same primitive** — `z = w = φ/σ` with
-`φ = L_uu⁻¹ k_u(x)` the whitened cross-covariance, not an ad-hoc precision
-filter. Thousands of independent GP arms are each conditioned by one rank-1
-whitened update per round, all fused into one launch — the "T is where we win"
-story, scaled past the MLX section's T = 16. Baseline is a **BoTorch** per-model
-loop (real `SingleTaskGP` when installed, else an equivalent exact-GP), which
-conditions one model at a time at O(r³); we share a launch at O(r²). Reports
-per-round cost vs T, arms/sec throughput, and the simple-regret curve.
+`φ = L_uu⁻¹ k_u(x)`. Thousands of GP arms conditioned in one launch, scaled past
+the MLX section's T = 16, with a **BoTorch** per-model baseline. Included
+*honestly as a negative control*: the maintained `A_w = I − L⁻¹L⁻ᵀ` is symmetric
+PSD, so Thompson sampling only needs a sampling root — this measures parallel
+throughput, not double-sided maintenance. It shows the batching win but does not,
+by itself, motivate maintaining `A_w` explicitly (contrast experiment 0).
 
 ```
 python -m tests.bench_gp_thompson

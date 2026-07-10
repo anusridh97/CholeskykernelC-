@@ -22,7 +22,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--only", choices=["gp", "curvature"], default=None,
+    ap.add_argument("--only", choices=["gp", "curvature", "dynamics"], default=None,
                     help="run just one experiment")
     ap.add_argument("--figures-only", action="store_true",
                     help="skip benchmarks, just re-render figures from results/")
@@ -36,9 +36,16 @@ def main():
             from tests import bench_curvature_opt
             bench_curvature_opt.run()
             print()
+        if args.only in (None, "dynamics"):
+            print("=" * 70)
+            print(" Experiment 2: non-symmetric double-sided dynamics TS (flagship)")
+            print("=" * 70)
+            from tests import bench_dynamics_thompson
+            bench_dynamics_thompson.run()
+            print()
         if args.only in (None, "gp"):
             print("=" * 70)
-            print(" Experiment 2: massively parallel GP Thompson sampling")
+            print(" Experiment 3: parallel GP Thompson sampling (one-sided control)")
             print("=" * 70)
             from tests import bench_gp_thompson
             bench_gp_thompson.run()

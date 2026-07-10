@@ -148,6 +148,50 @@ def render_curvature(data):
 # --------------------------------------------------------------------------- #
 
 
+def render_dynamics(data):
+    _style()
+    figs = []
+    scaling = data["scaling"]
+    T = [s["T"] for s in scaling]
+
+    # 1. Incremental vs refactor per-round core cost.
+    fig, ax = plt.subplots(figsize=(6.2, 4.0))
+    ax.plot(T, [s["incr_ms"] for s in scaling], color=AQUA, lw=2, marker="o", ms=5,
+            label="double-sided incremental (O(r²))")
+    ax.plot(T, [s["refact_ms"] for s in scaling], color=RED, lw=2, marker="o", ms=5,
+            label="full re-cholesky (O(r³))")
+    ax.set_xscale("log", base=2)
+    ax.set_yscale("log")
+    _finish(ax, "Non-symmetric operator maintenance — incremental vs refactor",
+            "systems (T)", "ms / round")
+    ax.legend(loc="upper left")
+    figs.append(("dynamics_cost.png", _save(fig, "dynamics_cost.png")))
+
+    # 2. Throughput + symmetry gap annotation.
+    fig, ax = plt.subplots(figsize=(6.2, 4.0))
+    ax.plot(T, [s["sys_per_sec"] for s in scaling], color=AQUA, lw=2, marker="o", ms=5)
+    ax.fill_between(T, [s["sys_per_sec"] for s in scaling], color=AQUA, alpha=0.10)
+    ax.set_xscale("log", base=2)
+    gap = sum(s["symmetry_gap"] for s in scaling) / len(scaling)
+    ax.text(0.03, 0.94, f"‖A−Aᵀ‖/‖A‖ ≈ {gap:.2f}  →  no root A=RRᵀ exists",
+            transform=ax.transAxes, fontsize=9, color=MUTED, va="top")
+    _finish(ax, "Double-sided systems conditioned per second",
+            "systems (T)", "systems / second")
+    figs.append(("dynamics_throughput.png", _save(fig, "dynamics_throughput.png")))
+
+    # 3. Regret curve.
+    rc = data.get("regret_curve")
+    if rc:
+        fig, ax = plt.subplots(figsize=(6.2, 4.0))
+        vals = rc["values"]
+        ax.plot(range(1, len(vals) + 1), vals, color=VIOLET, lw=2, marker="o", ms=4)
+        ax.fill_between(range(1, len(vals) + 1), vals, color=VIOLET, alpha=0.10)
+        _finish(ax, f"Adaptive-control simple regret (T={rc['T']} systems)",
+                "round", "mean simple regret")
+        figs.append(("dynamics_regret.png", _save(fig, "dynamics_regret.png")))
+    return figs
+
+
 def render_gp(data):
     _style()
     figs = []
@@ -244,6 +288,18 @@ def render_all():
                 + f" · {data['steps']} steps · rank {data['rank']} · {data['timestamp']}")
         sections.append(("Incremental curvature optimizer", meta, figs))
 
+    dpath = RESULTS_DIR / "dynamics_thompson.json"
+    if dpath.exists():
+        data = json.loads(dpath.read_text())
+        figs = render_dynamics(data)
+        made += figs
+        meta = (f"device: {data['device']}"
+                + (f" ({data['gpu']})" if data.get("gpu") else "")
+                + f" · feature dim {data['feature_r']} · {data['rounds']} rounds"
+                + f" · non-symmetric operator · {data['timestamp']}")
+        sections.append(
+            ("Non-symmetric dynamics Thompson sampling (flagship double-sided)", meta, figs))
+
     gpath = RESULTS_DIR / "gp_thompson.json"
     if gpath.exists():
         data = json.loads(gpath.read_text())
@@ -253,7 +309,8 @@ def render_all():
                 + (f" ({data['gpu']})" if data.get("gpu") else "")
                 + f" · {data['candidates_r']} candidates · {data['rounds']} rounds"
                 + f" · baseline: {data['botorch_backend']} · {data['timestamp']}")
-        sections.append(("Massively parallel GP Thompson sampling", meta, figs))
+        sections.append(
+            ("GP Thompson sampling (one-sided negative control)", meta, figs))
 
     if not sections:
         print("No results found — run the benchmarks first.")

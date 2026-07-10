@@ -1,9 +1,17 @@
-"""Massively parallel GP Thompson sampling via the same double-sided primitive.
+"""Massively parallel GP Thompson sampling — NEGATIVE CONTROL (one-sided).
 
-Thousands of independent conjugate-GP arms on one GPU, each conditioned by one
-rank-1 whitened update per round, all fused into a single batched kernel launch.
-This is the "T is where we win" story on real hardware, scaling the batched
-primitive far past the MLX section's T = 16.
+This experiment is deliberately included as a *negative control*. Thousands of
+independent conjugate-GP arms are each conditioned by one rank-1 whitened update
+per round, fused into a single batched launch — the "T is where we win" systems
+story. But the maintained operator here is A_w = I − L^{-1}L^{-⊤}, which is
+SYMMETRIC and PSD, so ordinary Thompson sampling only ever needs a sampling root
+A_w^{1/2}ε. That root can be transported one-sidedly (R ← P^⊤R) plus a Cholesky
+update; the fixed inducing set never changes the whitening basis. Scaling the
+number of workers therefore tests sample throughput, not double-sided
+maintenance — it does not, by itself, motivate maintaining A_w explicitly.
+
+The genuinely double-sided flagship is experiments/dynamics_thompson.py, where
+the operator is NON-SYMMETRIC (no root exists) and the learning step reads it.
 
 Faithful streaming SVGP conditioning (paper §4.4/§4.5), using the SAME primitive
 as the natural-gradient optimizer — z = w = a whitened vector, not an ad-hoc

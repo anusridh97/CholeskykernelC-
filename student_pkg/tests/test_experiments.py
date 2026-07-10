@@ -186,6 +186,48 @@ def test_gp_regret_decreases():
 # --------------------------------------------------------------------------- #
 
 
+# --------------------------------------------------------------------------- #
+# Non-symmetric dynamics Thompson sampling — the decisive double-sided workload
+# --------------------------------------------------------------------------- #
+
+
+def test_dynamics_incremental_matches_refactorization():
+    """Incremental non-symmetric A_t must match a full re-cholesky (machine prec)."""
+    from experiments.dynamics_thompson import BatchedDynamicsThompson
+    torch.manual_seed(0)
+    gp = BatchedDynamicsThompson(
+        r=24, T=6, horizon=1, noise=0.03, force_reference=True,
+        dtype=torch.float64, seed=0)
+    for _ in range(30):
+        gp.step()
+    _, A_ref = gp.refactor_ground_truth()
+    err = (torch.norm(gp.A - A_ref) / torch.norm(A_ref)).item()
+    assert err < 1e-10, f"non-symmetric A drift too high: {err:.2e}"
+
+
+def test_dynamics_operator_is_non_symmetric():
+    """A_t ≠ A_t^⊤ (so no root A = R R^⊤ exists — double-sided is unavoidable)."""
+    from experiments.dynamics_thompson import BatchedDynamicsThompson
+    torch.manual_seed(0)
+    gp = BatchedDynamicsThompson(
+        r=24, T=6, horizon=1, force_reference=True, dtype=torch.float64, seed=0)
+    for _ in range(20):
+        gp.step()
+    assert gp.symmetry_gap() > 0.2, f"A unexpectedly near-symmetric: {gp.symmetry_gap():.3f}"
+
+
+def test_dynamics_regret_decreases():
+    from experiments.dynamics_thompson import BatchedDynamicsThompson
+    torch.manual_seed(0)
+    gp = BatchedDynamicsThompson(
+        r=24, T=32, horizon=1, noise=0.03, force_reference=True,
+        dtype=torch.float64, seed=1)
+    regs = [gp.step() for _ in range(50)]
+    early = sum(regs[:5]) / 5
+    late = sum(regs[-5:]) / 5
+    assert late <= early + 1e-6, f"regret grew: {early:.4f} -> {late:.4f}"
+
+
 def test_soap_reduces_loss():
     from experiments.soap import SOAP
     torch.manual_seed(0)
