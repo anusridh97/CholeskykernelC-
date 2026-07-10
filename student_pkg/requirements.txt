@@ -2,3 +2,9 @@ torch>=2.1
 triton>=2.1
 numpy
 pytest
+matplotlib
+
+# Optional: enables the real BoTorch baseline in tests/bench_gp_thompson.py.
+# Without it, the benchmark uses an equivalent exact-GP fallback automatically.
+# botorch
+# gpytorch

@@ -8,21 +8,22 @@ entirely GPU-resident, and compares three optimizers:
   * curvature (periodic_refact) — the Shampoo/SOAP-style ablation: re-cholesky
                                   the same charts every K steps, O(r^3) amortized.
 
-The net has dozens of weight blocks, so a single training step is dozens of
-independent rank-1 whitened-curvature updates — the T-batch the kernel wants.
-We report wall-clock-to-target-loss and the per-step optimizer cost, plus the
-batched-vs-sequential refresh speedup that is the whole point of the kernel.
+It also measures the batched-vs-sequential chart-refresh scaling that is the
+whole point of the kernel: refreshing all of a net's same-rank blocks in one
+launch versus one block at a time.
 
-Run from student_pkg/:
+Returns a JSON-serializable results dict (also written to results/) that
+``experiments.viz`` turns into figures. Run directly on any GPU:
 
     python -m tests.bench_curvature_opt
 
-Runs on CPU (reference refresh) or GPU (batched Triton kernel) automatically;
-the GPU numbers are the ones that matter. Output mirrors to tests/logs/.
+No scheduler required. Runs on CPU (reference refresh, tiny) or GPU (batched
+Triton kernel) automatically; the GPU numbers are the ones that matter.
 """
 
 import os
 import sys
+import json
 import time
 import datetime
 import pathlib
@@ -33,25 +34,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from experiments.curvature_optimizer import IncrementalCurvatureOptimizer
 
-_log_file = None
-
-
-def setup_logging():
-    global _log_file
-    log_dir = pathlib.Path(__file__).parent / "logs"
-    log_dir.mkdir(exist_ok=True)
-    job_id = os.environ.get("SLURM_JOB_ID", f"local_{os.getpid()}")
-    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = log_dir / f"bench_curvature_opt_{job_id}_{ts}.log"
-    _log_file = open(path, "w")
-    log(f"Log: {path}")
-    return path
-
-
-def log(msg=""):
-    print(msg, flush=True)
-    if _log_file is not None:
-        print(msg, file=_log_file, flush=True)
+RESULTS_DIR = pathlib.Path(__file__).resolve().parent.parent / "results"
 
 
 # --------------------------------------------------------------------------- #
@@ -100,6 +83,7 @@ def train(make_opt, device, steps, target, batch=128, seqlen=16, vocab=32, nclas
     x, y = make_task(batch, seqlen, vocab, nclass, device, seed=seed)
 
     opt_times = []
+    loss_curve = []
     reached = None
     t0 = time.perf_counter()
     for step in range(steps):
@@ -115,81 +99,139 @@ def train(make_opt, device, steps, target, batch=128, seqlen=16, vocab=32, nclas
         if device.type == "cuda":
             torch.cuda.synchronize()
         opt_times.append(time.perf_counter() - ts)
+        loss_curve.append(loss.item())
 
         if reached is None and loss.item() < target:
-            reached = (step + 1, time.perf_counter() - t0)
+            reached = {"step": step + 1, "seconds": time.perf_counter() - t0}
     total = time.perf_counter() - t0
 
     opt_times.sort()
-    med_opt_ms = opt_times[len(opt_times) // 2] * 1e3
-    final_loss = loss.item()
-    n_blocks = getattr(opt, "num_blocks", lambda: None)()
     return {
-        "final_loss": final_loss,
+        "loss_curve": loss_curve,
+        "final_loss": loss_curve[-1],
         "reached": reached,
         "total_s": total,
-        "med_opt_ms": med_opt_ms,
-        "n_blocks": n_blocks,
+        "med_opt_ms": opt_times[len(opt_times) // 2] * 1e3,
+        "n_blocks": getattr(opt, "num_blocks", lambda: None)(),
     }
 
 
-def fmt_reached(reached):
-    if reached is None:
-        return "  not reached"
-    step, t = reached
-    return f"step {step:>4} @ {t:6.2f}s"
+# --------------------------------------------------------------------------- #
+# Batched-vs-sequential chart refresh scaling
+# --------------------------------------------------------------------------- #
 
 
-def run():
+def bench_refresh_scaling(device, r=32, T_sizes=(1, 4, 16, 64, 128, 256), reps=20):
+    """Refresh T equal-rank charts: one batched launch vs T sequential launches.
+
+    This is the per-step cost the optimizer pays across a net's same-rank
+    blocks. On CPU both paths use the reference loop, so skip it there.
+    """
+    if device.type != "cuda":
+        return {"available": False}
+    from doublesided_cholesky import (
+        incremental_update_triton,
+        incremental_update_triton_batched,
+    )
+
+    def make(T):
+        torch.manual_seed(0)
+        A = torch.randn(T, r, r, device=device)
+        G = A @ A.mT + r * torch.eye(r, device=device).unsqueeze(0)
+        L = torch.linalg.cholesky(G).contiguous()
+        Aw = torch.randn(T, r, r, device=device)
+        z = torch.randn(T, r, device=device) * 0.1
+        w = torch.randn(T, r, device=device) * 0.1
+        return L, Aw, z, w
+
+    def timed(fn):
+        torch.cuda.synchronize()
+        ts = []
+        for _ in range(reps):
+            s = torch.cuda.Event(enable_timing=True)
+            e = torch.cuda.Event(enable_timing=True)
+            s.record()
+            fn()
+            e.record()
+            torch.cuda.synchronize()
+            ts.append(s.elapsed_time(e))
+        ts.sort()
+        return ts[len(ts) // 2]
+
+    rows = []
+    for T in T_sizes:
+        L, Aw, z, w = make(T)
+        for _ in range(3):  # warmup
+            incremental_update_triton_batched(L.clone(), Aw.clone(), z.clone(), w.clone())
+        seq = timed(lambda: [
+            incremental_update_triton(L[t].clone(), Aw[t].clone(), z[t].clone(), w[t].clone())
+            for t in range(T)
+        ])
+        bat = timed(lambda: incremental_update_triton_batched(
+            L.clone(), Aw.clone(), z.clone(), w.clone()))
+        rows.append({"T": T, "seq_ms": seq, "bat_ms": bat, "speedup": seq / bat if bat else None})
+    return {"available": True, "r": r, "rows": rows}
+
+
+# --------------------------------------------------------------------------- #
+
+
+def run(save=True):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    log(f"device:       {device}")
-    if device.type == "cuda":
-        log(f"GPU:          {torch.cuda.get_device_name(0)}")
-    log(f"SLURM_JOB_ID: {os.environ.get('SLURM_JOB_ID', 'n/a')}")
-    log(f"Started:      {datetime.datetime.now().isoformat(timespec='seconds')}")
-    # CPU reference refresh is slow; keep the CPU smoke run tiny.
     steps = 300 if device.type == "cuda" else 30
     target = 0.05
     rank = 32
-    log(f"steps={steps}  target_loss={target}  rank={rank}")
-    log("")
 
     configs = [
         ("AdamW", lambda m: torch.optim.AdamW(m.parameters(), lr=3e-3)),
-        (
-            "curvature (incremental)",
-            lambda m: IncrementalCurvatureOptimizer(
-                m.parameters(), lr=1e-2, rank=rank, refresh_mode="incremental"
-            ),
-        ),
-        (
-            "curvature (periodic_refact K=20)",
-            lambda m: IncrementalCurvatureOptimizer(
-                m.parameters(), lr=1e-2, rank=rank,
-                refresh_mode="periodic_refact", refact_every=20,
-            ),
-        ),
+        ("curvature (incremental)", lambda m: IncrementalCurvatureOptimizer(
+            m.parameters(), lr=1e-2, rank=rank, refresh_mode="incremental")),
+        ("curvature (periodic_refact K=20)", lambda m: IncrementalCurvatureOptimizer(
+            m.parameters(), lr=1e-2, rank=rank,
+            refresh_mode="periodic_refact", refact_every=20)),
     ]
 
-    log(f"{'optimizer':<34} {'final loss':>10} {'to target':>18} {'opt ms/step':>12} {'blocks':>7}")
-    log("-" * 86)
+    print(f"device: {device}"
+          + (f"  ({torch.cuda.get_device_name(0)})" if device.type == "cuda" else ""))
+    print(f"steps={steps}  target_loss={target}  rank={rank}\n")
+    print(f"{'optimizer':<34} {'final loss':>10} {'to target':>18} {'opt ms/step':>12} {'blocks':>7}")
+    print("-" * 86)
+
+    training = {}
     for name, make_opt in configs:
         r = train(make_opt, device, steps, target)
-        log(
-            f"{name:<34} {r['final_loss']:>10.4f} {fmt_reached(r['reached']):>18} "
-            f"{r['med_opt_ms']:>11.3f} {str(r['n_blocks']):>7}"
-        )
-    log("")
-    log("Note: 'opt ms/step' is the optimizer.step() cost only (backward excluded).")
-    log("On GPU the incremental refresh is one batched kernel launch across all")
-    log("same-rank blocks; periodic_refact pays an O(r^3) re-cholesky every K steps.")
+        training[name] = r
+        reached = ("step %d @ %.2fs" % (r["reached"]["step"], r["reached"]["seconds"])
+                   if r["reached"] else "not reached")
+        print(f"{name:<34} {r['final_loss']:>10.4f} {reached:>18} "
+              f"{r['med_opt_ms']:>11.3f} {str(r['n_blocks']):>7}")
+
+    print("\nBatched vs sequential chart refresh (across a net's same-rank blocks):")
+    refresh = bench_refresh_scaling(device)
+    if refresh.get("available"):
+        print(f"{'blocks T':>9} {'seq ms':>9} {'batched ms':>11} {'speedup':>9}")
+        for row in refresh["rows"]:
+            print(f"{row['T']:>9} {row['seq_ms']:>9.3f} {row['bat_ms']:>11.3f} "
+                  f"{row['speedup']:>8.2f}x")
+    else:
+        print("  (GPU only — skipped on CPU)")
+
+    results = {
+        "kind": "curvature_optimizer",
+        "device": str(device),
+        "gpu": torch.cuda.get_device_name(0) if device.type == "cuda" else None,
+        "timestamp": datetime.datetime.now().isoformat(timespec="seconds"),
+        "steps": steps, "target": target, "rank": rank,
+        "training": training,
+        "refresh_scaling": refresh,
+    }
+    if save:
+        RESULTS_DIR.mkdir(exist_ok=True)
+        path = RESULTS_DIR / "curvature_optimizer.json"
+        path.write_text(json.dumps(results, indent=2))
+        print(f"\nResults saved to {path}")
+    return results
 
 
 if __name__ == "__main__":
-    log_path = setup_logging()
-    try:
-        run()
-    finally:
-        if _log_file is not None:
-            _log_file.close()
-        print(f"Log saved to {log_path}")
+    run()
