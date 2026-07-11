@@ -152,10 +152,17 @@ so `A ≈ σ²I` (the degenerate negative control); under **heteroskedastic or
 heavy-tailed** noise `A` separates from a scaled identity (`‖A−cI‖/‖A‖` grows
 homo < hetero < heavy). The learning step also reads `A` via a covariance-level
 shrinkage calibration a root-only rep cannot do. Verified to machine precision;
-reports separation-by-noise-regime, regret, and coverage. Semi-synthetic
-heteroskedastic/heavy-tailed noise (the standard construction — there is no
-canonical real heavy-tailed bandit benchmark; real logged-bandit datasets give
-clicks, i.e. `A ≈ I`).
+reports separation-by-noise-regime, regret, and coverage.
+
+*Real-data instance* (`experiments/bandit_data.py`): the benchmark also runs on a
+real dataset with a genuinely heavy-tailed reward (medical `charges`, skew ≈ 1.5,
+fetched + cached), casting rows as arms in an off-data replay. The sandwich
+separates from `cI` **more** with the real reward than with a matched-Gaussian
+control (same linear signal, tails removed) — so `A ≠ I` comes from real
+structure, not injected noise. Documented loaders `load_kuairand` /
+`load_ipinyou` expose the same interface for the gated/large datasets that bundle
+{contexts + propensities + heavy-tailed reward} (KuaiRand watch-time with its
+uniform-random logging slice; iPinYou market price) — bring your own download.
 
 ```
 python -m tests.bench_robust_bandit

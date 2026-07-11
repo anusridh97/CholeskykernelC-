@@ -268,7 +268,21 @@ def render_bandit(data):
                 "", "separation")
         figs.append(("bandit_separation.png", _save(fig, "bandit_separation.png")))
 
-    # 2. Incremental vs refactor latency.
+    # 2. Real data: separation from real tails vs matched-Gaussian control.
+    real = data.get("real_data")
+    if real and "real" in real and "gaussian_control" in real:
+        fig, ax = plt.subplots(figsize=(6.2, 4.0))
+        vals = [real["gaussian_control"]["separation"], real["real"]["separation"]]
+        bars = ax.bar(["matched Gaussian\n(tails removed)", "real heavy-tailed\nreward"],
+                      vals, color=[MUTED, VIOLET], width=0.6)
+        for b, v in zip(bars, vals):
+            ax.annotate(f"{v:.2f}", (b.get_x() + b.get_width() / 2, v),
+                        ha="center", va="bottom", fontsize=9, color=INK)
+        _finish(ax, "Sandwich separation from real data (medical charges)",
+                "", "‖A − cI‖/‖A‖")
+        figs.append(("bandit_real.png", _save(fig, "bandit_real.png")))
+
+    # 3. Incremental vs refactor latency.
     scaling = data["scaling"]
     T = [s["T"] for s in scaling]
     fig, ax = plt.subplots(figsize=(6.2, 4.0))

@@ -323,6 +323,48 @@ def test_robust_sandwich_separates_from_identity_under_misspec():
     assert sep("heavy") > sep("homo") + 0.05, "heavy tails should separate A from cI more"
 
 
+def test_real_data_sandwich_matches_refactorization():
+    """On a real dataset, the whitened sandwich A_t matches a full re-cholesky.
+
+    Skips if the small real dataset cannot be fetched (offline / proxy)."""
+    import pytest
+    from experiments.bandit_data import load_charges
+    from experiments.robust_bandit import RealDataSandwichTS
+    try:
+        C, r, _ = load_charges(dtype=torch.float64)
+    except RuntimeError as exc:
+        pytest.skip(f"real dataset unavailable: {exc}")
+    torch.manual_seed(0)
+    b = RealDataSandwichTS(C, r, T=32, n_arms=16, force_reference=True,
+                           dtype=torch.float64, seed=0)
+    for _ in range(60):
+        b.step()
+    _, A_ref = b.refactor_ground_truth()
+    err = (torch.norm(b.A - A_ref) / torch.norm(A_ref)).item()
+    assert err < 1e-10, f"real-data sandwich drift too high: {err:.2e}"
+
+
+def test_real_tails_drive_separation():
+    """Real heavy-tailed reward separates A from cI more than the Gaussian control."""
+    import pytest
+    from experiments.bandit_data import load_charges
+    from experiments.robust_bandit import RealDataSandwichTS
+    try:
+        C, r, _ = load_charges(dtype=torch.float64)
+    except RuntimeError as exc:
+        pytest.skip(f"real dataset unavailable: {exc}")
+
+    def sep(gauss):
+        torch.manual_seed(0)
+        b = RealDataSandwichTS(C, r, T=64, n_arms=16, gaussianize=gauss,
+                               force_reference=True, dtype=torch.float64, seed=0)
+        for _ in range(250):
+            b.step()
+        return b.separation_from_identity()
+
+    assert sep(False) > sep(True) + 0.03, "real tails should separate A from cI more"
+
+
 def test_soap_reduces_loss():
     from experiments.soap import SOAP
     torch.manual_seed(0)

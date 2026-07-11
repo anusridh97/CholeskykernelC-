@@ -198,3 +198,97 @@ class BatchedRobustSandwichTS:
         num = torch.linalg.norm((self.A - tau * self._eye).reshape(self.T, -1), dim=1)
         den = torch.linalg.norm(self.A.reshape(self.T, -1), dim=1).clamp_min(1e-12)
         return (num / den).mean().item()
+
+
+class RealDataSandwichTS(BatchedRobustSandwichTS):
+    """Robust sandwich TS driven by a real dataset (off-data replay).
+
+    Each round presents ``n_arms`` real rows as candidate arms; the learner
+    Thompson-picks one and observes that row's REAL (heavy-tailed) reward, so the
+    misspecification that separates A from I comes from the data, not injected
+    noise. T parallel replays use independent row subsamples.
+
+    Set ``gaussianize=True`` for the matched control: replace the real reward by
+    θ_OLS·x + homoskedastic Gaussian noise of the fitted residual variance — same
+    linear signal, tails removed — so the drop in separation isolates the effect
+    of the real heavy tail.
+
+    Args:
+        contexts: (N, d) real contexts.
+        rewards: (N,) real (standardized) rewards.
+        T, n_arms, ridge, calibrate_every, calibrate_rho, seed, force_reference,
+        dtype, device: as in the base class (r is inferred from contexts).
+    """
+
+    def __init__(self, contexts, rewards, T=64, n_arms=16, ridge=1.0,
+                 gaussianize=False, calibrate_every=10 ** 9, calibrate_rho=0.1,
+                 seed=0, force_reference=False, dtype=torch.float32, device=None):
+        device = device or contexts.device
+        contexts = contexts.to(device, dtype)
+        rewards = rewards.to(device, dtype)
+        r = contexts.shape[1]
+        # Base init sets up G, M, L, A, b, theta_hat; we override the data hooks.
+        super().__init__(r=r, T=T, n_arms=n_arms, ridge=ridge, noise_mode="homo",
+                         calibrate_every=calibrate_every, calibrate_rho=calibrate_rho,
+                         seed=seed, force_reference=force_reference,
+                         dtype=dtype, device=device)
+        self.C = contexts
+        self.rewards = rewards
+        self.N = contexts.shape[0]
+        self.gaussianize = gaussianize
+        # OLS fit on the full data, for the matched-Gaussian control and residual σ.
+        G0 = contexts.T @ contexts + ridge * self._eye
+        theta_ols = torch.linalg.solve(G0, contexts.T @ rewards)
+        resid = rewards - contexts @ theta_ols
+        self.theta_ols = theta_ols
+        self.sigma_ols = resid.std().clamp_min(1e-6)
+
+    def step(self):
+        self.step_count += 1
+        d = self.device
+        # Present n_arms real rows per task as candidate arms.
+        idx = torch.randint(0, self.N, (self.T, self.n_arms), generator=self.gen).to(d)
+        X = self.C[idx]                                   # (T, n_arms, r)
+
+        R = torch.linalg.cholesky(self.A + 1e-5 * self._eye)
+        eps = torch.randn(self.T, self.r, generator=self.gen).to(d, self.dtype)
+        Reps = torch.einsum("tij,tj->ti", R, eps)
+        samp = torch.linalg.solve_triangular(
+            self.L.mT, Reps.unsqueeze(-1), upper=True).squeeze(-1)
+        theta_s = self.theta_hat + samp
+        scores = torch.einsum("tkr,tr->tk", X, theta_s)
+        k = scores.argmax(dim=1)
+        chosen = idx[torch.arange(self.T, device=d), k]   # chosen row per task
+        x = self.C[chosen]                                # (T, r)
+
+        if self.gaussianize:
+            y = (x * self.theta_ols).sum(dim=1) + self.sigma_ols * torch.randn(
+                self.T, generator=self.gen).to(d, self.dtype)
+        else:
+            y = self.rewards[chosen]                      # REAL heavy-tailed reward
+        e = y - (x * self.theta_hat).sum(dim=1)
+
+        z = x
+        w = (e ** 2).unsqueeze(1) * x
+        self.G = self.G + z.unsqueeze(2) * z.unsqueeze(1)
+        self.M = self.M + z.unsqueeze(2) * w.unsqueeze(1)
+        A_new, _ = refresh_bucket(self.L, self.A, z, w, force_reference=self.force_reference)
+        self.A = A_new
+
+        self.b = self.b + y.unsqueeze(1) * x
+        yb = torch.linalg.solve_triangular(self.L, self.b.unsqueeze(-1), upper=False)
+        self.theta_hat = torch.linalg.solve_triangular(self.L.mT, yb, upper=True).squeeze(-1)
+
+        if self.step_count % self.calibrate_every == 0:
+            tau = (self.A.diagonal(dim1=1, dim2=2).mean(dim=1)).reshape(-1, 1, 1)
+            self.A = (1 - self.rho) * self.A + self.rho * tau * self._eye
+            self.M = (1 - self.rho) * self.M + self.rho * tau * self.G
+
+        # Regret vs the best real reward among the presented arms.
+        arm_rewards = (self.rewards[idx] if not self.gaussianize
+                       else (X * self.theta_ols).sum(dim=2))
+        best = arm_rewards.max(dim=1).values
+        got = arm_rewards[torch.arange(self.T, device=d), k]
+        regret = (best - got).clamp_min(0).mean().item()
+        self.regret_history.append(regret)
+        return regret
