@@ -179,7 +179,12 @@ the midpoint, the sliding window recovers fast while a no-forget accumulator
 lags. Verified: the windowed `A_t` matches a full re-cholesky to machine
 precision; the guard skips inadmissible downdates. (`extensions.py` is verified
 standalone: rank-k = k sequential rank-1 to machine precision; add-then-downdate
-is the identity; the downdate matches refactorization.)
+is the identity; the downdate matches refactorization.) The downdate has a fused
+**batched Triton kernel** (`downdate_triton_batched` in `doublesided_cholesky.py`)
+mirroring the positive kernel — hyperbolic rotations (`ρ=√(ℓ²−ζ²)`), inverse-block
+double-sided sweeps, `−v_z v_wᵀ` correction, and a per-program leverage guard — so
+the forgetting path is device-resident on GPU (validated by
+`tests/test_correctness.py::test_triton_downdate_matches_reference`, CUDA-gated).
 
 ```
 python -m tests.bench_nonstationary_bandit

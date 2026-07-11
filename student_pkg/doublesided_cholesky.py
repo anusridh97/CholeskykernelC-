@@ -520,3 +520,167 @@ def incremental_update_triton_batched(L, Aw, z, w, num_warps=None):
     )
 
     return Aw_out, vz
+
+
+# Hyperbolic downdate (Appendix C.4)
+#
+# Same fused structure as the positive update, with four changes: the rotation
+# is hyperbolic (rho = sqrt(l^2 - zeta^2), s = -zeta/rho, c^2 - s^2 = 1); the
+# Phase-1 working-vector update uses +s (J-orthogonal, not orthogonal); the
+# double-sided sweeps apply the inverse hyperbolic blocks [[c,-s],[-s,c]]; and
+# the rank-1 correction subtracts. A per-program leverage guard skips charts with
+# tau = ||L^{-1} z||^2 >= threshold (checked on the host, passed as a mask), so an
+# inadmissible downdate never runs. Admitted charts satisfy l^2 > zeta^2 at every
+# step by construction, so rho is real.
+
+
+@triton.jit
+def _hyperbolic_params_tri(a, b):
+    """Hyperbolic (c, s): c*a + s*b = rho, c^2 - s^2 = 1, rho = sqrt(a^2 - b^2)."""
+    disc = a * a - b * b
+    rho = tl.sqrt(tl.where(disc > 0.0, disc, 0.0))
+    zero = rho == 0.0
+    safe_rho = rho + tl.where(zero, 1.0, 0.0)
+    c = tl.where(zero, 1.0, a / safe_rho)
+    s = tl.where(zero, 0.0, -b / safe_rho)
+    return c, s
+
+
+@triton.jit
+def _fused_downdate_kernel(
+    L_ptr, Aw_ptr, z_ptr, zwork_ptr, w_ptr,
+    vz_ptr, Aw_out_ptr, cs_ptr, ss_ptr, adm_ptr,
+    r: tl.constexpr,
+    BLOCK: tl.constexpr,
+):
+    """SRAM-resident fused hyperbolic downdate. BLOCK power of two >= r.
+
+    Launch grid=(T,). Inadmissible charts (adm==0) return immediately; the wrapper
+    pre-fills Aw_out with the old Aw and leaves L untouched for those.
+    """
+    pid = tl.program_id(0)
+    if tl.load(adm_ptr + pid) == 0:
+        return
+
+    off_mat = pid * r * r
+    off_vec = pid * r
+    idx = tl.arange(0, BLOCK)
+
+    # Phase 1: hyperbolic rank-1 Cholesky downdate on [L | zwork].
+    for k in range(r):
+        mask_r = idx < r
+        L_col = tl.load(L_ptr + off_mat + idx * r + k, mask=mask_r, other=0.0)
+        z_vec = tl.load(zwork_ptr + off_vec + idx, mask=mask_r, other=0.0)
+
+        Lkk = tl.sum(tl.where(idx == k, L_col, 0.0))
+        zk = tl.sum(tl.where(idx == k, z_vec, 0.0))
+        c, s = _hyperbolic_params_tri(Lkk, zk)
+
+        tl.store(cs_ptr + off_vec + k, c)
+        tl.store(ss_ptr + off_vec + k, s)
+
+        active = mask_r & (idx >= k)
+        new_L = c * L_col + s * z_vec
+        new_z = s * L_col + c * z_vec          # +s: J-orthogonal (hyperbolic)
+        tl.store(L_ptr + off_mat + idx * r + k, new_L, mask=active)
+        tl.store(zwork_ptr + off_vec + idx, tl.where(active, new_z, z_vec), mask=mask_r)
+
+    tl.debug_barrier()
+
+    # Phase 2: double-sided propagation with inverse hyperbolic blocks.
+    cols_p = tl.arange(0, BLOCK)
+    mask_r = cols_p < r
+    pad_row = tl.zeros((BLOCK,), dtype=tl.float32)
+    for k in range(r):
+        c = tl.load(cs_ptr + off_vec + k)
+        s = tl.load(ss_ptr + off_vec + k)
+        rk = tl.load(Aw_ptr + off_mat + k * r + cols_p, mask=mask_r, other=0.0)
+        rr = pad_row
+        tl.store(Aw_out_ptr + off_mat + k * r + cols_p, c * rk - s * rr, mask=mask_r)
+        pad_row = -s * rk + c * rr
+
+    tl.debug_barrier()
+
+    rows = tl.arange(0, BLOCK)
+    row_mask = rows < r
+    pad_col = tl.zeros((BLOCK,), dtype=tl.float32)
+    for k in range(r):
+        c = tl.load(cs_ptr + off_vec + k)
+        s = tl.load(ss_ptr + off_vec + k)
+        ck = tl.load(Aw_out_ptr + off_mat + rows * r + k, mask=row_mask, other=0.0)
+        cr = pad_col
+        tl.store(Aw_out_ptr + off_mat + rows * r + k, c * ck - s * cr, mask=row_mask)
+        pad_col = -s * ck + c * cr
+
+    # Phase 3: vz = (L-)^{-1} z (original z), forward substitution, f32 accum.
+    for k in range(r):
+        zk = tl.load(z_ptr + off_vec + k).to(tl.float32)
+        L_row = tl.load(L_ptr + off_mat + k * r + idx, mask=idx < r, other=0.0)
+        vz_prev = tl.load(vz_ptr + off_vec + idx, mask=idx < r, other=0.0)
+        contrib = tl.where(idx < k, L_row.to(tl.float32) * vz_prev.to(tl.float32), 0.0)
+        acc = tl.sum(contrib, axis=0)
+        Lkk = tl.sum(tl.where(idx == k, L_row, 0.0))
+        vz_k = ((zk - acc) / Lkk.to(tl.float32)).to(L_row.dtype)
+        tl.store(vz_ptr + off_vec + k, vz_k)
+
+    # Phase 4: vw = (L-)^{-1} w, overwrite w_ptr with v_w.
+    for k in range(r):
+        wk = tl.load(w_ptr + off_vec + k).to(tl.float32)
+        L_row = tl.load(L_ptr + off_mat + k * r + idx, mask=idx < r, other=0.0)
+        vw_prev = tl.load(w_ptr + off_vec + idx, mask=idx < r, other=0.0)
+        contrib = tl.where(idx < k, L_row.to(tl.float32) * vw_prev.to(tl.float32), 0.0)
+        acc = tl.sum(contrib, axis=0)
+        Lkk = tl.sum(tl.where(idx == k, L_row, 0.0))
+        vw_k = ((wk - acc) / Lkk.to(tl.float32)).to(L_row.dtype)
+        tl.store(w_ptr + off_vec + k, vw_k)
+
+    tl.debug_barrier()
+
+    # Rank-1 correction (MINUS for downdate): Aw_out -= v_z v_w^T.
+    for i in range(r):
+        vzi = tl.load(vz_ptr + off_vec + i)
+        vw_vec = tl.load(w_ptr + off_vec + cols_p, mask=cols_p < r, other=0.0)
+        cur = tl.load(Aw_out_ptr + off_mat + i * r + cols_p, mask=cols_p < r, other=0.0)
+        tl.store(Aw_out_ptr + off_mat + i * r + cols_p, cur - vzi * vw_vec, mask=cols_p < r)
+
+
+def downdate_triton_batched(L, Aw, z, w, admitted=None, max_leverage=0.98,
+                            num_warps=None):
+    """Batched hyperbolic downdate. Inputs (T, r, r) / (T, r). L modified in-place.
+
+    Applies G -= z z^T, M -= z w^T and transports A_w for every admissible chart in
+    one launch. A chart is admissible iff its leverage tau = ||L^{-1} z||^2 is below
+    ``max_leverage``; inadmissible charts are left unchanged (L and A_w). Pass an
+    explicit boolean ``admitted`` mask to override the leverage test.
+
+    Returns:
+        Aw_new:   (T, r, r) downdated whitened operators (unchanged where skipped).
+        vz:       (T, r)     vectors (L-_t)^{-1} z_t (undefined where skipped).
+        admitted: (T,) bool  which charts were downdated.
+    """
+    T, r = L.shape[0], L.shape[1]
+    BLOCK = triton.next_power_of_2(r)
+    assert BLOCK <= 1024, f"r={r} too large for single-block kernel"
+
+    if admitted is None:
+        y = torch.linalg.solve_triangular(L, z.unsqueeze(-1), upper=False).squeeze(-1)
+        admitted = (y * y).sum(dim=1) < max_leverage
+
+    vz = torch.empty(T, r, dtype=L.dtype, device=L.device)
+    Aw_out = Aw.clone()                        # inadmissible charts keep old A_w
+    cs = torch.empty(T, r, dtype=L.dtype, device=L.device)
+    ss = torch.empty(T, r, dtype=L.dtype, device=L.device)
+    z_work = z.clone()
+    w_work = w.clone()
+    adm = admitted.to(torch.int32)
+
+    launch_kwargs = {"r": r, "BLOCK": BLOCK}
+    if num_warps is not None:
+        launch_kwargs["num_warps"] = num_warps
+
+    _fused_downdate_kernel[(T,)](
+        L, Aw, z, z_work, w_work, vz, Aw_out, cs, ss, adm,
+        **launch_kwargs,
+    )
+
+    return Aw_out, vz, admitted

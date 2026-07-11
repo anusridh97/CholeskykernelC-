@@ -198,6 +198,70 @@ def test_tiled_triton_matches_fused_triton(r):
     assert vz_err < 1e-6, f"vz disagreement {vz_err:.2e}"
 
 
+def test_triton_downdate_matches_reference():
+    """Batched Triton hyperbolic downdate should match the CPU reference downdate."""
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    from doublesided_cholesky import downdate_triton_batched
+    from experiments.extensions import downdate as downdate_reference
+
+    r, T = 64, 5
+    torch.manual_seed(0)
+    A = torch.randn(T, r, r).cuda()
+    G = A @ A.mT + r * torch.eye(r, device="cuda").unsqueeze(0)
+    L = torch.linalg.cholesky(G).contiguous()
+    M = torch.randn(T, r, r).cuda()
+    Linv = torch.linalg.inv(L)
+    Aw = Linv @ M @ Linv.mT
+    z = torch.randn(T, r, device="cuda") * 0.1
+    w = torch.randn(T, r, device="cuda") * 0.1
+
+    # Reference (forced CPU-style loop on GPU tensors) vs the fused kernel.
+    L_ref = L.clone()
+    Aw_ref, adm_ref = downdate_reference(L_ref, Aw.clone(), z, w,
+                                         max_leverage=0.999, force_reference=True)
+    L_tri = L.clone()
+    Aw_tri, _, adm_tri = downdate_triton_batched(L_tri, Aw.clone(), z, w,
+                                                 max_leverage=0.999)
+
+    assert torch.equal(adm_ref, adm_tri)
+    L_err = (torch.norm(L_tri - L_ref) / torch.norm(L_ref)).item()
+    Aw_err = (torch.norm(Aw_tri - Aw_ref) / torch.norm(Aw_ref)).item()
+    assert L_err < 1e-4, f"L- kernel vs reference {L_err:.2e}"
+    assert Aw_err < 1e-4, f"A- kernel vs reference {Aw_err:.2e}"
+
+    # And against a full re-factorization ground truth.
+    G_new = G - z.unsqueeze(2) * z.unsqueeze(1)
+    M_new = M - z.unsqueeze(2) * w.unsqueeze(1)
+    L_ex = torch.linalg.cholesky(G_new)
+    Linv_ex = torch.linalg.inv(L_ex)
+    Aw_ex = Linv_ex @ M_new @ Linv_ex.mT
+    assert (torch.norm(Aw_tri - Aw_ex) / torch.norm(Aw_ex)).item() < 1e-3
+
+
+def test_triton_downdate_guard_skips():
+    """Inadmissible charts (leverage ≥ threshold) are left unchanged by the kernel."""
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    from doublesided_cholesky import downdate_triton_batched
+
+    r = 32
+    torch.manual_seed(1)
+    A = torch.randn(1, r, r).cuda()
+    G = A @ A.mT + r * torch.eye(r, device="cuda").unsqueeze(0)
+    L = torch.linalg.cholesky(G).contiguous()
+    Aw = torch.zeros(1, r, r, device="cuda")
+    # z with large leverage (aligned with L's columns, scaled up).
+    z = (L @ torch.ones(1, r, 1, device="cuda")).squeeze(-1) * 0.9
+    admitted = torch.zeros(1, dtype=torch.bool, device="cuda")  # force skip
+    L_in = L.clone()
+    Aw_out, _, _ = downdate_triton_batched(L_in, Aw.clone(), z, z, admitted=admitted)
+    assert torch.equal(L_in, L), "skipped downdate must leave L unchanged"
+    assert torch.equal(Aw_out, Aw), "skipped downdate must leave A_w unchanged"
+
+
 def test_triton_batched_matches_single():
     """Batched Triton path should match T independent single calls."""
     if not torch.cuda.is_available():

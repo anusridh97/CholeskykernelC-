@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import torch
 
-from .charts import refresh_bucket
+from .charts import refresh_bucket, gpu_kernel_available
 
 
 def rank_k_update(L, Aw, Z, W, force_reference=False):
@@ -89,7 +89,7 @@ def _downdate_one(L, Aw, z, w):
     return core - torch.outer(vz, vw), vz
 
 
-def downdate(L, Aw, z, w, max_leverage=0.98):
+def downdate(L, Aw, z, w, max_leverage=0.98, force_reference=False):
     """Batched leverage-guarded hyperbolic downdate. L, Aw: (T, r, r); z, w: (T, r).
 
     Applies G⁻ = G − z zᵀ, M⁻ = M − z wᵀ per chart where admissible. Charts whose
@@ -97,12 +97,20 @@ def downdate(L, Aw, z, w, max_leverage=0.98):
     near-singular downdate never blows up. L is updated in place for admitted
     charts.
 
-    Returns (Aw_new, admitted) where admitted is a (T,) bool mask.
+    Returns (Aw_new, admitted) where admitted is a (T,) bool mask. On CUDA this
+    dispatches to the fused batched Triton kernel; on CPU it uses the reference.
     """
     T, r = L.shape[0], L.shape[1]
     y = torch.linalg.solve_triangular(L, z.unsqueeze(-1), upper=False).squeeze(-1)
     tau = (y * y).sum(dim=1)                                  # (T,)
     admitted = tau < max_leverage
+
+    if not force_reference and L.is_cuda and gpu_kernel_available():
+        from doublesided_cholesky import downdate_triton_batched
+
+        Aw_out, _, _ = downdate_triton_batched(L, Aw, z, w, admitted=admitted)
+        return Aw_out, admitted
+
     Aw_out = Aw.clone()
     for t in range(T):
         if not admitted[t]:
