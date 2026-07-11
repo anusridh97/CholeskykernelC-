@@ -168,6 +168,23 @@ uniform-random logging slice; iPinYou market price) — bring your own download.
 python -m tests.bench_robust_bandit
 ```
 
+**3b. Nonstationary sliding-window bandit — rank-k (C.3) + hyperbolic downdate
+(C.4)** (`experiments/nonstationary_bandit.py`, `experiments/extensions.py`).
+Puts the two paper extensions to work on the sandwich. Each round acquires a
+*batch* of k arms as one **rank-k** update `G += ZZᵀ, M += ZWᵀ` (O(r²k), on the
+batched kernel), and once the window is full forgets the oldest batch by a
+**leverage-guarded hyperbolic downdate** `G −= ZZᵀ` (admissible iff
+`τ = ‖L⁻¹z‖² < 1`), so `A_t` tracks only the last W rounds. When `θ⋆` switches at
+the midpoint, the sliding window recovers fast while a no-forget accumulator
+lags. Verified: the windowed `A_t` matches a full re-cholesky to machine
+precision; the guard skips inadmissible downdates. (`extensions.py` is verified
+standalone: rank-k = k sequential rank-1 to machine precision; add-then-downdate
+is the identity; the downdate matches refactorization.)
+
+```
+python -m tests.bench_nonstationary_bandit
+```
+
 **4. Transported-subspace natural gradient optimizer**
 (`experiments/curvature_optimizer.py`). A faithful implementation of §3.5: per
 parameter block a chart `F ≈ λI + U C Uᵀ` with an **adaptive orthonormal basis

@@ -365,6 +365,118 @@ def test_real_tails_drive_separation():
     assert sep(False) > sep(True) + 0.03, "real tails should separate A from cI more"
 
 
+# --------------------------------------------------------------------------- #
+# Rank-k updates (C.3) and hyperbolic downdates (C.4)
+# --------------------------------------------------------------------------- #
+
+
+def _spd_chart(r, T, seed):
+    torch.manual_seed(seed)
+    Araw = torch.randn(T, r, r, dtype=torch.float64)
+    G = Araw @ Araw.mT + r * torch.eye(r, dtype=torch.float64)
+    L = torch.linalg.cholesky(G).contiguous()
+    M = torch.randn(T, r, r, dtype=torch.float64)
+    Linv = torch.linalg.inv(L)
+    Aw = Linv @ M @ Linv.mT
+    return G, L, M, Aw
+
+
+def test_rank_k_matches_refactorization():
+    from experiments.extensions import rank_k_update
+    r, T, k = 16, 4, 3
+    G, L, M, Aw = _spd_chart(r, T, 0)
+    Z = torch.randn(T, r, k, dtype=torch.float64) * 0.2
+    W = torch.randn(T, r, k, dtype=torch.float64) * 0.2
+    L_test = L.clone()
+    Aw_new, _ = rank_k_update(L_test, Aw.clone(), Z, W, force_reference=True)
+    G_new = G + Z @ Z.mT
+    M_new = M + Z @ W.mT
+    L_ex = torch.linalg.cholesky(G_new)
+    Linv = torch.linalg.inv(L_ex)
+    Aw_ex = Linv @ M_new @ Linv.mT
+    err = (torch.norm(Aw_new - Aw_ex) / torch.norm(Aw_ex)).item()
+    assert err < 1e-10, f"rank-k update mismatch: {err:.2e}"
+
+
+def test_downdate_matches_refactorization():
+    from experiments.extensions import downdate
+    r, T = 16, 4
+    G, L, M, Aw = _spd_chart(r, T, 1)
+    z = torch.randn(T, r, dtype=torch.float64) * 0.1
+    w = torch.randn(T, r, dtype=torch.float64) * 0.1
+    L_test = L.clone()
+    Aw_new, admitted = downdate(L_test, Aw.clone(), z, w, max_leverage=0.999)
+    assert admitted.all(), "small downdates should be admissible"
+    G_new = G - z.unsqueeze(2) * z.unsqueeze(1)
+    M_new = M - z.unsqueeze(2) * w.unsqueeze(1)
+    L_ex = torch.linalg.cholesky(G_new)
+    Linv = torch.linalg.inv(L_ex)
+    Aw_ex = Linv @ M_new @ Linv.mT
+    L_err = (torch.norm(L_test - L_ex) / torch.norm(L_ex)).item()
+    A_err = (torch.norm(Aw_new - Aw_ex) / torch.norm(Aw_ex)).item()
+    assert L_err < 1e-10 and A_err < 1e-9, f"downdate mismatch: L {L_err:.2e}, A {A_err:.2e}"
+
+
+def test_downdate_leverage_guard():
+    """A downdate with leverage τ ≥ threshold is skipped, not blown up."""
+    from experiments.extensions import downdate, leverage
+    r = 12
+    G, L, M, Aw = _spd_chart(r, 1, 2)
+    # Build a z with large leverage: z aligned with a low-energy direction, scaled up.
+    z = (L @ torch.ones(1, r, 1, dtype=torch.float64)).squeeze(-1) * 0.9  # ‖L^{-1}z‖ ~ 0.9·√r
+    tau = leverage(L, z).item()
+    L_test = L.clone()
+    _, admitted = downdate(L_test, Aw.clone(), z, z, max_leverage=min(tau, 1.0) - 1e-6)
+    assert not admitted.all(), f"guard should reject τ={tau:.2f} downdate"
+    assert torch.allclose(L_test, L), "rejected downdate must leave L unchanged"
+
+
+def test_add_then_downdate_is_identity():
+    """Adding a rank-1 then downdating the same vector returns to the start."""
+    from experiments.extensions import downdate
+    from experiments.charts import refresh_bucket
+    r, T = 12, 3
+    G, L, M, Aw = _spd_chart(r, T, 3)
+    z = torch.randn(T, r, dtype=torch.float64) * 0.1
+    w = torch.randn(T, r, dtype=torch.float64) * 0.1
+    L2 = L.clone()
+    Aw2, _ = refresh_bucket(L2, Aw.clone(), z, w, force_reference=True)
+    Aw3, admitted = downdate(L2, Aw2, z, w, max_leverage=0.999)
+    assert admitted.all()
+    assert (torch.norm(L2 - L) / torch.norm(L)).item() < 1e-9
+    assert (torch.norm(Aw3 - Aw) / torch.norm(Aw)).item() < 1e-8
+
+
+def test_sliding_window_matches_refactor_and_forgets():
+    from experiments.nonstationary_bandit import SlidingWindowSandwichTS
+    torch.manual_seed(0)
+    b = SlidingWindowSandwichTS(r=16, T=16, n_arms=12, batch_k=3, window=8,
+                                forget=True, force_reference=True,
+                                dtype=torch.float64, seed=0)
+    for _ in range(40):
+        b.step()
+    _, A_ref = b.refactor_ground_truth()
+    err = (torch.norm(b.A - A_ref) / torch.norm(A_ref)).item()
+    assert err < 1e-9, f"windowed sandwich drift: {err:.2e}"
+    assert len(b.buffer) == b.window, "window did not stay bounded"
+
+
+def test_forgetting_beats_no_forget_under_drift():
+    from experiments.nonstationary_bandit import SlidingWindowSandwichTS
+
+    def post_switch_regret(forget):
+        torch.manual_seed(1)
+        g = SlidingWindowSandwichTS(r=16, T=64, n_arms=16, batch_k=4, window=15,
+                                    forget=forget, noise_scale=0.2,
+                                    force_reference=True, dtype=torch.float64, seed=1)
+        g.switch_at = 40
+        regs = [g.step() for _ in range(80)]
+        return sum(regs[45:]) / len(regs[45:])
+
+    assert post_switch_regret(True) < post_switch_regret(False), \
+        "sliding window should adapt to the switch better than no-forget"
+
+
 def test_soap_reduces_loss():
     from experiments.soap import SOAP
     torch.manual_seed(0)

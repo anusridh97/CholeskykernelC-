@@ -298,6 +298,27 @@ def render_bandit(data):
     return figs
 
 
+def render_nonstationary(data):
+    _style()
+    figs = []
+    curves = data["curves"]
+    switch = data["switch_at"]
+    fig, ax = plt.subplots(figsize=(6.4, 4.2))
+    n = len(curves["forget"])
+    ax.plot(range(1, n + 1), curves["no_forget"], color=RED, lw=2,
+            label="no-forget (accumulate)")
+    ax.plot(range(1, n + 1), curves["forget"], color=AQUA, lw=2,
+            label="forget (sliding window)")
+    ax.axvline(switch, color=MUTED, lw=1, ls="--")
+    ax.annotate("θ⋆ switches", (switch, ax.get_ylim()[1]), color=MUTED, fontsize=8,
+                va="top", ha="left", xytext=(3, -2), textcoords="offset points")
+    _finish(ax, "Nonstationary bandit — sliding window (rank-k add + downdate)",
+            "round", "mean simple regret")
+    ax.legend(loc="upper right")
+    figs.append(("nonstationary_regret.png", _save(fig, "nonstationary_regret.png")))
+    return figs
+
+
 def render_gp(data):
     _style()
     figs = []
@@ -439,6 +460,19 @@ def render_all():
                 + f" · feature dim {data['feature_r']} · {data['rounds']} rounds · {data['timestamp']}")
         sections.append(
             ("Robust / sandwich Thompson sampling (double-sided under misspecification)",
+             meta, figs))
+
+    npath = RESULTS_DIR / "nonstationary_bandit.json"
+    if npath.exists():
+        data = json.loads(npath.read_text())
+        figs = render_nonstationary(data)
+        made += figs
+        meta = (f"device: {data['device']}"
+                + (f" ({data['gpu']})" if data.get("gpu") else "")
+                + f" · feature dim {data['feature_r']} · switch@{data['switch_at']}"
+                + f" · A-drift {data['A_drift']:.0e} · {data['timestamp']}")
+        sections.append(
+            ("Nonstationary sliding-window bandit (rank-k C.3 + hyperbolic downdate C.4)",
              meta, figs))
 
     gpath = RESULTS_DIR / "gp_thompson.json"

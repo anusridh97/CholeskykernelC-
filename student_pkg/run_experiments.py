@@ -23,7 +23,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--only",
-                    choices=["gp", "curvature", "dynamics", "svgp", "fantasy", "bandit"],
+                    choices=["gp", "curvature", "dynamics", "svgp", "fantasy", "bandit",
+                             "nonstationary"],
                     default=None, help="run just one experiment")
     ap.add_argument("--figures-only", action="store_true",
                     help="skip benchmarks, just re-render figures from results/")
@@ -65,9 +66,16 @@ def main():
             from tests import bench_robust_bandit
             bench_robust_bandit.run()
             print()
+        if args.only in (None, "nonstationary"):
+            print("=" * 70)
+            print(" Experiment 6: nonstationary sliding-window bandit (rank-k + downdate)")
+            print("=" * 70)
+            from tests import bench_nonstationary_bandit
+            bench_nonstationary_bandit.run()
+            print()
         if args.only in (None, "gp"):
             print("=" * 70)
-            print(" Experiment 6: parallel GP Thompson sampling (one-sided control)")
+            print(" Experiment 7: parallel GP Thompson sampling (one-sided control)")
             print("=" * 70)
             from tests import bench_gp_thompson
             bench_gp_thompson.run()
