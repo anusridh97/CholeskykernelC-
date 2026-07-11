@@ -73,7 +73,7 @@ larger project and is described inside `doublesided_cholesky.py`.
 
 ## GPU application experiments
 
-Three GPU experiments live in `experiments/`, all faithful to the paper's math
+Five GPU experiments live in `experiments/`, all faithful to the paper's math
 and built on the batched Triton kernel. The GPU angle on top of the paper's CPU
 experiments is batching *many independent* whitened-operator updates into one
 launch — device-residency, not raw speed on a single latency-bound Givens sweep.
@@ -81,7 +81,7 @@ Run everything directly (no scheduler) and auto-generate figures:
 
 ```
 python run_experiments.py                 # all → results/ JSON → figures/ report.html
-python run_experiments.py --only dynamics # dynamics | curvature | gp
+python run_experiments.py --only dynamics # dynamics | curvature | svgp | fantasy | gp
 python run_experiments.py --figures-only
 ```
 
@@ -90,9 +90,15 @@ make an experiment double-sided. For a Gaussian posterior, ordinary parallel
 Thompson sampling only needs a *sampling root* `A^{1/2}ε`, which can be
 transported one-sidedly (`R ← PᵀR`) plus a Cholesky update — scaling workers
 tests sample throughput, not double-sided maintenance. A genuine double-sided
-experiment must have the learning step *read or modify `A_t` itself*. The
-flagship below does; the parallel GP is included honestly as the one-sided
-negative control.
+experiment must have the learning step *read or modify `A_t` itself*. The suite
+below is arranged around this: two experiments where the operator is genuinely
+double-sided (non-symmetric, or the full covariance is operated on), a systems
+experiment that batches the second, the §3.5 optimizer, and the parallel GP
+included honestly as the one-sided negative control.
+
+Note: on CPU the incremental path uses the pure-PyTorch reference loop, so the
+refactor baseline (batched LAPACK) looks faster; the batched Triton kernel flips
+this on GPU. The GPU numbers are the ones that matter.
 
 **0. Non-symmetric dynamics Thompson sampling — flagship double-sided**
 (`experiments/dynamics_thompson.py`). Online Bayesian linear systems where the
@@ -109,7 +115,34 @@ regret.
 python -m tests.bench_dynamics_thompson
 ```
 
-**1. Transported-subspace natural gradient optimizer**
+**1. Adaptive-inducing full-covariance SVGP-PDTS — double-sided flagship**
+(`experiments/svgp_pdts.py`, `BatchedAdaptiveSVGP`). The whitened variational
+covariance `A_t = L⁻¹ S_t L⁻ᵀ` is the *authoritative* state. Each round (a) an
+inducing-basis change transports `A_t` double-sidedly via the primitive
+(`M = S`, `w = 0`), (b) a covariance-form Kalman conditioning reads the full
+`A_t` on both sides, and (c) a trust-region damping `A ← (1−ρ)A + ρI` — a
+covariance-level operation a sampling root *cannot* do without an O(r³) rebuild.
+So even though `A_t` is symmetric here, the learning step genuinely operates on
+it. Verified: `A_t` matches a full re-cholesky to machine precision through all
+three ops. Baseline: `transport_mode="refactor"` (re-cholesky each round).
+
+```
+python -m tests.bench_svgp_pdts
+```
+
+**2. Batched fantasy-conditioned SVGP-PDTS — systems / parallelism**
+(`experiments/svgp_pdts.py`, `BatchedFantasySVGP`). J fantasy branches per task,
+each carrying a covariance `A^{(j)}`, conditioned on their own pending batch via
+the rank-k covariance-form downdate (reads the full `A^{(j)}`), with optional
+double-sided transport — all `T·J` branches in one launch. Sweeps J to show
+batched explicit-covariance maintenance scaling; reports branch-update
+throughput and machine-precision drift.
+
+```
+python -m tests.bench_fantasy_svgp
+```
+
+**3. Transported-subspace natural gradient optimizer**
 (`experiments/curvature_optimizer.py`). A faithful implementation of §3.5: per
 parameter block a chart `F ≈ λI + U C Uᵀ` with an **adaptive orthonormal basis
 U**, refreshed by an `(r+1)`-eigendecomposition when residual energy
@@ -128,7 +161,7 @@ second-order), SGD, AdamW.
 python -m tests.bench_curvature_opt
 ```
 
-**2. Parallel GP Thompson sampling — one-sided negative control**
+**4. Parallel GP Thompson sampling — one-sided negative control**
 (`experiments/parallel_gp_thompson.py`). Faithful whitened-SVGP streaming
 conditioning (§4.4/§4.5) using the **same primitive** — `z = w = φ/σ` with
 `φ = L_uu⁻¹ k_u(x)`. Thousands of GP arms conditioned in one launch, scaled past

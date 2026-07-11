@@ -22,8 +22,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--only", choices=["gp", "curvature", "dynamics"], default=None,
-                    help="run just one experiment")
+    ap.add_argument("--only", choices=["gp", "curvature", "dynamics", "svgp", "fantasy"],
+                    default=None, help="run just one experiment")
     ap.add_argument("--figures-only", action="store_true",
                     help="skip benchmarks, just re-render figures from results/")
     args = ap.parse_args()
@@ -43,9 +43,23 @@ def main():
             from tests import bench_dynamics_thompson
             bench_dynamics_thompson.run()
             print()
+        if args.only in (None, "svgp"):
+            print("=" * 70)
+            print(" Experiment 3: adaptive-inducing full-covariance SVGP-PDTS")
+            print("=" * 70)
+            from tests import bench_svgp_pdts
+            bench_svgp_pdts.run()
+            print()
+        if args.only in (None, "fantasy"):
+            print("=" * 70)
+            print(" Experiment 4: batched fantasy-conditioned SVGP-PDTS")
+            print("=" * 70)
+            from tests import bench_fantasy_svgp
+            bench_fantasy_svgp.run()
+            print()
         if args.only in (None, "gp"):
             print("=" * 70)
-            print(" Experiment 3: parallel GP Thompson sampling (one-sided control)")
+            print(" Experiment 5: parallel GP Thompson sampling (one-sided control)")
             print("=" * 70)
             from tests import bench_gp_thompson
             bench_gp_thompson.run()

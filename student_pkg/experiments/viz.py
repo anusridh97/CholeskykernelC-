@@ -192,6 +192,61 @@ def render_dynamics(data):
     return figs
 
 
+def render_svgp(data):
+    _style()
+    figs = []
+    scaling = data["scaling"]
+    T = [s["T"] for s in scaling]
+    fig, ax = plt.subplots(figsize=(6.2, 4.0))
+    ax.plot(T, [s["incr_ms"] for s in scaling], color=AQUA, lw=2, marker="o", ms=5,
+            label="double-sided transport (O(r²))")
+    ax.plot(T, [s["refact_ms"] for s in scaling], color=RED, lw=2, marker="o", ms=5,
+            label="re-cholesky each round (O(r³))")
+    ax.set_xscale("log", base=2); ax.set_yscale("log")
+    _finish(ax, "Full-covariance SVGP round latency — transport vs refactor",
+            "tasks (T)", "ms / round")
+    ax.legend(loc="upper left")
+    figs.append(("svgp_cost.png", _save(fig, "svgp_cost.png")))
+
+    rc = data.get("regret_curve")
+    if rc:
+        fig, ax = plt.subplots(figsize=(6.2, 4.0))
+        vals = rc["values"]
+        ax.plot(range(1, len(vals) + 1), vals, color=VIOLET, lw=2, marker="o", ms=4)
+        ax.fill_between(range(1, len(vals) + 1), vals, color=VIOLET, alpha=0.10)
+        _finish(ax, f"Adaptive-inducing SVGP-PDTS regret (T={rc['T']} tasks)",
+                "round", "mean simple regret")
+        figs.append(("svgp_regret.png", _save(fig, "svgp_regret.png")))
+    return figs
+
+
+def render_fantasy(data):
+    _style()
+    figs = []
+    scaling = data["scaling"]
+    J = [s["J"] for s in scaling]
+    fig, ax = plt.subplots(figsize=(6.2, 4.0))
+    ax.plot(J, [s["branch_updates_per_sec"] for s in scaling], color=AQUA, lw=2,
+            marker="o", ms=5)
+    ax.fill_between(J, [s["branch_updates_per_sec"] for s in scaling], color=AQUA, alpha=0.10)
+    ax.set_xscale("log", base=2)
+    _finish(ax, "Fantasy-conditioned branches updated per second",
+            "fantasy branches per task (J)", "branch updates / second")
+    figs.append(("fantasy_throughput.png", _save(fig, "fantasy_throughput.png")))
+
+    fig, ax = plt.subplots(figsize=(6.2, 4.0))
+    ax.plot(J, [s["incr_ms"] for s in scaling], color=AQUA, lw=2, marker="o", ms=5,
+            label="double-sided (explicit A)")
+    ax.plot(J, [s["refact_ms"] for s in scaling], color=RED, lw=2, marker="o", ms=5,
+            label="re-cholesky baseline")
+    ax.set_xscale("log", base=2); ax.set_yscale("log")
+    _finish(ax, "Fantasy round latency vs number of branches",
+            "fantasy branches per task (J)", "ms / round")
+    ax.legend(loc="upper left")
+    figs.append(("fantasy_cost.png", _save(fig, "fantasy_cost.png")))
+    return figs
+
+
 def render_gp(data):
     _style()
     figs = []
@@ -299,6 +354,29 @@ def render_all():
                 + f" · non-symmetric operator · {data['timestamp']}")
         sections.append(
             ("Non-symmetric dynamics Thompson sampling (flagship double-sided)", meta, figs))
+
+    spath = RESULTS_DIR / "svgp_pdts.json"
+    if spath.exists():
+        data = json.loads(spath.read_text())
+        figs = render_svgp(data)
+        made += figs
+        meta = (f"device: {data['device']}"
+                + (f" ({data['gpu']})" if data.get("gpu") else "")
+                + f" · inducing {data['inducing_r']} · {data['rounds']} rounds · {data['timestamp']}")
+        sections.append(
+            ("Adaptive-inducing full-covariance SVGP-PDTS (double-sided)", meta, figs))
+
+    fpath = RESULTS_DIR / "fantasy_svgp.json"
+    if fpath.exists():
+        data = json.loads(fpath.read_text())
+        figs = render_fantasy(data)
+        made += figs
+        meta = (f"device: {data['device']}"
+                + (f" ({data['gpu']})" if data.get("gpu") else "")
+                + f" · inducing {data['inducing_r']} · T={data['tasks']} · k={data['pending_k']}"
+                + f" · {data['timestamp']}")
+        sections.append(
+            ("Batched fantasy-conditioned SVGP-PDTS (systems)", meta, figs))
 
     gpath = RESULTS_DIR / "gp_thompson.json"
     if gpath.exists():

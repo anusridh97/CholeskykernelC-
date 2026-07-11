@@ -228,6 +228,69 @@ def test_dynamics_regret_decreases():
     assert late <= early + 1e-6, f"regret grew: {early:.4f} -> {late:.4f}"
 
 
+# --------------------------------------------------------------------------- #
+# Adaptive-inducing full-covariance SVGP-PDTS (#2) and fantasy branches (#3)
+# --------------------------------------------------------------------------- #
+
+
+def _obj2(X):
+    return torch.sin(6 * X[:, 0]) * torch.cos(6 * X[:, 1])
+
+
+def test_svgp_covariance_matches_refactorization():
+    """A_t (transport + covariance conditioning + damping) matches re-cholesky."""
+    from experiments.svgp_pdts import BatchedAdaptiveSVGP
+    torch.manual_seed(0)
+    X = torch.rand(20, 2, dtype=torch.float64)
+    gp = BatchedAdaptiveSVGP(X, _obj2, T=6, noise=0.05, damp_rho=0.03, move_scale=0.05,
+                             force_reference=True, dtype=torch.float64, seed=0)
+    for _ in range(25):
+        gp.step()
+    _, A_ref = gp.refactor_ground_truth()
+    err = (torch.norm(gp.A - A_ref) / torch.norm(A_ref)).item()
+    assert err < 1e-10, f"variational covariance drift too high: {err:.2e}"
+    # Covariance stays SPD.
+    assert torch.linalg.eigvalsh(gp.A).min().item() > 0, "A lost positive-definiteness"
+
+
+def test_svgp_regret_decreases():
+    from experiments.svgp_pdts import BatchedAdaptiveSVGP
+    torch.manual_seed(0)
+    X = torch.rand(24, 2, dtype=torch.float64)
+    gp = BatchedAdaptiveSVGP(X, _obj2, T=16, noise=0.05, force_reference=True,
+                             dtype=torch.float64, seed=1)
+    regs = [gp.step() for _ in range(30)]
+    assert sum(regs[-3:]) / 3 <= sum(regs[:3]) / 3 + 1e-6, "regret grew"
+
+
+def test_svgp_incremental_matches_refactor_transport():
+    """Incremental and refactor transport modes give the same covariance."""
+    from experiments.svgp_pdts import BatchedAdaptiveSVGP
+    X = torch.rand(20, 2, dtype=torch.float64)
+    a = BatchedAdaptiveSVGP(X, _obj2, T=4, transport_mode="incremental",
+                            force_reference=True, dtype=torch.float64, seed=3)
+    b = BatchedAdaptiveSVGP(X, _obj2, T=4, transport_mode="refactor",
+                            force_reference=True, dtype=torch.float64, seed=3)
+    for _ in range(15):
+        a.step(); b.step()
+    err = (torch.norm(a.A - b.A) / torch.norm(b.A)).item()
+    assert err < 1e-9, f"incremental vs refactor transport disagree: {err:.2e}"
+
+
+def test_fantasy_covariance_matches_refactorization():
+    """Per-branch fantasy covariance matches a full re-cholesky."""
+    from experiments.svgp_pdts import BatchedFantasySVGP
+    torch.manual_seed(0)
+    X = torch.rand(20, 2, dtype=torch.float64)
+    fp = BatchedFantasySVGP(X, T=4, J=8, k=3, noise=0.05, force_reference=True,
+                            dtype=torch.float64, seed=0)
+    for _ in range(15):
+        fp.round()
+    _, A_ref = fp.refactor_ground_truth()
+    err = (torch.norm(fp.A - A_ref) / torch.norm(A_ref)).item()
+    assert err < 1e-9, f"fantasy covariance drift too high: {err:.2e}"
+
+
 def test_soap_reduces_loss():
     from experiments.soap import SOAP
     torch.manual_seed(0)
