@@ -291,6 +291,38 @@ def test_fantasy_covariance_matches_refactorization():
     assert err < 1e-9, f"fantasy covariance drift too high: {err:.2e}"
 
 
+def test_robust_sandwich_matches_refactorization():
+    """The whitened sandwich A_t matches a full re-cholesky to machine precision."""
+    from experiments.robust_bandit import BatchedRobustSandwichTS
+    torch.manual_seed(0)
+    b = BatchedRobustSandwichTS(r=16, T=16, noise_mode="hetero", force_reference=True,
+                                calibrate_every=1000, dtype=torch.float64, seed=0)
+    for _ in range(40):
+        b.step()
+    _, A_ref = b.refactor_ground_truth()
+    err = (torch.norm(b.A - A_ref) / torch.norm(A_ref)).item()
+    assert err < 1e-10, f"sandwich drift too high: {err:.2e}"
+
+
+def test_robust_sandwich_separates_from_identity_under_misspec():
+    """Heavy-tailed misspecification separates A from a scaled identity more than
+    the homoskedastic (negative-control) case."""
+    from experiments.robust_bandit import BatchedRobustSandwichTS
+
+    def sep(mode):
+        torch.manual_seed(0)
+        b = BatchedRobustSandwichTS(r=8, T=64, n_arms=12, noise_mode=mode,
+                                    noise_scale=0.3, hetero_beta=4.0,
+                                    calibrate_every=10**9, force_reference=True,
+                                    dtype=torch.float64, seed=0)
+        b.theta_star = b.theta_star * 0.5
+        for _ in range(250):
+            b.step()
+        return b.separation_from_identity()
+
+    assert sep("heavy") > sep("homo") + 0.05, "heavy tails should separate A from cI more"
+
+
 def test_soap_reduces_loss():
     from experiments.soap import SOAP
     torch.manual_seed(0)

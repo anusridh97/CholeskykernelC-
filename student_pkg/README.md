@@ -73,7 +73,7 @@ larger project and is described inside `doublesided_cholesky.py`.
 
 ## GPU application experiments
 
-Five GPU experiments live in `experiments/`, all faithful to the paper's math
+Six GPU experiments live in `experiments/`, all faithful to the paper's math
 and built on the batched Triton kernel. The GPU angle on top of the paper's CPU
 experiments is batching *many independent* whitened-operator updates into one
 launch — device-residency, not raw speed on a single latency-bound Givens sweep.
@@ -81,7 +81,7 @@ Run everything directly (no scheduler) and auto-generate figures:
 
 ```
 python run_experiments.py                 # all → results/ JSON → figures/ report.html
-python run_experiments.py --only dynamics # dynamics | curvature | svgp | fantasy | gp
+python run_experiments.py --only dynamics # dynamics | svgp | fantasy | bandit | curvature | gp
 python run_experiments.py --figures-only
 ```
 
@@ -142,7 +142,26 @@ throughput and machine-precision drift.
 python -m tests.bench_fantasy_svgp
 ```
 
-**3. Transported-subspace natural gradient optimizer**
+**3. Robust / sandwich Thompson sampling — double-sided under misspecification**
+(`experiments/robust_bandit.py`). A contextual bandit whose posterior covariance
+is the heteroskedasticity-consistent (Huber–White) *sandwich*
+`Σ_t = G_t⁻¹ M_t G_t⁻¹`, whitened as `A_t = L⁻¹ M_t L⁻ᵀ` with `G` the design
+Gram (`z = xᵢ`) and `M` the score covariance (`w = eᵢ²xᵢ`) — a genuine `z ≠ w`
+double-sided update. Under a correctly specified homoskedastic model `M ≈ σ²G`
+so `A ≈ σ²I` (the degenerate negative control); under **heteroskedastic or
+heavy-tailed** noise `A` separates from a scaled identity (`‖A−cI‖/‖A‖` grows
+homo < hetero < heavy). The learning step also reads `A` via a covariance-level
+shrinkage calibration a root-only rep cannot do. Verified to machine precision;
+reports separation-by-noise-regime, regret, and coverage. Semi-synthetic
+heteroskedastic/heavy-tailed noise (the standard construction — there is no
+canonical real heavy-tailed bandit benchmark; real logged-bandit datasets give
+clicks, i.e. `A ≈ I`).
+
+```
+python -m tests.bench_robust_bandit
+```
+
+**4. Transported-subspace natural gradient optimizer**
 (`experiments/curvature_optimizer.py`). A faithful implementation of §3.5: per
 parameter block a chart `F ≈ λI + U C Uᵀ` with an **adaptive orthonormal basis
 U**, refreshed by an `(r+1)`-eigendecomposition when residual energy
@@ -161,7 +180,7 @@ second-order), SGD, AdamW.
 python -m tests.bench_curvature_opt
 ```
 
-**4. Parallel GP Thompson sampling — one-sided negative control**
+**5. Parallel GP Thompson sampling — one-sided negative control**
 (`experiments/parallel_gp_thompson.py`). Faithful whitened-SVGP streaming
 conditioning (§4.4/§4.5) using the **same primitive** — `z = w = φ/σ` with
 `φ = L_uu⁻¹ k_u(x)`. Thousands of GP arms conditioned in one launch, scaled past

@@ -247,6 +247,43 @@ def render_fantasy(data):
     return figs
 
 
+def render_bandit(data):
+    _style()
+    figs = []
+    # 1. Separation from scaled identity by noise regime (the decisive property).
+    seps = data.get("separation_by_mode", {})
+    if seps:
+        order = [m for m in ("homo", "hetero", "heavy") if m in seps]
+        labels = {"homo": "homoskedastic\n(neg. control)", "hetero": "heteroskedastic",
+                  "heavy": "heavy-tailed"}
+        colors = {"homo": MUTED, "hetero": AQUA, "heavy": VIOLET}
+        vals = [seps[m]["separation"] for m in order]
+        fig, ax = plt.subplots(figsize=(6.2, 4.0))
+        bars = ax.bar([labels[m] for m in order], vals,
+                      color=[colors[m] for m in order], width=0.6)
+        for b, v in zip(bars, vals):
+            ax.annotate(f"{v:.2f}", (b.get_x() + b.get_width() / 2, v),
+                        ha="center", va="bottom", fontsize=9, color=INK)
+        _finish(ax, "Sandwich departure from a scaled identity  ‖A − cI‖/‖A‖",
+                "", "separation")
+        figs.append(("bandit_separation.png", _save(fig, "bandit_separation.png")))
+
+    # 2. Incremental vs refactor latency.
+    scaling = data["scaling"]
+    T = [s["T"] for s in scaling]
+    fig, ax = plt.subplots(figsize=(6.2, 4.0))
+    ax.plot(T, [s["incr_ms"] for s in scaling], color=AQUA, lw=2, marker="o", ms=5,
+            label="double-sided incremental (O(r²))")
+    ax.plot(T, [s["refact_ms"] for s in scaling], color=RED, lw=2, marker="o", ms=5,
+            label="re-cholesky each round (O(r³))")
+    ax.set_xscale("log", base=2); ax.set_yscale("log")
+    _finish(ax, "Robust-bandit sandwich maintenance — incremental vs refactor",
+            "bandits (T)", "ms / round")
+    ax.legend(loc="upper left")
+    figs.append(("bandit_cost.png", _save(fig, "bandit_cost.png")))
+    return figs
+
+
 def render_gp(data):
     _style()
     figs = []
@@ -377,6 +414,18 @@ def render_all():
                 + f" · {data['timestamp']}")
         sections.append(
             ("Batched fantasy-conditioned SVGP-PDTS (systems)", meta, figs))
+
+    bpath = RESULTS_DIR / "robust_bandit.json"
+    if bpath.exists():
+        data = json.loads(bpath.read_text())
+        figs = render_bandit(data)
+        made += figs
+        meta = (f"device: {data['device']}"
+                + (f" ({data['gpu']})" if data.get("gpu") else "")
+                + f" · feature dim {data['feature_r']} · {data['rounds']} rounds · {data['timestamp']}")
+        sections.append(
+            ("Robust / sandwich Thompson sampling (double-sided under misspecification)",
+             meta, figs))
 
     gpath = RESULTS_DIR / "gp_thompson.json"
     if gpath.exists():
