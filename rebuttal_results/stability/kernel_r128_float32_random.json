@@ -1,0 +1,1008 @@
+{
+  "environment": {
+    "host": "n22",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "slurm_job_id": "391303",
+    "torch": "2.12.0+cu126"
+  },
+  "experiment": "near_duplicate_kernel_stability",
+  "jitter": 1e-06,
+  "operator": "random",
+  "precision": "float32",
+  "rank": 128,
+  "reset_interval": 50,
+  "rows": [
+    {
+      "delta": 0.1,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.08557294337210408,
+          "Aw_spectral_norm": 226861.19282105908,
+          "L_relative_error": 0.0003144947635057128,
+          "condition": 45280130.2907508,
+          "factor_backward_error": 4.6319535643565106e-08,
+          "operator_backward_error": 3.615444775124417e-05,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.08557289478137801,
+          "Aw_spectral_norm": 226861.19274708157,
+          "L_relative_error": 0.000314492446785816,
+          "condition": 45281103.81736441,
+          "factor_backward_error": 1.4011034296059884e-07,
+          "operator_backward_error": 3.823714921125408e-05,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.08557247198463634,
+          "Aw_spectral_norm": 226861.19267799865,
+          "L_relative_error": 0.00031446340334710324,
+          "condition": 45294927.58544444,
+          "factor_backward_error": 5.997599516538192e-07,
+          "operator_backward_error": 5.738024928369899e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.06876708982631721,
+          "Aw_spectral_norm": 226861.19156322762,
+          "L_relative_error": 0.0002792426160412588,
+          "condition": 45362634.8326307,
+          "factor_backward_error": 4.6436591012839345e-08,
+          "operator_backward_error": 3.4534175313664964e-05,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.05959871517800107,
+          "Aw_spectral_norm": 226861.1888472823,
+          "L_relative_error": 0.00023142720243015354,
+          "condition": 45438042.11879181,
+          "factor_backward_error": 4.6588864546940825e-08,
+          "operator_backward_error": 3.3542526630638734e-05,
+          "step": 100
+        }
+      ],
+      "seed": 0,
+      "status": "ok",
+      "wall_seconds": 0.02404842502437532
+    },
+    {
+      "delta": 0.1,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.06611568675946361,
+          "Aw_spectral_norm": 221592.3551283856,
+          "L_relative_error": 0.000391073256790063,
+          "condition": 43529366.81151848,
+          "factor_backward_error": 4.893008160520588e-08,
+          "operator_backward_error": 3.834114007240641e-05,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.06611563713803514,
+          "Aw_spectral_norm": 221592.3551143583,
+          "L_relative_error": 0.00039107097515776555,
+          "condition": 43530158.33353079,
+          "factor_backward_error": 9.270697127276017e-08,
+          "operator_backward_error": 4.417850622568235e-05,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.06611546640778206,
+          "Aw_spectral_norm": 221592.35498800201,
+          "L_relative_error": 0.0003910395559534094,
+          "condition": 43544331.627650164,
+          "factor_backward_error": 5.841588470948339e-07,
+          "operator_backward_error": 7.350717499522607e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.06519927863195096,
+          "Aw_spectral_norm": 221592.35339597752,
+          "L_relative_error": 0.00041988877139375355,
+          "condition": 43610051.86047864,
+          "factor_backward_error": 4.720745712481398e-08,
+          "operator_backward_error": 4.177008344554379e-05,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.06420569617215383,
+          "Aw_spectral_norm": 221592.3523780473,
+          "L_relative_error": 0.00044856741010927914,
+          "condition": 43695909.068890326,
+          "factor_backward_error": 4.812642830037069e-08,
+          "operator_backward_error": 4.244455312373568e-05,
+          "step": 100
+        }
+      ],
+      "seed": 1,
+      "status": "ok",
+      "wall_seconds": 0.02312303299549967
+    },
+    {
+      "delta": 0.1,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.08851737565477238,
+          "Aw_spectral_norm": 218652.3337298451,
+          "L_relative_error": 0.00040815610665039437,
+          "condition": 45955525.407187454,
+          "factor_backward_error": 5.6674500926126206e-08,
+          "operator_backward_error": 1.80398023065558e-05,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.08851738226800529,
+          "Aw_spectral_norm": 218652.33365504228,
+          "L_relative_error": 0.0004081545008297936,
+          "condition": 45955807.291982315,
+          "factor_backward_error": 1.2401225588913672e-07,
+          "operator_backward_error": 2.0323199333395457e-05,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.08851737520351333,
+          "Aw_spectral_norm": 218652.33307204698,
+          "L_relative_error": 0.00040812817265219116,
+          "condition": 45966676.2700928,
+          "factor_backward_error": 8.902019277325465e-07,
+          "operator_backward_error": 3.477736695679424e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.0840844111646698,
+          "Aw_spectral_norm": 218652.32946603323,
+          "L_relative_error": 0.0004931020082664577,
+          "condition": 46023558.96399678,
+          "factor_backward_error": 5.741126138460928e-08,
+          "operator_backward_error": 1.8188687242428024e-05,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.0735784713786673,
+          "Aw_spectral_norm": 218652.32831857196,
+          "L_relative_error": 0.00044156853220310134,
+          "condition": 46101895.78686112,
+          "factor_backward_error": 5.687311885468539e-08,
+          "operator_backward_error": 1.9924047094279524e-05,
+          "step": 100
+        }
+      ],
+      "seed": 2,
+      "status": "ok",
+      "wall_seconds": 0.022919056995306164
+    },
+    {
+      "delta": 0.01,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.0981903522547301,
+          "Aw_spectral_norm": 308556.1807925322,
+          "L_relative_error": 0.0021271722341732195,
+          "condition": 47760711.265992,
+          "factor_backward_error": 4.67691802078338e-08,
+          "operator_backward_error": 0.0010785360313289355,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.09819030826196858,
+          "Aw_spectral_norm": 308556.1807697284,
+          "L_relative_error": 0.0021271555134189965,
+          "condition": 47761734.61229495,
+          "factor_backward_error": 1.218364639009946e-07,
+          "operator_backward_error": 0.0012267565257999247,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.09819018779056683,
+          "Aw_spectral_norm": 308556.18068590015,
+          "L_relative_error": 0.002126964996894689,
+          "condition": 47776266.10275833,
+          "factor_backward_error": 6.036681074662881e-07,
+          "operator_backward_error": 0.002213183029363138,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.08377483037809755,
+          "Aw_spectral_norm": 308556.1796012391,
+          "L_relative_error": 0.0019157943926969854,
+          "condition": 47847475.60983608,
+          "factor_backward_error": 4.464533611391543e-08,
+          "operator_backward_error": 0.001079961220921032,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.089739791218188,
+          "Aw_spectral_norm": 308556.17593599035,
+          "L_relative_error": 0.002645487661153054,
+          "condition": 47927194.83141135,
+          "factor_backward_error": 4.6086916067105504e-08,
+          "operator_backward_error": 0.001145582871556024,
+          "step": 100
+        }
+      ],
+      "seed": 0,
+      "status": "ok",
+      "wall_seconds": 0.022656663990346715
+    },
+    {
+      "delta": 0.01,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.11855668508801703,
+          "Aw_spectral_norm": 310390.78085865855,
+          "L_relative_error": 0.00314508647444984,
+          "condition": 46573193.472612,
+          "factor_backward_error": 4.89875289773039e-08,
+          "operator_backward_error": 0.0006995309886613545,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.1185566411291283,
+          "Aw_spectral_norm": 310390.7808557628,
+          "L_relative_error": 0.0031450702659605785,
+          "condition": 46574041.37272035,
+          "factor_backward_error": 8.930869042855164e-08,
+          "operator_backward_error": 0.0008013680434149608,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.11855643132807395,
+          "Aw_spectral_norm": 310390.780764398,
+          "L_relative_error": 0.0031448261058776507,
+          "condition": 46589347.2095331,
+          "factor_backward_error": 7.462653216042605e-07,
+          "operator_backward_error": 0.0016130442560045434,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.08549061168141363,
+          "Aw_spectral_norm": 310390.77965675364,
+          "L_relative_error": 0.0024914271178364733,
+          "condition": 46659236.14332546,
+          "factor_backward_error": 5.03501314198373e-08,
+          "operator_backward_error": 0.0006906148209367416,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.09497911496615975,
+          "Aw_spectral_norm": 310390.7782957274,
+          "L_relative_error": 0.0018404193049788105,
+          "condition": 46751043.4168764,
+          "factor_backward_error": 4.8502254410500073e-08,
+          "operator_backward_error": 0.000706631338973429,
+          "step": 100
+        }
+      ],
+      "seed": 1,
+      "status": "ok",
+      "wall_seconds": 0.02268291698419489
+    },
+    {
+      "delta": 0.01,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.12322773363513856,
+          "Aw_spectral_norm": 312945.2149864718,
+          "L_relative_error": 0.0017065532392469393,
+          "condition": 46998742.0751838,
+          "factor_backward_error": 5.689270774006482e-08,
+          "operator_backward_error": 0.000556220354593659,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.12322769081547769,
+          "Aw_spectral_norm": 312945.214982454,
+          "L_relative_error": 0.0017065477713443188,
+          "condition": 46999035.400376074,
+          "factor_backward_error": 1.1349182310499278e-07,
+          "operator_backward_error": 0.0006227454490714454,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.1232275379734719,
+          "Aw_spectral_norm": 312945.21395922976,
+          "L_relative_error": 0.001706453564017002,
+          "condition": 47010149.205940805,
+          "factor_backward_error": 7.647628211149554e-07,
+          "operator_backward_error": 0.001146194781175577,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.10806047898794503,
+          "Aw_spectral_norm": 312945.20940915006,
+          "L_relative_error": 0.0016384611064029116,
+          "condition": 47068374.886703216,
+          "factor_backward_error": 5.650319543950867e-08,
+          "operator_backward_error": 0.0005654118547636721,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.1095101905060778,
+          "Aw_spectral_norm": 312945.2034678594,
+          "L_relative_error": 0.0017235208469303356,
+          "condition": 47148474.65187443,
+          "factor_backward_error": 5.811399790933438e-08,
+          "operator_backward_error": 0.0005546946699656896,
+          "step": 100
+        }
+      ],
+      "seed": 2,
+      "status": "ok",
+      "wall_seconds": 0.022993354010395706
+    },
+    {
+      "delta": 0.001,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.12403605163165167,
+          "Aw_spectral_norm": 350419.1513671023,
+          "L_relative_error": 0.012365687461357635,
+          "condition": 47805230.27178952,
+          "factor_backward_error": 4.771046338195058e-08,
+          "operator_backward_error": 0.007276853909676082,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.12403599776851751,
+          "Aw_spectral_norm": 350419.15135277144,
+          "L_relative_error": 0.012365597455902372,
+          "condition": 47806254.64384682,
+          "factor_backward_error": 1.2926303474671712e-07,
+          "operator_backward_error": 0.009144680165757358,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.12403556096198945,
+          "Aw_spectral_norm": 350419.15135453356,
+          "L_relative_error": 0.012364895841805444,
+          "condition": 47820797.86822449,
+          "factor_backward_error": 7.899533641977104e-07,
+          "operator_backward_error": 0.01665101282420805,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.09831604338922513,
+          "Aw_spectral_norm": 350419.1507914206,
+          "L_relative_error": 0.009664310194689867,
+          "condition": 47892052.82159885,
+          "factor_backward_error": 4.759853790062535e-08,
+          "operator_backward_error": 0.006804618856880265,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.10182633527330177,
+          "Aw_spectral_norm": 350419.14981574734,
+          "L_relative_error": 0.010697127707004242,
+          "condition": 47971862.37985741,
+          "factor_backward_error": 4.840664505714991e-08,
+          "operator_backward_error": 0.006701984832112373,
+          "step": 100
+        }
+      ],
+      "seed": 0,
+      "status": "ok",
+      "wall_seconds": 0.022888934996444732
+    },
+    {
+      "delta": 0.001,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.11109422937664051,
+          "Aw_spectral_norm": 360262.67884638667,
+          "L_relative_error": 0.011450582572503669,
+          "condition": 46660984.96495738,
+          "factor_backward_error": 4.9515437217776645e-08,
+          "operator_backward_error": 0.006311892855173617,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.111094186093329,
+          "Aw_spectral_norm": 360262.6788191522,
+          "L_relative_error": 0.011450535099534035,
+          "condition": 46661834.24505754,
+          "factor_backward_error": 9.303330786527452e-08,
+          "operator_backward_error": 0.0074439350218776035,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.1110939036026992,
+          "Aw_spectral_norm": 360262.6787541012,
+          "L_relative_error": 0.011449751427971172,
+          "condition": 46677181.81778362,
+          "factor_backward_error": 7.490006854127401e-07,
+          "operator_backward_error": 0.014119993288721846,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.09792431037690365,
+          "Aw_spectral_norm": 360262.678064708,
+          "L_relative_error": 0.012685721760166092,
+          "condition": 46747165.698531665,
+          "factor_backward_error": 4.98207258665374e-08,
+          "operator_backward_error": 0.00627424912448469,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.09647514710787906,
+          "Aw_spectral_norm": 360262.67718068487,
+          "L_relative_error": 0.011039904652793172,
+          "condition": 46839146.66941901,
+          "factor_backward_error": 4.925415430884966e-08,
+          "operator_backward_error": 0.006154704672249953,
+          "step": 100
+        }
+      ],
+      "seed": 1,
+      "status": "ok",
+      "wall_seconds": 0.023082226020051166
+    },
+    {
+      "delta": 0.001,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.13213775327210617,
+          "Aw_spectral_norm": 366827.5443455776,
+          "L_relative_error": 0.014951451782583945,
+          "condition": 47061627.64879437,
+          "factor_backward_error": 6.04270238355268e-08,
+          "operator_backward_error": 0.008777900818515228,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.13213769979783474,
+          "Aw_spectral_norm": 366827.54431069194,
+          "L_relative_error": 0.014951401170756997,
+          "condition": 47061921.926922604,
+          "factor_backward_error": 1.1608058188256513e-07,
+          "operator_backward_error": 0.009240970568133658,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.13213736570068546,
+          "Aw_spectral_norm": 366827.5439338387,
+          "L_relative_error": 0.014950848196589653,
+          "condition": 47073052.48813611,
+          "factor_backward_error": 9.324748106582476e-07,
+          "operator_backward_error": 0.019196642229666366,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.12052785841255179,
+          "Aw_spectral_norm": 366827.54312975483,
+          "L_relative_error": 0.015031023334751736,
+          "condition": 47131364.100782484,
+          "factor_backward_error": 5.872474621131017e-08,
+          "operator_backward_error": 0.008565652821612067,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.13122789487416137,
+          "Aw_spectral_norm": 366827.5418618674,
+          "L_relative_error": 0.016034436601672402,
+          "condition": 47211574.75799879,
+          "factor_backward_error": 6.164730333643166e-08,
+          "operator_backward_error": 0.008831293665536104,
+          "step": 100
+        }
+      ],
+      "seed": 2,
+      "status": "ok",
+      "wall_seconds": 0.023310922988457605
+    },
+    {
+      "delta": 0.0001,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.11193402163170418,
+          "Aw_spectral_norm": 352585.46447131265,
+          "L_relative_error": 0.005235547320851881,
+          "condition": 47805864.63945501,
+          "factor_backward_error": 5.4270106049986805e-08,
+          "operator_backward_error": 0.0007179996074381306,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.11193396210681548,
+          "Aw_spectral_norm": 352585.46447743254,
+          "L_relative_error": 0.005235514756180391,
+          "condition": 47806889.07793854,
+          "factor_backward_error": 1.7979880820655616e-07,
+          "operator_backward_error": 0.0007963198576313286,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.1119335855404187,
+          "Aw_spectral_norm": 352585.4644729562,
+          "L_relative_error": 0.0052354889095107835,
+          "condition": 47821432.33738484,
+          "factor_backward_error": 5.455551133881507e-07,
+          "operator_backward_error": 0.0014703294812115008,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.10518133838717726,
+          "Aw_spectral_norm": 352585.4638817863,
+          "L_relative_error": 0.004356483171930713,
+          "condition": 47892686.13632351,
+          "factor_backward_error": 5.190427076822185e-08,
+          "operator_backward_error": 0.0006450847528524982,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.10892856744586085,
+          "Aw_spectral_norm": 352585.46308557724,
+          "L_relative_error": 0.004352214880342629,
+          "condition": 47972498.65414528,
+          "factor_backward_error": 5.2947605183719417e-08,
+          "operator_backward_error": 0.0006493431876782938,
+          "step": 100
+        }
+      ],
+      "seed": 0,
+      "status": "ok",
+      "wall_seconds": 0.023153283022111282
+    },
+    {
+      "delta": 0.0001,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.11635027309521902,
+          "Aw_spectral_norm": 363278.87887586537,
+          "L_relative_error": 0.003993050080874098,
+          "condition": 46664792.917225525,
+          "factor_backward_error": 5.482770463050903e-08,
+          "operator_backward_error": 0.0006988096697058332,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.1163502535349242,
+          "Aw_spectral_norm": 363278.8788653072,
+          "L_relative_error": 0.003993082747418601,
+          "condition": 46665642.20161634,
+          "factor_backward_error": 8.588132637706426e-08,
+          "operator_backward_error": 0.0009344973186609886,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.11635010297201699,
+          "Aw_spectral_norm": 363278.87875175185,
+          "L_relative_error": 0.003992971800676732,
+          "condition": 46680992.35186946,
+          "factor_backward_error": 5.452536417324471e-07,
+          "operator_backward_error": 0.0014382486636261842,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.1100178542469131,
+          "Aw_spectral_norm": 363278.8782077286,
+          "L_relative_error": 0.004075778472564615,
+          "condition": 46750978.27419493,
+          "factor_backward_error": 5.46372053354123e-08,
+          "operator_backward_error": 0.000605204257926702,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.11101920518750061,
+          "Aw_spectral_norm": 363278.8771563007,
+          "L_relative_error": 0.0032623090323153974,
+          "condition": 46842966.87983534,
+          "factor_backward_error": 5.274999342922547e-08,
+          "operator_backward_error": 0.0006309343721320287,
+          "step": 100
+        }
+      ],
+      "seed": 1,
+      "status": "ok",
+      "wall_seconds": 0.02313935401616618
+    },
+    {
+      "delta": 0.0001,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.15104456597449603,
+          "Aw_spectral_norm": 367275.08748099033,
+          "L_relative_error": 0.004944090003834713,
+          "condition": 47062680.92032385,
+          "factor_backward_error": 6.80726625166325e-08,
+          "operator_backward_error": 0.0009972452538763218,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.151044531954453,
+          "Aw_spectral_norm": 367275.0874345611,
+          "L_relative_error": 0.00494407981157191,
+          "condition": 47062975.28348474,
+          "factor_backward_error": 1.4926997533334685e-07,
+          "operator_backward_error": 0.0011284700609538473,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.15104418377226636,
+          "Aw_spectral_norm": 367275.0870796027,
+          "L_relative_error": 0.004943944120392106,
+          "condition": 47074106.33219097,
+          "factor_backward_error": 7.921676688129632e-07,
+          "operator_backward_error": 0.0016736714263086564,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.12660947788719512,
+          "Aw_spectral_norm": 367275.0859048109,
+          "L_relative_error": 0.005140073290525859,
+          "condition": 47132419.87841492,
+          "factor_backward_error": 6.675855946882691e-08,
+          "operator_backward_error": 0.0008477779275174128,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.15435229838977707,
+          "Aw_spectral_norm": 367275.0850556501,
+          "L_relative_error": 0.005837150110417089,
+          "condition": 47212632.792254135,
+          "factor_backward_error": 6.634867522046313e-08,
+          "operator_backward_error": 0.0010001027410091747,
+          "step": 100
+        }
+      ],
+      "seed": 2,
+      "status": "ok",
+      "wall_seconds": 0.02324608198250644
+    },
+    {
+      "delta": 1e-05,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.12323017100904173,
+          "Aw_spectral_norm": 352424.91964168847,
+          "L_relative_error": 0.0006046041876099051,
+          "condition": 47805888.93365512,
+          "factor_backward_error": 5.39935624619826e-08,
+          "operator_backward_error": 1.539976624790047e-05,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.12323011042122152,
+          "Aw_spectral_norm": 352424.9196322588,
+          "L_relative_error": 0.0006046008478781074,
+          "condition": 47806913.40930049,
+          "factor_backward_error": 1.4426024602929153e-07,
+          "operator_backward_error": 1.731207250946377e-05,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.12322983385234958,
+          "Aw_spectral_norm": 352424.9195878813,
+          "L_relative_error": 0.0006046048566716181,
+          "condition": 47821456.6851105,
+          "factor_backward_error": 7.231640600674659e-07,
+          "operator_backward_error": 3.188765889334011e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.10592045743100241,
+          "Aw_spectral_norm": 352424.9189538206,
+          "L_relative_error": 0.000515233654158577,
+          "condition": 47892710.2481466,
+          "factor_backward_error": 5.333626135200916e-08,
+          "operator_backward_error": 1.476376158535784e-05,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.11282087659539025,
+          "Aw_spectral_norm": 352424.9179973364,
+          "L_relative_error": 0.0005263067848912721,
+          "condition": 47972522.92296395,
+          "factor_backward_error": 5.366823023323402e-08,
+          "operator_backward_error": 1.496343160757317e-05,
+          "step": 100
+        }
+      ],
+      "seed": 0,
+      "status": "ok",
+      "wall_seconds": 0.022973725019255653
+    },
+    {
+      "delta": 1e-05,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.1446350180439999,
+          "Aw_spectral_norm": 363342.78492531367,
+          "L_relative_error": 0.0006296473022532961,
+          "condition": 46665122.96005209,
+          "factor_backward_error": 5.443886531432477e-08,
+          "operator_backward_error": 1.6679380768336167e-05,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.14463496477721233,
+          "Aw_spectral_norm": 363342.78492073796,
+          "L_relative_error": 0.0006296509647828716,
+          "condition": 46665972.294569924,
+          "factor_backward_error": 1.0738616056259196e-07,
+          "operator_backward_error": 1.8581038038945732e-05,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.14463480796204037,
+          "Aw_spectral_norm": 363342.78487470234,
+          "L_relative_error": 0.0006296369507014052,
+          "condition": 46681322.61596029,
+          "factor_backward_error": 5.86566865532094e-07,
+          "operator_backward_error": 3.461729323736559e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.1056411872492032,
+          "Aw_spectral_norm": 363342.7843078085,
+          "L_relative_error": 0.0005047225735132305,
+          "condition": 46751308.71334886,
+          "factor_backward_error": 5.3395673692822574e-08,
+          "operator_backward_error": 1.6443059109390114e-05,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.11177441249589529,
+          "Aw_spectral_norm": 363342.7830703892,
+          "L_relative_error": 0.00048789008975271827,
+          "condition": 46843297.938720785,
+          "factor_backward_error": 5.455069829437181e-08,
+          "operator_backward_error": 1.598215015417559e-05,
+          "step": 100
+        }
+      ],
+      "seed": 1,
+      "status": "ok",
+      "wall_seconds": 0.023046112997690216
+    },
+    {
+      "delta": 1e-05,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.13074166698178485,
+          "Aw_spectral_norm": 367219.5655132682,
+          "L_relative_error": 0.0007540296845503767,
+          "condition": 47062736.130828306,
+          "factor_backward_error": 6.645613439847813e-08,
+          "operator_backward_error": 1.946019801838919e-05,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.1307416223628678,
+          "Aw_spectral_norm": 367219.5654751156,
+          "L_relative_error": 0.0007540281287664828,
+          "condition": 47063030.44946027,
+          "factor_backward_error": 1.2412857319454102e-07,
+          "operator_backward_error": 2.1826529234666962e-05,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.13074129931742964,
+          "Aw_spectral_norm": 367219.5650041511,
+          "L_relative_error": 0.0007540131640463963,
+          "condition": 47074161.55250526,
+          "factor_backward_error": 8.662826880711145e-07,
+          "operator_backward_error": 4.702721620780914e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.13555101388566804,
+          "Aw_spectral_norm": 367219.5639203847,
+          "L_relative_error": 0.0007977954196457665,
+          "condition": 47132475.29808756,
+          "factor_backward_error": 6.74703811301819e-08,
+          "operator_backward_error": 1.855345232598442e-05,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.13144448064260575,
+          "Aw_spectral_norm": 367219.5632071425,
+          "L_relative_error": 0.0007807285333260867,
+          "condition": 47212688.353495486,
+          "factor_backward_error": 6.71144579016223e-08,
+          "operator_backward_error": 1.7822477804311358e-05,
+          "step": 100
+        }
+      ],
+      "seed": 2,
+      "status": "ok",
+      "wall_seconds": 0.02320505800889805
+    },
+    {
+      "delta": 1e-06,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.12018184831431691,
+          "Aw_spectral_norm": 352405.10328172223,
+          "L_relative_error": 0.0002913557901285152,
+          "condition": 47805891.18514371,
+          "factor_backward_error": 5.1831355881464823e-08,
+          "operator_backward_error": 8.802695802889055e-06,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.12018178800714177,
+          "Aw_spectral_norm": 352405.1032543783,
+          "L_relative_error": 0.0002913539451828486,
+          "condition": 47806915.52867429,
+          "factor_backward_error": 1.2571282039629992e-07,
+          "operator_backward_error": 9.757445881671637e-06,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.12018155994843838,
+          "Aw_spectral_norm": 352405.1031727572,
+          "L_relative_error": 0.0002913323976723429,
+          "condition": 47821458.85503281,
+          "factor_backward_error": 4.666374440279197e-07,
+          "operator_backward_error": 1.6121273061994288e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.11546022139434096,
+          "Aw_spectral_norm": 352405.1025247552,
+          "L_relative_error": 0.00025686178379276365,
+          "condition": 47892712.2817821,
+          "factor_backward_error": 5.289333692187195e-08,
+          "operator_backward_error": 8.449755891410869e-06,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.11761703125969346,
+          "Aw_spectral_norm": 352405.10169108683,
+          "L_relative_error": 0.00018240490373114658,
+          "condition": 47972525.168452404,
+          "factor_backward_error": 5.3453730296006447e-08,
+          "operator_backward_error": 8.535295777055973e-06,
+          "step": 100
+        }
+      ],
+      "seed": 0,
+      "status": "ok",
+      "wall_seconds": 0.023049784009344876
+    },
+    {
+      "delta": 1e-06,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.1340608825215845,
+          "Aw_spectral_norm": 363346.6120502639,
+          "L_relative_error": 0.00022852778693364977,
+          "condition": 46665155.47727384,
+          "factor_backward_error": 5.1404256995552357e-08,
+          "operator_backward_error": 1.0354383004608171e-05,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.13406084127588375,
+          "Aw_spectral_norm": 363346.61204798147,
+          "L_relative_error": 0.00022852669965638423,
+          "condition": 46666004.83025364,
+          "factor_backward_error": 8.156292229534483e-08,
+          "operator_backward_error": 1.1055722264992176e-05,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.1340606368744798,
+          "Aw_spectral_norm": 363346.6119678352,
+          "L_relative_error": 0.0002285097737255788,
+          "condition": 46681355.201193936,
+          "factor_backward_error": 6.174445949099305e-07,
+          "operator_backward_error": 2.0660660456637973e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.11289675955619466,
+          "Aw_spectral_norm": 363346.61142871814,
+          "L_relative_error": 0.0002478407871642297,
+          "condition": 46751341.341110945,
+          "factor_backward_error": 5.315659507455894e-08,
+          "operator_backward_error": 1.0779803642908483e-05,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.10626814695692034,
+          "Aw_spectral_norm": 363346.6101936216,
+          "L_relative_error": 0.00020552104843191016,
+          "condition": 46843330.65952999,
+          "factor_backward_error": 5.07719938695017e-08,
+          "operator_backward_error": 1.0520599232454118e-05,
+          "step": 100
+        }
+      ],
+      "seed": 1,
+      "status": "ok",
+      "wall_seconds": 0.02300989200011827
+    },
+    {
+      "delta": 1e-06,
+      "failure": null,
+      "jitter": 1e-06,
+      "records": [
+        {
+          "Aw_relative_error": 0.12572581487836312,
+          "Aw_spectral_norm": 367213.04195028177,
+          "L_relative_error": 0.00034593839262263905,
+          "condition": 47062741.32127119,
+          "factor_backward_error": 6.394621779407461e-08,
+          "operator_backward_error": 1.0105172368225974e-05,
+          "step": 0
+        },
+        {
+          "Aw_relative_error": 0.1257257883787758,
+          "Aw_spectral_norm": 367213.0419404857,
+          "L_relative_error": 0.00034593752417411215,
+          "condition": 47063035.63703224,
+          "factor_backward_error": 9.727263341613377e-08,
+          "operator_backward_error": 1.0644380752935618e-05,
+          "step": 1
+        },
+        {
+          "Aw_relative_error": 0.12572561497084495,
+          "Aw_spectral_norm": 367213.04148733173,
+          "L_relative_error": 0.0003459173499607978,
+          "condition": 47074166.67970901,
+          "factor_backward_error": 9.152758192928093e-07,
+          "operator_backward_error": 1.769572623920413e-05,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 0.11971714232426277,
+          "Aw_spectral_norm": 367213.0404136428,
+          "L_relative_error": 0.00034975673924530446,
+          "condition": 47132480.40815953,
+          "factor_backward_error": 6.780367195237919e-08,
+          "operator_backward_error": 9.033628148654981e-06,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 0.132539848516247,
+          "Aw_spectral_norm": 367213.03958804486,
+          "L_relative_error": 0.0003830573668621872,
+          "condition": 47212693.598356314,
+          "factor_backward_error": 6.563724615699802e-08,
+          "operator_backward_error": 8.893165849243287e-06,
+          "step": 100
+        }
+      ],
+      "seed": 2,
+      "status": "ok",
+      "wall_seconds": 0.02330392098519951
+    }
+  ],
+  "steps": 100,
+  "update_scale": 0.01
+}

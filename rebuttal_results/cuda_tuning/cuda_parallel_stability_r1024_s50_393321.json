@@ -1,0 +1,12 @@
+{
+  "Aw_relative_error": 1.3798413647236885e-06,
+  "L_relative_error": 1.918604084494291e-06,
+  "experiment": "cuda_parallel_stability",
+  "rank": 1024,
+  "setup_num_warps": 4,
+  "slurm_job_id": "393321",
+  "steps": 50,
+  "sweep_num_warps": 8,
+  "tile_cols": 8,
+  "tile_rows": 4
+}

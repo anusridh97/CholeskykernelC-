@@ -6,10 +6,12 @@ import platform
 import socket
 import statistics
 import time
+from pathlib import Path
 
 import torch
 
 from .common import (
+    RESULTS,
     add_student_pkg,
     atomic_json_dump,
     configure_threads,
@@ -480,7 +482,19 @@ def run(args: argparse.Namespace) -> dict:
     stem += f"_seed{args.seed}"
     if output_suffix:
         stem += f"_{output_suffix}"
-    output = result_path("cuda", stem)
+    canonical_filename = getattr(args, "canonical_filename", None)
+    if canonical_filename is not None:
+        canonical_path = Path(canonical_filename)
+        if (
+            canonical_path.name != canonical_filename
+            or canonical_path.suffix != ".json"
+        ):
+            raise ValueError(
+                "canonical_filename must be a basename ending in .json"
+            )
+        output = RESULTS / "cuda" / canonical_path
+    else:
+        output = result_path("cuda", stem)
     atomic_json_dump(payload, output)
     print(
         f"gpu={payload['environment']['gpu']} impl={args.impl} r={rank} b={batch} "

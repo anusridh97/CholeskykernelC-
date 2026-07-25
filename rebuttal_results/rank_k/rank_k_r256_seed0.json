@@ -1,0 +1,75 @@
+{
+  "environment": {
+    "host": "n22",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "slurm_job_id": "391303",
+    "torch": "2.12.0+cu126"
+  },
+  "experiment": "rank_k",
+  "predicted_flop_break_even_k": 33.18518518518518,
+  "rank": 256,
+  "rows": [
+    {
+      "Aw_relative_error": 5.124374236692213e-16,
+      "L_relative_error": 1.461392707717634e-16,
+      "k": 1,
+      "rank": 256,
+      "refactor_seconds": 0.001149579489720054,
+      "repeats": 20,
+      "sequential_seconds": 0.0004179525130894035,
+      "speedup": 2.750502637782081
+    },
+    {
+      "Aw_relative_error": 5.39827597512519e-16,
+      "L_relative_error": 1.690153666203109e-16,
+      "k": 2,
+      "rank": 256,
+      "refactor_seconds": 0.0011336714960634708,
+      "repeats": 20,
+      "sequential_seconds": 0.0008131145004881546,
+      "speedup": 1.394233524777715
+    },
+    {
+      "Aw_relative_error": 5.61684987279015e-16,
+      "L_relative_error": 1.991733513029029e-16,
+      "k": 4,
+      "rank": 256,
+      "refactor_seconds": 0.0011392059968784451,
+      "repeats": 20,
+      "sequential_seconds": 0.0016351244994439185,
+      "speedup": 0.6967090256832872
+    },
+    {
+      "Aw_relative_error": 6.033387293805108e-16,
+      "L_relative_error": 2.631554812502031e-16,
+      "k": 8,
+      "rank": 256,
+      "refactor_seconds": 0.0011325304949423298,
+      "repeats": 20,
+      "sequential_seconds": 0.0032121510012075305,
+      "speedup": 0.3525769786403511
+    },
+    {
+      "Aw_relative_error": 6.972804760174358e-16,
+      "L_relative_error": 3.3829594468170787e-16,
+      "k": 16,
+      "rank": 256,
+      "refactor_seconds": 0.0011960980045842007,
+      "repeats": 10,
+      "sequential_seconds": 0.006342636013869196,
+      "speedup": 0.18858058415597861
+    },
+    {
+      "Aw_relative_error": 8.433731235743959e-16,
+      "L_relative_error": 4.734307823851883e-16,
+      "k": 32,
+      "rank": 256,
+      "refactor_seconds": 0.0012101975153200328,
+      "repeats": 10,
+      "sequential_seconds": 0.01264190100482665,
+      "speedup": 0.09572907704766728
+    }
+  ],
+  "seed": 0,
+  "threads": 1
+}

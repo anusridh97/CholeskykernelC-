@@ -1,0 +1,78 @@
+{
+  "environment": {
+    "host": "n22",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "slurm_array_task_id": null,
+    "slurm_job_id": "391303",
+    "torch": "2.12.0+cu126"
+  },
+  "experiment": "positive_update_stability",
+  "failure": null,
+  "lambda_floor": 1.0000000000000084,
+  "precision": "float64",
+  "rank": 128,
+  "records": [
+    {
+      "Aw_relative_error": 0.0,
+      "Aw_spectral_norm": 0.9899999999999994,
+      "L_relative_error": 0.0,
+      "factor_backward_error": 2.4795525408392853e-16,
+      "measured_condition": 100.00000000000038,
+      "operator_backward_error": 3.913461889773136e-16,
+      "step": 0
+    },
+    {
+      "Aw_relative_error": 3.1990191537472106e-15,
+      "Aw_spectral_norm": 0.9900000009600434,
+      "L_relative_error": 6.578202678430645e-16,
+      "factor_backward_error": 2.714098687361416e-16,
+      "measured_condition": 99.99885289378409,
+      "operator_backward_error": 4.537313227467245e-16,
+      "step": 1
+    },
+    {
+      "Aw_relative_error": 3.2697776042783596e-15,
+      "Aw_spectral_norm": 0.9900000188361835,
+      "L_relative_error": 8.150887460862376e-16,
+      "factor_backward_error": 4.723575526877517e-16,
+      "measured_condition": 99.9878482750026,
+      "operator_backward_error": 7.921803735265013e-16,
+      "step": 10
+    },
+    {
+      "Aw_relative_error": 0.0,
+      "Aw_spectral_norm": 0.9900000648259545,
+      "L_relative_error": 0.0,
+      "factor_backward_error": 2.5624003577752275e-16,
+      "measured_condition": 99.92975486938985,
+      "operator_backward_error": 3.9690232483095187e-16,
+      "step": 50
+    },
+    {
+      "Aw_relative_error": 0.0,
+      "Aw_spectral_norm": 0.990000133265683,
+      "L_relative_error": 0.0,
+      "factor_backward_error": 2.3497505155284743e-16,
+      "measured_condition": 99.82008775428848,
+      "operator_backward_error": 3.8686566329821295e-16,
+      "step": 100
+    },
+    {
+      "Aw_relative_error": 0.0,
+      "Aw_spectral_norm": 0.9900003386811944,
+      "L_relative_error": 0.0,
+      "factor_backward_error": 2.4658836036523474e-16,
+      "measured_condition": 99.66477767112096,
+      "operator_backward_error": 3.834347999947725e-16,
+      "step": 200
+    }
+  ],
+  "reset_count": 4,
+  "reset_interval": 50,
+  "seed": 0,
+  "status": "ok",
+  "steps": 200,
+  "target_condition": 100.0,
+  "update_scale": 0.01,
+  "wall_seconds": 0.04413255999679677
+}

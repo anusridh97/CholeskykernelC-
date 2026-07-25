@@ -1,0 +1,68 @@
+{
+  "environment": {
+    "host": "n22",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "slurm_job_id": "391303",
+    "torch": "2.12.0+cu126"
+  },
+  "experiment": "downdate_amplification",
+  "rank": 256,
+  "rows": [
+    {
+      "P_spectral_norm_squared": 1.1111111111111116,
+      "damping_for_tau_half": 1.0,
+      "float32_roundoff_amplification": 1.0000793966330703,
+      "guard_accept_tau_half": true,
+      "measured_leverage": 0.1,
+      "rank": 256,
+      "target_leverage": 0.1,
+      "theoretical_bound": 1.1111111111111112,
+      "worst_direction_amplification": 1.1111111111111112
+    },
+    {
+      "P_spectral_norm_squared": 1.9999999999999991,
+      "damping_for_tau_half": 1.0,
+      "float32_roundoff_amplification": 1.0282057474004185,
+      "guard_accept_tau_half": true,
+      "measured_leverage": 0.5,
+      "rank": 256,
+      "target_leverage": 0.5,
+      "theoretical_bound": 2.0,
+      "worst_direction_amplification": 2.0
+    },
+    {
+      "P_spectral_norm_squared": 9.99999999999999,
+      "damping_for_tau_half": 0.5555555555555556,
+      "float32_roundoff_amplification": 1.7970631696862014,
+      "guard_accept_tau_half": false,
+      "measured_leverage": 0.9,
+      "rank": 256,
+      "target_leverage": 0.9,
+      "theoretical_bound": 10.000000000000002,
+      "worst_direction_amplification": 9.999999999999993
+    },
+    {
+      "P_spectral_norm_squared": 100.00000000000021,
+      "damping_for_tau_half": 0.5050505050505051,
+      "float32_roundoff_amplification": 5.451471226688185,
+      "guard_accept_tau_half": false,
+      "measured_leverage": 0.9899999999999999,
+      "rank": 256,
+      "target_leverage": 0.99,
+      "theoretical_bound": 99.99999999999991,
+      "worst_direction_amplification": 100.00000000000011
+    },
+    {
+      "P_spectral_norm_squared": 1000.0000000000755,
+      "damping_for_tau_half": 0.5005005005005005,
+      "float32_roundoff_amplification": 17.688785606417824,
+      "guard_accept_tau_half": false,
+      "measured_leverage": 0.9990000000000001,
+      "rank": 256,
+      "target_leverage": 0.999,
+      "theoretical_bound": 999.9999999999991,
+      "worst_direction_amplification": 1000.0000000000763
+    }
+  ],
+  "seed": 2
+}

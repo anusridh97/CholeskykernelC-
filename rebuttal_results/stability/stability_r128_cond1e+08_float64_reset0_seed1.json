@@ -1,0 +1,78 @@
+{
+  "environment": {
+    "host": "n22",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "slurm_array_task_id": null,
+    "slurm_job_id": "391303",
+    "torch": "2.12.0+cu126"
+  },
+  "experiment": "positive_update_stability",
+  "failure": null,
+  "lambda_floor": 0.9999999995824899,
+  "precision": "float64",
+  "rank": 128,
+  "records": [
+    {
+      "Aw_relative_error": 0.0,
+      "Aw_spectral_norm": 0.9999999899999997,
+      "L_relative_error": 0.0,
+      "factor_backward_error": 3.0103213028956756e-16,
+      "measured_condition": 100000000.10579783,
+      "operator_backward_error": 5.905501288214425e-16,
+      "step": 0
+    },
+    {
+      "Aw_relative_error": 3.619093467783641e-10,
+      "Aw_spectral_norm": 0.9999999899999998,
+      "L_relative_error": 2.588171276874753e-13,
+      "factor_backward_error": 3.3454160306125e-16,
+      "measured_condition": 89398143.37482491,
+      "operator_backward_error": 6.256561561786686e-16,
+      "step": 1
+    },
+    {
+      "Aw_relative_error": 2.3696406291466727e-10,
+      "Aw_spectral_norm": 0.9999999900000041,
+      "L_relative_error": 2.832703770213197e-13,
+      "factor_backward_error": 4.821787329465326e-16,
+      "measured_condition": 66183320.93871139,
+      "operator_backward_error": 8.902039396849244e-16,
+      "step": 10
+    },
+    {
+      "Aw_relative_error": 2.3701575476352507e-11,
+      "Aw_spectral_norm": 0.9999999900000202,
+      "L_relative_error": 1.3887643321789332e-13,
+      "factor_backward_error": 9.980255109716567e-16,
+      "measured_condition": 4396861.758515491,
+      "operator_backward_error": 1.829769888346174e-15,
+      "step": 50
+    },
+    {
+      "Aw_relative_error": 9.084460615940417e-12,
+      "Aw_spectral_norm": 0.9999999900000418,
+      "L_relative_error": 1.3084874909786057e-13,
+      "factor_backward_error": 1.2499283189468633e-15,
+      "measured_condition": 1421900.3451589888,
+      "operator_backward_error": 2.146765420782498e-15,
+      "step": 100
+    },
+    {
+      "Aw_relative_error": 4.138839914826418e-12,
+      "Aw_spectral_norm": 0.9999999900000951,
+      "L_relative_error": 1.2860651751754436e-13,
+      "factor_backward_error": 1.691092236684242e-15,
+      "measured_condition": 341138.8990317334,
+      "operator_backward_error": 3.0964000994552852e-15,
+      "step": 200
+    }
+  ],
+  "reset_count": 0,
+  "reset_interval": 0,
+  "seed": 1,
+  "status": "ok",
+  "steps": 200,
+  "target_condition": 100000000.0,
+  "update_scale": 0.01,
+  "wall_seconds": 0.06062881398247555
+}

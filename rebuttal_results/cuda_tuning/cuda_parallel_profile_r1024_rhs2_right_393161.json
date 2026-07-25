@@ -1,0 +1,20 @@
+{
+  "cholesky_update_seconds": 2.3264000192284583e-05,
+  "end_to_end_seconds": 0.0005030879974365235,
+  "experiment": "cuda_parallel_profile",
+  "left_sweep_seconds": 2.5359999388456345e-05,
+  "pack_seconds": 2.127999998629093e-05,
+  "params_seconds": 1.9647999666631223e-05,
+  "rank": 1024,
+  "repeats": 30,
+  "right_sweep_and_rank1_seconds": 2.4047999642789365e-05,
+  "setup_num_warps": 4,
+  "slurm_job_id": "393161",
+  "solve_right": true,
+  "solve_seconds": 0.00044529600441455843,
+  "solve_width": 2,
+  "sum_phase_seconds": 0.0005588960032910108,
+  "sweep_num_warps": 8,
+  "tile_cols": 8,
+  "tile_rows": 4
+}

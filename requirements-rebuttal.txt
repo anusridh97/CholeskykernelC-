@@ -1,0 +1,7 @@
+# Auxiliary CPU/report-harness packages.  PyTorch and its matching Triton/CUDA
+# runtime are supplied by the cluster environment (recorded version: 2.12.0,
+# CUDA 12.6).
+gdown==6.1.0
+pandas
+pytest==9.1.1
+scipy==1.15.3

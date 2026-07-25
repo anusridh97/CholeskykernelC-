@@ -1,0 +1,120 @@
+{
+  "backend_provenance": "reconstructed from the corrected faithful-section-3.5 implementation in git commit eb99659; the copied Cholesky-main prototype is incomplete",
+  "batch_size": 256,
+  "core_seconds": 0.531291836174205,
+  "core_time_share": 0.05941766174084942,
+  "d_param": 5120,
+  "damping": 1.0,
+  "environment": {
+    "host": "n22",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "slurm_array_task_id": null,
+    "slurm_job_id": "391303",
+    "torch": "2.12.0+cu126"
+  },
+  "epochs": 10,
+  "experiment": "ng_sweep",
+  "final_test_mse": 0.5694379806518555,
+  "final_train_mse": 0.5568821430206299,
+  "history": [
+    {
+      "epoch": 1,
+      "refreshes": 67,
+      "steps": 142,
+      "test_mse": 0.7236453890800476,
+      "train_mse": 0.7131314873695374,
+      "wall_seconds": 0.9206473370140884
+    },
+    {
+      "epoch": 2,
+      "refreshes": 142,
+      "steps": 284,
+      "test_mse": 0.6593384146690369,
+      "train_mse": 0.6481410264968872,
+      "wall_seconds": 1.8103632749989629
+    },
+    {
+      "epoch": 3,
+      "refreshes": 199,
+      "steps": 426,
+      "test_mse": 0.6610661745071411,
+      "train_mse": 0.6549919247627258,
+      "wall_seconds": 2.6408079630055
+    },
+    {
+      "epoch": 4,
+      "refreshes": 262,
+      "steps": 568,
+      "test_mse": 0.652600884437561,
+      "train_mse": 0.6395817399024963,
+      "wall_seconds": 3.5237306439958047
+    },
+    {
+      "epoch": 5,
+      "refreshes": 330,
+      "steps": 710,
+      "test_mse": 0.6337859034538269,
+      "train_mse": 0.6238545179367065,
+      "wall_seconds": 4.4040201870084275
+    },
+    {
+      "epoch": 6,
+      "refreshes": 393,
+      "steps": 852,
+      "test_mse": 0.6226294040679932,
+      "train_mse": 0.6113185286521912,
+      "wall_seconds": 5.271856192994164
+    },
+    {
+      "epoch": 7,
+      "refreshes": 458,
+      "steps": 994,
+      "test_mse": 0.6049979329109192,
+      "train_mse": 0.5952606797218323,
+      "wall_seconds": 6.143380186986178
+    },
+    {
+      "epoch": 8,
+      "refreshes": 525,
+      "steps": 1136,
+      "test_mse": 0.5862025618553162,
+      "train_mse": 0.5760552287101746,
+      "wall_seconds": 7.107269558997359
+    },
+    {
+      "epoch": 9,
+      "refreshes": 620,
+      "steps": 1278,
+      "test_mse": 0.58709716796875,
+      "train_mse": 0.5709407925605774,
+      "wall_seconds": 8.17698299800395
+    },
+    {
+      "epoch": 10,
+      "refreshes": 684,
+      "steps": 1420,
+      "test_mse": 0.5694379806518555,
+      "train_mse": 0.5568821430206299,
+      "wall_seconds": 8.94151175499428
+    }
+  ],
+  "learning_rate": 0.1,
+  "max_reset_drift": 7.74724014718231e-07,
+  "mean_reset_drift": 3.3161960263531197e-07,
+  "mean_unexplained_energy": 0.032377925374104374,
+  "method": "ours",
+  "momentum": 0.9,
+  "rank": 256,
+  "refactor_every": 50,
+  "refresh_count": 684,
+  "refresh_cycle": 2.0760233918128654,
+  "refresh_seconds": 3.46927704862901,
+  "refresh_time_share": 0.3879907729151348,
+  "reset_seconds": 0.029310076002730057,
+  "seed": 1,
+  "smoke": false,
+  "steps": 1420,
+  "tau": 0.02,
+  "threads": 10,
+  "wall_seconds": 8.941648334992351
+}
