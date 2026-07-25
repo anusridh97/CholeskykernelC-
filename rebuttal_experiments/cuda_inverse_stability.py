@@ -61,6 +61,7 @@ def run(
     large: bool = False,
     inplace: bool = False,
     condition: float | None = None,
+    output_suffix: str | None = None,
 ) -> dict:
     add_student_pkg()
     from doublesided_cholesky import (
@@ -191,7 +192,10 @@ def run(
         "max_inverse_residual": max(
             row["inverse_residual"] for row in checkpoint_rows
         ),
+        "output_suffix": output_suffix,
         "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
+        "slurm_array_job_id": os.environ.get("SLURM_ARRAY_JOB_ID"),
+        "slurm_array_task_id": os.environ.get("SLURM_ARRAY_TASK_ID"),
     }
     implementation = payload["implementation"].replace("_", "-")
     condition_suffix = (
@@ -199,12 +203,14 @@ def run(
         if condition is None
         else f"_cond{condition:g}"
     )
-    output = result_path(
-        "cuda_tuning",
+    stem = (
         f"cuda_inverse_stability_{implementation}_"
         f"r{rank}_s{steps}_seed{seed}{condition_suffix}_"
-        f"{os.environ.get('SLURM_JOB_ID', 'local')}",
+        f"{os.environ.get('SLURM_JOB_ID', 'local')}"
     )
+    if output_suffix:
+        stem += f"_{output_suffix}"
+    output = result_path("cuda_tuning", stem)
     atomic_json_dump(payload, output)
     print(payload, flush=True)
     print(f"wrote {output}", flush=True)
@@ -223,6 +229,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--large", action="store_true")
     parser.add_argument("--inplace", action="store_true")
     parser.add_argument("--condition", type=float)
+    parser.add_argument("--output-suffix")
     return parser.parse_args()
 
 
@@ -239,4 +246,5 @@ if __name__ == "__main__":
         large=args.large,
         inplace=args.inplace,
         condition=args.condition,
+        output_suffix=args.output_suffix,
     )

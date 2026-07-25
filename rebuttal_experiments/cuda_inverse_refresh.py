@@ -257,6 +257,7 @@ def run(args: argparse.Namespace) -> dict:
         "rank": args.rank,
         "steps": args.steps,
         "seed": args.seed,
+        "output_suffix": getattr(args, "output_suffix", None),
         "refresh_intervals": args.refresh_intervals,
         "tile_rows": args.tile_rows,
         "tile_cols": args.tile_cols,
@@ -276,6 +277,8 @@ def run(args: argparse.Namespace) -> dict:
             "torch": torch.__version__,
             "cuda": torch.version.cuda,
             "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
+            "slurm_array_job_id": os.environ.get("SLURM_ARRAY_JOB_ID"),
+            "slurm_array_task_id": os.environ.get("SLURM_ARRAY_TASK_ID"),
         },
     }
 
@@ -295,6 +298,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tile-cols", type=int, required=True)
     parser.add_argument("--setup-num-warps", type=int, default=4)
     parser.add_argument("--sweep-num-warps", type=int, default=8)
+    parser.add_argument("--output-suffix")
     return parser.parse_args()
 
 
@@ -303,12 +307,14 @@ if __name__ == "__main__":
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is unavailable")
     payload = run(arguments)
-    output = result_path(
-        "cuda_tuning",
+    stem = (
         f"cuda_inverse_refresh_r{arguments.rank}_s{arguments.steps}_"
         f"seed{arguments.seed}_"
-        f"{os.environ.get('SLURM_JOB_ID', 'local')}",
+        f"{os.environ.get('SLURM_JOB_ID', 'local')}"
     )
+    if arguments.output_suffix:
+        stem += f"_{arguments.output_suffix}"
+    output = result_path("cuda_tuning", stem)
     atomic_json_dump(payload, output)
     print(payload, flush=True)
     print(f"wrote {output}", flush=True)

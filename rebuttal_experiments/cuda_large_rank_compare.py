@@ -379,6 +379,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tile-cols", type=int, default=8)
     parser.add_argument("--setup-num-warps", type=int, default=4)
     parser.add_argument("--sweep-num-warps", type=int, default=4)
+    parser.add_argument("--output-suffix")
     # Exact fresh-factor comparison remains comfortably within 80 GB through
     # r=32768. Larger rows retain full finite-output checks only.
     parser.add_argument("--correctness-max-rank", type=int, default=32768)
@@ -404,7 +405,10 @@ if __name__ == "__main__":
             "gpu_total_memory": torch.cuda.get_device_properties(0).total_memory,
             "torch": torch.__version__,
             "cuda": torch.version.cuda,
+            "output_suffix": args.output_suffix,
             "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
+            "slurm_array_job_id": os.environ.get("SLURM_ARRAY_JOB_ID"),
+            "slurm_array_task_id": os.environ.get("SLURM_ARRAY_TASK_ID"),
             "matrix_bytes": args.rank * args.rank * 4,
         }
     )
@@ -414,12 +418,14 @@ if __name__ == "__main__":
         if args.mode == "inverse"
         else ""
     )
-    output = result_path(
-        "cuda_tuning",
+    stem = (
         f"cuda_large_compare_{payload['mode']}_r{args.rank}_seed{args.seed}"
         f"{tuning_suffix}_"
-        f"{os.environ.get('SLURM_JOB_ID', 'local')}",
+        f"{os.environ.get('SLURM_JOB_ID', 'local')}"
     )
+    if args.output_suffix:
+        stem += f"_{args.output_suffix}"
+    output = result_path("cuda_tuning", stem)
     atomic_json_dump(payload, output)
     print(payload, flush=True)
     print(f"wrote {output}", flush=True)

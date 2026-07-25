@@ -45,8 +45,8 @@
 We report a reviewer-directed evaluation of the proposed exact
 \(O(r^2)\) update for the double-sided whitened operator
 \(\Aw=L^{-1}ML^{-\top}\) under rank-one changes to the underlying
-positive-definite metric.  The evaluation comprises 145 completed
-configurations: 48 natural-gradient runs, 86 CPU stability and
+positive-definite metric.  The original planned evaluation comprises 145
+completed configurations: 48 natural-gradient runs, 86 CPU stability and
 representation experiments, and 11 CUDA benchmarks.  The experiments answer
 questions about chart-refresh sensitivity, the interpretation of predictive
 accuracy, regimes in which one-sided propagation is preferable, stability
@@ -55,8 +55,8 @@ practical cost of rank-\(k\) extensions.
 A post-audit CUDA optimization follow-up, reported separately in E5, replaces
 the original large-rank diagnostic with a baseline-compatible parallel
 fallback and evaluates a corrected experimental inverse-factor
-representation, including held-out timing, repeated-update stability,
-refresh-cost, and large-rank comparisons.
+representation over ten held-out problem seeds, including timing,
+repeated-update stability, refresh-cost, and large-rank comparisons.
 
 The results sharpen rather than uniformly strengthen the original claims.
 The refresh threshold controls a clear refresh-frequency--accuracy trade-off; fixed-rank
@@ -67,10 +67,10 @@ positive updates remain backward stable but forward error reflects the
 conditioning of whitening; downdate amplification exactly follows the
 \((1-\ell)^{-1}\) bound; the fused CUDA kernel benefits strongly from
 independent-update batching; and an exact prefix-scan fallback is
-1.85--2.08\(\times\) faster than CUDA refactorization at
+\(1.8\)--\(2.1\times\) faster than CUDA refactorization at
 \(r=256\)--1024.  A separately labeled inverse-factor representation is
-3.32--12.27\(\times\) faster in held-out cached-state kernel timing at
-\(r=256\)--1024 and 1.79--71.26\(\times\) faster in a self-contained
+\(3.3\)--\(12.2\times\) faster in held-out cached-state kernel timing at
+\(r=256\)--1024 and \(1.8\)--\(71.3\times\) faster in a self-contained
 four-state ladder through \(r=65{,}536\).  Its repeated-update and refresh
 tests show low drift for well-conditioned problems but strong condition
 dependence.  Repeated rank-one updates are advantageous for small \(k\), but
@@ -152,6 +152,9 @@ All planned tasks completed on their first worker attempt:
 and 11/11 CUDA configurations.  The CPU and GPU worker error logs are empty.
 Preflight smoke tests, which use reduced data or reduced rank and overlap
 planned configurations, are not included in inferential tables.
+The post-audit E5 campaign also completed: an audit found all 380 tagged JSON
+files, exactly ten seeds for every claimed row, and no missing or duplicate
+claim cells.
 
 \paragraph{Software and compute environment.}
 All planned runs used PyTorch 2.12.0 with CUDA 12.6 on a Linux compute node.
@@ -165,7 +168,13 @@ threads to 1, with \texttt{OMP\_NUM\_THREADS},
 \texttt{MKL\_NUM\_THREADS}, and \texttt{OPENBLAS\_NUM\_THREADS} all set to 10.
 All 48 planned E1 JSON files record 10 threads, host \texttt{n22}, and Slurm
 job \texttt{391303}.  The GPU worker allocated eight H100 GPUs and assigned
-one configuration to each GPU.
+one configuration to each GPU.  The post-audit E5 campaign instead ran as
+Slurm job \texttt{393591}, a single 33:48 preempt allocation on host
+\texttt{n01} with one H100.  It executed seed blocks 1--10 serially and
+started a fresh Python process for every benchmark-driver invocation; the
+refresh driver emits five policy rows per invocation, and each large-rank
+paired row combines two separately invoked method processes.  Seed 0 was
+reserved for configuration selection.
 
 \paragraph{Core correctness checks.}
 Every planned benchmark constructs the exact updated metric and operator and
@@ -178,11 +187,21 @@ Section~\ref{sec:e5-inverse}: numerical comparison with fresh results through
 \(r=32{,}768\), and full finite-output checks at larger measured ranks.
 
 \paragraph{Summary statistics.}
-Natural-gradient and controlled stability sweeps use three independent seeds.
-Reported ``\(\pm\)'' values are sample standard deviations.  Microbenchmarks
-report median latency after warm-up; their mutable input state is prepared
-outside the timed interval.  The representation and rank-\(k\) microbenchmarks
-pin each operation to one CPU thread.
+Natural-gradient and the original controlled stability sweeps use three
+independent seeds.  The post-audit E5 campaign uses ten held-out problem seeds
+(1--10).  Reported ``\(\pm\)'' values are sample standard deviations.  In
+E5's main and cached-state timing tables, each seed-level latency is a
+CUDA-event median over 60 prepared repeats; in the large-rank table it is a
+median over 10, 5, or 3 prepared repeats as rank increases.  E5 speedups are
+formed as paired within-seed ratios before their mean and sample standard
+deviation are computed.  The refresh table instead aggregates one timed
+200-update sequence per seed and refresh-policy row, plus the shared
+fresh-factorization baseline for each seed and rank.  Because job 393591 ran
+serially on one node and one GPU, these E5 standard deviations quantify
+seed/process/time variation on that device, not device-to-device uncertainty.
+Other microbenchmarks report median latency after warm-up; their mutable input
+state is prepared outside the timed interval.  The representation and
+rank-\(k\) microbenchmarks pin each operation to one CPU thread.
 
 \section{E1: sensitivity to the refresh threshold}
 \label{sec:e1}
@@ -660,7 +679,10 @@ at \(r\in\{64,128\}\) and independent-update batches
 fallback at \(r\in\{256,512,1024\}\), \(T=1\), with a
 baseline-compatible parallel path.  ``Baseline-compatible'' means that it
 maintains exactly the same \(L\) and \(\Aw\) state as the original method; it
-does not cache an inverse factor or change the mathematical output.
+does not cache an inverse factor or change the mathematical output.  All
+configurations were frozen before the ten-seed campaign; seed 0 supplied the
+original measurements or configuration selection, and seeds 1--10 supply the
+statistics below.
 
 The main speedup comes from exposing parallelism already present in the
 original algebra.  Let
@@ -712,52 +734,82 @@ parallel row/column tiles, and fusion of the final outer product into the
 right sweep remove the remaining allocator and launch overheads.
 
 \begin{landscape}
-\scriptsize
+{\scriptsize
+\setlength{\tabcolsep}{1.5pt}
 \begin{longtable}{@{}lrrrrrrrrrr@{}}
-\caption{CUDA results on an H100 80\,GB.  Latency is milliseconds; throughput
-is updates/s; memory is reusable workspace MiB.  ``BW'' is a conservative
-minimum effective bandwidth rather than peak hardware bandwidth.}
+\caption{Ten-seed CUDA results on an H100 80\,GB.  Stochastic entries are
+mean \(\pm\) sample SD across seed-level CUDA-event medians over 60 prepared
+repeats.  Latency is microseconds and throughput is thousands of updates/s.
+``BW'' is conservative minimum effective bandwidth rather than peak hardware
+bandwidth.  ``Aux.'' is the exact, configuration-fixed sum of reusable
+workspace and peak extra allocation, in KiB.}
 \label{tab:e5}\\
 \toprule
-Impl. & \(r\) & \(T\) & Ours ms & Refact ms & Ours/s & Refact/s & Speedup &
-BW GB/s & Workspace MiB & \(\Aw\) rel.\ err. \\
+Impl. & \(r\) & \(T\) & Ours \(\mu\)s & Refact \(\mu\)s &
+Ours k/s & Refact k/s & Speedup & BW GB/s & Aux. KiB &
+\(\Aw\) rel.\ err. \\
 \midrule
 \endfirsthead
 \toprule
-Impl. & \(r\) & \(T\) & Ours ms & Refact ms & Ours/s & Refact/s & Speedup &
-BW GB/s & Workspace MiB & \(\Aw\) rel.\ err. \\
+Impl. & \(r\) & \(T\) & Ours \(\mu\)s & Refact \(\mu\)s &
+Ours k/s & Refact k/s & Speedup & BW GB/s & Aux. KiB &
+\(\Aw\) rel.\ err. \\
 \midrule
 \endhead
-fused & 64 & 1  & 0.106 & 0.125 & 9,445 & 8,011 & 1.179 & 0.64 & 0.018 & 2.22e-07 \\
-fused & 64 & 4  & 0.106 & 0.222 & 37,730 & 18,052 & 2.090 & 2.55 & 0.067 & 1.94e-07 \\
-fused & 64 & 16 & 0.107 & 0.199 & 150,173 & 80,308 & 1.870 & 10.15 & 0.270 & 2.18e-07 \\
-fused & 64 & 64 & 0.107 & 0.206 & 599,251 & 310,752 & 1.928 & 40.50 & 1.078 & 2.18e-07 \\
+fused & 64 & 1  & \(105.1\pm0.5\) & \(125.0\pm1.0\) &
+  \(9.52\pm0.05\) & \(8.00\pm0.06\) & \(1.190\pm0.010\) &
+  \(0.643\pm0.003\) & 18.5 & \((2.42\pm0.17)\times10^{-7}\) \\
+fused & 64 & 4  & \(105.7\pm0.6\) & \(222.1\pm3.2\) &
+  \(37.9\pm0.2\) & \(18.0\pm0.3\) & \(2.10\pm0.03\) &
+  \(2.558\pm0.014\) & 69 & \((1.86\pm0.04)\times10^{-7}\) \\
+fused & 64 & 16 & \(105.8\pm0.4\) & \(199.8\pm1.4\) &
+  \(151.2\pm0.5\) & \(80.1\pm0.6\) & \(1.888\pm0.011\) &
+  \(10.22\pm0.04\) & 276 & \((2.187\pm0.020)\times10^{-7}\) \\
+fused & 64 & 64 & \(106.3\pm0.5\) & \(201.4\pm1.0\) &
+  \(602.2\pm2.7\) & \(317.8\pm1.6\) & \(1.895\pm0.015\) &
+  \(40.7\pm0.2\) & 1,104 & \((2.191\pm0.006)\times10^{-7}\) \\
 \midrule
-fused & 128 & 1  & 0.189 & 0.172 & 5,288 & 5,815 & 0.909 & 1.41 & 0.065 & 2.55e-07 \\
-fused & 128 & 4  & 0.189 & 0.368 & 21,176 & 10,877 & 1.947 & 5.64 & 0.260 & 2.03e-07 \\
-fused & 128 & 16 & 0.187 & 0.330 & 85,368 & 48,466 & 1.761 & 22.73 & 1.039 & 2.32e-07 \\
-fused & 128 & 64 & 0.190 & 0.368 & 337,553 & 173,769 & 1.943 & 89.87 & 4.156 & 2.32e-07 \\
+fused & 128 & 1  & \(187.6\pm0.6\) & \(172.2\pm1.1\) &
+  \(5.33\pm0.02\) & \(5.81\pm0.04\) & \(0.918\pm0.005\) &
+  \(1.419\pm0.005\) & 66.5 & \((2.52\pm0.08)\times10^{-7}\) \\
+fused & 128 & 4  & \(189.7\pm0.6\) & \(372.5\pm2.8\) &
+  \(21.09\pm0.07\) & \(10.74\pm0.08\) & \(1.964\pm0.012\) &
+  \(5.615\pm0.019\) & 266 & \((2.026\pm0.018)\times10^{-7}\) \\
+fused & 128 & 16 & \(189.6\pm0.4\) & \(334.7\pm3.3\) &
+  \(84.4\pm0.2\) & \(47.8\pm0.5\) & \(1.765\pm0.017\) &
+  \(22.46\pm0.04\) & 1,064 & \((2.314\pm0.016)\times10^{-7}\) \\
+fused & 128 & 64 & \(190.2\pm0.6\) & \(372.0\pm3.2\) &
+  \(336.4\pm1.0\) & \(172.1\pm1.5\) & \(1.955\pm0.017\) &
+  \(89.6\pm0.3\) & 4,256 & \((2.315\pm0.004)\times10^{-7}\) \\
 \midrule
-parallel & 256  & 1 & 0.154 & 0.285 & 6,487 & 3,508 & 1.849 & 6.86 & 0.509 & 2.72e-07 \\
-parallel & 512  & 1 & 0.267 & 0.522 & 3,752 & 1,918 & 1.957 & 15.80 & 2.018 & 2.61e-07 \\
-parallel & 1024 & 1 & 0.496 & 1.033 & 2,015 & 968 & 2.082 & 33.87 & 8.035 & 3.08e-07 \\
+parallel & 256  & 1 & \(153.0\pm1.2\) & \(278.2\pm1.6\) &
+  \(6.54\pm0.05\) & \(3.59\pm0.02\) & \(1.818\pm0.013\) &
+  \(6.91\pm0.06\) & 521 & \((2.696\pm0.063)\times10^{-7}\) \\
+parallel & 512  & 1 & \(265.4\pm1.9\) & \(505.0\pm1.5\) &
+  \(3.77\pm0.03\) & \(1.980\pm0.006\) & \(1.903\pm0.014\) &
+  \(15.87\pm0.11\) & 2,066 & \((2.612\pm0.025)\times10^{-7}\) \\
+parallel & 1024 & 1 & \(496.9\pm3.5\) & \(1{,}023.7\pm2.6\) &
+  \(2.013\pm0.014\) & \(0.977\pm0.002\) & \(2.060\pm0.013\) &
+  \(33.83\pm0.24\) & 8,228 & \((3.040\pm0.015)\times10^{-7}\) \\
 \bottomrule
 \end{longtable}
+}
 \end{landscape}
 
-All configurations are accurate: relative \(L\) error is
-\(0.9\)--\(1.4\times10^{-7}\) and relative \(\Aw\) error is
-\(1.9\)--\(3.1\times10^{-7}\).  The fused path demonstrates the value of
-independent-update batching.  At \(T=1\), \(r=128\) is slightly slower than
-\refact{}; at \(T=4\)--64, fused speedups are 1.76--2.09\(\times\).
+All configurations are accurate: the ten-seed row-mean relative \(L\) errors
+span \(0.90\)--\(1.40\times10^{-7}\), and the relative \(\Aw\) errors span
+\(1.86\)--\(3.04\times10^{-7}\); the worst individual errors remain below
+\(1.6\times10^{-7}\) and \(3.1\times10^{-7}\), respectively.  The fused path
+demonstrates the value of independent-update batching.  At \(T=1\), \(r=128\)
+is slightly slower than \refact{}; at \(T=4\)--64, fused mean speedups span
+\(1.8\)--\(2.1\times\).
 The baseline-compatible parallel fallback is also faster for every tested
-large rank: 1.85\(\times\), 1.96\(\times\), and 2.08\(\times\) at
-\(r=256,512,1024\), respectively.  At \(r=1024\), it reduces the old tiled
-fallback's 2.798\,ms diagnostic to 0.496\,ms, a 5.64\(\times\) implementation
-speedup, without changing maintained state.  Phase profiling identifies the
-vendor two-right-hand-side triangular solve as the remaining bottleneck
-(approximately 0.44\,ms at \(r=1024\)); padding the solve to wider right-hand
-sides did not improve it.
+large rank: \(1.8\times\), \(1.9\times\), and \(2.1\times\) at
+\(r=256,512,1024\), respectively.  It replaces the old serial tiled fallback
+without changing maintained state.  Separate seed-0-only phase profiling,
+which is not part of the ten-seed timing summary, identifies the vendor
+two-right-hand-side triangular solve as the remaining bottleneck; padding the
+solve to wider right-hand sides did not improve it.
 
 \subsection{Experimental inverse-factor state and refresh policy}
 \label{sec:e5-inverse}
@@ -785,158 +837,214 @@ excluded.
 \subsubsection{Held-out cached-state kernel timing}
 
 The single-block configurations were selected using seed 0 and then frozen.
-Job 393470 evaluated three held-out problem seeds (1--3); each seed-level
+Job 393591 evaluated ten held-out problem seeds (1--10); each seed-level
 latency is a CUDA-event median over 60 prepared repeats.
 Table~\ref{tab:e5-inverse-heldout} reports the mean and sample standard
-deviation across those three seed-level medians, and the maximum correctness
-error across the held-out seeds.
+deviation across those ten seed-level medians.  Correctness cells use the
+same ten-seed mean and sample standard deviation.
 
 \begin{table}[ht]
 \centering
-\small
+\scriptsize
 \caption{Corrected held-out single-block inverse-factor timing on one H100.
 The incremental interval updates cached \(L^{-1}\) and \(\Aw\); initial inverse
 construction, refresh, and maintenance of exact \(G,M\) are excluded.
 \refact{} forms \(G^+,M^+\), factorizes, and rewhitens.  Thus this is an
 isolated cached-state kernel comparison, not a self-contained application
-measurement.}
+measurement.  Stochastic entries are mean \(\pm\) sample SD over ten seeds.}
 \label{tab:e5-inverse-heldout}
 \begin{tabular}{@{}rcccrr@{}}
 \toprule
-\(r\) & Inverse ms & Refact ms & Speedup &
+\(r\) & Inverse \(\mu\)s & Refact \(\mu\)s & Speedup &
 \(L^{-1}\) rel.\ err. & \(\Aw\) rel.\ err. \\
 \midrule
-256  & \(0.08349\pm0.00056\) & \(0.27738\pm0.00132\) &
-  \(3.322\pm0.021\)  & 1.86e-07 & 2.73e-07 \\
-512  & \(0.08308\pm0.00061\) & \(0.50752\pm0.00189\) &
-  \(6.109\pm0.041\)  & 1.82e-07 & 2.63e-07 \\
-1024 & \(0.08364\pm0.00029\) & \(1.02632\pm0.00168\) &
-  \(12.271\pm0.053\) & 2.05e-07 & 3.04e-07 \\
+256  & \(83.7\pm0.6\) & \(277.5\pm0.8\) &
+  \(3.32\pm0.03\) & \((1.836\pm0.051)\times10^{-7}\) &
+  \((2.696\pm0.063)\times10^{-7}\) \\
+512  & \(83.2\pm0.6\) & \(506.4\pm2.1\) &
+  \(6.09\pm0.06\) & \((1.805\pm0.015)\times10^{-7}\) &
+  \((2.612\pm0.025)\times10^{-7}\) \\
+1024 & \(83.9\pm0.7\) & \(1{,}025.0\pm4.8\) &
+  \(12.22\pm0.12\) & \((2.051\pm0.011)\times10^{-7}\) &
+  \((3.040\pm0.015)\times10^{-7}\) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The held-out result establishes a large isolated-kernel advantage for a
-consumer that already has the inverse-factor state: 3.32\(\times\) at
-\(r=256\), 6.11\(\times\) at \(r=512\), and 12.27\(\times\) at
+consumer that already has the inverse-factor state: \(3.3\times\) at
+\(r=256\), \(6.1\times\) at \(r=512\), and \(12.2\times\) at
 \(r=1024\).  It does not by itself establish the amortized cost of constructing
 or refreshing that state; the refresh and self-contained comparisons below
 measure those costs separately.
 
 \subsubsection{Repeated updates and condition dependence}
 
-Job 393428 applies 500 updates without reset to three well-conditioned
+Job 393591 applies 500 updates without reset to ten well-conditioned
 synthetic problems per row.  Table~\ref{tab:e5-inverse-stability} reports the
-median final error over seeds.  The first three rows use the single-block
+mean and sample standard deviation of the final error.  The first three rows
+use the single-block
 kernel; the last row independently checks the in-place recurrence used by the
 large-rank path.
 
 \begin{table}[ht]
 \centering
-\small
-\caption{Corrected 500-update FP32 inverse-factor stability.  Values are
-medians over three seeds; the initial measured condition numbers are near
-five.}
+\scriptsize
+\caption{Corrected 500-update FP32 inverse-factor stability.  Stochastic
+entries are mean \(\pm\) sample SD over ten seeds; the initial measured
+condition numbers are near five.}
 \label{tab:e5-inverse-stability}
+{\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Path & \(r\) & Initial \(\kappa(G)\) &
 \(L^{-1}\) rel.\ err. & \(\Aw\) rel.\ err. & Inverse residual \\
 \midrule
-single-block & 256  & 4.91 & 6.80e-06 & 1.21e-05 & 6.91e-06 \\
-single-block & 512  & 4.98 & 1.01e-05 & 1.21e-05 & 1.06e-05 \\
-single-block & 1024 & 4.99 & 7.65e-06 & 1.26e-05 & 7.75e-06 \\
-in-place     & 1024 & 4.99 & 7.65e-06 & 1.45e-05 & 7.75e-06 \\
+single-block & 256  & \(4.91\pm0.05\) &
+  \((6.76\pm0.07)\times10^{-6}\) & \((1.193\pm0.011)\times10^{-5}\) &
+  \((6.86\pm0.08)\times10^{-6}\) \\
+single-block & 512  & \(4.96\pm0.04\) &
+  \((1.018\pm0.009)\times10^{-5}\) & \((1.215\pm0.006)\times10^{-5}\) &
+  \((1.068\pm0.011)\times10^{-5}\) \\
+single-block & 1024 & \(4.97\pm0.03\) &
+  \((7.66\pm0.04)\times10^{-6}\) & \((1.263\pm0.005)\times10^{-5}\) &
+  \((7.77\pm0.05)\times10^{-6}\) \\
+in-place     & 1024 & \(4.97\pm0.03\) &
+  \((7.66\pm0.04)\times10^{-6}\) & \((1.450\pm0.005)\times10^{-5}\) &
+  \((7.77\pm0.05)\times10^{-6}\) \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
-The well-conditioned errors grow gradually and remain below
-\(1.5\times10^{-5}\) after 500 updates.  This is not a
-condition-independent guarantee.  Job 393454 fixes \(r=256\), applies 200
-updates, and varies the initial condition number.  As
+The well-conditioned errors grow gradually.  The largest \(\Aw\) error over
+all ten seeds and all checkpoints is \(1.46\times10^{-5}\); this global
+observed maximum is distinct from the mean \(\pm\) SD cells in the table.
+This is not a condition-independent guarantee.  Job 393591 also fixes
+\(r=256\), applies 200 updates, and varies the initial condition number.  As
 Table~\ref{tab:e5-inverse-condition} shows, the operator error rises to about
-4.1\% at \(\kappa(G)\approx10^6\), consistent with the forward-conditioning
-mechanism isolated in E4.
+\(4.06\pm0.16\%\) at \(\kappa(G)\approx10^6\), with a global observed maximum
+of \(4.32\%\) across the ten seeds and checkpoints.  This is consistent with
+the forward-conditioning mechanism isolated in E4.
 
 \begin{table}[ht]
 \centering
-\small
+\scriptsize
 \caption{Condition stress for the corrected single-block inverse-factor path
-at \(r=256\) after 200 FP32 updates.  Entries are medians over three seeds.}
+at \(r=256\) after 200 FP32 updates.  Stochastic entries are mean \(\pm\)
+sample SD over ten seeds.}
 \label{tab:e5-inverse-condition}
+{\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}rrrrr@{}}
 \toprule
 Target \(\kappa(G)\) & Measured \(\kappa(G)\) &
 \(L^{-1}\) rel.\ err. & \(\Aw\) rel.\ err. & Inverse residual \\
 \midrule
-\(10^2\) & \(1.00{\times}10^2\) & 3.06e-06 & 5.25e-06 & 3.08e-06 \\
-\(10^4\) & \(1.00{\times}10^4\) & 1.20e-04 & 1.78e-04 & 6.80e-05 \\
-\(10^6\) & \(1.00{\times}10^6\) & 2.32e-02 & 4.11e-02 & 8.98e-03 \\
+\(10^2\) & \(99.999\pm0.001\) &
+  \((3.02\pm0.07)\times10^{-6}\) & \((5.09\pm0.15)\times10^{-6}\) &
+  \((3.07\pm0.04)\times10^{-6}\) \\
+\(10^4\) & \(9{,}999.9\pm0.6\) &
+  \((1.22\pm0.05)\times10^{-4}\) & \((1.82\pm0.11)\times10^{-4}\) &
+  \((6.78\pm0.23)\times10^{-5}\) \\
+\(10^6\) & \((1.003\pm0.004)\times10^6\) &
+  \((2.32\pm0.07)\times10^{-2}\) & \((4.06\pm0.16)\times10^{-2}\) &
+  \((8.96\pm0.25)\times10^{-3}\) \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \subsubsection{Refresh cost and drift}
 
-Job 393472 measures 200-update sequences at refresh intervals
-\(q\in\{10,50,100,200\}\), plus no refresh, for three seeds at each rank.
+Job 393591 measures 200-update sequences at refresh intervals
+\(q\in\{10,50,100,200\}\), plus no refresh, for ten seeds at each rank.
 Updates to exact \(G\) and \(M\) are inside every timed step.  At a refresh,
 the timed region also includes Cholesky factorization, construction of
 \(L^{-1}\) by a triangular solve, and complete rewhitening of \(M\).
 \refact{} performs these operations every step.  Initial state construction is
 outside both timed sequences.
 
-Table~\ref{tab:e5-inverse-refresh} gives the median CUDA-event time per update
-and median speedup across seeds.  The error columns are the worst errors over
-seeds measured immediately \emph{before} a refresh (or at the final unrefreshed
-tail), rather than the potentially zero post-refresh final error.  The median
-fresh-every-step baselines are 0.251, 0.478, and 0.983\,ms/update at
+Table~\ref{tab:e5-inverse-refresh} gives the mean and sample standard
+deviation of CUDA-event time and paired speedup across seeds.  For each seed,
+the error statistic is its maximum error immediately \emph{before} a refresh
+(or at the final unrefreshed tail); the table then reports the mean and sample
+standard deviation of those ten seed-level maxima, rather than the potentially
+zero post-refresh final error.  The fresh-every-step baselines are
+\(251.2\pm1.0\), \(478.8\pm2.1\), and \(988.7\pm8.3\)\,\(\mu\)s/update at
 \(r=256,512,1024\), respectively.
 
 \begin{table}[ht]
 \centering
-\scriptsize
 \caption{Periodic inverse-factor refresh over 200 updates.  Refresh work and
 exact \(G,M\) maintenance are included in event timing.  \(q=\mathrm{none}\)
-means no refresh.}
+means no refresh.  Stochastic entries are mean \(\pm\) sample SD over ten
+seeds; error entries aggregate each seed's maximum pre-refresh error.}
 \label{tab:e5-inverse-refresh}
+{\scriptsize
+\setlength{\tabcolsep}{1.5pt}
 \begin{tabular}{@{}rrrcrrr@{}}
 \toprule
-\(r\) & \(q\) & Refreshes & Event ms/update & Speedup &
-Max.\ pre-refresh \(L^{-1}\) err. & Max.\ pre-refresh \(\Aw\) err. \\
+\(r\) & \(q\) & Refreshes & Event \(\mu\)s/update & Speedup &
+Seed-max \(L^{-1}\) err. & Seed-max \(\Aw\) err. \\
 \midrule
-256 & none & 0  & 0.10169 & 2.474 & 2.81e-06 & 4.92e-06 \\
-256 & 10   & 20 & 0.12165 & 2.076 & 2.88e-07 & 4.59e-07 \\
-256 & 50   & 4  & 0.10371 & 2.432 & 7.82e-07 & 1.37e-06 \\
-256 & 100  & 2  & 0.10001 & 2.507 & 1.46e-06 & 2.56e-06 \\
-256 & 200  & 1  & 0.09979 & 2.513 & 2.81e-06 & 4.92e-06 \\
+256 & none & 0  & \(100.4\pm0.8\) & \(2.50\pm0.02\) &
+  \((2.76\pm0.06)\times10^{-6}\) & \((4.84\pm0.09)\times10^{-6}\) \\
+256 & 10   & 20 & \(120.8\pm0.8\) & \(2.08\pm0.02\) &
+  \((2.76\pm0.03)\times10^{-7}\) & \((4.45\pm0.06)\times10^{-7}\) \\
+256 & 50   & 4  & \(103.1\pm1.1\) & \(2.44\pm0.03\) &
+  \((7.77\pm0.14)\times10^{-7}\) & \((1.344\pm0.029)\times10^{-6}\) \\
+256 & 100  & 2  & \(100.3\pm0.8\) & \(2.51\pm0.02\) &
+  \((1.440\pm0.026)\times10^{-6}\) & \((2.51\pm0.05)\times10^{-6}\) \\
+256 & 200  & 1  & \(98.7\pm1.0\) & \(2.54\pm0.03\) &
+  \((2.76\pm0.06)\times10^{-6}\) & \((4.84\pm0.09)\times10^{-6}\) \\
 \midrule
-512 & none & 0  & 0.10043 & 4.759 & 4.12e-06 & 4.97e-06 \\
-512 & 10   & 20 & 0.13606 & 3.506 & 3.21e-07 & 4.36e-07 \\
-512 & 50   & 4  & 0.10746 & 4.453 & 1.11e-06 & 1.37e-06 \\
-512 & 100  & 2  & 0.10246 & 4.665 & 2.12e-06 & 2.57e-06 \\
-512 & 200  & 1  & 0.10074 & 4.758 & 4.12e-06 & 4.97e-06 \\
+512 & none & 0  & \(101.3\pm1.6\) & \(4.73\pm0.07\) &
+  \((4.11\pm0.05)\times10^{-6}\) & \((4.93\pm0.05)\times10^{-6}\) \\
+512 & 10   & 20 & \(135.3\pm0.9\) & \(3.54\pm0.03\) &
+  \((3.22\pm0.04)\times10^{-7}\) & \((4.35\pm0.05)\times10^{-7}\) \\
+512 & 50   & 4  & \(107.7\pm1.2\) & \(4.45\pm0.06\) &
+  \((1.097\pm0.012)\times10^{-6}\) & \((1.355\pm0.021)\times10^{-6}\) \\
+512 & 100  & 2  & \(102.3\pm0.7\) & \(4.68\pm0.04\) &
+  \((2.098\pm0.027)\times10^{-6}\) & \((2.545\pm0.030)\times10^{-6}\) \\
+512 & 200  & 1  & \(102.7\pm4.7\) & \(4.67\pm0.19\) &
+  \((4.11\pm0.05)\times10^{-6}\) & \((4.93\pm0.05)\times10^{-6}\) \\
 \midrule
-1024 & none & 0  & 0.09928 & 9.879 & 3.12e-06 & 5.15e-06 \\
-1024 & 10   & 20 & 0.19795 & 4.966 & 3.02e-07 & 4.76e-07 \\
-1024 & 50   & 4  & 0.11615 & 8.463 & 8.66e-07 & 1.42e-06 \\
-1024 & 100  & 2  & 0.10900 & 8.993 & 1.62e-06 & 2.65e-06 \\
-1024 & 200  & 1  & 0.10504 & 9.344 & 3.12e-06 & 5.15e-06 \\
+1024 & none & 0  & \(100.6\pm1.1\) & \(9.83\pm0.13\) &
+  \((3.106\pm0.015)\times10^{-6}\) & \((5.120\pm0.028)\times10^{-6}\) \\
+1024 & 10   & 20 & \(198.3\pm1.3\) & \(4.99\pm0.05\) &
+  \((2.986\pm0.020)\times10^{-7}\) & \((4.659\pm0.051)\times10^{-7}\) \\
+1024 & 50   & 4  & \(116.0\pm0.5\) & \(8.52\pm0.08\) &
+  \((8.566\pm0.070)\times10^{-7}\) & \((1.404\pm0.013)\times10^{-6}\) \\
+1024 & 100  & 2  & \(117.0\pm9.0\) & \(8.49\pm0.64\) &
+  \((1.600\pm0.013)\times10^{-6}\) & \((2.632\pm0.022)\times10^{-6}\) \\
+1024 & 200  & 1  & \(105.2\pm0.6\) & \(9.40\pm0.09\) &
+  \((3.106\pm0.015)\times10^{-6}\) & \((5.120\pm0.028)\times10^{-6}\) \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
-All tested refresh policies remain faster than refactorizing every step.
-Refreshing every 10 steps holds the worst observed \(\Aw\) error below
-\(4.8\times10^{-7}\) but pays the highest refresh cost.  An interval of 50
-steps keeps the worst observed \(\Aw\) error below \(1.5\times10^{-6}\) while
-retaining speedups of 2.43\(\times\), 4.45\(\times\), and 8.46\(\times\) at
-the three ranks.  These are controlled synthetic sequences, so \(q=50\) is an
+Every tested refresh policy is faster than refactorizing every step in all ten
+seeds; the minimum paired speedup over all rows and seeds is \(2.05\times\).
+Refreshing every 10 steps holds the global observed pre-refresh \(\Aw\) error below
+\(4.76\times10^{-7}\) across all ten seeds and ranks, but pays the highest
+refresh cost.  An interval of 50 steps holds the corresponding global
+observed maximum below \(1.43\times10^{-6}\), while retaining mean speedups of
+\(2.44\pm0.03\times\), \(4.45\pm0.06\times\), and
+\(8.52\pm0.08\times\) at the three ranks.  These global maxima are safety
+summaries distinct from the mean \(\pm\) SD seed-max cells in the table.
+These are controlled synthetic sequences, so \(q=50\) is an
 illustrative cost--drift point, not a universal policy; conditioning and the
 application's error tolerance should determine the reset interval.  This
 numerical refresh is distinct from the chart-refresh threshold \(\tref\) in
 E1.
+
+The \(q=50\) timing is stable across seeds at every rank (event-time SD at
+most \(1.2\,\mu\)s).  By contrast, the \(r=1024,q=100\) row is bimodal
+(\(117.0\pm9.0\,\mu\)s and \(8.49\pm0.64\times\)), and the
+\(r=512,q=200\) row contains one process-level timing outlier.  We therefore
+do not interpret \(q=100\) as a stable timing point; the \(q=50\)
+recommendation does not depend on either anomalous row.
 
 \subsubsection{Self-contained large-rank comparison}
 
@@ -946,46 +1054,65 @@ state matrices on both sides: \(G,M,L^{-1},\Aw\) for the inverse-factor path
 and \(G,M,L,\Aw\) for \refact{}.  Every timed event includes the \(G,M\)
 rank-one outer updates.  Each repeat prepares the same well-scaled state
 outside timing and measures one recurrent-compatible update, so this is not a
-long-horizon stability experiment.
+long-horizon stability experiment.  The ten seeds generate independent update
+vectors.  To counterbalance order effects, odd seeds measure the inverse path
+first and even seeds measure refactorization first at every rank.
 
 Tile and warp choices were selected at \(r=8192\) and \(r=32768\) in job
 393466; none of those tuning latencies enters
-Table~\ref{tab:e5-large-scale}.  The final measurement ladder is job 393491
-through \(r=49{,}152\), with the \(r=65{,}536\) row completed by job 393509.
+Table~\ref{tab:e5-large-scale}.  The final ten-seed measurement ladder is
+job 393591.
 The implementation is compared numerically with a fresh factorization through
 \(r=32{,}768\).  At larger ranks, memory-safe validation checks every output
 element for finiteness but does not compute a fresh numerical error.
 
 \begin{table}[ht]
 \centering
-\small
-\caption{Final self-contained large-rank ladder on one H100 80\,GB.  Times
-are CUDA-event medians.  Both methods maintain four dense matrices; ``State''
-is their minimum FP32 storage.  Fresh-check entries report
-\(L^{-1}/\Aw\) relative errors.}
+\scriptsize
+\caption{Final self-contained large-rank ladder on one H100 80\,GB.
+Stochastic entries are mean \(\pm\) sample SD across ten seed-level
+CUDA-event medians; within-seed repeat counts are 10 through \(r=8192\), 5
+through \(r=32768\), and 3 thereafter.  Both methods maintain four dense
+matrices; ``State'' is exact minimum FP32 storage.  Fresh-check entries report
+mean \(\pm\) sample SD for \(L^{-1}/\Aw\) relative errors.}
 \label{tab:e5-large-scale}
+{\setlength{\tabcolsep}{2.5pt}
 \begin{tabular}{@{}rrrrrl@{}}
 \toprule
 \(r\) & Inverse ms & Refact ms & Speedup & State GiB & Validation \\
 \midrule
-2,048  & 1.423   & 2.549     & 1.79  & 0.0625 & fresh: 3.90e-08 / 9.79e-08 \\
-4,096  & 3.560   & 7.699     & 2.16  & 0.25   & fresh: 5.01e-08 / 1.24e-07 \\
-8,192  & 7.949   & 39.835    & 5.01  & 1.00   & fresh: 3.76e-08 / 9.83e-08 \\
-16,384 & 19.855  & 246.991   & 12.44 & 4.00   & fresh: 4.64e-08 / 1.24e-07 \\
-32,768 & 57.899  & 1,760.636 & 30.41 & 16.00  & fresh: 3.39e-08 / 1.04e-07 \\
-49,152 & 112.901 & 5,717.335 & 50.64 & 36.00  & full finite only \\
-65,536 & 183.576 & 13,081.015 & 71.26 & 64.00  & full finite only \\
+2,048  & \(1.432\pm0.007\) & \(2.550\pm0.012\) &
+  \(1.781\pm0.008\) & 0.0625 &
+  fresh: \((3.94\pm0.08)\times10^{-8}/(9.72\pm0.19)\times10^{-8}\) \\
+4,096  & \(3.550\pm0.006\) & \(7.694\pm0.036\) &
+  \(2.167\pm0.008\) & 0.25 &
+  fresh: \((4.93\pm0.06)\times10^{-8}/(1.215\pm0.040)\times10^{-7}\) \\
+8,192  & \(7.933\pm0.011\) & \(39.7\pm0.1\) &
+  \(5.00\pm0.01\) & 1 &
+  fresh: \((3.83\pm0.04)\times10^{-8}/(9.95\pm0.11)\times10^{-8}\) \\
+16,384 & \(19.85\pm0.01\) & \(246.1\pm0.8\) &
+  \(12.39\pm0.04\) & 4 &
+  fresh: \((4.61\pm0.03)\times10^{-8}/(1.263\pm0.057)\times10^{-7}\) \\
+32,768 & \(58.0\pm0.1\) & \(1{,}755.1\pm2.6\) &
+  \(30.29\pm0.05\) & 16 &
+  fresh: \((3.416\pm0.015)\times10^{-8}/(1.049\pm0.014)\times10^{-7}\) \\
+49,152 & \(113.0\pm0.1\) & \(5{,}717.1\pm4.2\) &
+  \(50.61\pm0.06\) & 36 & 10/10 full finite \\
+65,536 & \(183.6\pm0.2\) & \(13{,}093.8\pm9.3\) &
+  \(71.3\pm0.1\) & 64 & 10/10 full finite \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
-The measured crossover is already favorable at \(r=2048\), and the speedup
+Every paired seed is already favorable at \(r=2048\), and the mean speedup
 grows with rank as the quadratic inverse-factor update is compared with cubic
 factorization and dense triangular solves.  At \(r=65{,}536\), the final event
-medians are 183.576\,ms versus 13.081\,s, a 71.26\(\times\) speedup.  This
+times are \(183.6\pm0.2\)\,ms versus \(13.094\pm0.009\)\,s, a
+\(71.3\pm0.1\times\) paired speedup.  This
 largest row is a full finite-output check, not a fresh numerical-correctness
-check, and the 64\,GiB four-matrix state nearly fills the device.  We therefore
-make no claim beyond the measured range.
+check, and the 64\,GiB four-matrix state leaves limited headroom on the
+80\,GB device.  We therefore make no claim beyond the measured range.
 
 \paperchange{Use the fused batching results and the baseline-compatible
 parallel rows of Table~\ref{tab:e5} to answer URn7 Q2, and explain the exact
@@ -1145,10 +1272,11 @@ show that the exact prefix-scan fallback is faster than CUDA refactorization
 through rank 1024.  The corrected inverse-factor follow-up adds a
 condition-aware refresh policy and a self-contained measured ladder from
 \(r=2048\) to \(r=65{,}536\), where the final finite-checked row is
-71.26\(\times\) faster than refactorization.  It also identifies the limits of
-that result: the representation changes stored state, drift grows sharply
-under extreme conditioning, and fresh numerical correctness is checked only
-through \(r=32{,}768\).  More broadly, the update does not itself improve MSE,
+\(71.3\pm0.1\times\) faster than refactorization across ten paired seeds.
+It also identifies the limits of that result: the representation changes
+stored state, drift grows sharply under extreme conditioning, and fresh
+numerical correctness is checked only through \(r=32{,}768\).  More broadly,
+the update does not itself improve MSE,
 extreme FP32 whitening is not condition-number independent, and practical
 rank-\(k\) crossover is not justified by asymptotic flop counts alone.
 Incorporating these distinctions would make the revision more credible,
@@ -1164,22 +1292,31 @@ curated set of individual JSON files, which retain seeds, repeat counts and,
 where recorded, raw timing samples, environment metadata, full training
 histories, and checkpoint diagnostics.  The task definitions are in
 \path{rebuttal_experiments/task_matrix.py}; a completion audit and summary can
-be regenerated with \path{rebuttal_experiments/aggregate.py}.
+be regenerated with \path{rebuttal_experiments/aggregate.py}.  The separate
+ten-seed E5 audit is \path{rebuttal_experiments/aggregate_e5n10.py}; it
+requires the exact 380-file campaign before emitting any aggregate.
 
-The original scientific tables include exactly the 145 planned worker
-outputs.  E5 additionally reports the post-audit CUDA follow-ups under
+The original planned suite includes exactly 145 worker outputs.  E5
+additionally reports the post-audit CUDA follow-ups under
 \path{rebuttal_results/cuda/} and \path{rebuttal_results/cuda_tuning/}:
 parallel tuning job 393048, phase profiles job 393047, production-path
 stability job 393321, and RHS width/orientation probes jobs 393087 and 393161;
 corrected CUDA test job 393425; inverse-factor
-configuration-selection job 393427 and held-out job 393470; 500-update
-stability job 393428; condition-stress job 393454; refresh job 393472; and the
-final large-rank measurement jobs 393491 and 393509.  Large-rank tuning job
-393466 selected tile and warp configurations but contributes no claimed
-latency.  Invalidated layout-bug jobs 393306 and 393301 are explicitly
-excluded.  Files whose names contain \texttt{smoke}, tuning rows, and early
-reduced-rank diagnostics remain excluded from inferential summaries and final
-speedup claims.
+configuration-selection job 393427; and large-rank tuning job 393466.  Those
+selection and diagnostic jobs contribute no final ten-seed latency.  All six
+final E5 tables use campaign \texttt{e5n10-2ee46ba} from job 393591: one
+33:48 preempt allocation on \texttt{n01}, ten serial seed blocks (1--10), and
+a fresh Python process for every benchmark-driver invocation.  The refresh
+driver emits five policy rows per invocation, and each large-rank pair
+combines two method invocations.  The machine-readable campaign audit
+reconciles all 380 tagged JSON files and every required row/seed key; a
+separate source-to-\TeX{} audit reconciles every displayed E5 cell.  Earlier
+measurement jobs 393470, 393428, 393454, 393472, 393491, and 393509 are
+retained as superseded pilots but excluded from final ten-seed summaries.
+Invalidated layout-bug jobs 393306 and 393301 are also explicitly excluded.
+Files whose names contain \texttt{smoke}, tuning rows, and early reduced-rank
+diagnostics remain excluded from inferential summaries and final speedup
+claims.
 
 \section{Limitations of the new evidence}
 
@@ -1192,16 +1329,17 @@ speedup claims.
   specialization or a single online-growing-factor trajectory.
   \item E4 uses synthetic controlled spectra and RBF kernels.  It isolates
   numerical mechanisms but is not an application-level failure-rate study.
-  \item E5's production-compatible comparison is limited to one H100, FP32,
-  batch one, and \(r\le1024\).  The inverse-factor path changes stored state
-  and is evaluated on synthetic updates: held-out timing uses only three
-  problem seeds, repeated-update and refresh validation stop at \(r=1024\),
-  and the large-rank ladder measures one prepared update per repeat.  Periodic
+  \item E5's production-compatible batch-one comparison is limited to one
+  H100, FP32, and \(r\le1024\).  The inverse-factor path changes stored state
+  and is evaluated on ten synthetic problem seeds; its repeated-update and
+  refresh validation stop at \(r=1024\), and the large-rank ladder measures
+  one prepared update per repeat.  All ten seeds ran serially on one GPU, so
+  the reported SD does not measure device-to-device variation.  Periodic
   refresh cost is included only in the \(r\le1024\) refresh sweep.  The
   four-state large-rank comparison checks numerical agreement with fresh
-  results through \(r=32{,}768\), but checks only full-output finiteness at
-  \(r=49{,}152\) and \(65{,}536\); the latter requires 64\,GiB of matrix
-  state.
+  results through \(r=32{,}768\), but checks only 10/10 full-output finiteness
+  at \(r=49{,}152\) and \(65{,}536\); the latter requires 64\,GiB of matrix
+  state and leaves limited device-memory headroom.
   \item E6 compares repeated rank-one calls with refactorization; it does not
   evaluate a native blocked rank-\(k\) kernel.
 \end{itemize}

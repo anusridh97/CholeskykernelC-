@@ -1,0 +1,43 @@
+{
+  "allocated_before_timing_bytes": 38688653824,
+  "cholesky_info": 0,
+  "cholesky_output_layout": "column-major",
+  "cuda": "12.6",
+  "dense_state_matrices": 4,
+  "destructive_inputs": false,
+  "event_seconds_median": 5.71974609375,
+  "event_seconds_samples": [
+    5.7151767578125,
+    5.71974609375,
+    5.72141845703125
+  ],
+  "experiment": "cuda_large_rank_compare",
+  "finite_full": true,
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "gpu_total_memory": 85045477376,
+  "host": "n01",
+  "includes_G_M_outer_updates": true,
+  "maintains_exact_G_M_for_next_update": true,
+  "matrix_bytes": 9663676416,
+  "mode": "fresh_refact_recurrent",
+  "output_suffix": "e5n10-2ee46ba-task10",
+  "peak_allocated_bytes": 38698091520,
+  "peak_reserved_bytes": 38711328768,
+  "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+  "rank": 49152,
+  "repeats": 3,
+  "reserved_before_timing_bytes": 38711328768,
+  "seed": 10,
+  "slurm_array_job_id": "393591",
+  "slurm_array_task_id": "10",
+  "slurm_job_id": "393591",
+  "torch": "2.12.0+cu126",
+  "updates_per_second": 0.1748329355201109,
+  "wall_seconds_median": 5.7199895000085235,
+  "wall_seconds_samples": [
+    5.715440655942075,
+    5.7199895000085235,
+    5.721638996968977
+  ],
+  "warmup": 1
+}

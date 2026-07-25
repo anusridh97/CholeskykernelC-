@@ -70,3 +70,48 @@ python3 -m rebuttal_experiments.aggregate
 
 This creates `rebuttal_results/summary.json` and
 `rebuttal_results/SUMMARY.md`.
+
+## Ten-seed E5 CUDA campaign
+
+The final E5 uncertainty estimates use held-out seeds 1--10; seed 0 was used
+to select the frozen CUDA configurations and is excluded from aggregation.
+Each timing result is a fresh Python process.  The small-kernel rows use the
+median of 60 prepared CUDA-event repeats per seed, while the large-rank ladder
+uses 10, 5, or 3 prepared repeats as rank increases.  Reported uncertainty is
+the sample standard deviation across the ten seed-level values.  Speedups are
+formed as paired ratios within each seed before their mean and standard
+deviation are computed.
+
+When the project account has room for array tasks, submit the three
+failure-isolated runners:
+
+```bash
+export E5_RUN_TAG=e5n10-2ee46ba
+sbatch --export=ALL,E5_RUN_TAG="$E5_RUN_TAG" \
+  rebuttal_experiments/slurm/cuda_e5_tenseed_timing.sbatch
+sbatch --export=ALL,E5_RUN_TAG="$E5_RUN_TAG" \
+  rebuttal_experiments/slurm/cuda_e5_tenseed_stability.sbatch
+sbatch --export=ALL,E5_RUN_TAG="$E5_RUN_TAG" \
+  rebuttal_experiments/slurm/cuda_e5_tenseed_large.sbatch
+```
+
+Job 393591 used the submission-cap fallback instead, which runs the same seed
+blocks serially on one H100:
+
+```bash
+sbatch --export=ALL,E5_RUN_TAG=e5n10-2ee46ba \
+  rebuttal_experiments/slurm/cuda_e5_tenseed_serial.sbatch
+```
+
+The strict aggregator accepts no partial campaign: it requires exactly 380
+tagged JSON files and one result for every frozen row/seed key, revalidates
+sample medians and derived ratios, and rejects configuration or environment
+drift.
+
+```bash
+python3 -m rebuttal_experiments.aggregate_e5n10 \
+  --results-root rebuttal_results \
+  --campaign-tag e5n10-2ee46ba \
+  --output-json /tmp/e5n10-2ee46ba-summary.json \
+  --output-rows /tmp/e5n10-2ee46ba-rows.md
+```
