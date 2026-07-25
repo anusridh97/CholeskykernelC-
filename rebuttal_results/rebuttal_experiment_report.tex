@@ -57,16 +57,21 @@ the original large-rank diagnostic with a baseline-compatible parallel
 fallback and evaluates a corrected experimental inverse-factor
 representation over ten held-out problem seeds, including timing,
 repeated-update stability, refresh-cost, and large-rank comparisons.
+A separate post-audit E2 rerun uses the recovered UCI Protein data, calibrates
+its time ceiling solely on excluded pilot seeds, selects the last completed
+training batch without test feedback, and evaluates each fixed seed once.
 
 The results sharpen rather than uniformly strengthen the original claims.
-The refresh threshold controls a clear refresh-frequency--accuracy trade-off; fixed-rank
-\ours{} and fresh refactorization have statistically overlapping error; a
-thin factor that remains factorized favors one-sided propagation, whereas
-explicit dense materialization favors the proposed two-sided representation;
-positive updates remain backward stable but forward error reflects the
+The refresh threshold controls a clear refresh-frequency--accuracy trade-off.
+At matched \(r=1024\), the corrected E2 rerun gives a paired
+\ours{}--\refact{} test-MSE difference of
+\(0.0051\pm0.0058\), providing no accuracy-win evidence for the exact update.
+A thin factor that remains factorized favors one-sided propagation, whereas
+explicit dense materialization favors the proposed two-sided representation.
+Positive updates remain backward stable but forward error reflects the
 conditioning of whitening; downdate amplification exactly follows the
-\((1-\ell)^{-1}\) bound; the fused CUDA kernel benefits strongly from
-independent-update batching; and an exact prefix-scan fallback is
+\((1-\ell)^{-1}\) bound.  The fused CUDA kernel benefits strongly from
+independent-update batching, and an exact prefix-scan fallback is
 \(1.8\)--\(2.1\times\) faster than CUDA refactorization at
 \(r=256\)--1024.  A separately labeled inverse-factor representation is
 \(3.3\)--\(12.2\times\) faster in held-out cached-state kernel timing at
@@ -79,13 +84,14 @@ We state below precisely which claims these data support and which manuscript
 statements should be weakened.
 \end{abstract}
 
-\caveat{The E1 natural-gradient sweep, including the matched-rank comparisons
-used to answer E2, uses a reconstructed, corrected implementation of the
-method described in Section~3.5.  The copied artifact lacks the original
-Protein \texttt{.mat} file and exact submitted training driver, and its stale
-prototype does not reproduce submitted Setup~B.  Consequently, these runs are
-new controlled evidence about threshold sensitivity and method equivalence;
-they are not an exact reproduction of the submitted MSE values.}
+\caveat{The E1 natural-gradient sweep uses a reconstructed, corrected
+implementation of the method described in Section~3.5.  Its original copied
+artifact lacks the Protein \texttt{.mat} file and exact submitted training
+driver, and its stale prototype does not reproduce submitted Setup~B.  E2 is
+therefore rerun separately with the recovered Protein file and a
+leakage-controlled driver, but that driver is still a new reconstruction
+rather than the missing submitted executable.  E1 and E2 are new controlled
+evidence, not exact reproductions of the submitted MSE table.}
 
 \section{Scope and reviewer-question map}
 \label{sec:scope}
@@ -114,8 +120,9 @@ E1 & Sensitivity to the chart-refresh threshold \(\tref\) &
 fdru Q1; Area Chair & Add a threshold-sensitivity table and explain that
 \(\tref\) is an application hyperparameter, not an assumption of Theorem~1. \\
 E2 & Whether the update itself improves test MSE &
-RVfB Q2; Area Chair & Use the matched-rank E1 rows to establish fixed-rank
-equivalence and withdraw the unsupported compute-budget interpretation. \\
+RVfB Q2; Area Chair & Add the leakage-controlled Protein rerun with an
+independently calibrated time ceiling; establish fixed-rank equivalence and
+withdraw the unsupported accuracy-win interpretation. \\
 E3 & When double-sided maintenance is preferable to a one-sided low-rank
 factorization & RVfB Q1; relevant to URn7 Q3/Q5 & Add an explicit regime table:
 factorized thin consumers favor one-sided propagation; dense or explicitly
@@ -154,7 +161,10 @@ Preflight smoke tests, which use reduced data or reduced rank and overlap
 planned configurations, are not included in inferential tables.
 The post-audit E5 campaign also completed: an audit found all 380 tagged JSON
 files, exactly ten seeds for every claimed row, and no missing or duplicate
-claim cells.
+claim cells.  The corrected E2 campaign likewise completed with exactly three
+excluded pilot files, one frozen-budget file, twelve evaluation files, and
+one summary; every aggregate was independently reconstructed from the raw
+JSON.
 
 \paragraph{Software and compute environment.}
 All planned runs used PyTorch 2.12.0 with CUDA 12.6 on a Linux compute node.
@@ -170,11 +180,17 @@ All 48 planned E1 JSON files record 10 threads, host \texttt{n22}, and Slurm
 job \texttt{391303}.  The GPU worker allocated eight H100 GPUs and assigned
 one configuration to each GPU.  The post-audit E5 campaign instead ran as
 Slurm job \texttt{393591}, a single 33:48 preempt allocation on host
-\texttt{n01} with one H100.  It executed seed blocks 1--10 serially and
+\texttt{n01} with one H100, four CPUs, and 64\,GB host memory
+(\(0.5633\) allocated H100-hours).  It executed seed blocks 1--10 serially and
 started a fresh Python process for every benchmark-driver invocation; the
 refresh driver emits five policy rows per invocation, and each large-rank
 paired row combines two separately invoked method processes.  Seed 0 was
-reserved for configuration selection.
+reserved for configuration selection.  Corrected E2 job \texttt{393642} ran
+on host \texttt{n02}; every process used ten PyTorch threads.  Although its
+batch script requested three exclusive seed steps at once, Slurm serialized
+all fifteen training steps.  The prior E2 diagnostic job was serialized in
+the same way, so concurrency is comparable across those two campaigns but is
+one process, not the three claimed by the script comment.
 
 \paragraph{Core correctness checks.}
 Every planned benchmark constructs the exact updated metric and operator and
@@ -188,7 +204,10 @@ Section~\ref{sec:e5-inverse}: numerical comparison with fresh results through
 
 \paragraph{Summary statistics.}
 Natural-gradient and the original controlled stability sweeps use three
-independent seeds.  The post-audit E5 campaign uses ten held-out problem seeds
+independent seeds.  Corrected E2 uses three excluded calibration seeds
+(1000--1002) and three fixed evaluation seeds (0--2); no pilot evaluates the
+test set, and each evaluation does so once after time-based checkpoint
+selection.  The post-audit E5 campaign uses ten held-out problem seeds
 (1--10).  Reported ``\(\pm\)'' values are sample standard deviations.  In
 E5's main and cached-state timing tables, each seed-level latency is a
 CUDA-event median over 60 prepared repeats; in the large-rank table it is a
@@ -354,7 +373,227 @@ rank-aware, system-specific calibration.  Do not claim a universal optimal
 threshold.  Remove ``strictly better test MSE'' from the abstract,
 introduction, and conclusion; state instead that the proposed update is
 algebraically equivalent to fresh refactorization at fixed rank.  Do not add a
-new budget--accuracy claim without a separately validated experiment.}
+budget--accuracy claim from the old checkpoint-truncated analysis; use the
+separately calibrated E2 rerun below for the more limited time-ceiling
+comparison.}
+
+\section{E2: leakage-controlled Protein time-ceiling rerun}
+\label{sec:e2}
+
+\reviewer{RVfB Q2 asks whether the submitted ``strictly better test MSE''
+statement is an effect of the exact update itself.  The Area Chair asks that
+the accuracy comparison be made auditable.}
+
+\subsection{Frozen protocol and integrity checks}
+
+The corrected rerun uses the recovered UCI Protein file
+(SHA-256 prefix \texttt{5ce538fa}), a fixed 80/20 split with split seed 42,
+and normalization fitted only on the 36,584 training examples; the 9,146
+test examples are transformed using those training statistics.  The model,
+batch size 256, ten-epoch maximum, chart threshold \(\tref=0.1\), and
+50-step numerical-reset interval are fixed across methods.  The evaluation
+grid is \ours{} at \(r=1024\) and \refact{} at
+\(r\in\{256,512,1024\}\), with seeds 0--2.
+
+Before any evaluation, three excluded \ours{} \(r=1024\) pilot seeds
+1000--1002 run for ten epochs without evaluating test MSE.  Their training
+times are 17.840671, 18.562068, and 18.604640\,s, so the frozen ceiling is
+their median, 18.562068\,s.  An evaluation retains the last \emph{completed
+batch} at or below that ceiling, restores that checkpoint, and then computes
+test MSE exactly once.  Static control-flow inspection finds one such
+post-selection test expression; the JSON field recording one test evaluation
+is metadata rather than an independently instrumented counter.
+
+This protocol removes the old epoch-checkpoint boundary artifact and
+within-run test-set checkpoint selection.  Seeds 0--2 and the same test split
+had appeared in the prior diagnostic, so this is not a globally untouched
+test-set confirmation.  It is nevertheless a time \emph{ceiling}
+combined with a ten-epoch cap, not strict equal-compute training: faster
+configurations stop after 1,420 steps even when time remains.  The pilot
+aggregate is \(18.335793\pm0.429316\)\,s over 1,420 steps, with
+\(7.799395\pm0.118849\)\,s in the non-refresh core,
+\(197.3\pm5.7\) refreshes taking \(7.025294\pm0.183706\)\,s,
+\(0.214082\pm0.003646\)\,s in periodic resets, and maximum reset drift
+\((2.499\pm0.355)\times10^{-6}\).
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\caption{Corrected E2 Protein evaluation under an independently calibrated
+18.562068\,s training-time ceiling and ten-epoch cap.  Entries are
+mean \(\pm\) sample SD over fixed evaluation seeds 0--2.  ``Training'' is
+selected training-loop time; ``Core'' is the accumulated non-refresh update
+region.  The ceiling makes the application seconds comparable but not an
+isolated-kernel benchmark.}
+\label{tab:e2-corrected}
+{\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Method & \(r\) & Test MSE & Selected steps & Training s & Core s &
+Refresh count \\
+\midrule
+\ours{} & 1024 &
+  \(0.564804\pm0.017907\) & \(1415.0\pm8.7\) &
+  \(18.4097\pm0.1995\) & \(7.7635\pm0.1882\) &
+  \(199.0\pm7.5\) \\
+\refact{} & 256 &
+  \(0.550845\pm0.015842\) & \(1420.0\pm0.0\) &
+  \(4.4786\pm0.1243\) & \(0.6523\pm0.0068\) &
+  \(230.7\pm18.9\) \\
+\refact{} & 512 &
+  \(0.551236\pm0.018148\) & \(1420.0\pm0.0\) &
+  \(6.5422\pm0.0966\) & \(1.5968\pm0.0432\) &
+  \(219.3\pm16.0\) \\
+\refact{} & 1024 &
+  \(0.559725\pm0.014636\) & \(1382.3\pm54.4\) &
+  \(18.4492\pm0.1863\) & \(8.3169\pm0.2824\) &
+  \(200.3\pm11.9\) \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Results and interpretation}
+
+At matched \(r=1024\), the paired per-seed
+\ours{}--\refact{} test-MSE differences are
+\(0.011670\), \(0.002862\), and \(0.000706\), giving
+\(0.005079\pm0.005808\).  The corresponding 95\% \(t_2\) interval is
+\([-0.00935,0.01951]\).  Thus \refact{} is numerically lower on all three
+seeds in this run, but \(n=3\) does not establish an accuracy difference.
+The direction also reverses the small, non-significant difference in the
+prior diagnostic.  Neither outcome supports an accuracy-win headline.  They
+are consistent with the algebraic expectation of fixed-rank equivalence, but
+the time ceiling selects different step counts, so E2 alone is not a
+controlled causal equivalence test; the matched-epoch E1 rows provide the
+cleaner empirical check.
+
+\ours{} descriptively completes \(1415.0\pm8.7\) selected steps at
+\(r=1024\), versus
+\(1382.3\pm54.4\) for \refact{}, while both consume essentially the frozen
+ceiling.  The paired step difference is \(32.7\pm45.8\), so this small
+three-seed sample is only descriptive evidence that the optimized
+implementation can permit more training work in this reconstructed
+ten-thread application, not an isolated-kernel speedup.
+
+\begin{landscape}
+{\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{longtable}{@{}llrrrrrrrrr@{}}
+\caption{Seed-level corrected E2 audit.  Steps and training seconds are
+selected/attempted; refresh is count/seconds.  Pilot runs never evaluate the
+test set.}
+\label{tab:e2-seeds}\\
+\toprule
+Phase & Method & \(r\) & Seed & Test MSE & Steps & Train s & Core s &
+Refresh & Reset s & Max drift \\
+\midrule
+\endfirsthead
+\toprule
+Phase & Method & \(r\) & Seed & Test MSE & Steps & Train s & Core s &
+Refresh & Reset s & Max drift \\
+\midrule
+\endhead
+pilot & \ours{} & 1024 & 1000 & --- & 1420/1420 & 17.841/17.841 &
+  7.682 & 191/6.814 & 0.210 & \(2.77{\times}10^{-6}\) \\
+pilot & \ours{} & 1024 & 1001 & --- & 1420/1420 & 18.562/18.562 &
+  7.796 & 202/7.142 & 0.217 & \(2.10{\times}10^{-6}\) \\
+pilot & \ours{} & 1024 & 1002 & --- & 1420/1420 & 18.605/18.605 &
+  7.920 & 199/7.121 & 0.215 & \(2.63{\times}10^{-6}\) \\
+\midrule
+eval & \ours{} & 1024 & 0 & 0.575657 & 1420/1420 & 18.183/18.183 &
+  7.791 & 192/6.814 & 0.210 & \(4.13{\times}10^{-6}\) \\
+eval & \ours{} & 1024 & 1 & 0.574619 & 1405/1406 & 18.558/18.567 &
+  7.563 & 207/7.405 & 0.215 & \(1.56{\times}10^{-6}\) \\
+eval & \ours{} & 1024 & 2 & 0.544136 & 1420/1420 & 18.488/18.488 &
+  7.936 & 198/7.066 & 0.212 & \(2.42{\times}10^{-6}\) \\
+\midrule
+eval & \refact{} & 256 & 0 & 0.538044 & 1420/1420 & 4.537/4.537 &
+  0.657 & 216/0.676 & 0 & --- \\
+eval & \refact{} & 256 & 1 & 0.568562 & 1420/1420 & 4.563/4.563 &
+  0.644 & 252/0.807 & 0 & --- \\
+eval & \refact{} & 256 & 2 & 0.545928 & 1420/1420 & 4.336/4.336 &
+  0.656 & 224/0.735 & 0 & --- \\
+\midrule
+eval & \refact{} & 512 & 0 & 0.541386 & 1420/1420 & 6.559/6.559 &
+  1.643 & 203/1.774 & 0 & --- \\
+eval & \refact{} & 512 & 1 & 0.572179 & 1420/1420 & 6.629/6.629 &
+  1.557 & 235/2.020 & 0 & --- \\
+eval & \refact{} & 512 & 2 & 0.540144 & 1420/1420 & 6.438/6.438 &
+  1.590 & 220/1.884 & 0 & --- \\
+\midrule
+eval & \refact{} & 1024 & 0 & 0.563987 & 1420/1420 & 18.234/18.234 &
+  8.554 & 187/6.519 & 0 & --- \\
+eval & \refact{} & 1024 & 1 & 0.571757 & 1320/1321 & 18.561/18.571 &
+  8.004 & 210/7.483 & 0 & --- \\
+eval & \refact{} & 1024 & 2 & 0.543430 & 1407/1408 & 18.553/18.590 &
+  8.393 & 204/7.152 & 0 & --- \\
+\bottomrule
+\end{longtable}
+}
+\end{landscape}
+
+The \(r=256\) and \(r=512\) \refact{} runs finish all ten epochs in only 4.48
+and 6.54\,s; their unused ceiling illustrates why the result must not be
+described as equal-compute training.
+
+The cross-rank \refact{} means are \(0.550845\), \(0.551236\), and
+\(0.559725\) at \(r=256,512,1024\): this run does not show monotonic accuracy
+improvement with rank.  Paired \(r=1024-r=256\) differences are
+\(0.025943\), \(0.003195\), and \(-0.002498\), or
+\(0.008880\pm0.015049\), so the apparent ordering is largely one seed and is
+not an established rank effect.  The rank-specific subspaces were sampled
+independently rather than nested, and learning rate, damping, and threshold
+were held fixed rather than tuned per rank.  Mean unexplained gradient energy
+also remains in the narrow 6.3--6.7\% range across these runs.  That is
+compatible with a low effective dimension, but the thresholded refresh
+statistic is not an effective-rank spectrum and cannot establish that
+explanation.
+
+Mean refresh time is \(7.09496\pm0.29702\)\,s for \ours{} at \(r=1024\)
+and \(0.73923\pm0.06525\), \(1.89269\pm0.12327\), and
+\(7.05145\pm0.48989\)\,s for \refact{} at \(r=256,512,1024\),
+respectively.  The \ours{} periodic resets add
+\(0.21234\pm0.00246\)\,s.
+
+For \ours{}, evaluation reset drift is
+\((2.702\pm1.310)\times10^{-6}\), with a maximum of
+\(4.131\times10^{-6}\).  No numerical failure occurs.  The optimized
+positive-update source path and SHA-256 are recorded in all six \ours{} pilot
+and evaluation JSONs; the source hash is
+\texttt{b1c92d7f...d87b4}.  The loaded shared-object path is also recorded;
+its binary hash was verified externally as \texttt{e500c96a...}, but was not
+written into the run JSON and therefore is not self-authenticating
+provenance.
+
+\subsection{Implementation diagnostic versus the prior campaign}
+
+Relative to the superseded \texttt{e2proper-dataf073752} campaign, mean
+\ours{} \(r=1024\) core time falls from
+\(23.1835\pm0.2543\) to \(7.7635\pm0.1882\)\,s, a \(2.986\times\)
+reduction, while selected training-loop time falls from
+\(33.3943\pm0.3742\) to \(18.4097\pm0.1995\)\,s, a \(1.814\times\)
+reduction.  This is diagnostic evidence for the optimized implementation,
+not a controlled hardware speedup: the prior campaign ran on host
+\texttt{n05}, the corrected campaign ran on \texttt{n02}, and CPU-model
+metadata were not recorded.  The prior JSONs also record neither a source nor
+binary hash, so the old executable cannot be reconstructed exactly.
+
+The optimized kernel is algebraically equivalent but changes FP32
+reassociation.  In the nonlinear thresholded training loop, refresh
+decisions and subsequent parameters can therefore diverge.  Prior and current
+\ours{} test MSE are \(0.551332\pm0.016693\) and
+\(0.564804\pm0.017907\), respectively, including changed outcomes for seeds
+that complete all 1,420 steps.  We report this sensitivity rather than
+attributing the MSE change to the time ceiling or selecting the favorable
+campaign.
+
+\paperchange{Replace the withdrawn checkpoint-truncated E2 table with
+Table~\ref{tab:e2-corrected}.  Describe the result as a common ten-epoch
+horizon with an independently calibrated upper time cutoff, not strict
+equal-compute training.  Remove the accuracy-win claim and state that the
+matched-rank paired result is consistent with numerical/execution-order
+variation around an exact update.}
 
 \section{E3: one-sided versus two-sided representations}
 \label{sec:e3}
@@ -1025,7 +1264,7 @@ Seed-max \(L^{-1}\) err. & Seed-max \(\Aw\) err. \\
 \end{table}
 
 Every tested refresh policy is faster than refactorizing every step in all ten
-seeds; the minimum paired speedup over all rows and seeds is \(2.05\times\).
+seeds; the minimum paired speedup over all rows and seeds is \(2.04\times\).
 Refreshing every 10 steps holds the global observed pre-refresh \(\Aw\) error below
 \(4.76\times10^{-7}\) across all ten seeds and ranks, but pays the highest
 refresh cost.  An interval of 50 steps holds the corresponding global
@@ -1199,6 +1438,14 @@ future work.}
   advantageous when an explicit dense operator is required: it beats fresh
   solves at the first tested width and beats drag-plus-materialization by
   \(p=512\).
+  \item \textbf{Q2, predictive accuracy.} Withdraw the claim that the exact
+  update itself improves test MSE.  Report the leakage-controlled E2
+  time-ceiling rerun in Table~\ref{tab:e2-corrected}: at matched
+  \(r=1024\), the paired \ours{}--\refact{} difference is
+  \(0.005079\pm0.005808\), with no accuracy-win evidence.  Retain the E1
+  matched-rank rows as independent supporting evidence, and do not describe
+  the lower-rank E2 rows as equal-compute because their ten-epoch cap leaves
+  most of the ceiling unused.
 \end{itemize}
 
 \subsection{Reviewer fdru}
@@ -1250,7 +1497,9 @@ future work.}
 The integrated response should emphasize six concrete changes:
 (i) a one-sided/two-sided regime table;
 (ii) corrected fixed-rank MSE wording, supported by the matched-rank
-Table~\ref{tab:e1} rows rather than a budget-truncated comparison;
+Table~\ref{tab:e1} rows and the leakage-controlled matched-rank result in
+Table~\ref{tab:e2-corrected}, while explicitly withdrawing the old
+checkpoint-truncated comparison;
 (iii) the E1 threshold sweep;
 (iv) forward and backward stability evidence plus a downdate guard;
 (v) supported fused CUDA batching and baseline-compatible parallel-fallback
@@ -1276,7 +1525,9 @@ condition-aware refresh policy and a self-contained measured ladder from
 It also identifies the limits of that result: the representation changes
 stored state, drift grows sharply under extreme conditioning, and fresh
 numerical correctness is checked only through \(r=32{,}768\).  More broadly,
-the update does not itself improve MSE,
+the corrected E2 matched-rank comparison gives a paired
+\ours{}--\refact{} MSE difference of \(0.005079\pm0.005808\) and provides no
+evidence that the update itself improves MSE,
 extreme FP32 whitening is not condition-number independent, and practical
 rank-\(k\) crossover is not justified by asymptotic flop counts alone.
 Incorporating these distinctions would make the revision more credible,
@@ -1318,13 +1569,40 @@ Files whose names contain \texttt{smoke}, tuning rows, and early reduced-rank
 diagnostics remain excluded from inferential summaries and final speedup
 claims.
 
+Corrected E2 is a separate post-audit campaign with the following paths,
+relative to the repository root:
+\begin{quote}
+\small
+Root: \path{Cholesky-main-2/corrected_incremental_cholesky/}\\
+Driver: \path{e2_budget_protein.py}\\
+Slurm entry point: \path{slurm/e2_budget_protein.sbatch}\\
+Artifacts: \path{results/e2_budget_protein/e2proper-fastpositive-v1/}
+\end{quote}
+Slurm job 393642 ran the three excluded pilots and twelve fixed evaluation
+runs on \texttt{n02}; the campaign tag is
+\texttt{e2proper-fastpositive-v1}.  All six \ours{} JSONs record source hash
+\texttt{b1c92d7f...d87b4}.
+The superseded \texttt{e2proper-dataf073752} campaign is retained only for
+the explicitly confounded timing diagnostic and is not pooled with the final
+evaluation; its raw JSONs survive, but its un-hashed historical executable
+does not.  The recovered Protein data file is identified in the campaign
+metadata by SHA-256 prefix \texttt{5ce538fa}; it is not a repository result
+artifact.
+
 \section{Limitations of the new evidence}
 
 {\small
 \begin{itemize}
-  \item The E1 sweep and its matched-rank comparison for E2 use a reconstructed
-  natural-gradient backend and do not reproduce submitted Setup~B; they should
-  not replace the submitted application results.
+  \item E1 uses a reconstructed natural-gradient backend and does not
+  reproduce submitted Setup~B; it should not replace the submitted
+  application results.
+  \item Corrected E2 uses the recovered Protein data but a newly reconstructed
+  driver rather than the missing submitted executable.  It has only three
+  evaluation seeds, and the ten-epoch cap leaves most of the frozen time
+  ceiling unused for \refact{} at \(r=256\) and \(r=512\), so only the
+  matched-\(r=1024\) result supports the causal accuracy comparison.  The
+  timing change from the prior diagnostic is also confounded by host
+  (\texttt{n05} versus \texttt{n02}) and floating-point trajectory changes.
   \item E3 evaluates general fixed-width \(M=BC^\top\), not the symmetric
   specialization or a single online-growing-factor trajectory.
   \item E4 uses synthetic controlled spectra and RBF kernels.  It isolates

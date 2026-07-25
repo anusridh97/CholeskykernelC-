@@ -1,0 +1,131 @@
+{
+  "budget": {
+    "budget_seconds": 18.562067728489637,
+    "campaign_tag": "e2proper-fastpositive-v1",
+    "evaluation_seeds": [
+      0,
+      1,
+      2
+    ],
+    "experiment": "e2_budget_calibration",
+    "pilot_seconds": [
+      17.840670635923743,
+      18.562067728489637,
+      18.604640234145336
+    ],
+    "pilot_seeds": [
+      1000,
+      1001,
+      1002
+    ],
+    "rule": "median 10-epoch Ours r=1024 training time over excluded pilot seeds [1000, 1001, 1002]",
+    "submitted_reference_budget_seconds": 198.0,
+    "test_values_used": false
+  },
+  "campaign_tag": "e2proper-fastpositive-v1",
+  "experiment": "e2_budget_matched_protein_summary",
+  "rows": [
+    {
+      "method": "ours",
+      "rank": 1024,
+      "selected_seconds_mean": 18.409702006843872,
+      "selected_seconds_sample_std": 0.1994605764199011,
+      "selected_seconds_values": [
+        18.182896460872144,
+        18.557802831404842,
+        18.48840672825463
+      ],
+      "steps_mean": 1415,
+      "steps_sample_std": 8.660254037844387,
+      "steps_values": [
+        1420,
+        1405,
+        1420
+      ],
+      "test_mse_mean": 0.5648040771484375,
+      "test_mse_sample_std": 0.017906512059534897,
+      "test_mse_values": [
+        0.5756571292877197,
+        0.5746189951896667,
+        0.544136106967926
+      ]
+    },
+    {
+      "method": "refact",
+      "rank": 256,
+      "selected_seconds_mean": 4.478590056921045,
+      "selected_seconds_sample_std": 0.12431803577933648,
+      "selected_seconds_values": [
+        4.537240451085381,
+        4.56273323635105,
+        4.335796483326703
+      ],
+      "steps_mean": 1420,
+      "steps_sample_std": 0.0,
+      "steps_values": [
+        1420,
+        1420,
+        1420
+      ],
+      "test_mse_mean": 0.550844669342041,
+      "test_mse_sample_std": 0.015841784932880697,
+      "test_mse_values": [
+        0.5380443930625916,
+        0.5685619115829468,
+        0.5459277033805847
+      ]
+    },
+    {
+      "method": "refact",
+      "rank": 512,
+      "selected_seconds_mean": 6.542165011594382,
+      "selected_seconds_sample_std": 0.09664719906388809,
+      "selected_seconds_values": [
+        6.558883203426376,
+        6.62936248339247,
+        6.438249347964302
+      ],
+      "steps_mean": 1420,
+      "steps_sample_std": 0.0,
+      "steps_values": [
+        1420,
+        1420,
+        1420
+      ],
+      "test_mse_mean": 0.5512362122535706,
+      "test_mse_sample_std": 0.018147623831882093,
+      "test_mse_values": [
+        0.5413855910301208,
+        0.5721790194511414,
+        0.5401440262794495
+      ]
+    },
+    {
+      "method": "refact",
+      "rank": 1024,
+      "selected_seconds_mean": 18.449157878329668,
+      "selected_seconds_sample_std": 0.18628753893486755,
+      "selected_seconds_values": [
+        18.23410303669516,
+        18.560760649386793,
+        18.552609948907048
+      ],
+      "steps_mean": 1382.3333333333333,
+      "steps_sample_std": 54.3721742560782,
+      "steps_values": [
+        1420,
+        1320,
+        1407
+      ],
+      "test_mse_mean": 0.5597247083981832,
+      "test_mse_sample_std": 0.0146364590450626,
+      "test_mse_values": [
+        0.5639874339103699,
+        0.5717566013336182,
+        0.5434300899505615
+      ]
+    }
+  ],
+  "selection_rule": "last completed batch at or below frozen budget",
+  "test_evaluations_per_run": 1
+}

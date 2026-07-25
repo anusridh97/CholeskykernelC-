@@ -1,0 +1,23 @@
+{
+  "budget_seconds": 33.7393257485237,
+  "campaign_tag": "e2proper-dataf073752",
+  "evaluation_seeds": [
+    0,
+    1,
+    2
+  ],
+  "experiment": "e2_budget_calibration",
+  "pilot_seconds": [
+    33.398553426610306,
+    33.91234297410119,
+    33.7393257485237
+  ],
+  "pilot_seeds": [
+    1000,
+    1001,
+    1002
+  ],
+  "rule": "median 10-epoch Ours r=1024 training time over excluded pilot seeds [1000, 1001, 1002]",
+  "submitted_reference_budget_seconds": 198.0,
+  "test_values_used": false
+}

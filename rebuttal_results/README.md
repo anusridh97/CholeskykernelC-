@@ -8,7 +8,7 @@ for the NeurIPS 2026 rebuttal experiments.
 The canonical raw artifact contains exactly 145 planned worker outputs:
 
 - `ng/`: 48 reconstructed natural-gradient runs used for E1 and the
-  matched-rank E2 equivalence argument;
+  original matched-rank equivalence check supporting E2;
 - `representation/`: E3 representation-crossover microbenchmarks;
 - `stability/`: E4 conditioning and downdate experiments;
 - `cuda/`: 11 planned E5 CUDA runs; and
@@ -17,6 +17,35 @@ The canonical raw artifact contains exactly 145 planned worker outputs:
 The budget-truncated E2 table was withdrawn from the report because its
 checkpoint boundary and test-set selection rule do not support a robust
 budget--accuracy claim.  Its raw training histories remain under `ng/`.
+
+## Corrected post-audit E2 campaign
+
+The report's final E2 evidence comes from the separate recovered-data campaign
+under `Cholesky-main-2/corrected_incremental_cholesky/`:
+
+- campaign tag `e2proper-fastpositive-v1`, Slurm job `393642`, host `n02`;
+- driver `e2_budget_protein.py` and batch script
+  `slurm/e2_budget_protein.sbatch`;
+- 17 artifacts under
+  `results/e2_budget_protein/e2proper-fastpositive-v1/`;
+- pilot seeds 1000--1002, excluded from evaluation and used only to freeze the
+  18.5620677 s ceiling; and
+- evaluation seeds 0--2, each tested exactly once after selecting the last
+  completed batch at or below the frozen ceiling.
+
+All six incremental pilot/evaluation JSONs record the optimized source hash
+`b1c92d7fcbca869eba625623b5d7ab440a38eceba79b715db2b8087dbf2d87b4`.
+The comparison is a time ceiling plus a ten-epoch cap, not strict
+equal-compute training: the lower-rank refactorization runs finish the cap
+with most of the ceiling unused.  The superseded
+`e2proper-dataf073752` campaign is retained only for the report's explicitly
+host-confounded implementation-timing diagnostic and is not pooled with the
+final evaluation.  Because that diagnostic had already used seeds 0--2 and
+the same test split, the corrected run eliminates within-run test checkpoint
+selection but is not a globally untouched test-set confirmation.  The prior
+campaign's raw JSONs survive under their campaign tag, but they record neither
+the source nor binary hash of the overwritten historical extension; that
+executable therefore cannot be reconstructed exactly.
 
 ## Authoritative post-audit E5 follow-ups
 
@@ -37,6 +66,16 @@ the following Slurm jobs:
 - `393491`: final recurrent inverse-versus-refactor ladder through
   rank 49,152; and
 - `393509`: final rank-65,536 comparison.
+
+Those jobs are retained as pilots and diagnostics.  All six final E5 tables
+use the ten-seed campaign `e5n10-2ee46ba` from job `393591`: 380 tagged JSON
+files, seeds 1--10, run serially in one 33:48 allocation on one H100
+(`0.5633` allocated H100-hours).  Regenerate and strictly audit those tables
+with:
+
+```bash
+python3 -m rebuttal_experiments.aggregate_e5n10
+```
 
 Configuration-selection jobs `393427` and `393466` are not mixed into the
 held-out or final-ladder summary statistics.  Smoke jobs are likewise excluded.
@@ -63,9 +102,12 @@ files therefore cannot leak into the regenerated summary.
 
 E1 uses `data/uci_protein/CASP.csv`, the UCI Protein regression dataset.
 Its source, CC BY 4.0 attribution, and SHA-256 checksum are recorded alongside
-the CSV.  E3 requires the `one_sided_cholesky` extension and E1 requires the
-tracked `student_pkg/fast_update.cpp` extension; build instructions are in
-`rebuttal_experiments/README.md`.
+the CSV.  Corrected E2 uses the recovered Protein `.mat` file identified in
+its run metadata by SHA-256 prefix `5ce538fa`; the dataset itself is not a
+result artifact.  E3 requires the `one_sided_cholesky` extension, E1 requires
+the tracked `student_pkg/fast_update.cpp` extension, and corrected E2 records
+the source path/hash of its local positive-update extension.  Build
+instructions for the planned suite are in `rebuttal_experiments/README.md`.
 
 ## Report
 

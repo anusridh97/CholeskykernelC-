@@ -1,0 +1,345 @@
+{
+  "architecture": [
+    9,
+    512,
+    512,
+    128,
+    1
+  ],
+  "attempted_steps": 1420,
+  "attempted_training_seconds": 33.398553426610306,
+  "batch_size": 256,
+  "budget_crossed": false,
+  "budget_seconds": null,
+  "campaign_tag": "e2proper-dataf073752",
+  "completed_epochs": 10,
+  "core_seconds": 23.427384986367542,
+  "d_param": 5120,
+  "damping": 1.0,
+  "data": {
+    "normalization": "fit on fixed 80% training partition only",
+    "path": "/users/ravid/git/CholeskykernelC-/Cholesky-main-2/data/protein.mat",
+    "sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13"
+  },
+  "environment": {
+    "host": "n05",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "python_threads": 10,
+    "slurm_job_id": "393600",
+    "torch": "2.12.0+cu126"
+  },
+  "experiment": "e2_budget_matched_protein",
+  "final_test_mse": null,
+  "final_train_mse": 0.5374006628990173,
+  "implementation": {
+    "baseline": null,
+    "incremental_extension": "/users/ravid/git/CholeskykernelC-/Cholesky-main-2/corrected_incremental_cholesky/fast_cholesky.so"
+  },
+  "learning_rate": 0.1,
+  "max_epochs": 10,
+  "max_reset_drift": 3.148969881294761e-06,
+  "mean_unexplained_energy": 0.062013064598441914,
+  "method": "ours",
+  "momentum": 0.9,
+  "partial_epoch_steps": 0,
+  "phase": "pilot",
+  "progress_training_only": [
+    {
+      "batch_mse": 0.928879976272583,
+      "step": 25,
+      "training_seconds": 0.7836346390540712
+    },
+    {
+      "batch_mse": 0.7524744272232056,
+      "step": 50,
+      "training_seconds": 1.3958366141887382
+    },
+    {
+      "batch_mse": 0.7965235710144043,
+      "step": 75,
+      "training_seconds": 2.017818734049797
+    },
+    {
+      "batch_mse": 0.7451447248458862,
+      "step": 100,
+      "training_seconds": 2.614002598100342
+    },
+    {
+      "batch_mse": 0.6975761651992798,
+      "step": 125,
+      "training_seconds": 3.200410987192299
+    },
+    {
+      "batch_mse": 0.6712163090705872,
+      "step": 150,
+      "training_seconds": 3.7840091242687777
+    },
+    {
+      "batch_mse": 0.7712100744247437,
+      "step": 175,
+      "training_seconds": 4.384865969186649
+    },
+    {
+      "batch_mse": 0.5896140933036804,
+      "step": 200,
+      "training_seconds": 5.006882254092488
+    },
+    {
+      "batch_mse": 0.7113329768180847,
+      "step": 225,
+      "training_seconds": 5.535758751095273
+    },
+    {
+      "batch_mse": 0.5890381932258606,
+      "step": 250,
+      "training_seconds": 6.119326480256859
+    },
+    {
+      "batch_mse": 0.606685996055603,
+      "step": 275,
+      "training_seconds": 6.769905106222723
+    },
+    {
+      "batch_mse": 0.6972959041595459,
+      "step": 300,
+      "training_seconds": 7.3321267333230935
+    },
+    {
+      "batch_mse": 0.5657500624656677,
+      "step": 325,
+      "training_seconds": 7.962204440438654
+    },
+    {
+      "batch_mse": 0.6976407170295715,
+      "step": 350,
+      "training_seconds": 8.614122099475935
+    },
+    {
+      "batch_mse": 0.6313225626945496,
+      "step": 375,
+      "training_seconds": 9.211281035561115
+    },
+    {
+      "batch_mse": 0.6158977746963501,
+      "step": 400,
+      "training_seconds": 9.83550054836087
+    },
+    {
+      "batch_mse": 0.6817032694816589,
+      "step": 425,
+      "training_seconds": 10.444977167411707
+    },
+    {
+      "batch_mse": 0.7180150747299194,
+      "step": 450,
+      "training_seconds": 11.028692320513073
+    },
+    {
+      "batch_mse": 0.5690743327140808,
+      "step": 475,
+      "training_seconds": 11.606306662666611
+    },
+    {
+      "batch_mse": 0.6163288950920105,
+      "step": 500,
+      "training_seconds": 12.182234567706473
+    },
+    {
+      "batch_mse": 0.6512185335159302,
+      "step": 525,
+      "training_seconds": 12.762202519748826
+    },
+    {
+      "batch_mse": 0.5839231014251709,
+      "step": 550,
+      "training_seconds": 13.306072196690366
+    },
+    {
+      "batch_mse": 0.5769335627555847,
+      "step": 575,
+      "training_seconds": 13.891638759640045
+    },
+    {
+      "batch_mse": 0.6592414379119873,
+      "step": 600,
+      "training_seconds": 14.460941183555406
+    },
+    {
+      "batch_mse": 0.5819603204727173,
+      "step": 625,
+      "training_seconds": 15.018892295658588
+    },
+    {
+      "batch_mse": 0.6305354833602905,
+      "step": 650,
+      "training_seconds": 15.62918358668685
+    },
+    {
+      "batch_mse": 0.6667345762252808,
+      "step": 675,
+      "training_seconds": 16.22343642276246
+    },
+    {
+      "batch_mse": 0.5159072279930115,
+      "step": 700,
+      "training_seconds": 16.810966465971433
+    },
+    {
+      "batch_mse": 0.616191029548645,
+      "step": 725,
+      "training_seconds": 17.411625367880333
+    },
+    {
+      "batch_mse": 0.6006910800933838,
+      "step": 750,
+      "training_seconds": 17.972354462894145
+    },
+    {
+      "batch_mse": 0.5895237326622009,
+      "step": 775,
+      "training_seconds": 18.58033070899546
+    },
+    {
+      "batch_mse": 0.6168834567070007,
+      "step": 800,
+      "training_seconds": 19.198098093969747
+    },
+    {
+      "batch_mse": 0.5895637273788452,
+      "step": 825,
+      "training_seconds": 19.715982511814218
+    },
+    {
+      "batch_mse": 0.5670464038848877,
+      "step": 850,
+      "training_seconds": 20.295862881815992
+    },
+    {
+      "batch_mse": 0.5904284715652466,
+      "step": 875,
+      "training_seconds": 20.91147320374148
+    },
+    {
+      "batch_mse": 0.5621713995933533,
+      "step": 900,
+      "training_seconds": 21.444350027653854
+    },
+    {
+      "batch_mse": 0.6100019216537476,
+      "step": 925,
+      "training_seconds": 22.033128205512185
+    },
+    {
+      "batch_mse": 0.490843802690506,
+      "step": 950,
+      "training_seconds": 22.650324063841254
+    },
+    {
+      "batch_mse": 0.5508959889411926,
+      "step": 975,
+      "training_seconds": 23.240189283911604
+    },
+    {
+      "batch_mse": 0.5324377417564392,
+      "step": 1000,
+      "training_seconds": 23.884785017871764
+    },
+    {
+      "batch_mse": 0.5437682271003723,
+      "step": 1025,
+      "training_seconds": 24.44660463888431
+    },
+    {
+      "batch_mse": 0.5836389064788818,
+      "step": 1050,
+      "training_seconds": 25.0443845478585
+    },
+    {
+      "batch_mse": 0.5968430042266846,
+      "step": 1075,
+      "training_seconds": 25.625633526884485
+    },
+    {
+      "batch_mse": 0.5148394703865051,
+      "step": 1100,
+      "training_seconds": 26.21127602690831
+    },
+    {
+      "batch_mse": 0.558459997177124,
+      "step": 1125,
+      "training_seconds": 26.77556014980655
+    },
+    {
+      "batch_mse": 0.5331271290779114,
+      "step": 1150,
+      "training_seconds": 27.303368716675323
+    },
+    {
+      "batch_mse": 0.5693171620368958,
+      "step": 1175,
+      "training_seconds": 27.91897033568239
+    },
+    {
+      "batch_mse": 0.5309808850288391,
+      "step": 1200,
+      "training_seconds": 28.481817493622657
+    },
+    {
+      "batch_mse": 0.5193746089935303,
+      "step": 1225,
+      "training_seconds": 29.04689707653597
+    },
+    {
+      "batch_mse": 0.7761946320533752,
+      "step": 1250,
+      "training_seconds": 29.57329984754324
+    },
+    {
+      "batch_mse": 0.5659912824630737,
+      "step": 1275,
+      "training_seconds": 30.13299106969498
+    },
+    {
+      "batch_mse": 0.47111356258392334,
+      "step": 1300,
+      "training_seconds": 30.753167468705215
+    },
+    {
+      "batch_mse": 0.5126676559448242,
+      "step": 1325,
+      "training_seconds": 31.344257383665536
+    },
+    {
+      "batch_mse": 0.6282647848129272,
+      "step": 1350,
+      "training_seconds": 31.88352625077823
+    },
+    {
+      "batch_mse": 0.5507871508598328,
+      "step": 1375,
+      "training_seconds": 32.447420989570674
+    },
+    {
+      "batch_mse": 0.6356093287467957,
+      "step": 1400,
+      "training_seconds": 32.96892055461649
+    }
+  ],
+  "rank": 1024,
+  "refactor_every": 50,
+  "refresh_count": 196,
+  "refresh_seconds": 6.802539781667292,
+  "refresh_threshold": 0.1,
+  "reset_seconds": 0.19374733581207693,
+  "seed": 1000,
+  "selected_batch_mse": 0.4624731242656708,
+  "selected_steps": 1420,
+  "selected_training_seconds": 33.398553426610306,
+  "selection_rule": "last completed batch at or below frozen budget",
+  "split_seed": 42,
+  "steps_per_epoch": 142,
+  "test_evaluations": 0,
+  "test_examples": 9146,
+  "threads": 10,
+  "train_examples": 36584
+}
