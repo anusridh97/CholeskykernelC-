@@ -43,8 +43,24 @@ def _vectors(rank: int, seed: int) -> tuple[torch.Tensor, torch.Tensor]:
     return z.contiguous(), w.contiguous()
 
 
-def _finite(tensor: torch.Tensor) -> bool:
-    return bool(torch.isfinite(tensor).all().item())
+def _finite(tensor: torch.Tensor, chunk_elements: int = 1 << 26) -> bool:
+    """Check every element without materializing a tensor-sized predicate.
+
+    A dense FP32 rank-65536 matrix occupies 16 GiB.  The eager expression
+    ``torch.isfinite(tensor).all()`` can request another matrix-sized buffer,
+    which does not fit beside the four recurrent state matrices on an 80 GB
+    H100.  Row chunks work for both row-major state and column-major Cholesky
+    output while bounding the predicate buffer to roughly 64 MiB.
+    """
+    rows = tensor.shape[-2]
+    elements_per_row = tensor.numel() // rows
+    rows_per_chunk = max(1, chunk_elements // elements_per_row)
+    for start in range(0, rows, rows_per_chunk):
+        stop = start + rows_per_chunk
+        finite_chunk = torch.isfinite(tensor[..., start:stop, :])
+        if not bool(finite_chunk.all().item()):
+            return False
+    return True
 
 
 def run_inverse(args: argparse.Namespace) -> dict:
