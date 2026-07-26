@@ -20,11 +20,13 @@ tag is intentionally not edited.
 The first locked attempt, `blackhole-s4-v1-locked-rerun1` (Slurm array
 `393982`), failed closed before any numerical code ran.  Marlowe's `batch`
 partition allocated 12 CPU cores to each one-H100 task even though four were
-requested, so the four-core lock rejected every task after it created its
-persistent claim.  All seven failed claims and logs are retained and no result
-JSON exists for that attempt.  Rerun 2 records the scheduler's actual
-12-core allocation; this is an execution-metadata correction only and does
-not alter the unmodified numerical driver or any frozen experimental choice.
+requested: its 17,000-MiB maximum memory per CPU rounded the requested 192 GiB
+to 12 allocated CPUs.  The four-core lock therefore rejected every task after
+it created its persistent claim.  All seven failed claims and logs are
+retained and no result JSON exists for that attempt.  Rerun 2 records the
+scheduler's actual 12-core allocation; this is an execution-metadata
+correction only and does not alter the unmodified numerical driver or any
+frozen experimental choice.
 The outer verifier now rejects any account other than
 `marlowe-m000151-pm06`, any partition other than `batch`, and any allocated
 CPU count other than 12 before invoking the numerical driver.
@@ -117,6 +119,8 @@ sbatch \
   --account="marlowe-m000151-pm06" \
   --partition="batch" \
   --qos="medium" \
+  --cpus-per-task=12 \
+  --mem=192G \
   --array=0-6%7 \
   --output="$campaign_dir/logs/ladder-%A_%a.out" \
   --error="$campaign_dir/logs/ladder-%A_%a.err" \

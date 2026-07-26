@@ -1421,6 +1421,13 @@ def self_test(args: argparse.Namespace) -> None:
             lambda: _slurm_metadata(RANKS[0]),
             "rerun-1 four-core allocation",
         )
+    excessive_cpu_environment = dict(slurm_environment)
+    excessive_cpu_environment["SLURM_CPUS_PER_TASK"] = "13"
+    with patch.dict(os.environ, excessive_cpu_environment):
+        expect_locked_error(
+            lambda: _slurm_metadata(RANKS[0]),
+            "non-frozen 13-core allocation",
+        )
 
     with tempfile.TemporaryDirectory(prefix="blackhole-lock-self-test-") as temporary:
         root = Path(temporary)
