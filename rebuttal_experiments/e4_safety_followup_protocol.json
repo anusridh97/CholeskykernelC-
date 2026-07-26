@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "campaign_tag": "e4-safety-followup-v1",
+  "status": "frozen_before_confirmation",
+  "label": "Post-hoc safety follow-up; does not replace or alter e4-direct-confirm-v1.",
+  "objective": "Test a fixed O(r^2) randomized residual guard with precision promotion or exact refresh in the deliberately ill-conditioned near-duplicate-kernel stress test.",
+  "problem": {
+    "rank": 128,
+    "jitter": 1e-06,
+    "deltas": [
+      0.1,
+      0.01,
+      0.001,
+      0.0001,
+      0.00001,
+      0.000001
+    ],
+    "operators": [
+      "cumulative",
+      "random"
+    ],
+    "starting_precisions": [
+      "float32",
+      "float64"
+    ],
+    "steps": 100,
+    "update_scale": 0.01,
+    "confirmation_seeds": [
+      46001,
+      46002,
+      46003,
+      46004,
+      46005,
+      46006,
+      46007,
+      46008,
+      46009,
+      46010,
+      46011,
+      46012,
+      46013,
+      46014,
+      46015,
+      46016,
+      46017,
+      46018,
+      46019,
+      46020
+    ]
+  },
+  "authoritative_state_policy": "Quantize initial G, M, and every update vector to the declared starting precision, then accumulate authoritative G and M in FP64 from exactly those quantized values. Promotion cannot recover bits absent from the starting-precision stream.",
+  "guard": {
+    "probe_count": 8,
+    "probe_distribution": "Rademacher {-1,+1}",
+    "probe_seed_rule": "seed + 99001",
+    "probe_reuse": "One fixed rank-by-8 probe matrix per problem seed, paired across operators, deltas, and starting precisions.",
+    "estimated_residual": "||[L Aw L^T - M] Q||_F / ||M Q||_F",
+    "evaluation_frequency": "After initialization and after every update, before any guard action.",
+    "safety_factor": 2.0,
+    "float32_limit": 0.0005,
+    "float32_trigger": 0.00025,
+    "float64_limit": 1e-10,
+    "float64_trigger": 5e-11,
+    "float32_action": "Promote L and Aw to FP64 by exact Cholesky factorization and complete rewhitening from authoritative G and M; never demote.",
+    "float64_action": "Exact FP64 Cholesky factorization and complete rewhitening from authoritative G and M.",
+    "exact_residual_dispatch_forbidden": true
+  },
+  "diagnostics": {
+    "exact_residual": "||L Aw L^T - M||_F / ||M||_F",
+    "exact_residual_frequency": "Before and after the guard at every step.",
+    "role": "Confirmation evaluation only; exact residual is never read by dispatch.",
+    "record_every_step": true,
+    "record_every_failure": true
+  },
+  "predeclared_scientific_criteria": {
+    "all_trajectories_complete": true,
+    "maximum_post_policy_exact_residual_float32_start": 0.0005,
+    "maximum_post_policy_exact_residual_float64_start": 1e-10,
+    "false_negative_count": 0,
+    "false_negative_definition": "A pre-guard exact residual above the active dtype limit while the probe estimate is at or below the active dtype half-limit.",
+    "bounded_cumulative_promotions": "descriptive_only",
+    "timing_claims": false
+  },
+  "statistical_unit": "One independently generated problem seed; the 101 within-trajectory records are repeated measures.",
+  "development_inventory": "rebuttal_experiments/e4_safety_development_inventory.json",
+  "original_e4_audit": "rebuttal_results/e4_direct_confirmation/e4-direct-confirm-v1/audit_summary.json",
+  "original_e4_status_must_remain": "criteria_failed",
+  "resource_contract": {
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "qos": "medium",
+    "nodes": 1,
+    "processes": 1,
+    "physical_cpus_per_process": 1,
+    "omp_threads": 1,
+    "mkl_threads": 1,
+    "openblas_threads": 1,
+    "exclusive_node": true
+  },
+  "artifact_policy": {
+    "write_once": true,
+    "claim_before_science": true,
+    "journal_fsync_each_trajectory": true,
+    "retain_all_failures": true,
+    "confirmation_outcome_reruns_forbidden": true
+  },
+  "paths": {
+    "source_lock": "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/source_lock.json",
+    "preflight": "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/preflight.json",
+    "attempt": "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/attempt.json",
+    "journal": "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/rows.jsonl",
+    "result": "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/result.json",
+    "audit": "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/audit_summary.json"
+  }
+}

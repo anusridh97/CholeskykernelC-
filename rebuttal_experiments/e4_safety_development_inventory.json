@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "experiment": "e4_posthoc_safety_policy_development_inventory",
+  "status": "closed_before_confirmation",
+  "policy_scope": "Post-hoc safety follow-up only; this inventory does not alter or reinterpret e4-direct-confirm-v1 or its criteria_failed scientific status.",
+  "development_environment": {
+    "host_class": "Marlowe login host",
+    "threads": 1,
+    "torch": "2.12.0+cu126",
+    "implementation_source": "Cholesky-main-2/corrected_incremental_cholesky/fast_update.cpp",
+    "implementation_source_sha256": "b1c92d7fcbca869eba625623b5d7ab440a38eceba79b715db2b8087dbf2d87b4"
+  },
+  "fixed_problem": {
+    "rank": 128,
+    "jitter": 1e-06,
+    "deltas": [
+      0.1,
+      0.01,
+      0.001,
+      0.0001,
+      0.00001,
+      0.000001
+    ],
+    "operators": [
+      "cumulative",
+      "random"
+    ],
+    "starting_precisions": [
+      "float32",
+      "float64"
+    ],
+    "steps": 100,
+    "probe_count": 8,
+    "probe_distribution": "torch fixed-seed Rademacher {-1,+1}, one rank-by-8 matrix reused for the trajectory",
+    "authoritative_state": "G and M are accumulated in FP64 from inputs first quantized to the declared starting precision"
+  },
+  "selection": {
+    "seeds": [
+      45001,
+      45002,
+      45003
+    ],
+    "candidate_safety_factors": [
+      {
+        "factor": 1.0,
+        "float32_random_max_post_exact": 0.0005529154910893945,
+        "float32_random_refresh_count": 10,
+        "float32_random_promotion_count": 9,
+        "float32_random_false_negative_count": 10,
+        "float64_random_max_post_exact": 1.0724169941049391e-10,
+        "float64_random_refresh_count": 1,
+        "float64_random_false_negative_count": 11
+      },
+      {
+        "factor": 1.5,
+        "float32_random_max_post_exact": 0.00015137922272611272,
+        "float32_random_refresh_count": 14,
+        "float32_random_promotion_count": 9,
+        "float32_random_false_negative_count": 0,
+        "float64_random_max_post_exact": 8.18392915703396e-11,
+        "float64_random_refresh_count": 5,
+        "float64_random_false_negative_count": 0
+      },
+      {
+        "factor": 2.0,
+        "float32_random_max_post_exact": 0.00015137922272611272,
+        "float32_random_refresh_count": 23,
+        "float32_random_promotion_count": 9,
+        "float32_random_false_negative_count": 0,
+        "float64_random_max_post_exact": 6.141275635412716e-11,
+        "float64_random_refresh_count": 12,
+        "float64_random_false_negative_count": 0
+      },
+      {
+        "factor": 3.0,
+        "float32_random_max_post_exact": 0.00014042126779754144,
+        "float32_random_refresh_count": 47,
+        "float32_random_promotion_count": 9,
+        "float32_random_false_negative_count": 0,
+        "float64_random_max_post_exact": 4.065322393832385e-11,
+        "float64_random_refresh_count": 32,
+        "float64_random_false_negative_count": 0
+      },
+      {
+        "factor": 4.0,
+        "float32_random_max_post_exact": 0.0001182284194525583,
+        "float32_random_refresh_count": 116,
+        "float32_random_promotion_count": 9,
+        "float32_random_false_negative_count": 0,
+        "float64_random_max_post_exact": 3.3503324841894256e-11,
+        "float64_random_refresh_count": 80,
+        "float64_random_false_negative_count": 0
+      }
+    ],
+    "selected_safety_factor": 2.0,
+    "selection_rule": "Choose the least conservative integer factor with zero observed false negatives and both unchanged precision-specific thresholds satisfied; factor 1 failed both precision criteria.",
+    "candidate_implementation_note": "The candidate sweep used exact post-refresh residual only to decide whether an FP32 refresh also promoted. The frozen policy is simpler and at least as conservative: any FP32 half-threshold probe trigger promotes. The selected factor was rerun under that final dispatch below."
+  },
+  "final_policy_development_rerun": {
+    "selection_seed_results": {
+      "float32_cumulative": {
+        "trajectory_count": 18,
+        "maximum_post_policy_exact_residual": 2.395228467217428e-06,
+        "total_guard_actions": 0,
+        "maximum_guard_actions_per_trajectory": 0,
+        "promotion_count": 0,
+        "false_negative_count": 0
+      },
+      "float32_random": {
+        "trajectory_count": 18,
+        "maximum_post_policy_exact_residual": 0.00015137922272611272,
+        "total_guard_actions": 23,
+        "maximum_guard_actions_per_trajectory": 7,
+        "promotion_count": 9,
+        "false_negative_count": 0
+      },
+      "float64_cumulative": {
+        "trajectory_count": 18,
+        "maximum_post_policy_exact_residual": 3.788736213499259e-15,
+        "total_guard_actions": 0,
+        "maximum_guard_actions_per_trajectory": 0,
+        "promotion_count": 0,
+        "false_negative_count": 0
+      },
+      "float64_random": {
+        "trajectory_count": 18,
+        "maximum_post_policy_exact_residual": 6.141275635412716e-11,
+        "total_guard_actions": 12,
+        "maximum_guard_actions_per_trajectory": 5,
+        "promotion_count": 0,
+        "false_negative_count": 0
+      }
+    },
+    "check_seeds": [
+      45004,
+      45005,
+      45006,
+      45007,
+      45008,
+      45009,
+      45010
+    ],
+    "check_seed_results": {
+      "float32_cumulative": {
+        "trajectory_count": 42,
+        "maximum_post_policy_exact_residual": 1.8073032337887887e-06,
+        "total_guard_actions": 0,
+        "maximum_guard_actions_per_trajectory": 0,
+        "promotion_count": 0,
+        "false_negative_count": 0
+      },
+      "float32_random": {
+        "trajectory_count": 42,
+        "maximum_post_policy_exact_residual": 0.00021937917812715069,
+        "total_guard_actions": 47,
+        "maximum_guard_actions_per_trajectory": 6,
+        "promotion_count": 22,
+        "false_negative_count": 0
+      },
+      "float64_cumulative": {
+        "trajectory_count": 42,
+        "maximum_post_policy_exact_residual": 2.80381606628387e-15,
+        "total_guard_actions": 0,
+        "maximum_guard_actions_per_trajectory": 0,
+        "promotion_count": 0,
+        "false_negative_count": 0
+      },
+      "float64_random": {
+        "trajectory_count": 42,
+        "maximum_post_policy_exact_residual": 7.325541576873288e-11,
+        "total_guard_actions": 21,
+        "maximum_guard_actions_per_trajectory": 4,
+        "promotion_count": 0,
+        "false_negative_count": 0
+      }
+    },
+    "outcome_used_for_further_tuning": false
+  },
+  "retrospective_nonconfirmatory_check": {
+    "source_campaign": "e4-direct-confirm-v1",
+    "source_seeds": [
+      43001,
+      43002,
+      43003,
+      43004,
+      43005,
+      43006,
+      43007,
+      43008,
+      43009,
+      43010
+    ],
+    "timing": "performed only after factor 2 was selected on 45001-45003",
+    "role": "sanity check only; not used to tune, select, or rerun the frozen follow-up",
+    "maximum_post_policy_exact_residual_float32": 0.0004935460134223872,
+    "maximum_post_policy_exact_residual_float64": 5.977426177828537e-11,
+    "false_negative_count": 0,
+    "implementation_note": "This retrospective check used the candidate exact-after-refresh FP32 promotion condition, not the final more conservative probe-only promotion rule."
+  },
+  "future_confirmation": {
+    "seeds": [
+      46001,
+      46002,
+      46003,
+      46004,
+      46005,
+      46006,
+      46007,
+      46008,
+      46009,
+      46010,
+      46011,
+      46012,
+      46013,
+      46014,
+      46015,
+      46016,
+      46017,
+      46018,
+      46019,
+      46020
+    ],
+    "outcomes_inspected": false,
+    "artifacts_created": false,
+    "rerun_policy": "No tuning, filtering, early stopping, or rerun based on confirmation outcomes. Preserve all failures."
+  }
+}
