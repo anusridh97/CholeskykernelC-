@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/scratch/m000151-pm06/e5-locked-confirm-v1/repo/rebuttal_experiments/e5_locked_confirmation.py", line 675, in <module>
+    raise SystemExit(main())
+  File "/scratch/m000151-pm06/e5-locked-confirm-v1/repo/rebuttal_experiments/e5_locked_confirmation.py", line 670, in main
+    args.function(args)
+  File "/scratch/m000151-pm06/e5-locked-confirm-v1/repo/rebuttal_experiments/e5_locked_confirmation.py", line 547, in command_preflight
+    source = verify_lock(args.repository, args.lock)
+  File "/scratch/m000151-pm06/e5-locked-confirm-v1/repo/rebuttal_experiments/e5_locked_confirmation.py", line 409, in verify_lock
+    raise LockError(
+__main__.LockError: runtime mismatch: {'python_executable': '/usr/bin/python3.10', 'python_sha256': '7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86', 'python_version': '3.10.12', 'torch': '2.12.0+cu126', 'torch_cuda': '12.6', 'cudnn': 91002, 'numpy': '2.2.6', 'triton': '3.7.0', 'matmul_allow_tf32': False, 'cudnn_allow_tf32': True, 'float32_matmul_precision': 'highest'} != {'python_executable': '/usr/bin/python3', 'python_sha256': '7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86', 'python_version': '3.10.12', 'torch': '2.12.0+cu126', 'torch_cuda': '12.6', 'cudnn': 91002, 'numpy': '2.2.6', 'triton': '3.7.0', 'matmul_allow_tf32': False, 'cudnn_allow_tf32': True, 'float32_matmul_precision': 'highest'}

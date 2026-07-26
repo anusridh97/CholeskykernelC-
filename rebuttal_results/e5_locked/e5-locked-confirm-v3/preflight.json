@@ -1,0 +1,52 @@
+{
+  "campaign_tag": "e5-locked-confirm-v3",
+  "data_free": true,
+  "gpu": {
+    "driver": "565.57.01",
+    "nvidia_smi_memory_mib": 81559,
+    "nvidia_smi_name": "NVIDIA H100 80GB HBM3",
+    "torch_name": "NVIDIA H100 80GB HBM3",
+    "torch_total_memory": 85045477376,
+    "uuid": "GPU-7865e70b-228c-72c0-63f9-f95d231a4252"
+  },
+  "host": "n05",
+  "numerical_driver_imported": false,
+  "scheduler": {
+    "account": "marlowe-m000151-pm06",
+    "array_job_id": null,
+    "array_task_id": null,
+    "cpu_affinity": [
+      36,
+      37,
+      38,
+      39
+    ],
+    "cpus_per_task": 4,
+    "cuda_visible_devices": "0",
+    "job_id": "394554",
+    "partition": "batch",
+    "qos": "medium",
+    "scontrol_show_job": "JobId=394554 JobName=e5-lock-preflight UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:05 TimeLimit=00:05:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:29 EligibleTime=2026-07-25T22:53:29 AccrueTime=2026-07-25T22:53:29 StartTime=2026-07-25T22:53:30 EndTime=2026-07-25T22:58:30 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:29 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:30 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143266 ReqNodeList=(null) ExcNodeList=(null) NodeList=n05 BatchHost=n05 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=16G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=16G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=16G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_preflight.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-lock-preflight-394554.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-lock-preflight-394554.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4"
+  },
+  "schema_version": "e5_locked_confirmation_preflight_v1",
+  "source": {
+    "campaign_commit": "799caf46780bdd853403bf263b83d2204c451030",
+    "implementation_commit": "b3d5b066cd9b7c480de88bea7f8d3fcbb786cfb7",
+    "lock_path": "/scratch/m000151-pm06/e5-locked-confirm-v3/artifacts/campaign_lock.json",
+    "lock_sha256": "e9cbc1ec5ddc9f45efc64f6d6b8db9a8b3ae450e7b88fd010f6fa5bd01a85838",
+    "runtime": {
+      "cudnn": 91002,
+      "cudnn_allow_tf32": true,
+      "float32_matmul_precision": "highest",
+      "matmul_allow_tf32": false,
+      "numpy": "2.2.6",
+      "python_executable": "/usr/bin/python3",
+      "python_resolved_executable": "/usr/bin/python3.10",
+      "python_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+      "python_version": "3.10.12",
+      "torch": "2.12.0+cu126",
+      "torch_cuda": "12.6",
+      "triton": "3.7.0"
+    }
+  }
+}

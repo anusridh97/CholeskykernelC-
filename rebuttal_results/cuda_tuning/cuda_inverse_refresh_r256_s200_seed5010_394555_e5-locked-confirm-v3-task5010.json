@@ -1,0 +1,304 @@
+{
+  "environment": {
+    "cuda": "12.6",
+    "gpu": "NVIDIA H100 80GB HBM3",
+    "gpu_total_memory": 85045477376,
+    "host": "n01",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "slurm_array_job_id": "394555",
+    "slurm_array_task_id": "9",
+    "slurm_job_id": "394555",
+    "torch": "2.12.0+cu126"
+  },
+  "experiment": "cuda_inverse_refresh",
+  "fresh_event_seconds_per_update": 0.000249025764465332,
+  "fresh_event_seconds_total": 0.049805152893066404,
+  "fresh_peak_allocated_bytes_including_harness": 38430720,
+  "fresh_wall_seconds_per_update": 0.00024937209498602895,
+  "fresh_wall_seconds_total": 0.049874418997205794,
+  "output_suffix": "e5-locked-confirm-v3-task5010",
+  "rank": 256,
+  "refresh_intervals": [
+    0,
+    10,
+    50,
+    100,
+    200
+  ],
+  "rows": [
+    {
+      "Aw_relative_error": 4.835277195525123e-06,
+      "Linv_relative_error": 2.727965693338774e-06,
+      "algorithm_persistent_dense_matrices": 5,
+      "benchmark_additional_identity_matrix": true,
+      "event_seconds_per_update": 0.00010082927703857422,
+      "event_seconds_total": 0.020165855407714844,
+      "event_speedup_vs_fresh_every_step": 2.4697763564253497,
+      "final_tail_age": 200,
+      "max_pre_refresh_Aw_relative_error": 4.835277195525123e-06,
+      "max_pre_refresh_Linv_relative_error": 2.727965693338774e-06,
+      "peak_allocated_bytes_including_harness": 40012800,
+      "pre_refresh_errors": [
+        {
+          "Aw_relative_error": 4.835277195525123e-06,
+          "Linv_relative_error": 2.727965693338774e-06,
+          "age_since_refresh": 200,
+          "step": 200
+        }
+      ],
+      "refresh_count": 0,
+      "refresh_interval": 0,
+      "wall_seconds_per_update": 0.00010107041976880283,
+      "wall_seconds_total": 0.020214083953760564,
+      "wall_speedup_vs_fresh_every_step": 2.467310371881943
+    },
+    {
+      "Aw_relative_error": 0.0,
+      "Linv_relative_error": 0.0,
+      "algorithm_persistent_dense_matrices": 5,
+      "benchmark_additional_identity_matrix": true,
+      "event_seconds_per_update": 0.00011867136001586913,
+      "event_seconds_total": 0.023734272003173826,
+      "event_speedup_vs_fresh_every_step": 2.0984487279157453,
+      "final_tail_age": 0,
+      "max_pre_refresh_Aw_relative_error": 4.30522618444229e-07,
+      "max_pre_refresh_Linv_relative_error": 2.7357566523278365e-07,
+      "peak_allocated_bytes_including_harness": 43428864,
+      "pre_refresh_errors": [
+        {
+          "Aw_relative_error": 4.246190599133115e-07,
+          "Linv_relative_error": 2.635587748045509e-07,
+          "age_since_refresh": 10,
+          "step": 10
+        },
+        {
+          "Aw_relative_error": 4.091662049177103e-07,
+          "Linv_relative_error": 2.58834376154482e-07,
+          "age_since_refresh": 10,
+          "step": 20
+        },
+        {
+          "Aw_relative_error": 4.2423880586284213e-07,
+          "Linv_relative_error": 2.661584517227311e-07,
+          "age_since_refresh": 10,
+          "step": 30
+        },
+        {
+          "Aw_relative_error": 4.2418366774654714e-07,
+          "Linv_relative_error": 2.582751505997294e-07,
+          "age_since_refresh": 10,
+          "step": 40
+        },
+        {
+          "Aw_relative_error": 4.2385156007185287e-07,
+          "Linv_relative_error": 2.6707223810262803e-07,
+          "age_since_refresh": 10,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 4.0171860860027664e-07,
+          "Linv_relative_error": 2.559151823788852e-07,
+          "age_since_refresh": 10,
+          "step": 60
+        },
+        {
+          "Aw_relative_error": 4.171783984929789e-07,
+          "Linv_relative_error": 2.6067419867104036e-07,
+          "age_since_refresh": 10,
+          "step": 70
+        },
+        {
+          "Aw_relative_error": 4.2875353756244294e-07,
+          "Linv_relative_error": 2.7357566523278365e-07,
+          "age_since_refresh": 10,
+          "step": 80
+        },
+        {
+          "Aw_relative_error": 4.30522618444229e-07,
+          "Linv_relative_error": 2.7108612243864627e-07,
+          "age_since_refresh": 10,
+          "step": 90
+        },
+        {
+          "Aw_relative_error": 4.0571600834482524e-07,
+          "Linv_relative_error": 2.47975521006083e-07,
+          "age_since_refresh": 10,
+          "step": 100
+        },
+        {
+          "Aw_relative_error": 4.077011226399918e-07,
+          "Linv_relative_error": 2.498010758245073e-07,
+          "age_since_refresh": 10,
+          "step": 110
+        },
+        {
+          "Aw_relative_error": 4.1286929786110704e-07,
+          "Linv_relative_error": 2.543225434692431e-07,
+          "age_since_refresh": 10,
+          "step": 120
+        },
+        {
+          "Aw_relative_error": 4.100442936305626e-07,
+          "Linv_relative_error": 2.5676970949461975e-07,
+          "age_since_refresh": 10,
+          "step": 130
+        },
+        {
+          "Aw_relative_error": 4.1011696794157615e-07,
+          "Linv_relative_error": 2.567063859260088e-07,
+          "age_since_refresh": 10,
+          "step": 140
+        },
+        {
+          "Aw_relative_error": 4.277949585684837e-07,
+          "Linv_relative_error": 2.639590377384593e-07,
+          "age_since_refresh": 10,
+          "step": 150
+        },
+        {
+          "Aw_relative_error": 4.25368654077829e-07,
+          "Linv_relative_error": 2.6317169954381825e-07,
+          "age_since_refresh": 10,
+          "step": 160
+        },
+        {
+          "Aw_relative_error": 3.970148441112542e-07,
+          "Linv_relative_error": 2.4819880195536825e-07,
+          "age_since_refresh": 10,
+          "step": 170
+        },
+        {
+          "Aw_relative_error": 4.0768674125502e-07,
+          "Linv_relative_error": 2.4713426682865247e-07,
+          "age_since_refresh": 10,
+          "step": 180
+        },
+        {
+          "Aw_relative_error": 3.9420513076038333e-07,
+          "Linv_relative_error": 2.5527245384182606e-07,
+          "age_since_refresh": 10,
+          "step": 190
+        },
+        {
+          "Aw_relative_error": 3.9821171071707795e-07,
+          "Linv_relative_error": 2.552346245465742e-07,
+          "age_since_refresh": 10,
+          "step": 200
+        }
+      ],
+      "refresh_count": 20,
+      "refresh_interval": 10,
+      "wall_seconds_per_update": 0.00011888923996593804,
+      "wall_seconds_total": 0.023777847993187606,
+      "wall_speedup_vs_fresh_every_step": 2.097516100342424
+    },
+    {
+      "Aw_relative_error": 0.0,
+      "Linv_relative_error": 0.0,
+      "algorithm_persistent_dense_matrices": 5,
+      "benchmark_additional_identity_matrix": true,
+      "event_seconds_per_update": 0.00010182208061218261,
+      "event_seconds_total": 0.020364416122436522,
+      "event_speedup_vs_fresh_every_step": 2.4456951082527483,
+      "final_tail_age": 0,
+      "max_pre_refresh_Aw_relative_error": 1.3421465610008454e-06,
+      "max_pre_refresh_Linv_relative_error": 7.799793024787505e-07,
+      "peak_allocated_bytes_including_harness": 43428864,
+      "pre_refresh_errors": [
+        {
+          "Aw_relative_error": 1.3421465610008454e-06,
+          "Linv_relative_error": 7.799793024787505e-07,
+          "age_since_refresh": 50,
+          "step": 50
+        },
+        {
+          "Aw_relative_error": 1.3184730960347224e-06,
+          "Linv_relative_error": 7.663189194317965e-07,
+          "age_since_refresh": 50,
+          "step": 100
+        },
+        {
+          "Aw_relative_error": 1.3073780564809567e-06,
+          "Linv_relative_error": 7.471580261153576e-07,
+          "age_since_refresh": 50,
+          "step": 150
+        },
+        {
+          "Aw_relative_error": 1.2645434708247194e-06,
+          "Linv_relative_error": 7.118988492038625e-07,
+          "age_since_refresh": 50,
+          "step": 200
+        }
+      ],
+      "refresh_count": 4,
+      "refresh_interval": 50,
+      "wall_seconds_per_update": 0.00010198814503382891,
+      "wall_seconds_total": 0.020397629006765783,
+      "wall_speedup_vs_fresh_every_step": 2.4451086437871146
+    },
+    {
+      "Aw_relative_error": 0.0,
+      "Linv_relative_error": 0.0,
+      "algorithm_persistent_dense_matrices": 5,
+      "benchmark_additional_identity_matrix": true,
+      "event_seconds_per_update": 0.00010015791893005371,
+      "event_seconds_total": 0.02003158378601074,
+      "event_speedup_vs_fresh_every_step": 2.4863312569347777,
+      "final_tail_age": 0,
+      "max_pre_refresh_Aw_relative_error": 2.520836687835981e-06,
+      "max_pre_refresh_Linv_relative_error": 1.4449402669924893e-06,
+      "peak_allocated_bytes_including_harness": 43428864,
+      "pre_refresh_errors": [
+        {
+          "Aw_relative_error": 2.520836687835981e-06,
+          "Linv_relative_error": 1.4449402669924893e-06,
+          "age_since_refresh": 100,
+          "step": 100
+        },
+        {
+          "Aw_relative_error": 2.4323808247572742e-06,
+          "Linv_relative_error": 1.3639188409797498e-06,
+          "age_since_refresh": 100,
+          "step": 200
+        }
+      ],
+      "refresh_count": 2,
+      "refresh_interval": 100,
+      "wall_seconds_per_update": 0.00010031579528003931,
+      "wall_seconds_total": 0.020063159056007862,
+      "wall_speedup_vs_fresh_every_step": 2.485870687561091
+    },
+    {
+      "Aw_relative_error": 0.0,
+      "Linv_relative_error": 0.0,
+      "algorithm_persistent_dense_matrices": 5,
+      "benchmark_additional_identity_matrix": true,
+      "event_seconds_per_update": 9.939087867736815e-05,
+      "event_seconds_total": 0.01987817573547363,
+      "event_speedup_vs_fresh_every_step": 2.505519296933598,
+      "final_tail_age": 0,
+      "max_pre_refresh_Aw_relative_error": 4.835277195525123e-06,
+      "max_pre_refresh_Linv_relative_error": 2.727965693338774e-06,
+      "peak_allocated_bytes_including_harness": 43428864,
+      "pre_refresh_errors": [
+        {
+          "Aw_relative_error": 4.835277195525123e-06,
+          "Linv_relative_error": 2.727965693338774e-06,
+          "age_since_refresh": 200,
+          "step": 200
+        }
+      ],
+      "refresh_count": 1,
+      "refresh_interval": 200,
+      "wall_seconds_per_update": 9.955455490853637e-05,
+      "wall_seconds_total": 0.019910910981707275,
+      "wall_speedup_vs_fresh_every_step": 2.5048788095646075
+    }
+  ],
+  "seed": 5010,
+  "setup_num_warps": 8,
+  "steps": 200,
+  "sweep_num_warps": 8,
+  "tile_cols": 8,
+  "tile_rows": 2
+}

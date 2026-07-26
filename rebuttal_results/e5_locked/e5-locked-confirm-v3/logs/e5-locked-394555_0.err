@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/e5_locked_confirmation.py", line 691, in <module>
+    raise SystemExit(main())
+  File "/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/e5_locked_confirmation.py", line 686, in main
+    args.function(args)
+  File "/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/e5_locked_confirmation.py", line 633, in command_attest_task
+    raise LockError(f"{path}: wrong Slurm array task")
+__main__.LockError: /scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_results/cuda/cuda_fused_r128_b16_w4_seed5001_e5-locked-confirm-v3-task5001.json: wrong Slurm array task

@@ -1,0 +1,339 @@
+{
+  "attestation_mode": "posthoc_after_fail_closed_metadata_lookup_error",
+  "audit_source": {
+    "audit_commit": "4de5cac013a5455efb547257c095bda2d2468316",
+    "audit_lock_sha256": "ea327ea3bdea77e1f844f123fd11827147544b2c18baafc28815ac03318e6561",
+    "purpose": "attest already-complete v3 raw outputs after fail-closed metadata-location bug; never execute numerical code",
+    "sources": {
+      "rebuttal_experiments/aggregate_e5_locked.py": {
+        "bytes": 5877,
+        "sha256": "977d552ea3cccf3317cccc3c409ceef39f2458f13a35293dfb1e5e741c5c8979"
+      },
+      "rebuttal_experiments/e5_locked_confirmation.py": {
+        "bytes": 26144,
+        "sha256": "c76253ff92ca6614ca3eacaa46dcad1d970269e57c28bffd994b2ab5bdfad736"
+      },
+      "rebuttal_experiments/e5_posthoc_attest.py": {
+        "bytes": 10109,
+        "sha256": "f8b334ab605a5d24a14440af258ebb4022d8eeacc4afbba469ee215688575ec1"
+      }
+    }
+  },
+  "campaign_tag": "e5-locked-confirm-v3",
+  "gpu": {
+    "driver": "565.57.01",
+    "nvidia_smi_memory_mib": 81559,
+    "nvidia_smi_name": "NVIDIA H100 80GB HBM3",
+    "torch_name": "NVIDIA H100 80GB HBM3",
+    "torch_total_memory": 85045477376,
+    "uuid": "GPU-7865e70b-228c-72c0-63f9-f95d231a4252"
+  },
+  "host": "n05",
+  "numerical_rerun_performed": false,
+  "original_stderr": {
+    "bytes": 920,
+    "path": "rebuttal_logs/e5-locked-394555_0.err",
+    "sha256": "01bca82ba59e820ce4face13cdde5988fbb6c54c83f352b89010d18bb88e301a"
+  },
+  "original_stdout": {
+    "bytes": 69106,
+    "path": "rebuttal_logs/e5-locked-394555_0.out",
+    "sha256": "ee02d7c63a8b6ea0d8074aabfb5ae83804476696b21dc1222824a3daab90453d"
+  },
+  "probe_file_count": 4,
+  "probe_validation": [
+    {
+      "artifacts": [
+        {
+          "bytes": 9438002,
+          "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r49152_seed5001_394556_e5-locked-confirm-v3-task5001_probes.npz",
+          "sha256": "8289c718f128f7848df42654bacbb29fd277991249193796392af4e66a26dfd3"
+        },
+        {
+          "bytes": 9438002,
+          "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r49152_seed5001_tr32_tc32_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001_probes.npz",
+          "sha256": "8d9972e441f0d2f1028c49d2a37af429ebc382784449ba0f717f752b4ee1de7a"
+        }
+      ],
+      "cross_method_relative_errors": {
+        "inverse_factor_action": 9.74254703578481e-08,
+        "whitened_operator_action": 7.418939276249148e-07
+      },
+      "identical_probe_array_sha256": "6d61e7ab39cc1e44957f1ad84b15a7306601c7924a216e8bd353cd98935c8316",
+      "identity_residuals": {
+        "fresh_refact_recurrent": {
+          "factor_metric_identity": 4.128401542402571e-06,
+          "whitened_operator_definition": 6.7666392169485334e-06
+        },
+        "inverse_inplace_recurrent": {
+          "inverse_metric_identity": 3.6681306028185645e-06,
+          "whitened_operator_definition": 5.703867373085814e-06
+        }
+      },
+      "rank": 49152
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 12583730,
+          "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r65536_seed5001_394556_e5-locked-confirm-v3-task5001_probes.npz",
+          "sha256": "c89fec953c40c12acd40dc18bef7d75fd367627fb0b78bc8240e950a8c1a7bf2"
+        },
+        {
+          "bytes": 12583730,
+          "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r65536_seed5001_tr32_tc32_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001_probes.npz",
+          "sha256": "dd73a2789ffc5af80de4648664987ef97d20910e53792981aef0a3fd57daf8bc"
+        }
+      ],
+      "cross_method_relative_errors": {
+        "inverse_factor_action": 7.547361491333504e-08,
+        "whitened_operator_action": 8.551693326808163e-07
+      },
+      "identical_probe_array_sha256": "a3d4f9e03e75c25cd7e33ca70b78cb3510c0214d805376db4248d87eb1df3357",
+      "identity_residuals": {
+        "fresh_refact_recurrent": {
+          "factor_metric_identity": 3.012572506122524e-06,
+          "whitened_operator_definition": 7.954276952659711e-06
+        },
+        "inverse_inplace_recurrent": {
+          "inverse_metric_identity": 3.792036977756652e-06,
+          "whitened_operator_definition": 6.932660653546918e-06
+        }
+      },
+      "rank": 65536
+    }
+  ],
+  "protocol_complete": true,
+  "raw_json_count": 38,
+  "raw_jsons": [
+    {
+      "bytes": 8476,
+      "path": "rebuttal_results/cuda/cuda_fused_r128_b16_w4_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "cef8e482a1ccd70b0a0224304fcd4c4cd28c85413dfccd12d76fae1f4e90c525"
+    },
+    {
+      "bytes": 8505,
+      "path": "rebuttal_results/cuda/cuda_fused_r128_b1_w4_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "b77b0d886bbb0d595fc4b80d8926eb4184690fadcf73d30abfa6a936bba69084"
+    },
+    {
+      "bytes": 8466,
+      "path": "rebuttal_results/cuda/cuda_fused_r128_b4_w4_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "da5bb14b4f5f99d6abe34f590b5eeb68a00dd23f1f282c4aa961bd25fbaf49ae"
+    },
+    {
+      "bytes": 8460,
+      "path": "rebuttal_results/cuda/cuda_fused_r128_b64_w4_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "7fdea4ac9f3ff8450f0e4422762108b5f44464e1e7cfa7f974b087a174b64c4a"
+    },
+    {
+      "bytes": 8512,
+      "path": "rebuttal_results/cuda/cuda_fused_r64_b16_w4_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "17721ec2bc1eb0866e1e366213018e86cc59949f2a150712d0bf33f6ba0998df"
+    },
+    {
+      "bytes": 8517,
+      "path": "rebuttal_results/cuda/cuda_fused_r64_b1_w4_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "1ba7c0d975e951bcf5c33d2f982190cfc71ecc9adef56591b25a9e994034a681"
+    },
+    {
+      "bytes": 8513,
+      "path": "rebuttal_results/cuda/cuda_fused_r64_b4_w4_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "5f89aa6fa582a558b22a466a5d6b69f41a123b66936ca7c1821cb40ebb3431eb"
+    },
+    {
+      "bytes": 8518,
+      "path": "rebuttal_results/cuda/cuda_fused_r64_b64_w4_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "b857400242c318369e2c0a714a4d9f81a3690a6c5248e63755fa1fba2d6720d6"
+    },
+    {
+      "bytes": 8408,
+      "path": "rebuttal_results/cuda/cuda_inverse_factor_r1024_b1_w2_sw8_tr4_tc8_gemv-matmul_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "f223aff71cf9f1ea0d3300871d66009aa60899c5e2fcc3bd0dcd563bd894b789"
+    },
+    {
+      "bytes": 8480,
+      "path": "rebuttal_results/cuda/cuda_inverse_factor_r256_b1_w8_sw8_tr2_tc8_gemv-matmul_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "aafa3ebfd7366ea52ed73bdc9c5ea88a73de6e45e832ee44f99c1a20ddccba80"
+    },
+    {
+      "bytes": 8445,
+      "path": "rebuttal_results/cuda/cuda_inverse_factor_r512_b1_w1_sw8_tr1_tc8_gemv-matmul_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "73362f5f565b12649ab381771a4658b20adf3a4d9d8322c0d5cabd44d36c17ee"
+    },
+    {
+      "bytes": 8298,
+      "path": "rebuttal_results/cuda/cuda_parallel_r1024_b1_w4_sw8_tr4_tc8_rhs2_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "dd7d6ca37e046e86bfa4edbb24666cf3c58db91049f6bfdb6974d6aa4626a5bb"
+    },
+    {
+      "bytes": 8465,
+      "path": "rebuttal_results/cuda/cuda_parallel_r256_b1_w8_sw8_tr2_tc8_rhs2_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "b009c0bf50f6210322b7f907cf42b38eabac0d9b13c90a59389efdf206752e8b"
+    },
+    {
+      "bytes": 8330,
+      "path": "rebuttal_results/cuda/cuda_parallel_r512_b1_w4_sw8_tr1_tc8_rhs2_seed5001_e5-locked-confirm-v3-task5001.json",
+      "sha256": "89e7e6a75d1fa48f593efa06b30f3d7cc99f4b641c71d4ad9ccbf225c574b29f"
+    },
+    {
+      "bytes": 10387,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_refresh_r1024_s200_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "f8ea275d26cfd726af018006a26e3591a785cdc1102f8d7cd424883024d134ec"
+    },
+    {
+      "bytes": 10385,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_refresh_r256_s200_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "f46cd58fe3669ae4bd46a0062c4ff00b1214aee49a4f39bc2c394e7d1e05175b"
+    },
+    {
+      "bytes": 10387,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_refresh_r512_s200_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "6cf54d17d4e2ca46cc6a1a1b3a06e79e1911633b4a268598ba943fe74ff9e87b"
+    },
+    {
+      "bytes": 1798,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_inplace_r1024_s500_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "1b1ff22cb7ca657b750f5a6decf92b2789995a178b08518e0e521b76a28619d5"
+    },
+    {
+      "bytes": 1802,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r1024_s500_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "bccc5df77820310555d62e9522085fb25e270eeeb492c19d75b37316d94a5bba"
+    },
+    {
+      "bytes": 1620,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r256_s200_seed5001_cond10000_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "8ff8ec6fa976eb146c8f996bf1ea5b98317941e51fb8ef45837133c1b4fa3f2b"
+    },
+    {
+      "bytes": 1619,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r256_s200_seed5001_cond100_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "16e940315e5c17349a9e03917f111466dd8713151b31e1e565ce2a2d57083bb3"
+    },
+    {
+      "bytes": 1578,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r256_s200_seed5001_cond1e+06_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "8204e44fa34391ceed33f567bade33bbbe34271da662b584d39a88f852d76403"
+    },
+    {
+      "bytes": 1799,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r256_s500_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "4ad74a04b46add98d3ad85505bfcae8c7428b2f28c4219a2f24cb50d0ea3c43b"
+    },
+    {
+      "bytes": 1809,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r512_s500_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "8c5f5532cc17258b6ab06cbd8a9bfee770d8012a26e5dcfa3ce7e4f624c3a38b"
+    },
+    {
+      "bytes": 1383,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r16384_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "18210bc83bfb3787ef91274fdd22e35b2f516c4ef37b202d10bf760a0cd1deb8"
+    },
+    {
+      "bytes": 1675,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r2048_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "d51ff08efd0b80e2bea73558fecf9d3953998d65f63e282a8014240e77aa1612"
+    },
+    {
+      "bytes": 1387,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r32768_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "b4b93f989599cd9fabe4ab9a3af61130c157338387ad2fe68fdf841240da7a3a"
+    },
+    {
+      "bytes": 1665,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r4096_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "b4e000508a06c8f5e4af980676943a6e0f2c54c9c133d4b544e4e5957eb202fc"
+    },
+    {
+      "bytes": 2217,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r49152_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "fbb5e8f4584d995978aabfb9b8e0979a3b2a6d50899280d967da0c13ba0654ce"
+    },
+    {
+      "bytes": 2219,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r65536_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "ab5bfb86b6b1fbed46804ba91cba9a2aad1bb3796bb022d3ef41126809d9f1f4"
+    },
+    {
+      "bytes": 1653,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r8192_seed5001_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "d26d450e31a0385b43b8d4b928496ae3eeb9f044d11598f2aed0337b5710c044"
+    },
+    {
+      "bytes": 1549,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r16384_seed5001_tr16_tc16_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "2e2c084c9915a808d898d2fee11e43a1e7531b00cc4c457de8083ce52b525fa3"
+    },
+    {
+      "bytes": 1816,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r2048_seed5001_tr8_tc8_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "05220ebdc507939a0109e3ead9405b31ace2311ee20237f5ec1a4ec920850d65"
+    },
+    {
+      "bytes": 1551,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r32768_seed5001_tr32_tc32_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "690424038f678d91fbc4cf7e6cd9ac0248a2f919e2f45b9ed6d630cd990b673b"
+    },
+    {
+      "bytes": 1812,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r4096_seed5001_tr8_tc8_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "a0dde08e36a5ad1734d049b71f2c1f81d667f224e6b8e1879b2e8df835e2af7e"
+    },
+    {
+      "bytes": 2379,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r49152_seed5001_tr32_tc32_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "baac2a08a8687385fce345dfd9cc2ba42bb774b3c5b006402afc03ad1dfbca80"
+    },
+    {
+      "bytes": 2381,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r65536_seed5001_tr32_tc32_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "5e529bb5f4914abb0b760faac1f27b52f6c9c0acd1f684610a5024b4bb830389"
+    },
+    {
+      "bytes": 1809,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r8192_seed5001_tr8_tc8_setupw4_sweepw1_394556_e5-locked-confirm-v3-task5001.json",
+      "sha256": "64bd22eee822bd7d12dfdf162879cf4558a22d8b0432d27fdea4e4b3bee4d5ee"
+    }
+  ],
+  "scheduler": {
+    "account": "marlowe-m000151-pm06",
+    "array_job_id": "394555",
+    "array_task_id": "0",
+    "cpu_affinity": [
+      36,
+      37,
+      38,
+      39
+    ],
+    "cpus_per_task": 4,
+    "cuda_visible_devices": "0",
+    "job_id": "394556",
+    "partition": "batch",
+    "qos": "medium",
+    "scontrol_show_job": "JobId=394556 ArrayJobId=394555 ArrayTaskId=0 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:04 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n05 BatchHost=n05 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_0.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_0.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4"
+  },
+  "schema_version": "e5_locked_confirmation_attestation_v1",
+  "seed": 5001,
+  "source": {
+    "campaign_commit": "799caf46780bdd853403bf263b83d2204c451030",
+    "implementation_commit": "b3d5b066cd9b7c480de88bea7f8d3fcbb786cfb7",
+    "lock_path": "/scratch/m000151-pm06/e5-locked-confirm-v3/artifacts/campaign_lock.json",
+    "lock_sha256": "e9cbc1ec5ddc9f45efc64f6d6b8db9a8b3ae450e7b88fd010f6fa5bd01a85838",
+    "runtime": {
+      "cudnn": 91002,
+      "cudnn_allow_tf32": true,
+      "float32_matmul_precision": "highest",
+      "matmul_allow_tf32": false,
+      "numpy": "2.2.6",
+      "python_executable": "/usr/bin/python3",
+      "python_resolved_executable": "/usr/bin/python3.10",
+      "python_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+      "python_version": "3.10.12",
+      "torch": "2.12.0+cu126",
+      "torch_cuda": "12.6",
+      "triton": "3.7.0"
+    }
+  }
+}

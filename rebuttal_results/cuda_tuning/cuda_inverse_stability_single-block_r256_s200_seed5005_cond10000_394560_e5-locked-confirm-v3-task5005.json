@@ -1,0 +1,54 @@
+{
+  "Aw_relative_error": 0.00018544720660429448,
+  "Linv_relative_error": 0.00012649138807319105,
+  "checkpoints": [
+    {
+      "Aw_relative_error": 0.00010675664088921621,
+      "Linv_relative_error": 7.691560313105583e-05,
+      "inverse_residual": 4.136990537517704e-05,
+      "step": 1
+    },
+    {
+      "Aw_relative_error": 0.00011192826059414074,
+      "Linv_relative_error": 8.24574672151357e-05,
+      "inverse_residual": 4.399509634822607e-05,
+      "step": 10
+    },
+    {
+      "Aw_relative_error": 0.00013993722677696496,
+      "Linv_relative_error": 9.781475819181651e-05,
+      "inverse_residual": 5.227947622188367e-05,
+      "step": 50
+    },
+    {
+      "Aw_relative_error": 0.0001497914781793952,
+      "Linv_relative_error": 0.000102817895822227,
+      "inverse_residual": 5.702822454622947e-05,
+      "step": 100
+    },
+    {
+      "Aw_relative_error": 0.00018544720660429448,
+      "Linv_relative_error": 0.00012649138807319105,
+      "inverse_residual": 6.86392595525831e-05,
+      "step": 200
+    }
+  ],
+  "experiment": "cuda_inverse_stability",
+  "implementation": "single_block",
+  "initial_measured_condition": 10001.3662109375,
+  "max_Aw_relative_error": 0.00018544720660429448,
+  "max_Linv_relative_error": 0.00012649138807319105,
+  "max_inverse_residual": 6.86392595525831e-05,
+  "output_suffix": "e5-locked-confirm-v3-task5005",
+  "rank": 256,
+  "seed": 5005,
+  "setup_num_warps": 8,
+  "slurm_array_job_id": "394555",
+  "slurm_array_task_id": "4",
+  "slurm_job_id": "394560",
+  "steps": 200,
+  "sweep_num_warps": 8,
+  "target_condition": 10000.0,
+  "tile_cols": 8,
+  "tile_rows": 2
+}

@@ -1,0 +1,339 @@
+{
+  "attestation_mode": "posthoc_after_fail_closed_metadata_lookup_error",
+  "audit_source": {
+    "audit_commit": "4de5cac013a5455efb547257c095bda2d2468316",
+    "audit_lock_sha256": "ea327ea3bdea77e1f844f123fd11827147544b2c18baafc28815ac03318e6561",
+    "purpose": "attest already-complete v3 raw outputs after fail-closed metadata-location bug; never execute numerical code",
+    "sources": {
+      "rebuttal_experiments/aggregate_e5_locked.py": {
+        "bytes": 5877,
+        "sha256": "977d552ea3cccf3317cccc3c409ceef39f2458f13a35293dfb1e5e741c5c8979"
+      },
+      "rebuttal_experiments/e5_locked_confirmation.py": {
+        "bytes": 26144,
+        "sha256": "c76253ff92ca6614ca3eacaa46dcad1d970269e57c28bffd994b2ab5bdfad736"
+      },
+      "rebuttal_experiments/e5_posthoc_attest.py": {
+        "bytes": 10109,
+        "sha256": "f8b334ab605a5d24a14440af258ebb4022d8eeacc4afbba469ee215688575ec1"
+      }
+    }
+  },
+  "campaign_tag": "e5-locked-confirm-v3",
+  "gpu": {
+    "driver": "565.57.01",
+    "nvidia_smi_memory_mib": 81559,
+    "nvidia_smi_name": "NVIDIA H100 80GB HBM3",
+    "torch_name": "NVIDIA H100 80GB HBM3",
+    "torch_total_memory": 85045477376,
+    "uuid": "GPU-979946a9-04ae-cc7c-578c-26efd5af8835"
+  },
+  "host": "n01",
+  "numerical_rerun_performed": false,
+  "original_stderr": {
+    "bytes": 920,
+    "path": "rebuttal_logs/e5-locked-394555_9.err",
+    "sha256": "656d7c2787112141788b42441e5cfd1084a464b32f9dbe638b0f48cec4a192d9"
+  },
+  "original_stdout": {
+    "bytes": 83493,
+    "path": "rebuttal_logs/e5-locked-394555_9.out",
+    "sha256": "8dfa35c01195bfca830583faccce3f18ed68e576fb1c82a131bd7d35351433aa"
+  },
+  "probe_file_count": 4,
+  "probe_validation": [
+    {
+      "artifacts": [
+        {
+          "bytes": 9438002,
+          "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r49152_seed5010_394555_e5-locked-confirm-v3-task5010_probes.npz",
+          "sha256": "8d37d83828a9abafc17e2d8520671e840114b05f1fb0e6afbf59ec9be426c8ec"
+        },
+        {
+          "bytes": 9438002,
+          "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r49152_seed5010_tr32_tc32_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010_probes.npz",
+          "sha256": "98852fb60f71eddea3a755c52d79e09712625d1dfc719de5197fe2fd4372e9b6"
+        }
+      ],
+      "cross_method_relative_errors": {
+        "inverse_factor_action": 9.688775293170693e-08,
+        "whitened_operator_action": 7.396092200906423e-07
+      },
+      "identical_probe_array_sha256": "6d61e7ab39cc1e44957f1ad84b15a7306601c7924a216e8bd353cd98935c8316",
+      "identity_residuals": {
+        "fresh_refact_recurrent": {
+          "factor_metric_identity": 4.101078502571909e-06,
+          "whitened_operator_definition": 7.050921794871101e-06
+        },
+        "inverse_inplace_recurrent": {
+          "inverse_metric_identity": 3.4118133953597862e-06,
+          "whitened_operator_definition": 5.651569153997116e-06
+        }
+      },
+      "rank": 49152
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 12583730,
+          "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r65536_seed5010_394555_e5-locked-confirm-v3-task5010_probes.npz",
+          "sha256": "6086d71865bf1f7f6ae3e3597d09f263b0845579bdb49d983532e2bdab370fd8"
+        },
+        {
+          "bytes": 12583730,
+          "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r65536_seed5010_tr32_tc32_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010_probes.npz",
+          "sha256": "4a4f3fbb408ccbaec27b9f9532b3ad7b9045b4347547abf5a28b56f72c7626e8"
+        }
+      ],
+      "cross_method_relative_errors": {
+        "inverse_factor_action": 7.559848569371752e-08,
+        "whitened_operator_action": 8.517189371559652e-07
+      },
+      "identical_probe_array_sha256": "a3d4f9e03e75c25cd7e33ca70b78cb3510c0214d805376db4248d87eb1df3357",
+      "identity_residuals": {
+        "fresh_refact_recurrent": {
+          "factor_metric_identity": 3.064892325710389e-06,
+          "whitened_operator_definition": 8.006479220057372e-06
+        },
+        "inverse_inplace_recurrent": {
+          "inverse_metric_identity": 3.879406449414091e-06,
+          "whitened_operator_definition": 6.9193738454487175e-06
+        }
+      },
+      "rank": 65536
+    }
+  ],
+  "protocol_complete": true,
+  "raw_json_count": 38,
+  "raw_jsons": [
+    {
+      "bytes": 8471,
+      "path": "rebuttal_results/cuda/cuda_fused_r128_b16_w4_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "c75a41d7362076b2dfbec529e771b92fecd9039a59e7cf8409d7abffe73cc5f3"
+    },
+    {
+      "bytes": 8506,
+      "path": "rebuttal_results/cuda/cuda_fused_r128_b1_w4_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "443fbd91f762b61fa9f85f46a16e058bc71f25015c8f88894bbf277191a29d13"
+    },
+    {
+      "bytes": 8454,
+      "path": "rebuttal_results/cuda/cuda_fused_r128_b4_w4_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "7d1c132c2f0d0dd501ada6aaabb64c07753d690c0d90064892857441d5410f28"
+    },
+    {
+      "bytes": 8482,
+      "path": "rebuttal_results/cuda/cuda_fused_r128_b64_w4_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "bfa478fbf55891d708ffd639a379dcae4f7709f6819f9a601e8ac5ec9e003e4a"
+    },
+    {
+      "bytes": 8527,
+      "path": "rebuttal_results/cuda/cuda_fused_r64_b16_w4_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "ee968d170e520e28f1963b4d2e0684e74df5b3b2f2aabd96fbf0f0164cc0f6c1"
+    },
+    {
+      "bytes": 8507,
+      "path": "rebuttal_results/cuda/cuda_fused_r64_b1_w4_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "b6049d111f58969ab8a3c0f7b59c6e339a4ddac8e06b4f7329189d18cd332a18"
+    },
+    {
+      "bytes": 8521,
+      "path": "rebuttal_results/cuda/cuda_fused_r64_b4_w4_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "b4bafbc3612a94b20e5b21653ca8469f276e3549e280f67cb2bc9c98a0d14c04"
+    },
+    {
+      "bytes": 8532,
+      "path": "rebuttal_results/cuda/cuda_fused_r64_b64_w4_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "1ed23b5bc5d34cf633cc3288181d7600c9f6ce3b00887325ac0aeb256c209ca4"
+    },
+    {
+      "bytes": 8405,
+      "path": "rebuttal_results/cuda/cuda_inverse_factor_r1024_b1_w2_sw8_tr4_tc8_gemv-matmul_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "bb243e94e19e3fde1fb461d2ab231fa06ee83e98931b1a15b1f03769e475c742"
+    },
+    {
+      "bytes": 8480,
+      "path": "rebuttal_results/cuda/cuda_inverse_factor_r256_b1_w8_sw8_tr2_tc8_gemv-matmul_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "7fb0fe2198a48d7bc5d807c70c542d19f9921ae5fe0d9853b6d0c0379aa752f8"
+    },
+    {
+      "bytes": 8408,
+      "path": "rebuttal_results/cuda/cuda_inverse_factor_r512_b1_w1_sw8_tr1_tc8_gemv-matmul_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "de1e79a5b4bd5e826e2edcfca9a32e45f60c8e9b6ff87bea1faff48aa8a2b2d2"
+    },
+    {
+      "bytes": 8278,
+      "path": "rebuttal_results/cuda/cuda_parallel_r1024_b1_w4_sw8_tr4_tc8_rhs2_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "a7bc15685fca2f7016199a07480247bb1536386dcff24d33fbc1365e2669a6ad"
+    },
+    {
+      "bytes": 8469,
+      "path": "rebuttal_results/cuda/cuda_parallel_r256_b1_w8_sw8_tr2_tc8_rhs2_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "71f9887dcfd855fc36e9f75bea196f0b716c8da8c98f81011f7022f390e47ea3"
+    },
+    {
+      "bytes": 8353,
+      "path": "rebuttal_results/cuda/cuda_parallel_r512_b1_w4_sw8_tr1_tc8_rhs2_seed5010_e5-locked-confirm-v3-task5010.json",
+      "sha256": "ee4336568446f295aee574852eb5a4da4e116e539b05c3e5ea2d4425ccd8a1db"
+    },
+    {
+      "bytes": 10391,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_refresh_r1024_s200_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "895e7bfd187a6dea6b27c175e08b3042a18590b77202852858c7c8f36bc4ee1f"
+    },
+    {
+      "bytes": 10394,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_refresh_r256_s200_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "d85eadcead2d687a5887967cefb0fb23df4ad24ca308d51192ec381f373a1911"
+    },
+    {
+      "bytes": 10393,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_refresh_r512_s200_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "80810d826430df5751decd42cef0f49abcc95b7f5a42b1cf18b49a810450db69"
+    },
+    {
+      "bytes": 1791,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_inplace_r1024_s500_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "7e6f0bad96b80fe95d0ab95b6977321f7c240926cf8db761f1044e00f86e575a"
+    },
+    {
+      "bytes": 1800,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r1024_s500_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "4c3dd5ed927998256b90a677b4b2616c9868153ee51a1a5fb605649d7484773b"
+    },
+    {
+      "bytes": 1622,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r256_s200_seed5010_cond10000_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "f764859e6f06c1842f2bb17912ba100b99c9b87aefea91da7cb2c5ad85656d3c"
+    },
+    {
+      "bytes": 1618,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r256_s200_seed5010_cond100_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "e443bcb3845853a8b3667168b09777f7dfcc4fe96ef097e392807ae223ae9ae6"
+    },
+    {
+      "bytes": 1582,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r256_s200_seed5010_cond1e+06_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "6e37616ee00771b439116fc0fcf5affb67a9392034b0a9aa8e754a479e394d92"
+    },
+    {
+      "bytes": 1802,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r256_s500_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "71bda338e14efebe07231ae154beb5590ca7690f5d7477388a22a4944ebde78b"
+    },
+    {
+      "bytes": 1801,
+      "path": "rebuttal_results/cuda_tuning/cuda_inverse_stability_single-block_r512_s500_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "62389b0a0c2be5063a0b82aadd954cc3907e225469e9f4d61cdff2d23c7b987d"
+    },
+    {
+      "bytes": 1395,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r16384_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "a3c2e20794ecdbf38df30a976ea5e20169a5e54ac16e20eb6ed310082fc3d2e1"
+    },
+    {
+      "bytes": 1676,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r2048_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "faa07a03835fcb2d05649f796f7ef6bb416abce9dfb6dfe9320a9938468b3026"
+    },
+    {
+      "bytes": 1383,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r32768_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "deae257ff31aa2ad1e7c502a387b6ff1cfce3195bb55410ec883e918ba755599"
+    },
+    {
+      "bytes": 1666,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r4096_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "778784d15fcd50de34eca97f058abf1d81505aa8cc74e641801bc5a07fcb0168"
+    },
+    {
+      "bytes": 2213,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r49152_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "9afe12bc7a40cd05cb263ca6c163f2a671bd8e1489412bfecfa5bffd65c666e6"
+    },
+    {
+      "bytes": 2222,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r65536_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "29db2adda4bb07165dda69bf5a659f2251f26f5b5eb517727ad8f0e6290f330c"
+    },
+    {
+      "bytes": 1653,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_fresh_refact_recurrent_r8192_seed5010_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "5e95ede16b60648c78bc07abb8574bf8dfb4172de630b907ff3f6384ce5e22ec"
+    },
+    {
+      "bytes": 1550,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r16384_seed5010_tr16_tc16_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "cf2a1d9b68d4c5ebad5b8c2c150d632da67c65bc22c72564231e3d6d49112c0d"
+    },
+    {
+      "bytes": 1813,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r2048_seed5010_tr8_tc8_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "1298859dc4cf0835df226ab2b6c411cb93d7e16fc1df1e1769c703da9fc4a392"
+    },
+    {
+      "bytes": 1547,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r32768_seed5010_tr32_tc32_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "62e6bae503522614228470a76f5cbb5b566a3d37daf0d937ee2ec39741912b92"
+    },
+    {
+      "bytes": 1814,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r4096_seed5010_tr8_tc8_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "493d44057a93a8da4f3148dcdd25945bc1866cbdff2254c1c1892f179fcc065f"
+    },
+    {
+      "bytes": 2378,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r49152_seed5010_tr32_tc32_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "89b098dc369bdcf3dd7314e5ee20371d6f261c4adb4fd90ec032aadad35f3ffa"
+    },
+    {
+      "bytes": 2378,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r65536_seed5010_tr32_tc32_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "46aba9871c1e75ca18a0f6c21412471b1bf7fc44868a0df8351f4b9a32d15e05"
+    },
+    {
+      "bytes": 1807,
+      "path": "rebuttal_results/cuda_tuning/cuda_large_compare_inverse_inplace_recurrent_r8192_seed5010_tr8_tc8_setupw4_sweepw1_394555_e5-locked-confirm-v3-task5010.json",
+      "sha256": "226e083730ac438b85ffc771520370b020ea8eead0a83beadaf0aedf68a17729"
+    }
+  ],
+  "scheduler": {
+    "account": "marlowe-m000151-pm06",
+    "array_job_id": "394555",
+    "array_task_id": "9",
+    "cpu_affinity": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "cpus_per_task": 4,
+    "cuda_visible_devices": "0",
+    "job_id": "394555",
+    "partition": "batch",
+    "qos": "medium",
+    "scontrol_show_job": "JobId=394555 ArrayJobId=394555 ArrayTaskId=9 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n01 BatchHost=n01 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_9.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_9.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394564 ArrayJobId=394555 ArrayTaskId=8 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n01 BatchHost=n01 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_8.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_8.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394563 ArrayJobId=394555 ArrayTaskId=7 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n25 BatchHost=n25 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_7.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_7.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394562 ArrayJobId=394555 ArrayTaskId=6 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n25 BatchHost=n25 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_6.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_6.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394561 ArrayJobId=394555 ArrayTaskId=5 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n25 BatchHost=n25 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_5.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_5.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394560 ArrayJobId=394555 ArrayTaskId=4 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n25 BatchHost=n25 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_4.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_4.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394559 ArrayJobId=394555 ArrayTaskId=3 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n23 BatchHost=n23 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_3.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_3.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394558 ArrayJobId=394555 ArrayTaskId=2 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n23 BatchHost=n23 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_2.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_2.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394557 ArrayJobId=394555 ArrayTaskId=1 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n12 BatchHost=n12 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_1.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_1.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4 \nJobId=394556 ArrayJobId=394555 ArrayTaskId=0 ArrayTaskThrottle=10 JobName=e5-locked-confirm UserId=arjo(1695391026) GroupId=1543400513(1543400513) MCS_label=N/A Priority=1008130 Nice=0 Account=marlowe-m000151-pm06 QOS=medium WCKey=* JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:07 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-07-25T22:53:48 EligibleTime=2026-07-25T22:53:48 AccrueTime=2026-07-25T22:53:48 StartTime=2026-07-25T22:53:49 EndTime=2026-07-25T23:53:49 Deadline=N/A PreemptEligibleTime=2026-07-25T23:08:48 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-07-25T22:53:49 Scheduler=Main Partition=batch AllocNode:Sid=login-01:3143949 ReqNodeList=(null) ExcNodeList=(null) NodeList=n05 BatchHost=n05 NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 AllocTRES=cpu=4,mem=64G,node=1,billing=4,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=4 MinMemoryNode=64G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch WorkDir=/scratch/m000151-pm06/e5-locked-confirm-v3/repo StdErr=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_0.err StdIn=/dev/null StdOut=/scratch/m000151-pm06/e5-locked-confirm-v3/repo/rebuttal_logs/e5-locked-394555_0.out TresPerNode=gres/gpu:1 TresPerTask=cpu=4"
+  },
+  "schema_version": "e5_locked_confirmation_attestation_v1",
+  "seed": 5010,
+  "source": {
+    "campaign_commit": "799caf46780bdd853403bf263b83d2204c451030",
+    "implementation_commit": "b3d5b066cd9b7c480de88bea7f8d3fcbb786cfb7",
+    "lock_path": "/scratch/m000151-pm06/e5-locked-confirm-v3/artifacts/campaign_lock.json",
+    "lock_sha256": "e9cbc1ec5ddc9f45efc64f6d6b8db9a8b3ae450e7b88fd010f6fa5bd01a85838",
+    "runtime": {
+      "cudnn": 91002,
+      "cudnn_allow_tf32": true,
+      "float32_matmul_precision": "highest",
+      "matmul_allow_tf32": false,
+      "numpy": "2.2.6",
+      "python_executable": "/usr/bin/python3",
+      "python_resolved_executable": "/usr/bin/python3.10",
+      "python_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+      "python_version": "3.10.12",
+      "torch": "2.12.0+cu126",
+      "torch_cuda": "12.6",
+      "triton": "3.7.0"
+    }
+  }
+}
