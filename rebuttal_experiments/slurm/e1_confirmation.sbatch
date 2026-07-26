@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=e1-paired-confirm
+#SBATCH --job-name=e1-v5-confirm
 #SBATCH --account=marlowe-m000151-pm06
 #SBATCH --partition=batch
 #SBATCH --nodes=1
@@ -11,8 +11,8 @@
 #SBATCH --time=02:00:00
 #SBATCH --array=0-59%10
 #SBATCH --no-requeue
-#SBATCH --output=rebuttal_logs/e1-paired-confirm-%A_%a.out
-#SBATCH --error=rebuttal_logs/e1-paired-confirm-%A_%a.err
+#SBATCH --output=rebuttal_logs/e1-v5-confirm-%A_%a.out
+#SBATCH --error=rebuttal_logs/e1-v5-confirm-%A_%a.err
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR}"
@@ -24,9 +24,10 @@ else
   thread_count=10
 fi
 
+candidate_dir="${PWD}/rebuttal_experiments"
 package_dir="${PWD}/Cholesky-main-2/corrected_incremental_cholesky"
 export E1_TORCH_SITE=/users/arjo/.local/lib/python3.10/site-packages
-export PYTHONPATH="${package_dir}:${PWD}:${PWD}/rebuttal_deps:${E1_TORCH_SITE}"
+export PYTHONPATH="${candidate_dir}:${package_dir}:${PWD}:${PWD}/rebuttal_deps:${E1_TORCH_SITE}"
 export PYTHONNOUSERSITE=1
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONHASHSEED=0
@@ -45,4 +46,4 @@ exec /cm/shared/apps/slurm/current/bin/srun \
   --hint=nomultithread --cpu-bind=cores --kill-on-bad-exit=1 \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action run-pair --phase confirmation --task-index "${task_index}" \
-  --campaign-tag e1-confirm-fastpositive-v4
+  --campaign-tag e1-confirm-samevector-out-v5

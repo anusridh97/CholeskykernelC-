@@ -1,7 +1,7 @@
 # E1 confirmation prior-outcome audit
 
 This note records the outcome inventory and design provenance before the
-`e1-confirm-fastpositive-v4` pilot launch.
+`e1-confirm-samevector-out-v5` pilot launch.
 
 ## Inventory
 
@@ -9,22 +9,20 @@ This note records the outcome inventory and design provenance before the
   `rebuttal_results/e1_confirmation/` is the v1 source lock.  There are no v1
   pilot artifacts, pilot summaries, approval gates, confirmation artifacts,
   or confirmation summaries.
-- The v4 pilot seeds are 1000--1002 and the untouched confirmation seeds are
-  2000--2009.  Repository-wide inspection found no E1 outcomes for those
-  seeds.  Seeds 1000--1002 do occur in a separate E2 pilot campaign; those
-  training-only E2 measurements are not read by this driver and cannot alter
-  any E1 setting.
+- The v5 pilot seeds are 63001--63003 and the untouched confirmation seeds are
+  62001--62010.  Repository-wide inspection found no experimental outcomes
+  for those seeds before this protocol was frozen.
 - Earlier reconstructed E1 results use seeds 0--2.  They are prior evidence,
   not pilot or confirmation observations for this campaign.
 
 ## Frozen-choice provenance
 
-The v4 grid is unchanged from the source-locked v1 protocol committed in
+The v5 grid is unchanged from the source-locked v1/v4 protocol committed in
 `00f2b85` and locked in `f8c7a9c`: Protein, fixed split seed 42, ranks
 256/512/1024, `tau=0.1`, ten epochs, batch size 256, learning rate 0.1,
 damping 1.0, momentum 0.9, and resets every 50 steps.  These are the existing
 matched Ours/Refact E1 comparison settings; they were not selected after
-seeing a v1, v2, v3, or v4 pilot.  In particular, `tau=0.1` is not the best
+seeing a v1, v2, v3, v4, or v5 pilot.  In particular, `tau=0.1` is not the best
 old E1 cell by either mean MSE or wall time.  V2 changes execution control and
 provenance, not an experimental hyperparameter.
 
@@ -56,6 +54,22 @@ uses the same absolute single-process `srun` pattern that succeeded in E2 on
 node n29.  Ranks, thresholds, seeds, precision, training, and method order are
 unchanged, and the v3 lock, structured failure record, and logs remain
 preserved.
+
+V4 then completed all 60 claimed pairs once.  Its result is retained rather
+than replaced.  The post-run reconciliation found that v4 used
+`fast_update.cpp` SHA-256
+`b1c92d7fcbca869eba625623b5d7ab440a38eceba79b715db2b8087dbf2d87b4`,
+whose public API allocates and returns new outputs and executes the general
+two-vector path.  This was inconsistent with the already-selected E1-specific
+candidate.  That candidate was fixed independently before any v4 confirmation
+outcome: source/protocol and synthetic pilots were frozen by 17:39 PDT on
+2026-07-25, the source was committed in `112f8a3` at 20:01 PDT, and the
+preregistered E2 confirmation completed by 21:53 PDT.  V4 confirmation began
+only at 22:24 PDT.  V5 therefore changes only the implementation to the exact
+pre-existing source SHA-256
+`a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0`
+and its caller-owned out-buffer contract.  It does not use v4 to select or
+tune source code, cells, seeds, method order, hyperparameters, or analysis.
 
 ## Prospective boundary
 

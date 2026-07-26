@@ -37,22 +37,26 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+CANDIDATE_DIR = ROOT / "rebuttal_experiments"
 CORRECTED_DIR = ROOT / "Cholesky-main-2" / "corrected_incremental_cholesky"
 DATA_PATH = ROOT / "Cholesky-main-2" / "data" / "protein.mat"
 DEFAULT_RESULTS = ROOT / "rebuttal_results" / "e1_confirmation"
-DEFAULT_CAMPAIGN = "e1-confirm-fastpositive-v4"
+DEFAULT_CAMPAIGN = "e1-confirm-samevector-out-v5"
 EXPECTED_SLURM_ACCOUNT = "marlowe-m000151-pm06"
 EXPECTED_SLURM_PARTITION = "batch"
 EXPECTED_TORCH_SITE = Path(
     "/users/arjo/.local/lib/python3.10/site-packages"
 )
 
-# Resolve data_utils and fast_cholesky from the corrected package, not from
-# student_pkg or an extension elsewhere on PYTHONPATH.
+# Resolve the already-selected same-vector candidate and the data utilities
+# from their locked repository locations, not from an extension elsewhere on
+# PYTHONPATH.
+if str(CANDIDATE_DIR) not in sys.path:
+    sys.path.insert(0, str(CANDIDATE_DIR))
 if str(CORRECTED_DIR) not in sys.path:
-    sys.path.insert(0, str(CORRECTED_DIR))
+    sys.path.insert(1, str(CORRECTED_DIR))
 if str(ROOT) not in sys.path:
-    sys.path.insert(1, str(ROOT))
+    sys.path.insert(2, str(ROOT))
 
 # Capture Slurm's task mask before importing any numerical runtime.  OpenMP
 # initialization may narrow the calling thread to one OMP place, which is not
@@ -71,8 +75,8 @@ from rebuttal_experiments.ng_sweep import (
 )
 
 
-PILOT_SEEDS = (1000, 1001, 1002)
-CONFIRMATION_SEEDS = tuple(range(2000, 2010))
+PILOT_SEEDS = (63001, 63002, 63003)
+CONFIRMATION_SEEDS = tuple(range(62001, 62011))
 RANKS = (256, 512, 1024)
 THREAD_COUNTS = (1, 10)
 METHODS = ("ours", "refact")
@@ -117,6 +121,10 @@ FIXED_CONFIG: dict[str, Any] = {
         "training and all pre-test checks pass"
     ),
     "outcome_adaptive_changes": False,
+    "candidate_selection": (
+        "exact source selected and synthetically frozen before E1-v4 "
+        "confirmation outcomes; no v5 tuning"
+    ),
     "expected_data_partition": EXPECTED_DATA_PARTITION,
 }
 
@@ -142,13 +150,22 @@ LOCKED_FILES = {
         "Cholesky-main-2/corrected_incremental_cholesky/data_utils.py"
     ),
     "incremental_source": (
-        "Cholesky-main-2/corrected_incremental_cholesky/fast_update.cpp"
+        "rebuttal_experiments/e1_positive_candidate_ext.cpp"
     ),
     "extension_build": (
-        "Cholesky-main-2/corrected_incremental_cholesky/setup_ext.py"
+        "rebuttal_experiments/setup_e1_positive_candidate.py"
     ),
     "incremental_binary": (
-        "Cholesky-main-2/corrected_incremental_cholesky/fast_cholesky.so"
+        "rebuttal_experiments/e1_positive_candidate.so"
+    ),
+    "candidate_selection_protocol": (
+        "rebuttal_experiments/e1_positive_candidate_protocol.json"
+    ),
+    "e2_preregistered_protocol": (
+        "rebuttal_experiments/e2_preregistered_protocol.json"
+    ),
+    "e2_preregistered_lock": (
+        "rebuttal_experiments/e2_preregistered_lock.json"
     ),
     "protein_data": "Cholesky-main-2/data/protein.mat",
 }
@@ -474,8 +491,9 @@ def freeze_lock(args: argparse.Namespace) -> dict[str, Any]:
         },
         "implementation": {
             "ours": (
-                "explicit metric_sign=+1/operator_sign=+1 dispatch to the "
-                "row-major virtual-padding SIMD positive-update kernel"
+                "allocation-free explicit positive same-vector update with "
+                "caller-owned ping-pong Aw output, vz output, and 4r "
+                "workspace; exact source selected before E1-v4 outcomes"
             ),
             "refact": (
                 "G += aa^T, fresh Cholesky, complete rewhitening, and two "
@@ -1074,7 +1092,7 @@ def _warm_up_model(
 
 def _kernel_equivalence_probe(
     rank: int,
-    fast_cholesky: Any,
+    candidate_extension: Any,
 ) -> dict[str, Any]:
     # This probe is outside the measured region.  It both warms the two core
     # backends and verifies that they return the same mathematical FP32
@@ -1083,13 +1101,17 @@ def _kernel_equivalence_probe(
     a = (0.01 * torch.sin(coordinate)).contiguous()
     identity = torch.eye(rank, dtype=torch.float32)
     L_update = identity.clone()
-    Aw_update, vz_update = fast_cholesky.fast_incremental_update(
+    Aw_input = torch.zeros_like(identity)
+    Aw_update = torch.empty_like(Aw_input)
+    vz_update = torch.empty(rank, dtype=torch.float32)
+    workspace = torch.empty(4 * rank, dtype=torch.float32)
+    candidate_extension.positive_metric_operator_same_vector_out(
         L_update,
-        torch.zeros_like(identity),
-        a.clone(),
-        a.clone(),
-        metric_sign=1,
-        operator_sign=1,
+        Aw_input,
+        a,
+        Aw_update,
+        vz_update,
+        workspace,
     )
     G_fresh = identity + torch.outer(a, a)
     L_fresh = torch.linalg.cholesky(G_fresh).contiguous()
@@ -1116,8 +1138,8 @@ def _kernel_equivalence_probe(
     return {
         "rank": rank,
         "dtype": str(L_update.dtype),
-        "explicit_metric_sign": 1,
-        "explicit_operator_sign": 1,
+        "contract": "positive metric/operator same-vector update",
+        "caller_owned_outputs_and_workspace": True,
         "errors": errors,
         "predeclared_tolerances": tolerances,
         "passed": True,
@@ -1149,7 +1171,7 @@ def _run_method(
     initial: dict[str, Any],
     permutations: list[torch.Tensor],
     input_hashes: dict[str, str],
-    fast_cholesky: Any,
+    candidate_extension: Any,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     clone_start = time.perf_counter()
     state = _clone_training_state(initial)
@@ -1159,6 +1181,9 @@ def _run_method(
     G = state["G"]
     L = state["L"]
     Aw = state["Aw"]
+    Aw_spare = torch.empty_like(Aw)
+    vz = torch.empty(rank, dtype=torch.float32)
+    workspace = torch.empty(4 * rank, dtype=torch.float32)
     first_velocity = state["first_velocity"]
     other_velocities = state["other_velocities"]
     identity = state["identity"]
@@ -1252,14 +1277,15 @@ def _run_method(
             else:
                 component_start = time.perf_counter()
                 if method == "ours":
-                    Aw, vz = fast_cholesky.fast_incremental_update(
+                    candidate_extension.positive_metric_operator_same_vector_out(
                         L,
                         Aw,
-                        a.clone(),
-                        a.clone(),
-                        metric_sign=1,
-                        operator_sign=1,
+                        a,
+                        Aw_spare,
+                        vz,
+                        workspace,
                     )
+                    Aw, Aw_spare = Aw_spare, Aw
                     G.add_(torch.outer(a, a))
                     x = torch.linalg.solve_triangular(
                         L.mT, vz.unsqueeze(1), upper=True
@@ -1626,9 +1652,9 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
             directory, spec, lock_sha256, run_git_commit, slurm
         )
 
-    import fast_cholesky
+    import e1_positive_candidate
 
-    extension_path = Path(fast_cholesky.__file__).resolve()
+    extension_path = Path(e1_positive_candidate.__file__).resolve()
     expected_extension = (
         ROOT / LOCKED_FILES["incremental_binary"]
     ).resolve()
@@ -1655,7 +1681,7 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
     )
     setup_seconds = time.perf_counter() - setup_start
     kernel_probe = _kernel_equivalence_probe(
-        spec["rank"], fast_cholesky
+        spec["rank"], e1_positive_candidate
     )
     model_warmup_seconds = _warm_up_model(X_train, y_train, initial)
 
@@ -1671,7 +1697,7 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
             initial,
             permutations,
             input_hashes,
-            fast_cholesky,
+            e1_positive_candidate,
         )
 
     pre_test_paired = _paired_diagnostics(methods, private)
@@ -1731,11 +1757,10 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
         },
         "implementation": {
             "incremental_extension": str(extension_path),
-            "incremental_dispatch": (
-                "explicit metric_sign=1, operator_sign=1"
-            ),
+            "incremental_dispatch": "explicit positive same-vector contract",
             "incremental_kernel": (
-                "row-major virtual-padding contiguous SIMD positive path"
+                "allocation-free caller-owned ping-pong Aw/vz/4r-workspace "
+                "same-vector out-kernel"
             ),
             "refact_backend": (
                 "fresh Cholesky, complete rewhitening, and two triangular "
@@ -2270,9 +2295,9 @@ def preflight(args: argparse.Namespace) -> dict[str, Any]:
             + ", ".join(str(path) for path in existing_outcomes)
         )
 
-    import fast_cholesky
+    import e1_positive_candidate
 
-    extension_path = Path(fast_cholesky.__file__).resolve()
+    extension_path = Path(e1_positive_candidate.__file__).resolve()
     expected_extension = (
         ROOT / LOCKED_FILES["incremental_binary"]
     ).resolve()
@@ -2286,7 +2311,7 @@ def preflight(args: argparse.Namespace) -> dict[str, Any]:
     if not torch.isfinite(X_train).all() or not torch.isfinite(y_train).all():
         raise RuntimeError("training partition contains non-finite values")
     kernel_probes = [
-        _kernel_equivalence_probe(rank, fast_cholesky)
+        _kernel_equivalence_probe(rank, e1_positive_candidate)
         for rank in RANKS
     ]
     _finalize_thread_affinity(thread_report)

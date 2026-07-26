@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=e1-confirm-preflight
+#SBATCH --job-name=e1-v5-preflight
 #SBATCH --account=marlowe-m000151-pm06
 #SBATCH --partition=batch
 #SBATCH --nodes=1
@@ -10,15 +10,16 @@
 #SBATCH --mem=32G
 #SBATCH --time=00:10:00
 #SBATCH --no-requeue
-#SBATCH --output=rebuttal_logs/e1-confirm-preflight-%j.out
-#SBATCH --error=rebuttal_logs/e1-confirm-preflight-%j.err
+#SBATCH --output=rebuttal_logs/e1-v5-preflight-%j.out
+#SBATCH --error=rebuttal_logs/e1-v5-preflight-%j.err
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR}"
 
+candidate_dir="${PWD}/rebuttal_experiments"
 package_dir="${PWD}/Cholesky-main-2/corrected_incremental_cholesky"
 export E1_TORCH_SITE=/users/arjo/.local/lib/python3.10/site-packages
-export PYTHONPATH="${package_dir}:${PWD}:${PWD}/rebuttal_deps:${E1_TORCH_SITE}"
+export PYTHONPATH="${candidate_dir}:${package_dir}:${PWD}:${PWD}/rebuttal_deps:${E1_TORCH_SITE}"
 export PYTHONNOUSERSITE=1
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONHASHSEED=0
@@ -36,4 +37,4 @@ exec /cm/shared/apps/slurm/current/bin/srun \
   --exclusive --nodes=1 --ntasks=1 --cpus-per-task=10 \
   --hint=nomultithread --cpu-bind=cores --kill-on-bad-exit=1 \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
-  --action preflight --campaign-tag e1-confirm-fastpositive-v4
+  --action preflight --campaign-tag e1-confirm-samevector-out-v5

@@ -35,36 +35,36 @@ reported as isolated kernel timing.
   curvature, velocity, and minibatch-permutation state.  Method order is
   parity-counterbalanced.  Each rank/thread confirmation cell has five
   Ours-first and five Refact-first pairs.
-- Pilots: seeds 1000--1002, 18 paired tasks.  Pilots are operational checks,
+- Pilots: previously unused seeds 63001--63003, 18 paired tasks.  Pilots are operational checks,
   never evaluate the test set, and cannot alter the already-frozen
   configuration.
-- Confirmation: untouched seeds 2000--2009, 60 paired tasks.  Both methods
+- Confirmation: previously unused seeds 62001--62010, 60 paired tasks.  Both methods
   finish training and all paired invariants pass before held-out tensors are
   materialized.  Each method then evaluates test MSE exactly once, in a
   terminal pass, with no test-based selection.
 
-The v4 grid is unchanged from the source-locked v1 design.  The outcome
-inventory and non-adaptive choice provenance are recorded in
-`E1_PRIOR_OUTCOME_AUDIT.md`.  No v1 pilot or confirmation outcomes exist.
-The v2 exact-node job built and froze its lock but failed before preflight
-because lock generation and tracked-lock verification were incorrectly placed
-in the same job.  Its lock and logs are preserved; v2 produced no pilot or
-confirmation outcomes and is retired.  The separate v3 preflight then failed
-before loading data or running a kernel probe because the driver inspected the
-calling thread's affinity after importing the OpenMP runtime.  With
-`OMP_PROC_BIND=close`, that thread showed one OpenMP place even though Slurm
-had allocated ten cores.  V4 captures the task mask before numerical imports,
-restores the selected mask to every extant runtime thread, and uses the same
-single-process `srun` launch pattern that was independently successful for the
-controlled E2 campaign on the same node.  The v3 lock, failure record, and logs
-are preserved; v3 produced no pilot or confirmation outcomes.
+V5 is a disclosed implementation follow-up to the complete, preserved v4
+campaign.  V4 exposed an implementation defect: it called the older
+allocation-returning general extension even though E1's non-refresh update
+always satisfies the stronger positive same-vector contract
+`G+=G+aa^T, M+=M+aa^T`.  The replacement was not selected from v4 outcomes.
+The exact source was frozen in the data-free synthetic candidate protocol at
+17:38 PDT, its two thread-mode pilots completed by 17:39 PDT, and the same
+source was committed for preregistered E2 at 20:01 PDT on 2026-07-25.  E2's
+confirmation was complete before 21:53 PDT.  V4 confirmation did not begin
+until 22:24 PDT.  The candidate source hash is
+`a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0`.
+No source, dispatch, rank, thread count, model, optimizer, refresh, reset,
+timing boundary, or analysis choice is tuned from v4.
 
-Ours calls `fast_incremental_update` with explicit `metric_sign=1` and
-`operator_sign=1`.  In the locked corrected implementation this dispatches
-to `positive_update_impl`, the row-major, virtual-padding, contiguous SIMD
-path (AVX-512 when supported).  Refact performs `G += aa^T`, a fresh
-Cholesky factorization, complete rewhitening, and two triangular solves at
-each non-refresh step.
+Ours calls the frozen
+`positive_metric_operator_same_vector_out` specialization.  It uses
+caller-owned ping-pong `Aw` output, `vz` output, and `4r` workspace, so timed
+steps perform no output/workspace allocation.  The exact identity `w=z=a`
+removes the general kernel's redundant second forward solve.  Refact performs
+`G += aa^T`, a fresh Cholesky factorization, complete rewhitening, and two
+triangular solves at each non-refresh step.  Both core regions also include
+the common `G` outer update and final transpose-triangular solve.
 
 ## Measured regions and retained evidence
 
@@ -105,7 +105,7 @@ the lock on a `batch` compute node so the runtime lock describes the actual
 execution environment, not a login node.
 
 ```bash
-PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
+PYTHONPATH="$PWD/rebuttal_experiments:$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action self-test
 
@@ -113,7 +113,7 @@ sbatch rebuttal_experiments/slurm/e1_confirmation_freeze.sbatch
 ```
 
 The freeze job builds the native extension on the target CPU and writes
-`rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v4/source_lock.json`.
+`rebuttal_results/e1_confirmation/e1-confirm-samevector-out-v5/source_lock.json`.
 Commit and push that lock before validation.  The generation job deliberately
 does not try to verify that its just-created lock is already tracked.
 
@@ -142,11 +142,11 @@ sbatch rebuttal_experiments/slurm/e1_confirmation_pilot.sbatch
 Only after all 18 pilots finish:
 
 ```bash
-PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
+PYTHONPATH="$PWD/rebuttal_experiments:$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action summarize-pilot
 
-PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
+PYTHONPATH="$PWD/rebuttal_experiments:$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action approve-pilot --reviewer "NAME" \
   --note "Reviewed all pilot diagnostics; proceed unchanged."
@@ -165,7 +165,7 @@ sbatch rebuttal_experiments/slurm/e1_confirmation.sbatch
 After all 60 confirmation tasks finish:
 
 ```bash
-PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
+PYTHONPATH="$PWD/rebuttal_experiments:$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action aggregate-confirmation
 ```
