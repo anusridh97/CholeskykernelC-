@@ -2,15 +2,6 @@
   "schema_version": 1,
   "pilot_id": "e3-drag-fairness-dev-v1",
   "status": "frozen_before_target_cpu_development",
-  "pre_execution_resource_amendment": {
-    "reason": "The first sbatch request was rejected before a job was created because marlowe-m000151-pm06 was no longer a valid association for the submitting user.",
-    "rejected_account": "marlowe-m000151-pm06",
-    "replacement_account": "marlowe-m000151",
-    "replacement_qos": "normal",
-    "job_created_by_rejected_request": false,
-    "development_timings_observed_before_amendment": false,
-    "scientific_protocol_fields_changed": false
-  },
   "objective": "Select a fair one-sided update and dense-materialization implementation on development-only seeds before freezing a new E3 confirmation.",
   "report_use": "development_only_not_reportable",
   "dtype": "float64",
@@ -102,9 +93,9 @@
     "no_confirmation_tuning": "The selected eligible implementation is frozen before any reserved confirmation seed is evaluated."
   },
   "resource_contract": {
-    "account": "marlowe-m000151",
+    "account": "marlowe-m000151-pm06",
     "partition": "batch",
-    "qos": "normal",
+    "qos": "medium",
     "exclusive_node": true,
     "processes": 1,
     "physical_cpus_per_process": 1,

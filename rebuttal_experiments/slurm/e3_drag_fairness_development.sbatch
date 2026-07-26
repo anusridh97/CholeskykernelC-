@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=e3-drag-dev
-#SBATCH --account=marlowe-m000151
+#SBATCH --account=marlowe-m000151-pm06
 #SBATCH --partition=batch
-#SBATCH --qos=normal
+#SBATCH --qos=medium
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
