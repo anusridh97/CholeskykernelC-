@@ -60,7 +60,7 @@
     },
     "fresh_materialize": {
       "output_contract": "dense_same_output",
-      "description": "Fresh Cholesky, two thin triangular solves, and dense materialization."
+      "description": "Fresh Cholesky, two thin triangular solves, and single-thread MKL materialization into caller-owned dense output."
     },
     "drag_factor_only": {
       "output_contract": "thin_factor_only",
@@ -73,6 +73,11 @@
   },
   "timing_order": "Every repetition contains every path once. The six-path order is cyclically rotated by (seed + width_index + repetition) modulo six, so each path occupies every timing position exactly five times.",
   "state_preparation": "All mutable input cloning, caller-owned update workspace creation, and caller-owned dense output creation occur before each timed interval.",
+  "source_lock": {
+    "mechanism": "The submitted SOURCE_COMMIT must equal detached Git HEAD; tracked worktree and index must be clean before build and execution.",
+    "exact_commit_recorded_in_result_environment_and_provenance": true,
+    "audit_source_and_sbatch_hashed_in_result_provenance": true
+  },
   "steady_state_representation_boundary": "The dense metric path begins from stored (L, Aw); drag paths begin from stored (L, Vb, Vc). Initial factor solves, initial dense materialization, and conversion between these persistent representations are excluded. This is a steady-state representation comparison, not a same-input kernel dispatcher benchmark.",
   "correctness_reference": "Fresh FP64 Cholesky of G+zz^T, fresh triangular solves for B and C, and direct double-sided whitening of M=B C^T.",
   "relative_error_tolerance": 1e-11,

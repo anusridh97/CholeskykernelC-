@@ -132,6 +132,16 @@ def validate_protocol(protocol: dict[str, Any]) -> None:
             )
     if protocol.get("confirmation_outcome_blinding") is None:
         raise ValueError("confirmation outcome-blinding rule is absent")
+    source_lock = protocol.get("source_lock", {})
+    if (
+        not source_lock.get(
+            "exact_commit_recorded_in_result_environment_and_provenance"
+        )
+        or not source_lock.get(
+            "audit_source_and_sbatch_hashed_in_result_provenance"
+        )
+    ):
+        raise ValueError("confirmation source/provenance lock is incomplete")
     if protocol.get("old_e3_preservation", {}).get("mutation_authorized"):
         raise ValueError("old frozen E3 mutation must remain unauthorized")
 
@@ -293,7 +303,7 @@ def make_cases(
         torch.mm(left, right.mT, out=output)
         return L_work, output
 
-    def prepare_fresh():
+    def prepare_fresh_factor():
         return ()
 
     def execute_fresh_factor():
@@ -302,9 +312,13 @@ def make_cases(
         right = torch.linalg.solve_triangular(L_new, C, upper=False)
         return L_new, left, right
 
-    def execute_fresh_materialize():
+    def prepare_fresh_materialize():
+        return (torch.empty_like(Aw),)
+
+    def execute_fresh_materialize(output):
         L_new, left, right = execute_fresh_factor()
-        return L_new, left @ right.mT
+        torch.mm(left, right.mT, out=output)
+        return L_new, output
 
     return {
         "metric_only_specialized": (
@@ -316,9 +330,12 @@ def make_cases(
             prepare_drag_materialize,
             execute_drag_materialize,
         ),
-        "fresh_materialize": (prepare_fresh, execute_fresh_materialize),
+        "fresh_materialize": (
+            prepare_fresh_materialize,
+            execute_fresh_materialize,
+        ),
         "drag_factor_only": (prepare_drag_factor, execute_drag_factor),
-        "fresh_factor_only": (prepare_fresh, execute_fresh_factor),
+        "fresh_factor_only": (prepare_fresh_factor, execute_fresh_factor),
     }
 
 
@@ -421,12 +438,21 @@ def run_cell(
     }
 
 
-def _provenance(protocol, e3_metric_only, one_sided_fair) -> dict[str, Any]:
+def _provenance(
+    protocol,
+    e3_metric_only,
+    one_sided_fair,
+    *,
+    source_lock_commit: str,
+) -> dict[str, Any]:
     metric_binary = Path(e3_metric_only.__file__).resolve()
     fair_binary = Path(one_sided_fair.__file__).resolve()
     paths = [
         PROTOCOL_PATH,
         Path(__file__).resolve(),
+        Path(__file__).with_name("audit_e3_drag_fairness_confirmation.py"),
+        Path(__file__).with_name("slurm")
+        / "e3_drag_fairness_confirmation.sbatch",
         Path(__file__).with_name("e3_metric_only_pilot.py"),
         Path(__file__).with_name("e3_metric_only_ext.cpp"),
         Path(__file__).with_name("setup_e3_metric_only.py"),
@@ -438,6 +464,7 @@ def _provenance(protocol, e3_metric_only, one_sided_fair) -> dict[str, Any]:
         ROOT / protocol["development_selection"]["audit_path"],
     ]
     return {
+        "source_lock_commit": source_lock_commit,
         "files": {
             relative_path(path): {
                 "sha256": sha256(path),
@@ -557,7 +584,10 @@ def run() -> dict[str, Any]:
             "load_average_after": list(os.getloadavg()),
         },
         "provenance": _provenance(
-            protocol, e3_metric_only, one_sided_fair
+            protocol,
+            e3_metric_only,
+            one_sided_fair,
+            source_lock_commit=runtime["source_commit"],
         ),
     }
     atomic_json_dump(payload, output)

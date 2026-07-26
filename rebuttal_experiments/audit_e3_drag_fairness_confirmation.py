@@ -231,6 +231,9 @@ def audit() -> tuple[dict[str, Any], Path]:
     ):
         raise ValueError("confirmation representation boundary changed")
 
+    provenance = payload.get("provenance", {})
+    if provenance.get("source_lock_commit") != environment["source_commit"]:
+        raise ValueError("confirmation provenance source-lock commit mismatch")
     for path_text, metadata in payload.get("provenance", {}).get("files", {}).items():
         path = Path(path_text)
         if not path.is_absolute():
