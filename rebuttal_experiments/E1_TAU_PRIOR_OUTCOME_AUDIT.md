@@ -56,3 +56,13 @@ outcome.  The structured failure record and hashes of both logs are preserved
 under the campaign result directory.  The retry changes only launcher
 plumbing by exporting Marlowe's canonical `SLURM_CONF` and Slurm binary
 directory; the complete frozen scientific design is unchanged.
+
+Replacement freeze job 394388 passed the repaired Slurm check, rebuilt the
+extension, and then stopped at the next pre-science integrity gate.  Git
+refused to inspect the ravid-owned worktree from the authorized arjo process
+because it was not declared a safe directory, so no source lock was created.
+The second structured failure record is also preserved.  Rather than changing
+arjo's global Git configuration, every subsequent science gate executes from
+an arjo-owned clean detached checkout of the exact committed Git bundle in
+the project's scratch allocation.  This changes only the execution path and
+ownership; no scientific setting changes.

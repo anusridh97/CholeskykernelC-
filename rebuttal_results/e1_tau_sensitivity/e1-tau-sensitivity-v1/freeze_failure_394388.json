@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "experiment": "e1_tau_sensitivity_freeze_failure",
+  "campaign_tag": "e1-tau-sensitivity-v1",
+  "recorded_utc": "2026-07-26T04:53:46Z",
+  "job": {
+    "job_id": "394388",
+    "job_name": "e1-tau-freeze",
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "node": "n21",
+    "state": "FAILED",
+    "reason": "NonZeroExitCode",
+    "exit_code": "1:0",
+    "start": "2026-07-25T21:52:29",
+    "end": "2026-07-25T21:53:04",
+    "elapsed": "00:00:35",
+    "requeue": 0,
+    "restarts": 0,
+    "exclusive_allocation": true
+  },
+  "run_git_commit": "b7d5ae6107f21242242a8e05b6728a620ce4f3dd",
+  "stage_reached": [
+    "campaign self-test passed",
+    "native extension build completed",
+    "Slurm allocation validation passed",
+    "thread configuration entered",
+    "tracked-source validation entered"
+  ],
+  "failure": {
+    "exception": "RuntimeError",
+    "message": "source-lock prerequisite is not tracked by git: rebuttal_experiments/e1_tau_sensitivity.py",
+    "root_cause": "git refused the cross-owner worktree as a dubious ownership repository (return code 128)",
+    "location": "base._scoped_git_clean",
+    "classification": "pre-science operational Git safe-directory defect"
+  },
+  "scientific_access": {
+    "source_lock_created": false,
+    "protein_loaded": false,
+    "kernel_probe_run": false,
+    "training_started": false,
+    "heldout_tensors_materialized": false,
+    "test_evaluations": 0,
+    "confirmation_attempt_claim_created": false,
+    "outcome_artifact_created": false
+  },
+  "preserved_logs": {
+    "stdout": {
+      "path": "rebuttal_logs/e1-tau-freeze-394388.out",
+      "sha256": "c9c2e301de34f3c4fcbcef392539d58e2ce63c9292deaec9a0daa01f552ec69b"
+    },
+    "stderr": {
+      "path": "rebuttal_logs/e1-tau-freeze-394388.err",
+      "sha256": "d8440b459b4fca2d98ae861115f5f1a6dd0ea1f61f8d54ec9459a2ffba3f16f9"
+    }
+  },
+  "corrective_scope": {
+    "change": "stage exact committed Git bundle in an arjo-owned project-scratch checkout",
+    "global_git_configuration_changed": false,
+    "scientific_configuration_changed": false,
+    "outcome_informed": false,
+    "campaign_tag_retained": true
+  }
+}

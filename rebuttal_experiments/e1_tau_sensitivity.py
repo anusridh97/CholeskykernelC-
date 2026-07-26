@@ -72,6 +72,10 @@ FIXED_CONFIG: dict[str, Any] = {
         "descriptive application-level timing under equal controlled "
         "10-thread execution; not isolated kernel timing"
     ),
+    "execution_checkout": (
+        "clean detached exact-commit Git-bundle checkout owned by arjo "
+        "under /scratch/m000151-pm06/arjo"
+    ),
     "outcome_adaptive_changes": False,
     "expected_data_partition": base.EXPECTED_DATA_PARTITION,
 }
@@ -88,6 +92,9 @@ LOCKED_FILES = {
     ),
     "confirmation_sbatch": (
         "rebuttal_experiments/slurm/e1_tau_confirmation.sbatch"
+    ),
+    "aggregate_sbatch": (
+        "rebuttal_experiments/slurm/e1_tau_aggregate.sbatch"
     ),
     "paired_e1_infrastructure": "rebuttal_experiments/e1_confirmation.py",
     "ng_reference_driver": "rebuttal_experiments/ng_sweep.py",
@@ -1152,6 +1159,7 @@ def self_test() -> None:
         LOCKED_FILES["freeze_sbatch"],
         LOCKED_FILES["preflight_sbatch"],
         LOCKED_FILES["confirmation_sbatch"],
+        LOCKED_FILES["aggregate_sbatch"],
     ):
         text = (ROOT / relative).read_text(encoding="utf-8")
         required = (

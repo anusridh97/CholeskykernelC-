@@ -39,6 +39,12 @@ comparison.  E1 and E6 separately measure application and kernel performance.
 - Exactly-once policy: each seed/rank task publishes a permanent attempt claim
   before training.  A claimed task is never retried; a failure retires the
   campaign tag.
+- Execution checkout: every science gate runs from a clean, detached checkout
+  of the exact committed Git bundle under the arjo-owned project allocation
+  at `/scratch/m000151-pm06/arjo`.  Dependencies are copied once into that
+  project scratch space.  The exact frozen extension binary is copied forward
+  from freeze to preflight, confirmation, and aggregation; it is never rebuilt
+  after its hash is locked.
 
 Both one- and ten-thread sensitivity grids are unnecessary.  Refresh fraction
 and fixed-run final accuracy are the scientific estimands, while E1 already
@@ -86,7 +92,9 @@ sbatch rebuttal_experiments/slurm/e1_tau_confirmation.sbatch
 After all 20 blocks finish exactly once:
 
 ```bash
-PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
-  /usr/bin/python3 rebuttal_experiments/e1_tau_sensitivity.py \
-  --action aggregate-confirmation
+sbatch rebuttal_experiments/slurm/e1_tau_aggregate.sbatch
 ```
+
+The aggregate job revalidates every source/runtime hash, all 20 permanent
+claims, all 20 paired-block artifacts, and the absence of extra or missing
+cells before atomically publishing `confirmation_summary.json`.
