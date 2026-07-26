@@ -1,0 +1,26 @@
+{
+  "approval_git_commit": "59806f010a090f3650a12a525f2915e855987b54",
+  "campaign_tag": "e1-confirm-fastpositive-v4",
+  "confirmation_configuration_changed_after_pilot": false,
+  "confirmation_seeds": [
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009
+  ],
+  "created_utc": "2026-07-26T05:18:10.510555+00:00",
+  "decision": "approve_untouched_confirmation",
+  "experiment": "e1_pilot_review_gate",
+  "pilot_summary_path": "/scratch/m000151-pm06/arjo-e1-confirmation-v2-control/rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v4/pilot_summary.json",
+  "pilot_summary_sha256": "624dbacf535b1364c19c44230993d67132fab933005a0f5c46768ee9716b6f7b",
+  "review_note": "All-18-predeclared-pilot-pairs-passed-completeness-provenance-runtime-affinity-correctness-and-test-blinding-checks_confirmation-configuration-and-seeds-remain-unchanged_approval-is-non-outcome-adaptive",
+  "reviewer": "Codex-independent-protocol-audit",
+  "schema_version": 1,
+  "source_lock_sha256": "c1d317dd1c361081dd0ebffb5c8da4cdee8abb9d899ce517b1800aac019d543c"
+}
