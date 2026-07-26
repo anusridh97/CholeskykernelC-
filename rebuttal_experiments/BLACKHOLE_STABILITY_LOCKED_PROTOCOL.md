@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`blackhole-s4-v1-stability-locked-rerun2` is an immutable provenance rerun of
+`blackhole-s4-v1-stability-locked-rerun3` is an immutable provenance rerun of
 the secondary 100-transition stability trace predeclared in
 `BLACKHOLE_PROTOCOL.md`.  It executes the unmodified numerical driver at Git
 commit `96c8018cdd0b56ffe1fd93bddf48fa4affb34697`.
@@ -17,6 +17,14 @@ lock named the invoked `/usr/bin/python3` symlink while the verifier compared
 the normalized `/usr/bin/python3.10` target.  It created no Slurm task claim,
 submitted no job, and ran no numerical code.  Its prepared directory and lock
 remain preserved.  Rerun 2 changes only that dependency-path spelling.
+
+Rerun 2 array 394115 then exposed a Slurm array-identity ambiguity.  Rank
+8,192 completed and was attested, but rank 32,768 stopped in the outer
+scheduler verifier before numerical code: on that element, the bare
+`SLURM_JOB_ID` also named the array master, so `scontrol` returned two records.
+The incomplete campaign, both claims, logs, and completed rank-8,192 artifact
+remain preserved.  Rerun 3 changes only the scheduler query to the explicit
+`ArrayJobID_TaskID` form and reruns both preregistered ranks together.
 
 ## Frozen scientific design
 

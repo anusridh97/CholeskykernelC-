@@ -29,7 +29,7 @@ CONTROL_ROOT = Path(__file__).resolve().parents[1]
 LOCK_SCHEMA = "blackhole_stability_locked_lock_v1"
 ATTESTATION_SCHEMA = "blackhole_stability_locked_attestation_v1"
 AGGREGATE_SCHEMA = "blackhole_stability_locked_aggregate_v1"
-OUTER_CAMPAIGN_TAG = "blackhole-s4-v1-stability-locked-rerun2"
+OUTER_CAMPAIGN_TAG = "blackhole-s4-v1-stability-locked-rerun3"
 INNER_CAMPAIGN_TAG = "blackhole-s4-v1"
 LOCKED_COMMIT = "96c8018cdd0b56ffe1fd93bddf48fa4affb34697"
 OUTER_ACCOUNT = "marlowe-m000151-pm06"
@@ -471,6 +471,14 @@ def make_lock(args: argparse.Namespace) -> None:
             "lock named the /usr/bin/python3 symlink while verification "
             "normalized it to /usr/bin/python3.10; it created no task claim "
             "and ran no numerical code. Rerun2 corrects only that pathname."
+            " Rerun2 array 394115 then exposed a Slurm identifier ambiguity: "
+            "rank 8,192 completed, but rank 32,768 stopped in the outer "
+            "scheduler verifier before numerical code because its bare "
+            "SLURM_JOB_ID also named the array master and returned two "
+            "scontrol records. Both claims and the completed rank-8,192 "
+            "artifact remain preserved. Rerun3 changes only the scontrol "
+            "selector to the unambiguous ArrayJobID_TaskID form and reruns "
+            "both preregistered ranks."
         ),
         "locked_git_commit": LOCKED_COMMIT,
         "harness_git_commit": harness_commit,
@@ -781,10 +789,10 @@ def _environment_fingerprint() -> dict[str, Any]:
     }
 
 
-def _scontrol_job_record(job_id: str) -> dict[str, str]:
+def _scontrol_job_record(job_selector: str) -> dict[str, str]:
     try:
         completed = subprocess.run(
-            ("scontrol", "show", "job", job_id, "-o"),
+            ("scontrol", "show", "job", job_selector, "-o"),
             check=True,
             capture_output=True,
             text=True,
@@ -880,7 +888,9 @@ def _slurm_metadata(rank: int) -> dict[str, Any]:
             "job_gpus": os.environ.get("SLURM_JOB_GPUS"),
             "step_gpus": os.environ.get("SLURM_STEP_GPUS"),
             "gpus_on_node": os.environ.get("SLURM_GPUS_ON_NODE"),
-            "scontrol": _scontrol_job_record(str(values["job_id"])),
+            "scontrol": _scontrol_job_record(
+                f"{values['array_job_id']}_{values['array_task_id']}"
+            ),
         }
     )
     return values
