@@ -1,0 +1,711 @@
+{
+  "campaign_tag": "e1-confirm-samevector-out-v5",
+  "created_utc": "2026-07-26T06:27:44.013586+00:00",
+  "experiment": "e1_paired_confirmation_source_lock",
+  "files": {
+    "candidate_selection_protocol": {
+      "bytes": 1838,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/e1_positive_candidate_protocol.json",
+      "sha256": "93477961d7edfa6a3661dde79a5dc56c1e83f0f7dbc9cf76cb8618ee5fe64b9f"
+    },
+    "common_helpers": {
+      "bytes": 2724,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/common.py",
+      "sha256": "2019b77c7ee0a415239c776ccf79a98c49180c6bd7c04629ae9baab9cde43905"
+    },
+    "confirmation_sbatch": {
+      "bytes": 1745,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/slurm/e1_confirmation.sbatch",
+      "sha256": "dcd4f57398ebe54e463ac61e456651242b73f0377b7767830568cf1d6da94329"
+    },
+    "corrected_data_loader": {
+      "bytes": 4384,
+      "git_tracked": true,
+      "path": "Cholesky-main-2/corrected_incremental_cholesky/data_utils.py",
+      "sha256": "6b578b29e53a63e79780ddbce122cc9716bae035c7c022642b079af665672740"
+    },
+    "driver": {
+      "bytes": 89042,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/e1_confirmation.py",
+      "sha256": "f8ef0660e6a64051b68054f470e92c20d6a45651b188888bfc9fc4e52b24b3ca"
+    },
+    "e2_preregistered_lock": {
+      "bytes": 4149,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/e2_preregistered_lock.json",
+      "sha256": "51c41ed86e7a7702e0d9e852d3e2f9b4cb6960c9a432699cf88b93804b25d038"
+    },
+    "e2_preregistered_protocol": {
+      "bytes": 8676,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/e2_preregistered_protocol.json",
+      "sha256": "df008561ab124e95297d540bbe37b3b4afd0fac9ef1cc2ef7a32f95b20c39ba5"
+    },
+    "extension_build": {
+      "bytes": 897,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/setup_e1_positive_candidate.py",
+      "sha256": "f87da588c72a0b6e6812e7de75ed364344f1def389195b8d787443783deebf32"
+    },
+    "freeze_sbatch": {
+      "bytes": 1733,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/slurm/e1_confirmation_freeze.sbatch",
+      "sha256": "81f837ba9dc75015880f14f75e7b04547cb3b9c31eec5f153f210d9d299b6ec5"
+    },
+    "incremental_binary": {
+      "bytes": 10859728,
+      "git_tracked": false,
+      "path": "rebuttal_experiments/e1_positive_candidate.so",
+      "sha256": "7e884903b910a5c0b87c5c93f15e3279f29399cddb7e183185d323c4415a9b1d"
+    },
+    "incremental_source": {
+      "bytes": 13606,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/e1_positive_candidate_ext.cpp",
+      "sha256": "a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0"
+    },
+    "ng_reference_driver": {
+      "bytes": 12604,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/ng_sweep.py",
+      "sha256": "62744c89d4dcf88e9eebc6905794cc6114511fc9674e037d702504d0b06dd3d3"
+    },
+    "pilot_sbatch": {
+      "bytes": 1732,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/slurm/e1_confirmation_pilot.sbatch",
+      "sha256": "1754d67fbbed41ca0ce1df701a5c793375e705aa93c82485c045eac0e5a1dca2"
+    },
+    "preflight_sbatch": {
+      "bytes": 1508,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/slurm/e1_confirmation_preflight.sbatch",
+      "sha256": "58ff0aa69192495264cd258e9c94525371c70ab9516255c1e0d45934cecd6abb"
+    },
+    "prior_outcome_audit": {
+      "bytes": 4941,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/E1_PRIOR_OUTCOME_AUDIT.md",
+      "sha256": "805626ff71bca7bad8a71888786fe75d49bc8417d590a82a8e1dd5cf0d4981f6"
+    },
+    "protein_data": {
+      "bytes": 1725537,
+      "git_tracked": true,
+      "path": "Cholesky-main-2/data/protein.mat",
+      "sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13"
+    },
+    "protocol": {
+      "bytes": 8668,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/E1_CONFIRMATION_PROTOCOL.md",
+      "sha256": "b22b714adf56c9a0baf6a8f3e7857037823ff39ef389fe477175e4841530185c"
+    }
+  },
+  "fixed_config": {
+    "architecture": [
+      9,
+      512,
+      512,
+      128,
+      1
+    ],
+    "batch_size": 256,
+    "candidate_selection": "exact source selected and synthetically frozen before E1-v4 confirmation outcomes; no v5 tuning",
+    "confirmation_seeds": [
+      62001,
+      62002,
+      62003,
+      62004,
+      62005,
+      62006,
+      62007,
+      62008,
+      62009,
+      62010
+    ],
+    "damping": 1.0,
+    "dataset": "UCI Protein protein.mat",
+    "dtype": "float32",
+    "epochs": 10,
+    "expected_data_partition": {
+      "features": 9,
+      "test_examples": 9146,
+      "test_index_sha256": "8a6bdd65ada4b99d2e2ddc2ac368c8ce99fc17c64001c27928cc73f039b5f4a7",
+      "train_examples": 36584,
+      "train_index_sha256": "6d8fd4e5f016310c1d005c6963740ec8dc9ff57886c9cf9a92077239b77bd301",
+      "training_tensor_sha256": "e17d77c799877dd560905f0a88217e703d16973af55368ed8e7a34897c987b95"
+    },
+    "learning_rate": 0.1,
+    "method_order": "parity counterbalanced by seed_index + rank_index + thread_index",
+    "momentum": 0.9,
+    "outcome_adaptive_changes": false,
+    "pilot_seeds": [
+      63001,
+      63002,
+      63003
+    ],
+    "ranks": [
+      256,
+      512,
+      1024
+    ],
+    "refactor_every": 50,
+    "refresh_threshold": 0.1,
+    "split_seed": 42,
+    "test_policy": "zero test evaluations in pilots; exactly one final test evaluation per method in each confirmation pair, after both methods finish training and all pre-test checks pass",
+    "thread_counts": [
+      1,
+      10
+    ],
+    "train_fraction": 0.8
+  },
+  "freeze_environment": {
+    "slurm": {
+      "account": "marlowe-m000151-pm06",
+      "cpus_per_task": "10",
+      "exclusive_allocation_verified": true,
+      "job_id": "394580",
+      "job_num_nodes": "1",
+      "local_id": "0",
+      "node_list": "n19",
+      "ntasks": "1",
+      "partition": "batch",
+      "process_id": "0",
+      "restart_count": "0",
+      "scontrol_job_sha256": "a47c8b3b73f5e1559e98954b3f05781d554ee5cc95f0d3340f97302ca8b54ce3",
+      "step_id": "0"
+    },
+    "thread_verification": {
+      "affinity_after": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "affinity_after_numeric_import_before_restore": [
+        0
+      ],
+      "affinity_before": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "affinity_before_numeric_import": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "affinity_before_topology": [
+        {
+          "core_id": 0,
+          "logical_cpu": 0,
+          "physical_package": 0
+        },
+        {
+          "core_id": 1,
+          "logical_cpu": 1,
+          "physical_package": 0
+        },
+        {
+          "core_id": 2,
+          "logical_cpu": 2,
+          "physical_package": 0
+        },
+        {
+          "core_id": 3,
+          "logical_cpu": 3,
+          "physical_package": 0
+        },
+        {
+          "core_id": 4,
+          "logical_cpu": 4,
+          "physical_package": 0
+        },
+        {
+          "core_id": 5,
+          "logical_cpu": 5,
+          "physical_package": 0
+        },
+        {
+          "core_id": 6,
+          "logical_cpu": 6,
+          "physical_package": 0
+        },
+        {
+          "core_id": 7,
+          "logical_cpu": 7,
+          "physical_package": 0
+        },
+        {
+          "core_id": 8,
+          "logical_cpu": 8,
+          "physical_package": 0
+        },
+        {
+          "core_id": 9,
+          "logical_cpu": 9,
+          "physical_package": 0
+        }
+      ],
+      "allocation_physical_package": 0,
+      "allocation_unique_physical_cores": 10,
+      "environment": {
+        "E1_EXCLUSIVE_NODE": "1",
+        "E1_PROCESS_CONCURRENCY": "1",
+        "MKL_DYNAMIC": "FALSE",
+        "MKL_NUM_THREADS": "10",
+        "OMP_DYNAMIC": "FALSE",
+        "OMP_NUM_THREADS": "10",
+        "OMP_PLACES": "cores",
+        "OMP_PROC_BIND": "close",
+        "OPENBLAS_NUM_THREADS": "10",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0",
+        "PYTHONNOUSERSITE": "1"
+      },
+      "requested_threads": 10,
+      "runtime_values": {
+        "aten_interop": 1,
+        "aten_intraop": 10,
+        "mkl_max": 10,
+        "openmp_max": 10
+      },
+      "selected_cpu_topology": [
+        {
+          "core_id": 0,
+          "logical_cpu": 0,
+          "physical_package": 0
+        },
+        {
+          "core_id": 1,
+          "logical_cpu": 1,
+          "physical_package": 0
+        },
+        {
+          "core_id": 2,
+          "logical_cpu": 2,
+          "physical_package": 0
+        },
+        {
+          "core_id": 3,
+          "logical_cpu": 3,
+          "physical_package": 0
+        },
+        {
+          "core_id": 4,
+          "logical_cpu": 4,
+          "physical_package": 0
+        },
+        {
+          "core_id": 5,
+          "logical_cpu": 5,
+          "physical_package": 0
+        },
+        {
+          "core_id": 6,
+          "logical_cpu": 6,
+          "physical_package": 0
+        },
+        {
+          "core_id": 7,
+          "logical_cpu": 7,
+          "physical_package": 0
+        },
+        {
+          "core_id": 8,
+          "logical_cpu": 8,
+          "physical_package": 0
+        },
+        {
+          "core_id": 9,
+          "logical_cpu": 9,
+          "physical_package": 0
+        }
+      ],
+      "selected_cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "selected_physical_package": 0,
+      "tasks_after_workload": {
+        "2606591": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606593": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606594": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606595": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606596": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606597": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606598": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606599": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606600": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606601": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606605": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606606": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606607": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606608": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606609": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606610": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606611": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606612": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "2606613": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "torch_parallel_info": "ATen/Parallel:\n\tat::get_num_threads() : 10\n\tat::get_num_interop_threads() : 1\nOpenMP 201511 (a.k.a. OpenMP 4.5)\n\tomp_get_max_threads() : 10\nIntel(R) oneAPI Math Kernel Library Version 2024.2-Product Build 20240605 for Intel(R) 64 architecture applications\n\tmkl_get_max_threads() : 10\nIntel(R) MKL-DNN v3.11.2 (Git Hash 03c022d3ffdcee958cfacbe720048e725fdf644c)\nstd::thread::hardware_concurrency() : 112\nEnvironment variables:\n\tOMP_NUM_THREADS : 10\n\tMKL_NUM_THREADS : 10\nATen parallel backend: OpenMP\n",
+      "unique_physical_cores": 10,
+      "worker_affinity_union": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  },
+  "git_commit": "2788ff1222d84563f102b079f55cb3924686c6fa",
+  "implementation": {
+    "ours": "allocation-free explicit positive same-vector update with caller-owned ping-pong Aw output, vz output, and 4r workspace; exact source selected before E1-v4 outcomes",
+    "precision": "both methods use CPU torch.float32 throughout",
+    "refact": "G += aa^T, fresh Cholesky, complete rewhitening, and two triangular solves"
+  },
+  "runtime": {
+    "critical_binary_files": {
+      "numpy_core": {
+        "bytes": 10449209,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/numpy/_core/_multiarray_umath.cpython-310-x86_64-linux-gnu.so",
+        "sha256": "c634eaf05367af02b815cf3d2020fbeee9b47426af1fe26cf3189e4798932dc5"
+      },
+      "scipy_blas": {
+        "bytes": 1032545,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/scipy/linalg/_fblas.cpython-310-x86_64-linux-gnu.so",
+        "sha256": "d2bc0b8127ab14cf1df3ae8fe4242829830ef54cc00ceafd720e68ef7e67f495"
+      },
+      "scipy_lapack": {
+        "bytes": 2478641,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/scipy/linalg/_flapack.cpython-310-x86_64-linux-gnu.so",
+        "sha256": "11742f3f308733322369de8ef867af6aaf8c3b001d61005632dff37b3a4161ee"
+      },
+      "torch_C": {
+        "bytes": 25185,
+        "path": "/users/arjo/.local/lib/python3.10/site-packages/torch/_C.cpython-310-x86_64-linux-gnu.so",
+        "sha256": "86e3afc646551bfd9456307f3c5a6209d9a9b3c92c786b926ab5e5fc3db903b5"
+      },
+      "torch_cpu": {
+        "bytes": 446770065,
+        "path": "/users/arjo/.local/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so",
+        "sha256": "cf9639fe763d6ffcb39652d66cc3a62a4f77acf77ae5c6fd398633f098568beb"
+      }
+    },
+    "extension_ldd": [
+      "linux-vdso.so.1",
+      "libc10.so => not found",
+      "libtorch_cpu.so => not found",
+      "libtorch_python.so => not found",
+      "libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6",
+      "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6",
+      "libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1",
+      "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1",
+      "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6",
+      "/lib64/ld-linux-x86-64.so.2"
+    ],
+    "extension_ldd_sha256": "b0f86bc281d96949f4833ecd8464f5b42a2b12ae9044ee0f107b7cfef2823e36",
+    "packages": {
+      "numpy": {
+        "bytes": 22147,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/numpy/__init__.py",
+        "sha256": "6ae17b070c0f70a8e3cad89a510a256942e5a1f37ea5feb120cec167ed2a6236",
+        "version": "2.2.6"
+      },
+      "scipy": {
+        "bytes": 4153,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/scipy/__init__.py",
+        "sha256": "185913aa107512fafd5cf89dfd452a8719b45a6eba833e2dcee2cbfd18b4bbe5",
+        "version": "1.15.3"
+      },
+      "torch": {
+        "bytes": 109312,
+        "path": "/users/arjo/.local/lib/python3.10/site-packages/torch/__init__.py",
+        "sha256": "d9dfff4b75d46e4c75572200a3466b70231d05b0318e38ac1bd121789165fb49",
+        "version": "2.12.0+cu130"
+      }
+    },
+    "path_policy": {
+      "E1_TORCH_SITE": "/users/arjo/.local/lib/python3.10/site-packages",
+      "PYTHONNOUSERSITE": "1",
+      "dependency_root": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps"
+    },
+    "platform": {
+      "cpu_isa": {
+        "cpu family": "6",
+        "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cat_l2 cdp_l3 invpcid_single intel_ppin cdp_l2 ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb intel_pt avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local split_lock_detect avx_vnni avx512_bf16 wbnoinvd dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req avx512vbmi umip pku ospke waitpkg avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg tme avx512_vpopcntdq la57 rdpid bus_lock_detect cldemote movdiri movdir64b enqcmd fsrm md_clear serialize tsxldtrk pconfig arch_lbr amx_bf16 avx512_fp16 amx_tile amx_int8 flush_l1d arch_capabilities ibpb_exit_to_user",
+        "model": "143",
+        "model name": "Intel(R) Xeon(R) Platinum 8480C",
+        "stepping": "8",
+        "vendor_id": "GenuineIntel"
+      },
+      "libc": [
+        "glibc",
+        "2.35"
+      ],
+      "machine": "x86_64"
+    },
+    "python": {
+      "bytes": 5917224,
+      "executable": "/usr/bin/python3.10",
+      "implementation": "CPython",
+      "sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+      "version": "3.10.12"
+    },
+    "schema_version": 1,
+    "torch_config_sha256": "ce3b6024ac24df46af76b3f59766b817a00ed645ee9a6e0974aa0b89d89c2743"
+  },
+  "schema_version": 2,
+  "task_counts": {
+    "confirmation": 60,
+    "pilot": 18
+  }
+}

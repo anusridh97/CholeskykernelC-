@@ -1,0 +1,9 @@
+E1 confirmation self-test passed
+running build_ext
+building 'e1_positive_candidate' extension
+creating build
+creating build/temp.linux-x86_64-3.10
+x86_64-linux-gnu-gcc -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -I/users/arjo/.local/lib/python3.10/site-packages/torch/include -I/users/arjo/.local/lib/python3.10/site-packages/torch/include/torch/csrc/api/include -I/usr/include/python3.10 -c e1_positive_candidate_ext.cpp -o build/temp.linux-x86_64-3.10/e1_positive_candidate_ext.o -O3 -std=c++17 -march=native -mavx512f -mavx512dq -mavx512bw -mavx512vl -mprefer-vector-width=512 -fopenmp -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=e1_positive_candidate
+creating build/lib.linux-x86_64-3.10
+x86_64-linux-gnu-g++ -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-Bsymbolic-functions -g -fwrapv -O2 -Wl,-Bsymbolic-functions -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 build/temp.linux-x86_64-3.10/e1_positive_candidate_ext.o -L/users/arjo/.local/lib/python3.10/site-packages/torch/lib -lc10 -ltorch -ltorch_cpu -ltorch_python -o build/lib.linux-x86_64-3.10/e1_positive_candidate.so -fopenmp
+copying build/lib.linux-x86_64-3.10/e1_positive_candidate.so -> 
