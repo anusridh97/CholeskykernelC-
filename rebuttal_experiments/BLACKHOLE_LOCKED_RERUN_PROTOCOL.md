@@ -117,10 +117,10 @@ After all seven tasks succeed, supply the account and partition selected
 before submission:
 
 ```bash
-/usr/bin/python3 \
+PYTHONPATH="$dep_root:$locked_worktree" /usr/bin/python3 \
   "$control_repo/rebuttal_experiments/blackhole_locked_rerun.py" aggregate \
   --control-repo "$control_repo" \
-  --source-repo "$source_repo" \
+  --source-repo "$locked_worktree" \
   --locked-worktree "$locked_worktree" \
   --campaign-dir "$campaign_dir" \
   --expected-account "<authorized-account>" \
