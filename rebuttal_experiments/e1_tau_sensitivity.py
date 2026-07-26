@@ -1169,6 +1169,8 @@ def self_test() -> None:
             "OPENBLAS_NUM_THREADS=10",
             "E1_PROCESS_CONCURRENCY=1",
             "E1_EXCLUSIVE_NODE=1",
+            "SLURM_CONF=/cm/shared/apps/slurm/var/etc/slurm/slurm.conf",
+            "/cm/shared/apps/slurm/current/bin:${PATH}",
             "exec /cm/shared/apps/slurm/current/bin/srun",
             "--kill-on-bad-exit=1",
         )

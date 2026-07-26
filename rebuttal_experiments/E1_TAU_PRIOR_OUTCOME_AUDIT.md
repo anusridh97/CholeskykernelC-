@@ -44,3 +44,15 @@ runtime, data, kernel equivalence, CPU affinity, and launch integrity.  Any
 scientific change requires a new disclosed campaign tag.  Confirmation
 outcomes are analyzed only after every predeclared task publishes, and a
 claimed task is never retried.
+
+## Preserved pre-science freeze failure
+
+Freeze job 394325 built the extension and then failed before producing a
+source lock because the inherited Slurm validator invoked `scontrol` by its
+bare name and the compute-step `PATH` did not contain Marlowe's Slurm binary
+directory.  It did not load Protein, run a kernel probe, train a model,
+materialize or evaluate test, create a confirmation claim, or publish an
+outcome.  The structured failure record and hashes of both logs are preserved
+under the campaign result directory.  The retry changes only launcher
+plumbing by exporting Marlowe's canonical `SLURM_CONF` and Slurm binary
+directory; the complete frozen scientific design is unchanged.

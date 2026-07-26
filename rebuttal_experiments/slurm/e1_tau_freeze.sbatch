@@ -16,6 +16,8 @@
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR}"
 
+export SLURM_CONF=/cm/shared/apps/slurm/var/etc/slurm/slurm.conf
+export PATH="/cm/shared/apps/slurm/current/bin:${PATH}"
 package_dir="${PWD}/Cholesky-main-2/corrected_incremental_cholesky"
 export E1_TORCH_SITE=/users/arjo/.local/lib/python3.10/site-packages
 export PYTHONPATH="${package_dir}:${PWD}:${PWD}/rebuttal_deps:${E1_TORCH_SITE}"

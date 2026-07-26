@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "experiment": "e1_tau_sensitivity_freeze_failure",
+  "campaign_tag": "e1-tau-sensitivity-v1",
+  "recorded_utc": "2026-07-26T04:51:13Z",
+  "job": {
+    "job_id": "394325",
+    "job_name": "e1-tau-freeze",
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "node": "n21",
+    "state": "FAILED",
+    "reason": "NonZeroExitCode",
+    "exit_code": "1:0",
+    "start": "2026-07-25T21:49:24",
+    "end": "2026-07-25T21:49:59",
+    "elapsed": "00:00:35",
+    "requeue": 0,
+    "restarts": 0,
+    "exclusive_allocation": true
+  },
+  "run_git_commit": "1a8382a15e1aacc62e24eb373e1e1f91d0fe9c17",
+  "stage_reached": [
+    "campaign self-test passed",
+    "native extension build completed",
+    "Slurm validation entered"
+  ],
+  "failure": {
+    "exception": "FileNotFoundError",
+    "message": "[Errno 2] No such file or directory: 'scontrol'",
+    "location": "base._validate_preflight_slurm",
+    "classification": "pre-science operational launcher PATH defect"
+  },
+  "scientific_access": {
+    "source_lock_created": false,
+    "protein_loaded": false,
+    "kernel_probe_run": false,
+    "training_started": false,
+    "heldout_tensors_materialized": false,
+    "test_evaluations": 0,
+    "confirmation_attempt_claim_created": false,
+    "outcome_artifact_created": false
+  },
+  "preserved_logs": {
+    "stdout": {
+      "path": "rebuttal_logs/e1-tau-freeze-394325.out",
+      "sha256": "683327b5c28c5834504f9a7abba53dd31eaaaa839a60e2a2424f5b0eb1d2c9b3"
+    },
+    "stderr": {
+      "path": "rebuttal_logs/e1-tau-freeze-394325.err",
+      "sha256": "be2f2e1aa4afbe29df12aa979687cb0943794cc40492e4f90d981665e5635705"
+    }
+  },
+  "corrective_scope": {
+    "change": "export canonical Marlowe SLURM_CONF and Slurm binary PATH",
+    "scientific_configuration_changed": false,
+    "outcome_informed": false,
+    "campaign_tag_retained": true
+  }
+}
