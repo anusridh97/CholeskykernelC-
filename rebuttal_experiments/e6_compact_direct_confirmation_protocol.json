@@ -1,0 +1,85 @@
+{
+  "schema_version": 2,
+  "campaign_tag": "e6-compact-direct-confirm-v2",
+  "status": "frozen_before_confirmation",
+  "objective": "Confirm the exact compact rank-k CPU implementation with fused direct left/right applications against fresh refactorization using multi-seed, exclusive-node, single-thread timing.",
+  "ranks": [
+    256,
+    1024
+  ],
+  "ks": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "seeds": [
+    88001,
+    88002,
+    88003,
+    88004,
+    88005,
+    88006,
+    88007,
+    88008,
+    88009,
+    88010
+  ],
+  "threads": 1,
+  "timed_repeats_per_method": 30,
+  "implementation": "compact",
+  "compact_backend": "fused C++ left recurrence and direct C++ right recurrence without dense transpose/copy passes",
+  "dtype": "float64",
+  "methods": [
+    "legacy_sequential_rank_one",
+    "compact_direct_rank_k",
+    "fresh_refactorization"
+  ],
+  "timing_order": "All six method permutations are repeated equally within every seed/rank/k cell.",
+  "timed_region": "Prepared mutable state cloning is outside timing. Compact timing includes two triangular solves, rank-k correction, compact factor construction, factor update, and direct left/right operator applications. Fresh timing includes G and M rank-k updates, Cholesky factorization, and complete double-sided rewhitening.",
+  "correctness_reference": "Fresh FP64 Cholesky factorization and double-sided whitening for the same G+ZZ^T and M+ZW^T.",
+  "relative_error_tolerance": 1e-9,
+  "resource_contract": {
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "qos": "medium",
+    "exclusive_node": true,
+    "processes": 1,
+    "physical_cpus_per_process": 1,
+    "omp_threads": 1,
+    "mkl_threads": 1,
+    "openblas_threads": 1
+  },
+  "statistical_unit": "One independently generated problem seed; repeat-level timings are summarized within seed and are not pseudoreplicated.",
+  "primary_estimand": "Within-seed fresh-refactorization median divided by compact-direct rank-k median, summarized across the ten seeds.",
+  "retain_all_rows": true,
+  "stopping_rule": "Run every declared rank, k, and seed. Do not tune, filter, stop, or rerun based on confirmation outcomes.",
+  "pilot_context": {
+    "source_commit": "16ba7b9a0401ea24f24b90054ce138a06f5e32ca",
+    "result_root": "rebuttal_results/e6_small_rank_optimization_pilot",
+    "seeds": [
+      87001,
+      87002,
+      87003,
+      87004,
+      87005
+    ],
+    "cell": {
+      "rank": 256,
+      "k": 32
+    },
+    "selection_rule": "Proceed to a fresh full-grid confirmation only if all correctness checks pass and compact-direct is faster than fresh refactorization on every development seed.",
+    "selection_result": "passed before this protocol was frozen: all five correctness checks passed and every development-seed fresh/direct median ratio exceeded 1",
+    "role": "implementation selection and debugging only",
+    "excluded_from_confirmation_statistics": true
+  },
+  "prior_confirmation": {
+    "campaign_tag": "e6-compact-confirm-v1",
+    "status": "complete and retained",
+    "finding_remediated": "the former transpose-based compact backend lost only at r=256,k=32"
+  },
+  "result_root": "rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2",
+  "report_edit_authorized_after_complete_audit": true
+}

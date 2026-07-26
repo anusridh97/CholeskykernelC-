@@ -15,6 +15,8 @@ from typing import Any
 
 from .common import ROOT
 from .rank_k import (
+    COMPACT_CPP_MAX_K,
+    COMPACT_PHASE_NAMES,
     CONFIRMATION_CAMPAIGN,
     CONFIRMATION_KS,
     CONFIRMATION_PROTOCOL,
@@ -128,6 +130,38 @@ def validate_payload(
         raise ValueError(f"rank-k row mismatch in r={rank}, seed={seed}")
     for row in rows:
         k = int(row["k"])
+        if row.get("compact_apply_backend") != (
+            "fused_cpp_left_direct_cpp_right"
+        ):
+            raise ValueError(
+                f"wrong compact backend in r={rank}, seed={seed}, k={k}: "
+                f"{row.get('compact_apply_backend')}"
+            )
+        if int(row.get("compact_cpp_max_k", -1)) != COMPACT_CPP_MAX_K:
+            raise ValueError(
+                f"wrong compact C++ cutoff in r={rank}, seed={seed}, k={k}"
+            )
+        if row.get("compact_phase_names") != list(COMPACT_PHASE_NAMES):
+            raise ValueError(
+                f"wrong compact phase manifest in r={rank}, seed={seed}, k={k}"
+            )
+        phase_samples = row.get("compact_phase_seconds_samples")
+        if (
+            not isinstance(phase_samples, list)
+            or len(phase_samples) != CONFIRMATION_REPEATS
+            or any(
+                not isinstance(sample, list)
+                or len(sample) != len(COMPACT_PHASE_NAMES)
+                or not all(
+                    math.isfinite(float(value)) and float(value) >= 0.0
+                    for value in sample
+                )
+                for sample in phase_samples
+            )
+        ):
+            raise ValueError(
+                f"invalid compact phase samples in r={rank}, seed={seed}, k={k}"
+            )
         if int(row.get("repeats", -1)) != CONFIRMATION_REPEATS:
             raise ValueError(f"repeat mismatch in r={rank}, seed={seed}, k={k}")
         samples = row.get("timing_seconds_samples", {})
@@ -180,6 +214,27 @@ def validate_payload(
                     f"invalid timing in r={rank}, seed={seed}, k={k}, "
                     f"{field}={value}"
                 )
+    diagnosis = payload.get("compact_diagnosis") or {}
+    expected_diagnosis = {
+        "operator_dense_sweeps": 3,
+        "timed_dense_allocations": 0,
+        "workspace_reused_across_repetitions": True,
+        "cpp_row_recurrence_max_k": COMPACT_CPP_MAX_K,
+    }
+    observed_diagnosis = {
+        key: diagnosis.get(key) for key in expected_diagnosis
+    }
+    if observed_diagnosis != expected_diagnosis:
+        raise ValueError(
+            f"compact diagnosis mismatch in r={rank}, seed={seed}: "
+            f"expected {expected_diagnosis}, got {observed_diagnosis}"
+        )
+    if "no dense transpose/copy pass" not in str(
+        diagnosis.get("operator_dense_sweep_explanation")
+    ):
+        raise ValueError(
+            f"direct-path diagnosis missing in r={rank}, seed={seed}"
+        )
 
 
 def aggregate() -> dict[str, Any]:
@@ -281,8 +336,8 @@ def aggregate() -> dict[str, Any]:
                 }
             )
     return {
-        "schema_version": 1,
-        "experiment": "e6_compact_rank_k_confirmation_summary",
+        "schema_version": 2,
+        "experiment": "e6_compact_direct_rank_k_confirmation_summary",
         "campaign_tag": CONFIRMATION_CAMPAIGN,
         "status": "complete",
         "protocol_path": str(CONFIRMATION_PROTOCOL.relative_to(ROOT)),

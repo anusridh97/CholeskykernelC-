@@ -30,17 +30,19 @@ PILOT_KS = (1, 2, 4, 8, 16, 32)
 PILOT_THREADS = 1
 PILOT_REPEATS = 20
 PILOT_VARIANT = "compact-v4-hybrid16-bs32"
-CONFIRMATION_CAMPAIGN = "e6-compact-confirm-v1"
+CONFIRMATION_CAMPAIGN = "e6-compact-direct-confirm-v2"
 CONFIRMATION_RANKS = (256, 1024)
 CONFIRMATION_KS = (1, 2, 4, 8, 16, 32)
-CONFIRMATION_SEEDS = tuple(range(61001, 61011))
+CONFIRMATION_SEEDS = tuple(range(88001, 88011))
 CONFIRMATION_THREADS = 1
 CONFIRMATION_REPEATS = 30
 CONFIRMATION_PROTOCOL = (
-    Path(__file__).resolve().with_name("e6_compact_confirmation_protocol.json")
+    Path(__file__).resolve().with_name(
+        "e6_compact_direct_confirmation_protocol.json"
+    )
 )
 COMPACT_BLOCK_SIZE = 32
-COMPACT_CPP_MAX_K = 16
+COMPACT_CPP_MAX_K = 32
 NATIVE_PHASE_NAMES = (
     "vector_copy_and_pad_reset",
     "cholesky_rank1_update",
@@ -56,9 +58,7 @@ COMPACT_PHASE_NAMES = (
     "compact_parameter_recurrence",
     "compact_factor_product",
     "operator_left_compact_apply",
-    "operator_transpose_to_right_layout",
-    "operator_right_compact_apply",
-    "operator_transpose_to_output",
+    "operator_direct_right_compact_apply",
 )
 
 
@@ -395,7 +395,9 @@ def run(args: argparse.Namespace) -> dict:
         compact_buffer = torch.empty_like(Aw)
         compact_scratch = torch.empty_like(Aw)
         compact_prefix = torch.empty(k, r, dtype=L.dtype)
-        compact_apply_workspace = torch.empty(k * r, dtype=L.dtype)
+        compact_apply_workspace = torch.empty(
+            max(k * r, r + k), dtype=L.dtype
+        )
         compact_coefficient = torch.empty(
             COMPACT_BLOCK_SIZE,
             COMPACT_BLOCK_SIZE,
@@ -403,7 +405,7 @@ def run(args: argparse.Namespace) -> dict:
         )
         compact_cpp_phase = torch.empty(2, dtype=torch.float64)
         compact_apply_backend = (
-            "contiguous_cpp_row_recurrence"
+            "fused_cpp_left_direct_cpp_right"
             if k <= COMPACT_CPP_MAX_K
             else "blocked_blas_semiseparable"
         )
@@ -455,12 +457,14 @@ def run(args: argparse.Namespace) -> dict:
                 compact_buffer,
                 compact_scratch,
             )
-            compact_buffer.copy_(compact_scratch.mT)
-            compact_left(
-                compact_buffer,
+            fast_cholesky.fast_compact_apply_right_out(
                 compact_scratch,
+                compact_U,
+                compact_Q,
+                compact_d,
+                Aw_work,
+                compact_apply_workspace,
             )
-            Aw_work.copy_(compact_scratch.mT)
             return L_work, Aw_work
 
         def compact_profile(L_work, Aw_work):
@@ -501,16 +505,14 @@ def run(args: argparse.Namespace) -> dict:
             )
             samples.append(time.perf_counter() - started)
             started = time.perf_counter()
-            compact_buffer.copy_(compact_scratch.mT)
-            samples.append(time.perf_counter() - started)
-            started = time.perf_counter()
-            compact_left(
-                compact_buffer,
+            fast_cholesky.fast_compact_apply_right_out(
                 compact_scratch,
+                compact_U,
+                compact_Q,
+                compact_d,
+                Aw_work,
+                compact_apply_workspace,
             )
-            samples.append(time.perf_counter() - started)
-            started = time.perf_counter()
-            Aw_work.copy_(compact_scratch.mT)
             samples.append(time.perf_counter() - started)
             return samples
 
@@ -843,10 +845,10 @@ def run(args: argparse.Namespace) -> dict:
                 ),
                 "factor_complexity": "O(r*k^2 + r^2*k)",
                 "operator_complexity": "O(r^2*k)",
-                "operator_dense_sweeps": 5,
+                "operator_dense_sweeps": 3,
                 "operator_dense_sweep_explanation": (
-                    "rank-k correction, two compact applications, and "
-                    "two layout/output copies; constants do not grow with k"
+                    "rank-k correction plus fused direct left and right "
+                    "compact applications; no dense transpose/copy pass"
                 ),
                 "timed_dense_allocations": 0,
                 "workspace_reused_across_repetitions": True,

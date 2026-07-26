@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=e6-compact-confirm
+#SBATCH --job-name=e6-direct-confirm
 #SBATCH --account=marlowe-m000151-pm06
 #SBATCH --partition=batch
 #SBATCH --qos=medium
@@ -8,10 +8,11 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --hint=nomultithread
 #SBATCH --exclusive
+#SBATCH --no-requeue
 #SBATCH --mem=96G
-#SBATCH --time=01:00:00
-#SBATCH --output=rebuttal_logs/e6-compact-confirm-%j.out
-#SBATCH --error=rebuttal_logs/e6-compact-confirm-%j.err
+#SBATCH --time=00:15:00
+#SBATCH --output=rebuttal_logs/e6-direct-confirm-%j.out
+#SBATCH --error=rebuttal_logs/e6-direct-confirm-%j.err
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR}"
@@ -56,7 +57,7 @@ export PYTHONPATH="${BUILD_ROOT}/lib:${PWD}/student_pkg:${PWD}:${REBUTTAL_DEPS}:
   bash -lc '
     set -euo pipefail
     for rank in 256 1024; do
-      for seed in 61001 61002 61003 61004 61005 61006 61007 61008 61009 61010; do
+      for seed in 88001 88002 88003 88004 88005 88006 88007 88008 88009 88010; do
         /usr/bin/python3 -m rebuttal_experiments.rank_k \
           --confirmation \
           --rank "${rank}" \
