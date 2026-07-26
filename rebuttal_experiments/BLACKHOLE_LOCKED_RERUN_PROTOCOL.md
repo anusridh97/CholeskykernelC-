@@ -110,6 +110,11 @@ sbatch \
 
 The same script can be used on the current account with its authorized H100
 partition.  Do not submit a second copy of an index whose claim exists.
+The strict audit requires seven distinct H100 UUIDs and seven distinct Slurm
+element job IDs.  Submit only when the allocation can place all seven array
+elements without recycling one physical GPU; a staggered array that reuses a
+GPU is deliberately rejected rather than silently changing the hardware
+design.
 
 ## Audit
 

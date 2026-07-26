@@ -389,13 +389,30 @@ def _verify_control_harness(lock: dict[str, Any], control_repo: Path) -> None:
         raise LockedRerunError("outer rerun harness differs from its locked bytes")
 
 
-def _canonical_lock_commit(control_repo: Path, lock: dict[str, Any]) -> str:
+def _canonical_lock_commit(
+    control_repo: Path,
+    lock: dict[str, Any],
+    lock_path: Path | None = None,
+) -> str:
     canonical = _default_lock(control_repo)
     if not canonical.is_file():
         raise LockedRerunError(f"missing canonical campaign lock: {canonical}")
     canonical_value = _load_json(canonical)
     if canonical_value != lock:
         raise LockedRerunError("campaign lock differs from the canonical lock")
+    if lock_path is not None:
+        if not lock_path.is_file():
+            raise LockedRerunError(f"missing supplied campaign lock: {lock_path}")
+        _equal(
+            lock_path.stat().st_size,
+            canonical.stat().st_size,
+            "campaign/canonical lock byte count",
+        )
+        _equal(
+            _sha256_file(lock_path),
+            _sha256_file(canonical),
+            "campaign/canonical lock SHA-256",
+        )
     relative = str(canonical.relative_to(control_repo))
     tracked = _git(
         control_repo,
@@ -441,6 +458,19 @@ def _verify_git_sources(
             LOCKED_COMMIT,
             "detached worktree HEAD",
         )
+        symbolic_head = _git(
+            repository,
+            "symbolic-ref",
+            "-q",
+            "HEAD",
+            check=False,
+        )
+        if symbolic_head.returncode == 0:
+            branch = symbolic_head.stdout.decode("utf-8", errors="replace").strip()
+            raise LockedRerunError(
+                "locked source must have detached HEAD, but points to "
+                f"{branch or 'a symbolic ref'}"
+            )
     for relative, metadata in lock["sources"].items():
         blob = _git_blob(repository, LOCKED_COMMIT, relative)
         _equal(len(blob), metadata["bytes"], f"Git blob {relative} byte count")
@@ -509,7 +539,7 @@ def _load_and_verify_lock(
     lock = _load_json(lock_path)
     _validate_lock_shape(lock)
     _verify_control_harness(lock, control_repo)
-    _canonical_lock_commit(control_repo, lock)
+    _canonical_lock_commit(control_repo, lock, lock_path)
     _verify_git_sources(lock, source_repo, require_head=require_source_head)
     return lock
 
@@ -525,6 +555,10 @@ def _slurm_metadata(rank: int) -> dict[str, Any]:
         "job_id": "SLURM_JOB_ID",
         "array_job_id": "SLURM_ARRAY_JOB_ID",
         "array_task_id": "SLURM_ARRAY_TASK_ID",
+        "array_task_count": "SLURM_ARRAY_TASK_COUNT",
+        "array_task_min": "SLURM_ARRAY_TASK_MIN",
+        "array_task_max": "SLURM_ARRAY_TASK_MAX",
+        "array_task_step": "SLURM_ARRAY_TASK_STEP",
         "account": "SLURM_JOB_ACCOUNT",
         "partition": "SLURM_JOB_PARTITION",
         "cpus_per_task": "SLURM_CPUS_PER_TASK",
@@ -537,11 +571,23 @@ def _slurm_metadata(rank: int) -> dict[str, Any]:
         if value is None or value == "":
             raise LockedRerunError(f"{variable} must be set by Slurm")
         values[key] = value
-    for key in ("job_id", "array_job_id", "array_task_id"):
+    for key in (
+        "job_id",
+        "array_job_id",
+        "array_task_id",
+        "array_task_count",
+        "array_task_min",
+        "array_task_max",
+        "array_task_step",
+    ):
         if not str(values[key]).isdigit():
             raise LockedRerunError(f"Slurm {key} must be numeric")
     expected_task = _rank_task(rank)
     _equal(int(values["array_task_id"]), expected_task, "Slurm task-to-rank mapping")
+    _equal(values["array_task_count"], "7", "Slurm array task count")
+    _equal(values["array_task_min"], "0", "Slurm array task minimum")
+    _equal(values["array_task_max"], "6", "Slurm array task maximum")
+    _equal(values["array_task_step"], "1", "Slurm array task step")
     _equal(values["cpus_per_task"], "4", "Slurm CPUs per task")
     values.update(
         {
@@ -1018,10 +1064,21 @@ def _validate_parallel_contexts(
             f"rank {row['rank']} task mapping",
         )
     _equal(
-        len({(row["job_id"], row["array_task_id"]) for row in contexts}),
+        len({row["job_id"] for row in contexts}),
         len(RANKS),
-        "unique Slurm task execution count",
+        "unique Slurm job ID count",
     )
+    for key, expected in (
+        ("array_task_count", "7"),
+        ("array_task_min", "0"),
+        ("array_task_max", "6"),
+        ("array_task_step", "1"),
+    ):
+        _equal(
+            {row[key] for row in contexts},
+            {expected},
+            f"Slurm {key} set",
+        )
     _equal(
         {row["account"] for row in contexts},
         {expected_account},
@@ -1380,6 +1437,10 @@ def self_test(args: argparse.Namespace) -> None:
             "rank": rank,
             "array_job_id": "700",
             "array_task_id": str(task),
+            "array_task_count": "7",
+            "array_task_min": "0",
+            "array_task_max": "6",
+            "array_task_step": "1",
             "job_id": str(700 + task),
             "account": "authorized",
             "partition": "h100",
@@ -1422,6 +1483,28 @@ def self_test(args: argparse.Namespace) -> None:
             require_distinct_gpus=True,
         ),
         "mixed array",
+    )
+    duplicate_job = copy.deepcopy(contexts)
+    duplicate_job[-1]["job_id"] = duplicate_job[0]["job_id"]
+    expect_locked_error(
+        lambda: _validate_parallel_contexts(
+            duplicate_job,
+            expected_account="authorized",
+            expected_partition="h100",
+            require_distinct_gpus=True,
+        ),
+        "duplicate Slurm job ID",
+    )
+    wrong_array_count = copy.deepcopy(contexts)
+    wrong_array_count[-1]["array_task_count"] = "6"
+    expect_locked_error(
+        lambda: _validate_parallel_contexts(
+            wrong_array_count,
+            expected_account="authorized",
+            expected_partition="h100",
+            require_distinct_gpus=True,
+        ),
+        "wrong Slurm array task count",
     )
     wrong_account = copy.deepcopy(contexts)
     wrong_account[-1]["account"] = "other"
