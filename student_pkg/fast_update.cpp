@@ -158,6 +158,175 @@ inline scalar_t dot_contiguous(
     return total;
 }
 
+template <typename scalar_t>
+inline scalar_t dot_and_add_scaled_contiguous(
+    scalar_t* __restrict__ prefix,
+    const scalar_t* __restrict__ q,
+    const scalar_t* __restrict__ u,
+    scalar_t value,
+    int len
+) {
+    int i = 0;
+    scalar_t total = scalar_t(0);
+#ifdef __AVX512F__
+    if constexpr(std::is_same_v<scalar_t, float>) {
+        const __m512 vvalue = _mm512_set1_ps(value);
+        if (len == 32) {
+            const __m512 vp0 = _mm512_loadu_ps(prefix);
+            const __m512 vp1 = _mm512_loadu_ps(prefix + 16);
+            const __m512 vq0 = _mm512_loadu_ps(q);
+            const __m512 vq1 = _mm512_loadu_ps(q + 16);
+            const __m512 vu0 = _mm512_loadu_ps(u);
+            const __m512 vu1 = _mm512_loadu_ps(u + 16);
+            _mm512_storeu_ps(
+                prefix,
+                _mm512_fmadd_ps(vvalue, vu0, vp0)
+            );
+            _mm512_storeu_ps(
+                prefix + 16,
+                _mm512_fmadd_ps(vvalue, vu1, vp1)
+            );
+            return _mm512_reduce_add_ps(
+                _mm512_add_ps(
+                    _mm512_mul_ps(vq0, vp0),
+                    _mm512_mul_ps(vq1, vp1)
+                )
+            );
+        }
+        __m512 vacc = _mm512_setzero_ps();
+        for (; i + 15 < len; i += 16) {
+            const __m512 vprefix = _mm512_loadu_ps(prefix + i);
+            const __m512 vq = _mm512_loadu_ps(q + i);
+            const __m512 vu = _mm512_loadu_ps(u + i);
+            vacc = _mm512_fmadd_ps(vq, vprefix, vacc);
+            _mm512_storeu_ps(
+                prefix + i,
+                _mm512_fmadd_ps(vvalue, vu, vprefix)
+            );
+        }
+        alignas(64) float tmp[16];
+        _mm512_store_ps(tmp, vacc);
+        for (int j = 0; j < 16; j++)
+            total += tmp[j];
+    } else if constexpr(std::is_same_v<scalar_t, double>) {
+        const __m512d vvalue = _mm512_set1_pd(value);
+        if (len == 32) {
+            const __m512d vp0 = _mm512_loadu_pd(prefix);
+            const __m512d vp1 = _mm512_loadu_pd(prefix + 8);
+            const __m512d vp2 = _mm512_loadu_pd(prefix + 16);
+            const __m512d vp3 = _mm512_loadu_pd(prefix + 24);
+            const __m512d vq0 = _mm512_loadu_pd(q);
+            const __m512d vq1 = _mm512_loadu_pd(q + 8);
+            const __m512d vq2 = _mm512_loadu_pd(q + 16);
+            const __m512d vq3 = _mm512_loadu_pd(q + 24);
+            const __m512d vu0 = _mm512_loadu_pd(u);
+            const __m512d vu1 = _mm512_loadu_pd(u + 8);
+            const __m512d vu2 = _mm512_loadu_pd(u + 16);
+            const __m512d vu3 = _mm512_loadu_pd(u + 24);
+            _mm512_storeu_pd(
+                prefix,
+                _mm512_fmadd_pd(vvalue, vu0, vp0)
+            );
+            _mm512_storeu_pd(
+                prefix + 8,
+                _mm512_fmadd_pd(vvalue, vu1, vp1)
+            );
+            _mm512_storeu_pd(
+                prefix + 16,
+                _mm512_fmadd_pd(vvalue, vu2, vp2)
+            );
+            _mm512_storeu_pd(
+                prefix + 24,
+                _mm512_fmadd_pd(vvalue, vu3, vp3)
+            );
+            return _mm512_reduce_add_pd(
+                _mm512_add_pd(
+                    _mm512_add_pd(
+                        _mm512_mul_pd(vq0, vp0),
+                        _mm512_mul_pd(vq1, vp1)
+                    ),
+                    _mm512_add_pd(
+                        _mm512_mul_pd(vq2, vp2),
+                        _mm512_mul_pd(vq3, vp3)
+                    )
+                )
+            );
+        }
+        __m512d vacc = _mm512_setzero_pd();
+        for (; i + 7 < len; i += 8) {
+            const __m512d vprefix = _mm512_loadu_pd(prefix + i);
+            const __m512d vq = _mm512_loadu_pd(q + i);
+            const __m512d vu = _mm512_loadu_pd(u + i);
+            vacc = _mm512_fmadd_pd(vq, vprefix, vacc);
+            _mm512_storeu_pd(
+                prefix + i,
+                _mm512_fmadd_pd(vvalue, vu, vprefix)
+            );
+        }
+        alignas(64) double tmp[8];
+        _mm512_store_pd(tmp, vacc);
+        for (int j = 0; j < 8; j++)
+            total += tmp[j];
+    }
+#endif
+    for (; i < len; i++) {
+        total += q[i] * prefix[i];
+        prefix[i] += value * u[i];
+    }
+    return total;
+}
+
+template <typename scalar_t>
+inline void dual_add_scaled_contiguous(
+    scalar_t* __restrict__ output,
+    scalar_t* __restrict__ prefix,
+    const scalar_t* __restrict__ input,
+    scalar_t output_scale,
+    scalar_t prefix_scale,
+    int len
+) {
+    int i = 0;
+#ifdef __AVX512F__
+    if constexpr(std::is_same_v<scalar_t, float>) {
+        const __m512 vo_scale = _mm512_set1_ps(output_scale);
+        const __m512 vp_scale = _mm512_set1_ps(prefix_scale);
+        for (; i + 15 < len; i += 16) {
+            const __m512 vo = _mm512_loadu_ps(output + i);
+            const __m512 vp = _mm512_loadu_ps(prefix + i);
+            const __m512 vx = _mm512_loadu_ps(input + i);
+            _mm512_storeu_ps(
+                output + i,
+                _mm512_fmadd_ps(vo_scale, vp, vo)
+            );
+            _mm512_storeu_ps(
+                prefix + i,
+                _mm512_fmadd_ps(vp_scale, vx, vp)
+            );
+        }
+    } else if constexpr(std::is_same_v<scalar_t, double>) {
+        const __m512d vo_scale = _mm512_set1_pd(output_scale);
+        const __m512d vp_scale = _mm512_set1_pd(prefix_scale);
+        for (; i + 7 < len; i += 8) {
+            const __m512d vo = _mm512_loadu_pd(output + i);
+            const __m512d vp = _mm512_loadu_pd(prefix + i);
+            const __m512d vx = _mm512_loadu_pd(input + i);
+            _mm512_storeu_pd(
+                output + i,
+                _mm512_fmadd_pd(vo_scale, vp, vo)
+            );
+            _mm512_storeu_pd(
+                prefix + i,
+                _mm512_fmadd_pd(vp_scale, vx, vp)
+            );
+        }
+    }
+#endif
+    for (; i < len; i++) {
+        output[i] += output_scale * prefix[i];
+        prefix[i] += prefix_scale * input[i];
+    }
+}
+
 
 // Core single-update implementation. Templated on scalar type so we can
 // instantiate for float and double without runtime dispatch inside the
@@ -924,15 +1093,11 @@ void compact_apply_left_impl(
         const scalar_t* u = &U[i * update_count];
         for (int p = 0; p < update_count; p++) {
             scalar_t* prefix_row = &prefix[p * columns];
-            add_scaled_contiguous(
+            dual_add_scaled_contiguous(
                 out,
                 prefix_row,
-                -q[p],
-                columns
-            );
-            add_scaled_contiguous(
-                prefix_row,
                 x,
+                -q[p],
                 u[p],
                 columns
             );
@@ -1023,6 +1188,134 @@ torch::Tensor fast_compact_apply_left_out(
     return output;
 }
 
+// Apply the same compact inverse factor from the right without transposing a
+// dense r-by-r operand.  Since P=C^{-1} is lower triangular,
+//
+//   (X P^T)_{a,i}
+//     = X_{a,i}/d_i - q_i^T sum_{j<i} u_j X_{a,j}.
+//
+// Each row of X is therefore an independent forward recurrence with only a
+// k-vector prefix.  This removes the two dense transpose/copy passes that
+// were previously needed to reuse the left-application routine.
+template <typename scalar_t>
+void compact_apply_right_impl(
+    const scalar_t* __restrict__ X,
+    const scalar_t* __restrict__ U,
+    const scalar_t* __restrict__ Q,
+    const scalar_t* __restrict__ inverse_d,
+    scalar_t* __restrict__ output,
+    scalar_t* __restrict__ prefix,
+    int r,
+    int update_count
+) {
+    for (int row = 0; row < r; row++) {
+        std::fill(prefix, prefix + update_count, scalar_t(0));
+        const scalar_t* x_row = &X[row * r];
+        scalar_t* output_row = &output[row * r];
+        for (int i = 0; i < r; i++) {
+            const scalar_t value = x_row[i];
+            output_row[i] = value * inverse_d[i]
+                - dot_and_add_scaled_contiguous(
+                prefix,
+                &Q[i * update_count],
+                &U[i * update_count],
+                value,
+                update_count
+            );
+        }
+    }
+}
+
+torch::Tensor fast_compact_apply_right_out(
+    torch::Tensor X,
+    torch::Tensor U,
+    torch::Tensor Q,
+    torch::Tensor d,
+    torch::Tensor output,
+    torch::Tensor workspace
+) {
+    TORCH_CHECK(
+        X.device().is_cpu() && U.device().is_cpu()
+            && Q.device().is_cpu() && d.device().is_cpu()
+            && output.device().is_cpu() && workspace.device().is_cpu(),
+        "all compact-right-apply tensors must be on CPU"
+    );
+    TORCH_CHECK(
+        X.scalar_type() == torch::kFloat32
+            || X.scalar_type() == torch::kFloat64,
+        "compact right apply supports only float32 and float64"
+    );
+    TORCH_CHECK(
+        U.scalar_type() == X.scalar_type()
+            && Q.scalar_type() == X.scalar_type()
+            && d.scalar_type() == X.scalar_type()
+            && output.scalar_type() == X.scalar_type()
+            && workspace.scalar_type() == X.scalar_type(),
+        "all compact-right-apply tensors must have the same dtype"
+    );
+    TORCH_CHECK(
+        X.dim() == 2 && X.size(0) > 0 && X.size(0) == X.size(1),
+        "X must be a nonempty square matrix"
+    );
+    const int64_t r = X.size(0);
+    TORCH_CHECK(
+        U.dim() == 2 && U.size(0) == r && U.size(1) > 0,
+        "U must have shape (r, k) with k > 0"
+    );
+    const int64_t update_count = U.size(1);
+    TORCH_CHECK(Q.sizes() == U.sizes(), "Q must match U shape");
+    TORCH_CHECK(d.dim() == 1 && d.size(0) == r, "d must have shape (r,)");
+    TORCH_CHECK(output.sizes() == X.sizes(), "output must match X shape");
+    TORCH_CHECK(
+        workspace.dim() == 1
+            && workspace.numel() >= r + update_count,
+        "workspace must have at least r+k elements"
+    );
+    TORCH_CHECK(
+        X.is_contiguous() && U.is_contiguous() && Q.is_contiguous()
+            && d.is_contiguous() && output.is_contiguous()
+            && workspace.is_contiguous(),
+        "all compact-right-apply tensors must be contiguous"
+    );
+    TORCH_CHECK(
+        X.data_ptr() != output.data_ptr(),
+        "compact right apply does not support input/output aliasing"
+    );
+
+    if (X.scalar_type() == torch::kFloat64) {
+        double* workspace_data = workspace.data_ptr<double>();
+        const double* d_data = d.data_ptr<double>();
+        for (int64_t i = 0; i < r; i++)
+            workspace_data[i] = 1.0 / d_data[i];
+        compact_apply_right_impl<double>(
+            X.data_ptr<double>(),
+            U.data_ptr<double>(),
+            Q.data_ptr<double>(),
+            workspace_data,
+            output.data_ptr<double>(),
+            workspace_data + r,
+            static_cast<int>(r),
+            static_cast<int>(update_count)
+        );
+    } else {
+        float* workspace_data = workspace.data_ptr<float>();
+        const float* d_data = d.data_ptr<float>();
+        for (int64_t i = 0; i < r; i++)
+            workspace_data[i] = 1.0f / d_data[i];
+        compact_apply_right_impl<float>(
+            X.data_ptr<float>(),
+            U.data_ptr<float>(),
+            Q.data_ptr<float>(),
+            workspace_data,
+            output.data_ptr<float>(),
+            workspace_data + r,
+            static_cast<int>(r),
+            static_cast<int>(update_count)
+        );
+    }
+    return output;
+}
+
 std::tuple<torch::Tensor, torch::Tensor> fast_incremental_update(
     torch::Tensor L, torch::Tensor Aw, torch::Tensor z, torch::Tensor w
 ) {
@@ -1099,5 +1392,9 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
     m.def(
         "fast_compact_apply_left_out",
         &fast_compact_apply_left_out
+    );
+    m.def(
+        "fast_compact_apply_right_out",
+        &fast_compact_apply_right_out
     );
 }

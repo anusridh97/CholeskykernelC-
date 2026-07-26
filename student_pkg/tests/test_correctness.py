@@ -262,12 +262,32 @@ def test_cpp_compact_factor_matches_fresh(dtype, tolerance, r, k):
     )
     assert product_result.data_ptr() == product_pointer
 
+    X_right = torch.randn(
+        r,
+        r,
+        dtype=dtype,
+        generator=generator,
+    ).contiguous()
+    compact_right_product = torch.empty_like(X_right)
+    right_workspace = torch.empty(max(r + k, r * k), dtype=dtype)
+    right_pointer = compact_right_product.data_ptr()
+    right_result = fast_cholesky.fast_compact_apply_right_out(
+        X_right,
+        U,
+        Q,
+        d,
+        compact_right_product,
+        right_workspace,
+    )
+    assert right_result.data_ptr() == right_pointer
+
     identity = torch.eye(r, dtype=dtype)
     L_fresh = torch.linalg.cholesky(G + Z @ Z.mT)
     comparisons = (
         (C @ C.mT, identity + U @ U.mT),
         (P @ C, identity),
         (compact_product, P @ X),
+        (compact_right_product, X_right @ P.mT),
         (L_compact, L @ C),
         (L_compact, L_fresh),
     )
