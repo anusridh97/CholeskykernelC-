@@ -1,0 +1,44 @@
+{
+  "campaign_tag": "e1-tau-sensitivity-v1",
+  "created_utc": "2026-07-26T05:16:49.810350+00:00",
+  "experiment": "e1_tau_confirmation_exactly_once_claim",
+  "policy": "This seed/rank block may never be retried. If it fails before publishing, retire the campaign rather than risk a repeated held-out evaluation.",
+  "preflight_sha256": "05c7333ac94c66fb0159ee839196e4b1d4962e4055e6e1b1cce25e6f662555d0",
+  "run_git_commit": "a559dd06648b1c60bb8764f37ab711b23267076c",
+  "schema_version": 1,
+  "slurm": {
+    "account": "marlowe-m000151-pm06",
+    "array_job_id": "394435",
+    "array_task_id": "11",
+    "cpus_per_task": "10",
+    "exclusive_allocation_verified": true,
+    "job_id": "394450",
+    "job_num_nodes": "1",
+    "local_id": "0",
+    "node_list": "n26",
+    "ntasks": "1",
+    "partition": "batch",
+    "process_id": "0",
+    "restart_count": "0",
+    "scontrol_job_sha256": "8ed1b83c307e523b1e8f2443354b84fb0c98b4e6f979b0a5b1d71298a9b1e2cf",
+    "step_id": "0"
+  },
+  "source_lock_sha256": "36dccb6ca63865a15f0b6a887691b20bd647b9cfc77697856fd3485be300f286",
+  "spec": {
+    "phase": "confirmation",
+    "rank": 1024,
+    "rank_index": 1,
+    "seed": 3005,
+    "seed_index": 5,
+    "task_index": 11,
+    "threads": 10,
+    "threshold_order": [
+      0.5,
+      0.01,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ]
+  }
+}
