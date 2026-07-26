@@ -1,0 +1,630 @@
+{
+  "campaign_tag": "e1-confirm-samevector-out-v5",
+  "confirmation_outcomes_present_before_launch": false,
+  "created_utc": "2026-07-26T06:45:40.059927+00:00",
+  "data": {
+    "features": 9,
+    "test_examples": 9146,
+    "test_index_sha256": "8a6bdd65ada4b99d2e2ddc2ac368c8ce99fc17c64001c27928cc73f039b5f4a7",
+    "train_examples": 36584,
+    "train_index_sha256": "6d8fd4e5f016310c1d005c6963740ec8dc9ff57886c9cf9a92077239b77bd301",
+    "training_tensor_sha256": "e17d77c799877dd560905f0a88217e703d16973af55368ed8e7a34897c987b95"
+  },
+  "experiment": "e1_confirmation_preflight",
+  "kernel_probes": [
+    {
+      "caller_owned_outputs_and_workspace": true,
+      "contract": "positive metric/operator same-vector update",
+      "dtype": "torch.float32",
+      "errors": {
+        "Aw_relative_error": 1.475240651416243e-06,
+        "L_relative_error": 7.299890825152033e-08,
+        "vz_relative_error": 8.346901267941575e-07
+      },
+      "passed": true,
+      "predeclared_tolerances": {
+        "Aw_relative_error": 5e-05,
+        "L_relative_error": 5e-06,
+        "vz_relative_error": 5e-05
+      },
+      "rank": 256
+    },
+    {
+      "caller_owned_outputs_and_workspace": true,
+      "contract": "positive metric/operator same-vector update",
+      "dtype": "torch.float32",
+      "errors": {
+        "Aw_relative_error": 2.6717611945059616e-06,
+        "L_relative_error": 9.757003027743849e-08,
+        "vz_relative_error": 1.4489404520645621e-06
+      },
+      "passed": true,
+      "predeclared_tolerances": {
+        "Aw_relative_error": 5e-05,
+        "L_relative_error": 5e-06,
+        "vz_relative_error": 5e-05
+      },
+      "rank": 512
+    },
+    {
+      "caller_owned_outputs_and_workspace": true,
+      "contract": "positive metric/operator same-vector update",
+      "dtype": "torch.float32",
+      "errors": {
+        "Aw_relative_error": 5.238711310084909e-06,
+        "L_relative_error": 1.0079205736701624e-07,
+        "vz_relative_error": 2.88492060462886e-06
+      },
+      "passed": true,
+      "predeclared_tolerances": {
+        "Aw_relative_error": 5e-05,
+        "L_relative_error": 5e-06,
+        "vz_relative_error": 5e-05
+      },
+      "rank": 1024
+    }
+  ],
+  "locked_git_commit": "2788ff1222d84563f102b079f55cb3924686c6fa",
+  "pilot_outcomes_present_before_launch": false,
+  "run_git_commit": "27de255712f80d9fb6938c424832465481c02ca2",
+  "runtime": {
+    "critical_binary_files": {
+      "numpy_core": {
+        "bytes": 10449209,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/numpy/_core/_multiarray_umath.cpython-310-x86_64-linux-gnu.so",
+        "sha256": "c634eaf05367af02b815cf3d2020fbeee9b47426af1fe26cf3189e4798932dc5"
+      },
+      "scipy_blas": {
+        "bytes": 1032545,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/scipy/linalg/_fblas.cpython-310-x86_64-linux-gnu.so",
+        "sha256": "d2bc0b8127ab14cf1df3ae8fe4242829830ef54cc00ceafd720e68ef7e67f495"
+      },
+      "scipy_lapack": {
+        "bytes": 2478641,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/scipy/linalg/_flapack.cpython-310-x86_64-linux-gnu.so",
+        "sha256": "11742f3f308733322369de8ef867af6aaf8c3b001d61005632dff37b3a4161ee"
+      },
+      "torch_C": {
+        "bytes": 25185,
+        "path": "/users/arjo/.local/lib/python3.10/site-packages/torch/_C.cpython-310-x86_64-linux-gnu.so",
+        "sha256": "86e3afc646551bfd9456307f3c5a6209d9a9b3c92c786b926ab5e5fc3db903b5"
+      },
+      "torch_cpu": {
+        "bytes": 446770065,
+        "path": "/users/arjo/.local/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so",
+        "sha256": "cf9639fe763d6ffcb39652d66cc3a62a4f77acf77ae5c6fd398633f098568beb"
+      }
+    },
+    "extension_ldd": [
+      "linux-vdso.so.1",
+      "libc10.so => not found",
+      "libtorch_cpu.so => not found",
+      "libtorch_python.so => not found",
+      "libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6",
+      "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6",
+      "libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1",
+      "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1",
+      "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6",
+      "/lib64/ld-linux-x86-64.so.2"
+    ],
+    "extension_ldd_sha256": "b0f86bc281d96949f4833ecd8464f5b42a2b12ae9044ee0f107b7cfef2823e36",
+    "packages": {
+      "numpy": {
+        "bytes": 22147,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/numpy/__init__.py",
+        "sha256": "6ae17b070c0f70a8e3cad89a510a256942e5a1f37ea5feb120cec167ed2a6236",
+        "version": "2.2.6"
+      },
+      "scipy": {
+        "bytes": 4153,
+        "path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps/scipy/__init__.py",
+        "sha256": "185913aa107512fafd5cf89dfd452a8719b45a6eba833e2dcee2cbfd18b4bbe5",
+        "version": "1.15.3"
+      },
+      "torch": {
+        "bytes": 109312,
+        "path": "/users/arjo/.local/lib/python3.10/site-packages/torch/__init__.py",
+        "sha256": "d9dfff4b75d46e4c75572200a3466b70231d05b0318e38ac1bd121789165fb49",
+        "version": "2.12.0+cu130"
+      }
+    },
+    "path_policy": {
+      "E1_TORCH_SITE": "/users/arjo/.local/lib/python3.10/site-packages",
+      "PYTHONNOUSERSITE": "1",
+      "dependency_root": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_deps"
+    },
+    "platform": {
+      "cpu_isa": {
+        "cpu family": "6",
+        "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cat_l2 cdp_l3 invpcid_single intel_ppin cdp_l2 ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb intel_pt avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local split_lock_detect avx_vnni avx512_bf16 wbnoinvd dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req avx512vbmi umip pku ospke waitpkg avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg tme avx512_vpopcntdq la57 rdpid bus_lock_detect cldemote movdiri movdir64b enqcmd fsrm md_clear serialize tsxldtrk pconfig arch_lbr amx_bf16 avx512_fp16 amx_tile amx_int8 flush_l1d arch_capabilities ibpb_exit_to_user",
+        "model": "143",
+        "model name": "Intel(R) Xeon(R) Platinum 8480C",
+        "stepping": "8",
+        "vendor_id": "GenuineIntel"
+      },
+      "libc": [
+        "glibc",
+        "2.35"
+      ],
+      "machine": "x86_64"
+    },
+    "python": {
+      "bytes": 5917224,
+      "executable": "/usr/bin/python3.10",
+      "implementation": "CPython",
+      "sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+      "version": "3.10.12"
+    },
+    "schema_version": 1,
+    "torch_config_sha256": "ce3b6024ac24df46af76b3f59766b817a00ed645ee9a6e0974aa0b89d89c2743"
+  },
+  "schema_version": 1,
+  "slurm": {
+    "account": "marlowe-m000151-pm06",
+    "cpus_per_task": "10",
+    "exclusive_allocation_verified": true,
+    "job_id": "394606",
+    "job_num_nodes": "1",
+    "local_id": "0",
+    "node_list": "n19",
+    "ntasks": "1",
+    "partition": "batch",
+    "process_id": "0",
+    "restart_count": "0",
+    "scontrol_job_sha256": "baf75b3a1327be447f3bc2f16c6ca589d6cec5739cf317cc4d7ffe936af2bb67",
+    "step_id": "0"
+  },
+  "source_lock_sha256": "59373aad6adebc1d1902b00811bb13bc99ad1afbc2460da89cd9cf9d24db8f81",
+  "thread_verification": {
+    "affinity_after": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "affinity_after_numeric_import_before_restore": [
+      0
+    ],
+    "affinity_before": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "affinity_before_numeric_import": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "affinity_before_topology": [
+      {
+        "core_id": 0,
+        "logical_cpu": 0,
+        "physical_package": 0
+      },
+      {
+        "core_id": 1,
+        "logical_cpu": 1,
+        "physical_package": 0
+      },
+      {
+        "core_id": 2,
+        "logical_cpu": 2,
+        "physical_package": 0
+      },
+      {
+        "core_id": 3,
+        "logical_cpu": 3,
+        "physical_package": 0
+      },
+      {
+        "core_id": 4,
+        "logical_cpu": 4,
+        "physical_package": 0
+      },
+      {
+        "core_id": 5,
+        "logical_cpu": 5,
+        "physical_package": 0
+      },
+      {
+        "core_id": 6,
+        "logical_cpu": 6,
+        "physical_package": 0
+      },
+      {
+        "core_id": 7,
+        "logical_cpu": 7,
+        "physical_package": 0
+      },
+      {
+        "core_id": 8,
+        "logical_cpu": 8,
+        "physical_package": 0
+      },
+      {
+        "core_id": 9,
+        "logical_cpu": 9,
+        "physical_package": 0
+      }
+    ],
+    "allocation_physical_package": 0,
+    "allocation_unique_physical_cores": 10,
+    "environment": {
+      "E1_EXCLUSIVE_NODE": "1",
+      "E1_PROCESS_CONCURRENCY": "1",
+      "MKL_DYNAMIC": "FALSE",
+      "MKL_NUM_THREADS": "10",
+      "OMP_DYNAMIC": "FALSE",
+      "OMP_NUM_THREADS": "10",
+      "OMP_PLACES": "cores",
+      "OMP_PROC_BIND": "close",
+      "OPENBLAS_NUM_THREADS": "10",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONHASHSEED": "0",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "requested_threads": 10,
+    "runtime_values": {
+      "aten_interop": 1,
+      "aten_intraop": 10,
+      "mkl_max": 10,
+      "openmp_max": 10
+    },
+    "selected_cpu_topology": [
+      {
+        "core_id": 0,
+        "logical_cpu": 0,
+        "physical_package": 0
+      },
+      {
+        "core_id": 1,
+        "logical_cpu": 1,
+        "physical_package": 0
+      },
+      {
+        "core_id": 2,
+        "logical_cpu": 2,
+        "physical_package": 0
+      },
+      {
+        "core_id": 3,
+        "logical_cpu": 3,
+        "physical_package": 0
+      },
+      {
+        "core_id": 4,
+        "logical_cpu": 4,
+        "physical_package": 0
+      },
+      {
+        "core_id": 5,
+        "logical_cpu": 5,
+        "physical_package": 0
+      },
+      {
+        "core_id": 6,
+        "logical_cpu": 6,
+        "physical_package": 0
+      },
+      {
+        "core_id": 7,
+        "logical_cpu": 7,
+        "physical_package": 0
+      },
+      {
+        "core_id": 8,
+        "logical_cpu": 8,
+        "physical_package": 0
+      },
+      {
+        "core_id": 9,
+        "logical_cpu": 9,
+        "physical_package": 0
+      }
+    ],
+    "selected_cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "selected_physical_package": 0,
+    "tasks_after_workload": {
+      "2633344": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633347": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633348": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633349": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633350": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633351": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633352": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633353": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633354": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633355": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633433": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633434": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633435": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633436": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633437": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633438": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633439": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633440": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633441": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "2633444": [
+        1
+      ],
+      "2633445": [
+        2
+      ],
+      "2633446": [
+        3
+      ],
+      "2633447": [
+        4
+      ],
+      "2633448": [
+        5
+      ],
+      "2633449": [
+        6
+      ],
+      "2633450": [
+        7
+      ],
+      "2633451": [
+        8
+      ],
+      "2633452": [
+        9
+      ]
+    },
+    "torch_parallel_info": "ATen/Parallel:\n\tat::get_num_threads() : 10\n\tat::get_num_interop_threads() : 1\nOpenMP 201511 (a.k.a. OpenMP 4.5)\n\tomp_get_max_threads() : 10\nIntel(R) oneAPI Math Kernel Library Version 2024.2-Product Build 20240605 for Intel(R) 64 architecture applications\n\tmkl_get_max_threads() : 10\nIntel(R) MKL-DNN v3.11.2 (Git Hash 03c022d3ffdcee958cfacbe720048e725fdf644c)\nstd::thread::hardware_concurrency() : 112\nEnvironment variables:\n\tOMP_NUM_THREADS : 10\n\tMKL_NUM_THREADS : 10\nATen parallel backend: OpenMP\n",
+    "unique_physical_cores": 10,
+    "worker_affinity_union": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  }
+}
