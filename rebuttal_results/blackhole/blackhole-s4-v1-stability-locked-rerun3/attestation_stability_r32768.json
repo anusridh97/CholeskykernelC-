@@ -1,0 +1,131 @@
+{
+  "array_task_id": 1,
+  "campaign_lock": {
+    "bytes": 8447,
+    "git_commit": "dc7989b57ff81d77adf2e512b985f2d391cb08f3",
+    "sha256": "f34cbf424cc7cf6022c8825d166f17ae3b6f8b2d701454e0a96eb95cc81d4c69"
+  },
+  "campaign_tag": "blackhole-s4-v1-stability-locked-rerun3",
+  "created_utc": "2026-07-26T03:05:16.648211+00:00",
+  "gpu": {
+    "driver_version": "565.57.01",
+    "memory_mib": "81559",
+    "name": "NVIDIA H100 80GB HBM3",
+    "uuid": "GPU-68e8f641-9860-500b-4e86-84bc3398b52d"
+  },
+  "host": "n05",
+  "immutable_source": {
+    "git_commit": "96c8018cdd0b56ffe1fd93bddf48fa4affb34697",
+    "source_hashes": {
+      "rebuttal_experiments/__init__.py": "1c320630271ec27dc0155effb53647b394d91db7ebf30f614065e8b3fe0eb097",
+      "rebuttal_experiments/aggregate_blackhole.py": "e498ed24a07a295c1df5f4639f2a4640750bda6b517fb9da374feaf216146db0",
+      "rebuttal_experiments/blackhole_features.py": "4c6b9ad11892a028784b11ff856be4b2681931a683b392fcf9b2f7139e5e9776",
+      "rebuttal_experiments/common.py": "2019b77c7ee0a415239c776ccf79a98c49180c6bd7c04629ae9baab9cde43905",
+      "rebuttal_experiments/cuda_blackhole_stability.py": "a3eaf6c02832298c401cb6e189f86201a7360426f736ded5f283dfc2feb3c1d3",
+      "student_pkg/doublesided_cholesky.py": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa"
+    }
+  },
+  "inner_campaign_tag": "blackhole-s4-v1",
+  "inputs": {
+    "feature_manifest_sha256": "3b8c6e32da3842b8a9f21ee722e8b9fb1093899744d283d4e939427dd116a5c2",
+    "feature_trace_sha256": "bdf1619a70af70585af317d25aa69452fcb8e94d8417e525de9d50f878e530b4"
+  },
+  "partition_metadata_contract": {
+    "actual_outer_partition": "batch",
+    "inner_recorded_partition": "preempt",
+    "reason": "The unmodified v1 driver validates legacy scheduler metadata; the outer attestation independently records the actual batch allocation. Partition metadata is not read by numerical code."
+  },
+  "rank": 32768,
+  "raw_result": {
+    "bytes": 139089,
+    "relative_path": "inner/blackhole-s4-v1/stability_r32768.json",
+    "sha256": "3e3c17555f8626c96537539b51b41cbd4534c2fe18bb27ed2f7dc97fb884d98b"
+  },
+  "schema_version": "blackhole_stability_locked_attestation_v1",
+  "slurm": {
+    "account": "marlowe-m000151-pm06",
+    "array_job_id": "394122",
+    "array_task_count": "2",
+    "array_task_id": "1",
+    "array_task_max": "1",
+    "array_task_min": "0",
+    "array_task_step": "1",
+    "cpus_per_task": "4",
+    "cuda_visible_devices": "0",
+    "gpus_on_node": "1",
+    "job_gpus": "5",
+    "job_id": "394122",
+    "job_name": "bh-s4-stability-locked",
+    "node_list": "n05",
+    "partition": "batch",
+    "scontrol": {
+      "Account": "marlowe-m000151-pm06",
+      "MinMemoryNode": "64G",
+      "NumCPUs": "4",
+      "NumNodes": "1",
+      "NumTasks": "1",
+      "Partition": "batch",
+      "QOS": "medium",
+      "TimeLimit": "04:00:00",
+      "TresPerNode": "gres/gpu:1"
+    },
+    "step_gpus": null
+  },
+  "software": {
+    "critical_files": {
+      "numpy/__init__.py": {
+        "bytes": 22147,
+        "sha256": "6ae17b070c0f70a8e3cad89a510a256942e5a1f37ea5feb120cec167ed2a6236"
+      },
+      "numpy/_core/_multiarray_umath.cpython-310-x86_64-linux-gnu.so": {
+        "bytes": 10449209,
+        "sha256": "c634eaf05367af02b815cf3d2020fbeee9b47426af1fe26cf3189e4798932dc5"
+      },
+      "torch/_C.cpython-310-x86_64-linux-gnu.so": {
+        "bytes": 25521,
+        "sha256": "ba23a10655304ddcd9f96f2520182bc2a6b3f49b427fa1ea0fe47d26a8c6bb84"
+      },
+      "torch/__init__.py": {
+        "bytes": 109312,
+        "sha256": "d9dfff4b75d46e4c75572200a3466b70231d05b0318e38ac1bd121789165fb49"
+      },
+      "torch/lib/libtorch_cuda.so": {
+        "bytes": 1007731497,
+        "sha256": "6cae344fdfe71512a039162ed50ddb714f57f0158a891760a4813db8fa2d3f89"
+      },
+      "triton/__init__.py": {
+        "bytes": 1683,
+        "sha256": "1d02da1c872f91eef29fa8fab3f8d59d69c40be662bf777c5f5a30724f35e001"
+      },
+      "triton/compiler/compiler.py": {
+        "bytes": 20736,
+        "sha256": "021a45ca590052ab6ca6d850eb0a102abf542165836ad92bfb3bb573218fc5d3"
+      }
+    },
+    "distribution_files": {
+      "numpy": {
+        "METADATA": "22d648f53848429464ca643b40d73b49a920d47876fc77c395d4dca4e834904a",
+        "RECORD": "e24ddb2a10fe4461e9424b0a844bbe3000503a3c2671c49ef1cd4686a70d8868"
+      },
+      "torch": {
+        "METADATA": "3efd74705a5bdeeb10141945d835be7e8ea1379bf669a1bf00e3d1cd90a97a82",
+        "RECORD": "c820a29f87d40b05458d25e85edb5832567beb9ac7ffb26e5ee4c7e166ddd6a3"
+      },
+      "triton": {
+        "METADATA": "9ece1cff01d51bf4935859aadddf5cd92ead252902a33a0a05dfa2e9a64b5f48",
+        "RECORD": "86f337a8b700273fcb8cc39e24e6c3bf0ad2380eb140c44e02c0cc2c42a03c50"
+      }
+    },
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "python": "3.10.12 (main, Jun 22 2026, 18:55:27) [GCC 11.4.0]",
+    "python_executable": "/usr/bin/python3.10",
+    "python_executable_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+    "versions": {
+      "cuda": "12.6",
+      "cudnn": 91002,
+      "numpy": "2.2.6",
+      "torch": "2.12.0+cu126",
+      "triton": "3.7.0"
+    }
+  }
+}
