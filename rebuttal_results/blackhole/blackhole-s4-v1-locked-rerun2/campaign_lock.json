@@ -137,19 +137,19 @@
   },
   "harness": {
     "rebuttal_experiments/BLACKHOLE_LOCKED_RERUN_PROTOCOL.md": {
-      "bytes": 7209,
-      "sha256": "3d3d3f80f76c55be7a31625d5bb85ac1ee86df012c7a8946ec64fca2769db570"
+      "bytes": 7435,
+      "sha256": "b158678ca9b949b4880eba5c38e42a517df2854648dbe645cb2ffc8e7f73143e"
     },
     "rebuttal_experiments/blackhole_locked_rerun.py": {
-      "bytes": 59871,
-      "sha256": "3b64f8e0bac4b93eb0094ef0f81271ed28b8fee0714e46d7a97269ed7a87a154"
+      "bytes": 60779,
+      "sha256": "45792cba6f5e5d3a2a0a67dbf7d9586d64eea6e73215e60753c4eb8a03979c64"
     },
     "rebuttal_experiments/slurm/cuda_blackhole_rank_scaling_locked.sbatch": {
       "bytes": 2582,
       "sha256": "92c52f469fc59653806bf1926d112ef54aefad6c33793ce35ae1c5b4c7ab2315"
     }
   },
-  "harness_git_commit": "a3dcb342230a786cd7cee25d73f58e84f66c46c9",
+  "harness_git_commit": "dd869b2de46febcc2c39ec102ae03e46ec61b3e7",
   "inner_campaign_tag": "blackhole-s4-v1",
   "inputs": {
     "feature_manifest": {
