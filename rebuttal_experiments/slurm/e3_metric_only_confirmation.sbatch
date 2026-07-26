@@ -35,7 +35,7 @@ export OMP_DYNAMIC=FALSE
 export MKL_DYNAMIC=FALSE
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
-export MAX_JOBS=8
+export MAX_JOBS=1
 export PYTHONPATH="${BUILD_ROOT}/lib:${PWD}:${REBUTTAL_DEPS}:${TORCH_SITE}"
 
 (
