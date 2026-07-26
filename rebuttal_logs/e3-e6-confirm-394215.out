@@ -1,0 +1,359 @@
+running build_ext
+building 'e3_metric_only' extension
+x86_64-linux-gnu-g++ -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC -I/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/include -I/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/include/torch/csrc/api/include -I/usr/include/python3.10 -c e3_metric_only_ext.cpp -o /scratch/m000151-pm06/arjo/job-builds/394215/e3-metric/temp-metric/e3_metric_only_ext.o -O3 -march=native -ffast-math -fno-math-errno -DNDEBUG -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=e3_metric_only -std=c++20
+x86_64-linux-gnu-g++ -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -shared -Wl,-O1 -Wl,-Bsymbolic-functions /scratch/m000151-pm06/arjo/job-builds/394215/e3-metric/temp-metric/e3_metric_only_ext.o -L/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/lib -L/usr/lib/x86_64-linux-gnu -lc10 -ltorch -ltorch_cpu -ltorch_python -o /scratch/m000151-pm06/arjo/job-builds/394215/e3-metric/lib/e3_metric_only.cpython-310-x86_64-linux-gnu.so
+running build_ext
+building 'one_sided_cholesky' extension
+x86_64-linux-gnu-g++ -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC -I/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/include -I/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/include/torch/csrc/api/include -I/usr/include/python3.10 -c one_sided_ext.cpp -o /scratch/m000151-pm06/arjo/job-builds/394215/e3-metric/temp-one-sided/one_sided_ext.o -O3 -march=native -ffast-math -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=one_sided_cholesky -std=c++20
+x86_64-linux-gnu-g++ -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -shared -Wl,-O1 -Wl,-Bsymbolic-functions /scratch/m000151-pm06/arjo/job-builds/394215/e3-metric/temp-one-sided/one_sided_ext.o -L/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/lib -L/usr/lib/x86_64-linux-gnu -lc10 -ltorch -ltorch_cpu -ltorch_python -o /scratch/m000151-pm06/arjo/job-builds/394215/e3-metric/lib/one_sided_cholesky.cpython-310-x86_64-linux-gnu.so
+..........................                                               [100%]
+26 passed in 1.43s
+r=256 p=1 seed=74001 metric=0.236ms drag+mat=0.132ms fresh+mat=0.574ms
+r=256 p=1 seed=74002 metric=0.240ms drag+mat=0.132ms fresh+mat=0.576ms
+r=256 p=1 seed=74003 metric=0.237ms drag+mat=0.130ms fresh+mat=0.576ms
+r=256 p=1 seed=74004 metric=0.231ms drag+mat=0.131ms fresh+mat=0.539ms
+r=256 p=1 seed=74005 metric=0.238ms drag+mat=0.131ms fresh+mat=0.577ms
+r=256 p=1 seed=74006 metric=0.241ms drag+mat=0.132ms fresh+mat=0.577ms
+r=256 p=1 seed=74007 metric=0.232ms drag+mat=0.130ms fresh+mat=0.578ms
+r=256 p=1 seed=74008 metric=0.232ms drag+mat=0.131ms fresh+mat=0.575ms
+r=256 p=1 seed=74009 metric=0.232ms drag+mat=0.131ms fresh+mat=0.579ms
+r=256 p=1 seed=74010 metric=0.227ms drag+mat=0.127ms fresh+mat=0.573ms
+r=256 p=4 seed=74001 metric=0.221ms drag+mat=0.136ms fresh+mat=0.593ms
+r=256 p=4 seed=74002 metric=0.221ms drag+mat=0.134ms fresh+mat=0.567ms
+r=256 p=4 seed=74003 metric=0.224ms drag+mat=0.136ms fresh+mat=0.597ms
+r=256 p=4 seed=74004 metric=0.223ms drag+mat=0.135ms fresh+mat=0.593ms
+r=256 p=4 seed=74005 metric=0.222ms drag+mat=0.134ms fresh+mat=0.594ms
+r=256 p=4 seed=74006 metric=0.224ms drag+mat=0.135ms fresh+mat=0.595ms
+r=256 p=4 seed=74007 metric=0.222ms drag+mat=0.135ms fresh+mat=0.603ms
+r=256 p=4 seed=74008 metric=0.224ms drag+mat=0.134ms fresh+mat=0.592ms
+r=256 p=4 seed=74009 metric=0.232ms drag+mat=0.137ms fresh+mat=0.567ms
+r=256 p=4 seed=74010 metric=0.232ms drag+mat=0.143ms fresh+mat=0.609ms
+r=256 p=8 seed=74001 metric=0.232ms drag+mat=0.142ms fresh+mat=0.612ms
+r=256 p=8 seed=74002 metric=0.232ms drag+mat=0.143ms fresh+mat=0.611ms
+r=256 p=8 seed=74003 metric=0.231ms drag+mat=0.141ms fresh+mat=0.610ms
+r=256 p=8 seed=74004 metric=0.232ms drag+mat=0.141ms fresh+mat=0.612ms
+r=256 p=8 seed=74005 metric=0.232ms drag+mat=0.143ms fresh+mat=0.611ms
+r=256 p=8 seed=74006 metric=0.233ms drag+mat=0.141ms fresh+mat=0.615ms
+r=256 p=8 seed=74007 metric=0.232ms drag+mat=0.143ms fresh+mat=0.610ms
+r=256 p=8 seed=74008 metric=0.233ms drag+mat=0.142ms fresh+mat=0.623ms
+r=256 p=8 seed=74009 metric=0.232ms drag+mat=0.142ms fresh+mat=0.614ms
+r=256 p=8 seed=74010 metric=0.239ms drag+mat=0.140ms fresh+mat=0.615ms
+r=256 p=16 seed=74001 metric=0.233ms drag+mat=0.148ms fresh+mat=0.629ms
+r=256 p=16 seed=74002 metric=0.224ms drag+mat=0.143ms fresh+mat=0.627ms
+r=256 p=16 seed=74003 metric=0.223ms drag+mat=0.143ms fresh+mat=0.618ms
+r=256 p=16 seed=74004 metric=0.224ms drag+mat=0.144ms fresh+mat=0.634ms
+r=256 p=16 seed=74005 metric=0.232ms drag+mat=0.146ms fresh+mat=0.603ms
+r=256 p=16 seed=74006 metric=0.230ms drag+mat=0.152ms fresh+mat=0.651ms
+r=256 p=16 seed=74007 metric=0.232ms drag+mat=0.148ms fresh+mat=0.643ms
+r=256 p=16 seed=74008 metric=0.231ms drag+mat=0.146ms fresh+mat=0.601ms
+r=256 p=16 seed=74009 metric=0.238ms drag+mat=0.147ms fresh+mat=0.636ms
+r=256 p=16 seed=74010 metric=0.231ms drag+mat=0.146ms fresh+mat=0.603ms
+r=256 p=32 seed=74001 metric=0.232ms drag+mat=0.169ms fresh+mat=0.687ms
+r=256 p=32 seed=74002 metric=0.232ms drag+mat=0.169ms fresh+mat=0.686ms
+r=256 p=32 seed=74003 metric=0.232ms drag+mat=0.170ms fresh+mat=0.687ms
+r=256 p=32 seed=74004 metric=0.231ms drag+mat=0.170ms fresh+mat=0.678ms
+r=256 p=32 seed=74005 metric=0.240ms drag+mat=0.168ms fresh+mat=0.698ms
+r=256 p=32 seed=74006 metric=0.225ms drag+mat=0.169ms fresh+mat=0.693ms
+r=256 p=32 seed=74007 metric=0.225ms drag+mat=0.169ms fresh+mat=0.678ms
+r=256 p=32 seed=74008 metric=0.231ms drag+mat=0.170ms fresh+mat=0.682ms
+r=256 p=32 seed=74009 metric=0.232ms drag+mat=0.170ms fresh+mat=0.687ms
+r=256 p=32 seed=74010 metric=0.225ms drag+mat=0.168ms fresh+mat=0.651ms
+r=256 p=64 seed=74001 metric=0.230ms drag+mat=0.218ms fresh+mat=0.796ms
+r=256 p=64 seed=74002 metric=0.226ms drag+mat=0.221ms fresh+mat=0.794ms
+r=256 p=64 seed=74003 metric=0.227ms drag+mat=0.221ms fresh+mat=0.797ms
+r=256 p=64 seed=74004 metric=0.226ms drag+mat=0.221ms fresh+mat=0.794ms
+r=256 p=64 seed=74005 metric=0.226ms drag+mat=0.221ms fresh+mat=0.794ms
+r=256 p=64 seed=74006 metric=0.230ms drag+mat=0.221ms fresh+mat=0.799ms
+r=256 p=64 seed=74007 metric=0.229ms drag+mat=0.222ms fresh+mat=0.798ms
+r=256 p=64 seed=74008 metric=0.227ms drag+mat=0.223ms fresh+mat=0.769ms
+r=256 p=64 seed=74009 metric=0.227ms drag+mat=0.218ms fresh+mat=0.796ms
+r=256 p=64 seed=74010 metric=0.231ms drag+mat=0.219ms fresh+mat=0.802ms
+r=256 p=128 seed=74001 metric=0.228ms drag+mat=0.314ms fresh+mat=1.014ms
+r=256 p=128 seed=74002 metric=0.226ms drag+mat=0.314ms fresh+mat=1.017ms
+r=256 p=128 seed=74003 metric=0.227ms drag+mat=0.313ms fresh+mat=1.014ms
+r=256 p=128 seed=74004 metric=0.226ms drag+mat=0.315ms fresh+mat=1.022ms
+r=256 p=128 seed=74005 metric=0.226ms drag+mat=0.313ms fresh+mat=1.011ms
+r=256 p=128 seed=74006 metric=0.226ms drag+mat=0.315ms fresh+mat=1.016ms
+r=256 p=128 seed=74007 metric=0.226ms drag+mat=0.314ms fresh+mat=1.018ms
+r=256 p=128 seed=74008 metric=0.226ms drag+mat=0.313ms fresh+mat=1.016ms
+r=256 p=128 seed=74009 metric=0.226ms drag+mat=0.315ms fresh+mat=1.021ms
+r=256 p=128 seed=74010 metric=0.226ms drag+mat=0.316ms fresh+mat=1.020ms
+r=256 p=256 seed=74001 metric=0.227ms drag+mat=0.522ms fresh+mat=1.549ms
+r=256 p=256 seed=74002 metric=0.224ms drag+mat=0.521ms fresh+mat=1.548ms
+r=256 p=256 seed=74003 metric=0.227ms drag+mat=0.523ms fresh+mat=1.549ms
+r=256 p=256 seed=74004 metric=0.226ms drag+mat=0.523ms fresh+mat=1.547ms
+r=256 p=256 seed=74005 metric=0.226ms drag+mat=0.520ms fresh+mat=1.545ms
+r=256 p=256 seed=74006 metric=0.227ms drag+mat=0.522ms fresh+mat=1.546ms
+r=256 p=256 seed=74007 metric=0.226ms drag+mat=0.520ms fresh+mat=1.548ms
+r=256 p=256 seed=74008 metric=0.226ms drag+mat=0.523ms fresh+mat=1.547ms
+r=256 p=256 seed=74009 metric=0.227ms drag+mat=0.520ms fresh+mat=1.548ms
+r=256 p=256 seed=74010 metric=0.226ms drag+mat=0.522ms fresh+mat=1.555ms
+r=256 p=512 seed=74001 metric=0.223ms drag+mat=0.957ms fresh+mat=2.595ms
+r=256 p=512 seed=74002 metric=0.223ms drag+mat=0.949ms fresh+mat=2.578ms
+r=256 p=512 seed=74003 metric=0.223ms drag+mat=0.955ms fresh+mat=2.589ms
+r=256 p=512 seed=74004 metric=0.223ms drag+mat=0.961ms fresh+mat=2.583ms
+r=256 p=512 seed=74005 metric=0.224ms drag+mat=0.954ms fresh+mat=2.580ms
+r=256 p=512 seed=74006 metric=0.222ms drag+mat=0.951ms fresh+mat=2.592ms
+r=256 p=512 seed=74007 metric=0.224ms drag+mat=0.954ms fresh+mat=2.564ms
+r=256 p=512 seed=74008 metric=0.223ms drag+mat=0.957ms fresh+mat=2.570ms
+r=256 p=512 seed=74009 metric=0.223ms drag+mat=0.955ms fresh+mat=2.596ms
+r=256 p=512 seed=74010 metric=0.221ms drag+mat=0.975ms fresh+mat=2.582ms
+r=1024 p=1 seed=74001 metric=3.834ms drag+mat=4.632ms fresh+mat=25.023ms
+r=1024 p=1 seed=74002 metric=3.835ms drag+mat=4.632ms fresh+mat=25.036ms
+r=1024 p=1 seed=74003 metric=3.834ms drag+mat=4.633ms fresh+mat=25.151ms
+r=1024 p=1 seed=74004 metric=3.835ms drag+mat=4.629ms fresh+mat=25.021ms
+r=1024 p=1 seed=74005 metric=3.835ms drag+mat=4.620ms fresh+mat=25.091ms
+r=1024 p=1 seed=74006 metric=3.835ms drag+mat=4.631ms fresh+mat=25.038ms
+r=1024 p=1 seed=74007 metric=3.835ms drag+mat=4.627ms fresh+mat=25.102ms
+r=1024 p=1 seed=74008 metric=3.836ms drag+mat=4.622ms fresh+mat=25.015ms
+r=1024 p=1 seed=74009 metric=3.836ms drag+mat=4.622ms fresh+mat=25.091ms
+r=1024 p=1 seed=74010 metric=3.836ms drag+mat=4.642ms fresh+mat=25.071ms
+r=1024 p=4 seed=74001 metric=3.834ms drag+mat=4.829ms fresh+mat=25.634ms
+r=1024 p=4 seed=74002 metric=3.834ms drag+mat=4.829ms fresh+mat=25.527ms
+r=1024 p=4 seed=74003 metric=3.835ms drag+mat=4.827ms fresh+mat=25.612ms
+r=1024 p=4 seed=74004 metric=3.834ms drag+mat=4.815ms fresh+mat=25.464ms
+r=1024 p=4 seed=74005 metric=3.835ms drag+mat=4.820ms fresh+mat=25.548ms
+r=1024 p=4 seed=74006 metric=3.834ms drag+mat=4.833ms fresh+mat=25.544ms
+r=1024 p=4 seed=74007 metric=3.837ms drag+mat=4.849ms fresh+mat=25.657ms
+r=1024 p=4 seed=74008 metric=3.834ms drag+mat=4.826ms fresh+mat=25.624ms
+r=1024 p=4 seed=74009 metric=3.835ms drag+mat=4.822ms fresh+mat=25.570ms
+r=1024 p=4 seed=74010 metric=3.834ms drag+mat=4.824ms fresh+mat=25.637ms
+r=1024 p=8 seed=74001 metric=3.835ms drag+mat=4.870ms fresh+mat=25.683ms
+r=1024 p=8 seed=74002 metric=3.835ms drag+mat=4.874ms fresh+mat=25.702ms
+r=1024 p=8 seed=74003 metric=3.835ms drag+mat=4.881ms fresh+mat=25.685ms
+r=1024 p=8 seed=74004 metric=3.835ms drag+mat=4.866ms fresh+mat=25.627ms
+r=1024 p=8 seed=74005 metric=3.835ms drag+mat=4.883ms fresh+mat=25.778ms
+r=1024 p=8 seed=74006 metric=3.835ms drag+mat=4.878ms fresh+mat=25.761ms
+r=1024 p=8 seed=74007 metric=3.835ms drag+mat=4.885ms fresh+mat=25.647ms
+r=1024 p=8 seed=74008 metric=3.836ms drag+mat=4.882ms fresh+mat=25.713ms
+r=1024 p=8 seed=74009 metric=3.834ms drag+mat=4.868ms fresh+mat=25.563ms
+r=1024 p=8 seed=74010 metric=3.836ms drag+mat=4.877ms fresh+mat=25.542ms
+r=1024 p=16 seed=74001 metric=3.835ms drag+mat=5.021ms fresh+mat=26.136ms
+r=1024 p=16 seed=74002 metric=3.836ms drag+mat=5.022ms fresh+mat=26.054ms
+r=1024 p=16 seed=74003 metric=3.834ms drag+mat=5.020ms fresh+mat=26.130ms
+r=1024 p=16 seed=74004 metric=3.835ms drag+mat=5.014ms fresh+mat=26.036ms
+r=1024 p=16 seed=74005 metric=3.836ms drag+mat=5.019ms fresh+mat=25.968ms
+r=1024 p=16 seed=74006 metric=3.835ms drag+mat=5.008ms fresh+mat=26.034ms
+r=1024 p=16 seed=74007 metric=3.837ms drag+mat=5.011ms fresh+mat=26.025ms
+r=1024 p=16 seed=74008 metric=3.838ms drag+mat=5.025ms fresh+mat=26.189ms
+r=1024 p=16 seed=74009 metric=3.836ms drag+mat=5.019ms fresh+mat=26.225ms
+r=1024 p=16 seed=74010 metric=3.835ms drag+mat=5.032ms fresh+mat=26.175ms
+r=1024 p=32 seed=74001 metric=3.834ms drag+mat=5.500ms fresh+mat=26.885ms
+r=1024 p=32 seed=74002 metric=3.835ms drag+mat=5.489ms fresh+mat=26.849ms
+r=1024 p=32 seed=74003 metric=3.836ms drag+mat=5.479ms fresh+mat=26.778ms
+r=1024 p=32 seed=74004 metric=3.834ms drag+mat=5.482ms fresh+mat=26.796ms
+r=1024 p=32 seed=74005 metric=3.836ms drag+mat=5.476ms fresh+mat=26.874ms
+r=1024 p=32 seed=74006 metric=3.834ms drag+mat=5.486ms fresh+mat=26.830ms
+r=1024 p=32 seed=74007 metric=3.834ms drag+mat=5.487ms fresh+mat=26.748ms
+r=1024 p=32 seed=74008 metric=3.836ms drag+mat=5.521ms fresh+mat=26.953ms
+r=1024 p=32 seed=74009 metric=3.835ms drag+mat=5.480ms fresh+mat=26.796ms
+r=1024 p=32 seed=74010 metric=3.835ms drag+mat=5.505ms fresh+mat=26.920ms
+r=1024 p=64 seed=74001 metric=3.834ms drag+mat=6.192ms fresh+mat=28.330ms
+r=1024 p=64 seed=74002 metric=3.835ms drag+mat=6.205ms fresh+mat=28.223ms
+r=1024 p=64 seed=74003 metric=3.835ms drag+mat=6.195ms fresh+mat=28.308ms
+r=1024 p=64 seed=74004 metric=3.835ms drag+mat=6.210ms fresh+mat=28.444ms
+r=1024 p=64 seed=74005 metric=3.834ms drag+mat=6.204ms fresh+mat=28.271ms
+r=1024 p=64 seed=74006 metric=3.835ms drag+mat=6.199ms fresh+mat=28.355ms
+r=1024 p=64 seed=74007 metric=3.836ms drag+mat=6.194ms fresh+mat=28.242ms
+r=1024 p=64 seed=74008 metric=3.836ms drag+mat=6.209ms fresh+mat=28.300ms
+r=1024 p=64 seed=74009 metric=3.836ms drag+mat=6.197ms fresh+mat=28.334ms
+r=1024 p=64 seed=74010 metric=3.836ms drag+mat=6.202ms fresh+mat=28.320ms
+r=1024 p=128 seed=74001 metric=3.835ms drag+mat=7.595ms fresh+mat=31.315ms
+r=1024 p=128 seed=74002 metric=3.835ms drag+mat=7.607ms fresh+mat=31.243ms
+r=1024 p=128 seed=74003 metric=3.836ms drag+mat=7.593ms fresh+mat=31.211ms
+r=1024 p=128 seed=74004 metric=3.835ms drag+mat=7.586ms fresh+mat=31.266ms
+r=1024 p=128 seed=74005 metric=3.835ms drag+mat=7.585ms fresh+mat=31.187ms
+r=1024 p=128 seed=74006 metric=3.833ms drag+mat=7.600ms fresh+mat=31.362ms
+r=1024 p=128 seed=74007 metric=3.833ms drag+mat=5.856ms fresh+mat=25.133ms
+r=1024 p=128 seed=74008 metric=3.832ms drag+mat=7.591ms fresh+mat=31.355ms
+r=1024 p=128 seed=74009 metric=3.829ms drag+mat=6.597ms fresh+mat=25.126ms
+r=1024 p=128 seed=74010 metric=3.829ms drag+mat=6.610ms fresh+mat=29.270ms
+r=1024 p=256 seed=74001 metric=3.838ms drag+mat=8.638ms fresh+mat=32.552ms
+r=1024 p=256 seed=74002 metric=3.838ms drag+mat=8.721ms fresh+mat=31.729ms
+r=1024 p=256 seed=74003 metric=3.834ms drag+mat=10.421ms fresh+mat=38.402ms
+r=1024 p=256 seed=74004 metric=3.834ms drag+mat=10.432ms fresh+mat=38.451ms
+r=1024 p=256 seed=74005 metric=3.833ms drag+mat=10.410ms fresh+mat=38.458ms
+r=1024 p=256 seed=74006 metric=3.835ms drag+mat=10.419ms fresh+mat=38.643ms
+r=1024 p=256 seed=74007 metric=3.834ms drag+mat=10.413ms fresh+mat=38.378ms
+r=1024 p=256 seed=74008 metric=3.835ms drag+mat=10.409ms fresh+mat=38.371ms
+r=1024 p=256 seed=74009 metric=3.835ms drag+mat=10.419ms fresh+mat=38.559ms
+r=1024 p=256 seed=74010 metric=3.834ms drag+mat=10.418ms fresh+mat=38.344ms
+r=1024 p=512 seed=74001 metric=3.835ms drag+mat=16.095ms fresh+mat=54.676ms
+r=1024 p=512 seed=74002 metric=3.834ms drag+mat=16.077ms fresh+mat=54.911ms
+r=1024 p=512 seed=74003 metric=3.836ms drag+mat=16.090ms fresh+mat=55.197ms
+r=1024 p=512 seed=74004 metric=3.835ms drag+mat=16.097ms fresh+mat=54.931ms
+r=1024 p=512 seed=74005 metric=3.836ms drag+mat=16.127ms fresh+mat=54.768ms
+r=1024 p=512 seed=74006 metric=3.834ms drag+mat=16.120ms fresh+mat=54.861ms
+r=1024 p=512 seed=74007 metric=3.834ms drag+mat=16.083ms fresh+mat=54.741ms
+r=1024 p=512 seed=74008 metric=3.834ms drag+mat=16.105ms fresh+mat=54.695ms
+r=1024 p=512 seed=74009 metric=3.835ms drag+mat=16.074ms fresh+mat=54.693ms
+r=1024 p=512 seed=74010 metric=3.834ms drag+mat=16.108ms fresh+mat=54.907ms
+r=1024 p=1024 seed=74001 metric=3.836ms drag+mat=27.787ms fresh+mat=85.576ms
+r=1024 p=1024 seed=74002 metric=3.836ms drag+mat=27.762ms fresh+mat=85.644ms
+r=1024 p=1024 seed=74003 metric=3.836ms drag+mat=27.788ms fresh+mat=85.509ms
+r=1024 p=1024 seed=74004 metric=3.835ms drag+mat=27.652ms fresh+mat=85.763ms
+r=1024 p=1024 seed=74005 metric=3.832ms drag+mat=27.697ms fresh+mat=85.068ms
+r=1024 p=1024 seed=74006 metric=3.836ms drag+mat=27.658ms fresh+mat=85.406ms
+r=1024 p=1024 seed=74007 metric=3.835ms drag+mat=27.960ms fresh+mat=85.395ms
+r=1024 p=1024 seed=74008 metric=3.835ms drag+mat=27.831ms fresh+mat=85.876ms
+r=1024 p=1024 seed=74009 metric=3.837ms drag+mat=27.665ms fresh+mat=86.189ms
+r=1024 p=1024 seed=74010 metric=3.835ms drag+mat=27.726ms fresh+mat=85.517ms
+r=1024 p=2048 seed=74001 metric=3.846ms drag+mat=51.263ms fresh+mat=144.596ms
+r=1024 p=2048 seed=74002 metric=3.937ms drag+mat=50.243ms fresh+mat=146.701ms
+r=1024 p=2048 seed=74003 metric=3.944ms drag+mat=50.221ms fresh+mat=146.391ms
+r=1024 p=2048 seed=74004 metric=3.915ms drag+mat=50.180ms fresh+mat=146.386ms
+r=1024 p=2048 seed=74005 metric=3.917ms drag+mat=50.209ms fresh+mat=146.591ms
+r=1024 p=2048 seed=74006 metric=3.926ms drag+mat=50.245ms fresh+mat=145.715ms
+r=1024 p=2048 seed=74007 metric=3.943ms drag+mat=50.236ms fresh+mat=146.243ms
+r=1024 p=2048 seed=74008 metric=3.927ms drag+mat=50.217ms fresh+mat=147.014ms
+r=1024 p=2048 seed=74009 metric=3.921ms drag+mat=50.180ms fresh+mat=145.470ms
+r=1024 p=2048 seed=74010 metric=3.980ms drag+mat=47.929ms fresh+mat=136.640ms
+/scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/e3_metric_only_confirmation/e3-metric-only-confirm-v1/result.json
+E3 confirmation audit passed: 200 cells; wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/e3_metric_only_confirmation/e3-metric-only-confirm-v1/audit_summary.json
+running build_ext
+building 'fast_cholesky' extension
+x86_64-linux-gnu-g++ -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC -I/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/include -I/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/include/torch/csrc/api/include -I/usr/include/python3.10 -c fast_update.cpp -o /scratch/m000151-pm06/arjo/job-builds/394215/e6-compact/temp/fast_update.o -O3 -march=native -ffast-math -mavx512f -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=fast_cholesky -std=c++20
+x86_64-linux-gnu-g++ -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -shared -Wl,-O1 -Wl,-Bsymbolic-functions /scratch/m000151-pm06/arjo/job-builds/394215/e6-compact/temp/fast_update.o -L/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/lib -L/usr/lib/x86_64-linux-gnu -lc10 -ltorch -ltorch_cpu -ltorch_python -o /scratch/m000151-pm06/arjo/job-builds/394215/e6-compact/lib/fast_cholesky.cpython-310-x86_64-linux-gnu.so
+.......................................................................  [100%]
+71 passed in 19.20s
+r=256 k=1 sequential=0.464ms  compact=0.372ms legacy/compact=1.246x refact/compact=3.194x refact=1.189ms speedup=2.564x
+r=256 k=2 sequential=0.903ms  compact=0.448ms legacy/compact=2.015x refact/compact=2.621x refact=1.175ms speedup=1.301x
+r=256 k=4 sequential=1.709ms  compact=0.484ms legacy/compact=3.534x refact/compact=2.416x refact=1.169ms speedup=0.684x
+r=256 k=8 sequential=3.568ms  compact=0.566ms legacy/compact=6.301x refact/compact=2.156x refact=1.221ms speedup=0.342x
+r=256 k=16 sequential=6.693ms  compact=0.728ms legacy/compact=9.193x refact/compact=1.689x refact=1.230ms speedup=0.184x
+r=256 k=32 sequential=13.417ms  compact=1.477ms legacy/compact=9.082x refact/compact=0.842x refact=1.244ms speedup=0.093x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61001.json
+r=256 k=1 sequential=0.451ms  compact=0.374ms legacy/compact=1.207x refact/compact=3.192x refact=1.193ms speedup=2.644x
+r=256 k=2 sequential=0.893ms  compact=0.452ms legacy/compact=1.976x refact/compact=2.602x refact=1.176ms speedup=1.317x
+r=256 k=4 sequential=1.738ms  compact=0.485ms legacy/compact=3.580x refact/compact=2.459x refact=1.193ms speedup=0.687x
+r=256 k=8 sequential=3.470ms  compact=0.566ms legacy/compact=6.131x refact/compact=2.135x refact=1.208ms speedup=0.348x
+r=256 k=16 sequential=6.632ms  compact=0.733ms legacy/compact=9.051x refact/compact=1.619x refact=1.186ms speedup=0.179x
+r=256 k=32 sequential=13.133ms  compact=1.473ms legacy/compact=8.918x refact/compact=0.858x refact=1.264ms speedup=0.096x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61002.json
+r=256 k=1 sequential=0.462ms  compact=0.368ms legacy/compact=1.258x refact/compact=3.202x refact=1.177ms speedup=2.546x
+r=256 k=2 sequential=0.895ms  compact=0.447ms legacy/compact=2.003x refact/compact=2.692x refact=1.203ms speedup=1.344x
+r=256 k=4 sequential=1.810ms  compact=0.479ms legacy/compact=3.779x refact/compact=2.504x refact=1.199ms speedup=0.662x
+r=256 k=8 sequential=3.560ms  compact=0.559ms legacy/compact=6.368x refact/compact=2.111x refact=1.180ms speedup=0.331x
+r=256 k=16 sequential=6.681ms  compact=0.728ms legacy/compact=9.178x refact/compact=1.655x refact=1.205ms speedup=0.180x
+r=256 k=32 sequential=13.307ms  compact=1.462ms legacy/compact=9.099x refact/compact=0.851x refact=1.244ms speedup=0.094x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61003.json
+r=256 k=1 sequential=0.450ms  compact=0.368ms legacy/compact=1.222x refact/compact=3.155x refact=1.162ms speedup=2.583x
+r=256 k=2 sequential=0.893ms  compact=0.443ms legacy/compact=2.016x refact/compact=2.636x refact=1.167ms speedup=1.308x
+r=256 k=4 sequential=1.748ms  compact=0.481ms legacy/compact=3.633x refact/compact=2.506x refact=1.205ms speedup=0.690x
+r=256 k=8 sequential=3.470ms  compact=0.566ms legacy/compact=6.134x refact/compact=2.102x refact=1.189ms speedup=0.343x
+r=256 k=16 sequential=6.611ms  compact=0.729ms legacy/compact=9.074x refact/compact=1.629x refact=1.187ms speedup=0.179x
+r=256 k=32 sequential=13.118ms  compact=1.457ms legacy/compact=9.006x refact/compact=0.854x refact=1.243ms speedup=0.095x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61004.json
+r=256 k=1 sequential=0.459ms  compact=0.369ms legacy/compact=1.244x refact/compact=3.128x refact=1.154ms speedup=2.515x
+r=256 k=2 sequential=0.881ms  compact=0.444ms legacy/compact=1.985x refact/compact=2.626x refact=1.166ms speedup=1.323x
+r=256 k=4 sequential=1.751ms  compact=0.482ms legacy/compact=3.635x refact/compact=2.397x refact=1.155ms speedup=0.660x
+r=256 k=8 sequential=3.453ms  compact=0.564ms legacy/compact=6.119x refact/compact=2.058x refact=1.161ms speedup=0.336x
+r=256 k=16 sequential=6.800ms  compact=0.721ms legacy/compact=9.434x refact/compact=1.636x refact=1.179ms speedup=0.173x
+r=256 k=32 sequential=12.798ms  compact=1.474ms legacy/compact=8.684x refact/compact=0.835x refact=1.230ms speedup=0.096x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61005.json
+r=256 k=1 sequential=0.450ms  compact=0.370ms legacy/compact=1.214x refact/compact=3.208x refact=1.188ms speedup=2.643x
+r=256 k=2 sequential=0.889ms  compact=0.442ms legacy/compact=2.014x refact/compact=2.686x refact=1.186ms speedup=1.334x
+r=256 k=4 sequential=1.760ms  compact=0.484ms legacy/compact=3.640x refact/compact=2.445x refact=1.183ms speedup=0.672x
+r=256 k=8 sequential=3.558ms  compact=0.563ms legacy/compact=6.319x refact/compact=2.107x refact=1.187ms speedup=0.334x
+r=256 k=16 sequential=6.851ms  compact=0.723ms legacy/compact=9.479x refact/compact=1.651x refact=1.193ms speedup=0.174x
+r=256 k=32 sequential=13.524ms  compact=1.462ms legacy/compact=9.249x refact/compact=0.863x refact=1.262ms speedup=0.093x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61006.json
+r=256 k=1 sequential=0.466ms  compact=0.368ms legacy/compact=1.266x refact/compact=3.132x refact=1.153ms speedup=2.475x
+r=256 k=2 sequential=0.892ms  compact=0.449ms legacy/compact=1.987x refact/compact=2.598x refact=1.166ms speedup=1.307x
+r=256 k=4 sequential=1.738ms  compact=0.484ms legacy/compact=3.589x refact/compact=2.393x refact=1.159ms speedup=0.667x
+r=256 k=8 sequential=3.444ms  compact=0.562ms legacy/compact=6.126x refact/compact=2.079x refact=1.169ms speedup=0.339x
+r=256 k=16 sequential=6.775ms  compact=0.723ms legacy/compact=9.375x refact/compact=1.626x refact=1.175ms speedup=0.173x
+r=256 k=32 sequential=12.952ms  compact=1.465ms legacy/compact=8.842x refact/compact=0.841x refact=1.231ms speedup=0.095x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61007.json
+r=256 k=1 sequential=0.456ms  compact=0.371ms legacy/compact=1.228x refact/compact=3.186x refact=1.182ms speedup=2.594x
+r=256 k=2 sequential=0.894ms  compact=0.444ms legacy/compact=2.015x refact/compact=2.647x refact=1.174ms speedup=1.313x
+r=256 k=4 sequential=1.746ms  compact=0.482ms legacy/compact=3.627x refact/compact=2.452x refact=1.181ms speedup=0.676x
+r=256 k=8 sequential=3.534ms  compact=0.563ms legacy/compact=6.272x refact/compact=2.111x refact=1.189ms speedup=0.337x
+r=256 k=16 sequential=6.857ms  compact=0.729ms legacy/compact=9.403x refact/compact=1.637x refact=1.193ms speedup=0.174x
+r=256 k=32 sequential=13.438ms  compact=1.472ms legacy/compact=9.128x refact/compact=0.858x refact=1.263ms speedup=0.094x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61008.json
+r=256 k=1 sequential=0.462ms  compact=0.368ms legacy/compact=1.255x refact/compact=3.236x refact=1.191ms speedup=2.578x
+r=256 k=2 sequential=0.884ms  compact=0.450ms legacy/compact=1.962x refact/compact=2.605x refact=1.173ms speedup=1.328x
+r=256 k=4 sequential=1.746ms  compact=0.481ms legacy/compact=3.629x refact/compact=2.480x refact=1.193ms speedup=0.683x
+r=256 k=8 sequential=3.445ms  compact=0.564ms legacy/compact=6.103x refact/compact=2.144x refact=1.210ms speedup=0.351x
+r=256 k=16 sequential=6.658ms  compact=0.727ms legacy/compact=9.164x refact/compact=1.626x refact=1.182ms speedup=0.177x
+r=256 k=32 sequential=13.180ms  compact=1.469ms legacy/compact=8.974x refact/compact=0.854x refact=1.254ms speedup=0.095x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61009.json
+r=256 k=1 sequential=0.464ms  compact=0.371ms legacy/compact=1.253x refact/compact=3.157x refact=1.170ms speedup=2.520x
+r=256 k=2 sequential=0.892ms  compact=0.450ms legacy/compact=1.984x refact/compact=2.591x refact=1.165ms speedup=1.306x
+r=256 k=4 sequential=1.747ms  compact=0.487ms legacy/compact=3.592x refact/compact=2.422x refact=1.178ms speedup=0.674x
+r=256 k=8 sequential=3.543ms  compact=0.566ms legacy/compact=6.260x refact/compact=2.143x refact=1.213ms speedup=0.342x
+r=256 k=16 sequential=6.611ms  compact=0.722ms legacy/compact=9.154x refact/compact=1.636x refact=1.181ms speedup=0.179x
+r=256 k=32 sequential=13.206ms  compact=1.476ms legacy/compact=8.948x refact/compact=0.834x refact=1.231ms speedup=0.093x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r256_seed61010.json
+r=1024 k=1 sequential=7.764ms  compact=7.699ms legacy/compact=1.008x refact/compact=8.067x refact=62.112ms speedup=8.000x
+r=1024 k=2 sequential=15.283ms  compact=8.516ms legacy/compact=1.795x refact/compact=6.912x refact=58.867ms speedup=3.852x
+r=1024 k=4 sequential=32.854ms  compact=9.428ms legacy/compact=3.485x refact/compact=6.757x refact=63.705ms speedup=1.939x
+r=1024 k=8 sequential=60.388ms  compact=11.199ms legacy/compact=5.392x refact/compact=5.301x refact=59.371ms speedup=0.983x
+r=1024 k=16 sequential=124.829ms  compact=15.409ms legacy/compact=8.101x refact/compact=3.822x refact=58.897ms speedup=0.472x
+r=1024 k=32 sequential=242.836ms  compact=19.257ms legacy/compact=12.610x refact/compact=3.124x refact=60.156ms speedup=0.248x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61001.json
+r=1024 k=1 sequential=7.517ms  compact=7.496ms legacy/compact=1.003x refact/compact=8.311x refact=62.297ms speedup=8.288x
+r=1024 k=2 sequential=15.239ms  compact=8.535ms legacy/compact=1.786x refact/compact=6.913x refact=59.003ms speedup=3.872x
+r=1024 k=4 sequential=33.479ms  compact=9.499ms legacy/compact=3.524x refact/compact=6.720x refact=63.832ms speedup=1.907x
+r=1024 k=8 sequential=60.685ms  compact=11.004ms legacy/compact=5.515x refact/compact=5.372x refact=59.107ms speedup=0.974x
+r=1024 k=16 sequential=124.219ms  compact=15.309ms legacy/compact=8.114x refact/compact=3.841x refact=58.801ms speedup=0.473x
+r=1024 k=32 sequential=250.566ms  compact=19.202ms legacy/compact=13.049x refact/compact=3.137x refact=60.243ms speedup=0.240x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61002.json
+r=1024 k=1 sequential=8.397ms  compact=8.674ms legacy/compact=0.968x refact/compact=7.653x refact=66.381ms speedup=7.905x
+r=1024 k=2 sequential=15.931ms  compact=9.967ms legacy/compact=1.598x refact/compact=6.582x refact=65.608ms speedup=4.118x
+r=1024 k=4 sequential=30.609ms  compact=10.065ms legacy/compact=3.041x refact/compact=6.096x refact=61.354ms speedup=2.004x
+r=1024 k=8 sequential=62.874ms  compact=10.922ms legacy/compact=5.757x refact/compact=5.427x refact=59.271ms speedup=0.943x
+r=1024 k=16 sequential=127.330ms  compact=16.185ms legacy/compact=7.867x refact/compact=4.054x refact=65.619ms speedup=0.515x
+r=1024 k=32 sequential=253.042ms  compact=19.942ms legacy/compact=12.689x refact/compact=3.111x refact=62.047ms speedup=0.245x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61003.json
+r=1024 k=1 sequential=7.644ms  compact=7.561ms legacy/compact=1.011x refact/compact=8.211x refact=62.086ms speedup=8.122x
+r=1024 k=2 sequential=15.264ms  compact=8.693ms legacy/compact=1.756x refact/compact=6.817x refact=59.258ms speedup=3.882x
+r=1024 k=4 sequential=32.771ms  compact=9.676ms legacy/compact=3.387x refact/compact=6.656x refact=64.407ms speedup=1.965x
+r=1024 k=8 sequential=62.563ms  compact=11.143ms legacy/compact=5.615x refact/compact=5.331x refact=59.403ms speedup=0.949x
+r=1024 k=16 sequential=124.364ms  compact=15.669ms legacy/compact=7.937x refact/compact=3.775x refact=59.153ms speedup=0.476x
+r=1024 k=32 sequential=248.154ms  compact=18.830ms legacy/compact=13.179x refact/compact=3.185x refact=59.967ms speedup=0.242x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61004.json
+r=1024 k=1 sequential=8.138ms  compact=8.137ms legacy/compact=1.000x refact/compact=7.774x refact=63.256ms speedup=7.773x
+r=1024 k=2 sequential=16.547ms  compact=9.135ms legacy/compact=1.811x refact/compact=7.037x refact=64.288ms speedup=3.885x
+r=1024 k=4 sequential=32.314ms  compact=9.942ms legacy/compact=3.250x refact/compact=6.408x refact=63.710ms speedup=1.972x
+r=1024 k=8 sequential=60.755ms  compact=11.524ms legacy/compact=5.272x refact/compact=4.942x refact=56.952ms speedup=0.937x
+r=1024 k=16 sequential=122.019ms  compact=16.109ms legacy/compact=7.574x refact/compact=3.762x refact=60.608ms speedup=0.497x
+r=1024 k=32 sequential=250.276ms  compact=19.826ms legacy/compact=12.623x refact/compact=3.289x refact=65.217ms speedup=0.261x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61005.json
+r=1024 k=1 sequential=8.133ms  compact=8.183ms legacy/compact=0.994x refact/compact=7.771x refact=63.588ms speedup=7.818x
+r=1024 k=2 sequential=16.584ms  compact=9.369ms legacy/compact=1.770x refact/compact=6.776x refact=63.488ms speedup=3.828x
+r=1024 k=4 sequential=32.314ms  compact=10.058ms legacy/compact=3.213x refact/compact=6.263x refact=62.995ms speedup=1.949x
+r=1024 k=8 sequential=60.889ms  compact=11.255ms legacy/compact=5.410x refact/compact=5.008x refact=56.363ms speedup=0.926x
+r=1024 k=16 sequential=121.539ms  compact=16.015ms legacy/compact=7.589x refact/compact=3.787x refact=60.641ms speedup=0.499x
+r=1024 k=32 sequential=250.612ms  compact=19.579ms legacy/compact=12.800x refact/compact=3.358x refact=65.749ms speedup=0.262x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61006.json
+r=1024 k=1 sequential=7.600ms  compact=7.688ms legacy/compact=0.989x refact/compact=8.086x refact=62.164ms speedup=8.179x
+r=1024 k=2 sequential=15.169ms  compact=8.515ms legacy/compact=1.782x refact/compact=6.943x refact=59.116ms speedup=3.897x
+r=1024 k=4 sequential=32.833ms  compact=9.427ms legacy/compact=3.483x refact/compact=6.811x refact=64.209ms speedup=1.956x
+r=1024 k=8 sequential=62.412ms  compact=11.096ms legacy/compact=5.625x refact/compact=5.338x refact=59.228ms speedup=0.949x
+r=1024 k=16 sequential=124.337ms  compact=15.372ms legacy/compact=8.089x refact/compact=3.833x refact=58.917ms speedup=0.474x
+r=1024 k=32 sequential=249.411ms  compact=19.155ms legacy/compact=13.021x refact/compact=3.139x refact=60.122ms speedup=0.241x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61007.json
+r=1024 k=1 sequential=8.141ms  compact=8.104ms legacy/compact=1.005x refact/compact=8.260x refact=66.938ms speedup=8.223x
+r=1024 k=2 sequential=16.010ms  compact=9.149ms legacy/compact=1.750x refact/compact=7.375x refact=67.478ms speedup=4.215x
+r=1024 k=4 sequential=31.038ms  compact=10.328ms legacy/compact=3.005x refact/compact=5.914x refact=61.073ms speedup=1.968x
+r=1024 k=8 sequential=64.250ms  compact=12.058ms legacy/compact=5.328x refact/compact=5.100x refact=61.499ms speedup=0.957x
+r=1024 k=16 sequential=123.722ms  compact=16.325ms legacy/compact=7.579x refact/compact=3.790x refact=61.876ms speedup=0.500x
+r=1024 k=32 sequential=252.779ms  compact=19.904ms legacy/compact=12.700x refact/compact=3.103x refact=61.768ms speedup=0.244x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61008.json
+r=1024 k=1 sequential=8.381ms  compact=8.590ms legacy/compact=0.976x refact/compact=7.677x refact=65.946ms speedup=7.869x
+r=1024 k=2 sequential=15.833ms  compact=9.681ms legacy/compact=1.635x refact/compact=6.663x refact=64.512ms speedup=4.074x
+r=1024 k=4 sequential=30.502ms  compact=9.860ms legacy/compact=3.093x refact/compact=6.115x refact=60.299ms speedup=1.977x
+r=1024 k=8 sequential=63.014ms  compact=11.083ms legacy/compact=5.685x refact/compact=5.366x refact=59.476ms speedup=0.944x
+r=1024 k=16 sequential=127.361ms  compact=16.225ms legacy/compact=7.849x refact/compact=3.975x refact=64.489ms speedup=0.506x
+r=1024 k=32 sequential=251.813ms  compact=20.124ms legacy/compact=12.513x refact/compact=3.087x refact=62.127ms speedup=0.247x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61009.json
+r=1024 k=1 sequential=7.650ms  compact=7.572ms legacy/compact=1.010x refact/compact=8.254x refact=62.500ms speedup=8.170x
+r=1024 k=2 sequential=15.249ms  compact=8.537ms legacy/compact=1.786x refact/compact=6.899x refact=58.902ms speedup=3.863x
+r=1024 k=4 sequential=33.599ms  compact=9.722ms legacy/compact=3.456x refact/compact=6.587x refact=64.041ms speedup=1.906x
+r=1024 k=8 sequential=60.756ms  compact=11.042ms legacy/compact=5.502x refact/compact=5.373x refact=59.324ms speedup=0.976x
+r=1024 k=16 sequential=124.616ms  compact=15.437ms legacy/compact=8.072x refact/compact=3.808x refact=58.779ms speedup=0.472x
+r=1024 k=32 sequential=250.261ms  compact=18.713ms legacy/compact=13.374x refact/compact=3.199x refact=59.869ms speedup=0.239x
+wrote /scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/rank_k_compact_r1024_seed61010.json
+/scratch/m000151-pm06/arjo/cholesky-e3-e6-frozen/rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1/summary.json

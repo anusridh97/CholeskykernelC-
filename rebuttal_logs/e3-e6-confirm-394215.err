@@ -1,0 +1,6 @@
+W0725 20:37:20.803000 2923660 torch/utils/cpp_extension.py:680] Attempted to use ninja as the BuildExtension backend but we could not find ninja.. Falling back to using the slow distutils backend.
+W0725 20:37:52.379000 2924114 torch/utils/cpp_extension.py:680] Attempted to use ninja as the BuildExtension backend but we could not find ninja.. Falling back to using the slow distutils backend.
+W0725 20:47:07.027000 2936414 torch/utils/cpp_extension.py:680] Attempted to use ninja as the BuildExtension backend but we could not find ninja.. Falling back to using the slow distutils backend.
+
+Note: the module "s" cannot be unloaded because it was not loaded.
+
