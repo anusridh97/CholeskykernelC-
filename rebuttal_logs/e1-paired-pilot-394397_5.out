@@ -1,0 +1,21 @@
+phase=pilot method=refact rank=1024 epoch=1/10 steps=142 refreshes=36
+phase=pilot method=refact rank=1024 epoch=2/10 steps=284 refreshes=58
+phase=pilot method=refact rank=1024 epoch=3/10 steps=426 refreshes=80
+phase=pilot method=refact rank=1024 epoch=4/10 steps=568 refreshes=102
+phase=pilot method=refact rank=1024 epoch=5/10 steps=710 refreshes=121
+phase=pilot method=refact rank=1024 epoch=6/10 steps=852 refreshes=142
+phase=pilot method=refact rank=1024 epoch=7/10 steps=994 refreshes=159
+phase=pilot method=refact rank=1024 epoch=8/10 steps=1136 refreshes=170
+phase=pilot method=refact rank=1024 epoch=9/10 steps=1278 refreshes=183
+phase=pilot method=refact rank=1024 epoch=10/10 steps=1420 refreshes=195
+phase=pilot method=ours rank=1024 epoch=1/10 steps=142 refreshes=37
+phase=pilot method=ours rank=1024 epoch=2/10 steps=284 refreshes=65
+phase=pilot method=ours rank=1024 epoch=3/10 steps=426 refreshes=86
+phase=pilot method=ours rank=1024 epoch=4/10 steps=568 refreshes=110
+phase=pilot method=ours rank=1024 epoch=5/10 steps=710 refreshes=121
+phase=pilot method=ours rank=1024 epoch=6/10 steps=852 refreshes=142
+phase=pilot method=ours rank=1024 epoch=7/10 steps=994 refreshes=165
+phase=pilot method=ours rank=1024 epoch=8/10 steps=1136 refreshes=176
+phase=pilot method=ours rank=1024 epoch=9/10 steps=1278 refreshes=188
+phase=pilot method=ours rank=1024 epoch=10/10 steps=1420 refreshes=194
+wrote immutable paired result /scratch/m000151-pm06/arjo-e1-confirmation-v2-control/rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v4/pilot_pair_r1024_t10_seed1000.json

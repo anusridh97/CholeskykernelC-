@@ -1,0 +1,20 @@
+/users/arjo/.local/lib/python3.10/site-packages/torch/__config__.py:9: UserWarning: CUDA initialization: The NVIDIA driver on your system is too old (found version 12070). Please update your GPU driver by downloading and installing a new version from the URL: http://www.nvidia.com/Download/index.aspx Alternatively, go to: https://pytorch.org to install a PyTorch version that has been compiled with your version of the CUDA driver. (Triggered internally at /pytorch/c10/cuda/CUDAFunctions.cpp:119.)
+  return torch._C._show_config()
+Traceback (most recent call last):
+  File "/scratch/m000151-pm06/arjo-e1-confirmation-v2-control/rebuttal_experiments/e1_confirmation.py", line 2381, in <module>
+    main()
+  File "/scratch/m000151-pm06/arjo-e1-confirmation-v2-control/rebuttal_experiments/e1_confirmation.py", line 2364, in main
+    preflight(args)
+  File "/scratch/m000151-pm06/arjo-e1-confirmation-v2-control/rebuttal_experiments/e1_confirmation.py", line 2257, in preflight
+    slurm = _validate_preflight_slurm()
+  File "/scratch/m000151-pm06/arjo-e1-confirmation-v2-control/rebuttal_experiments/e1_confirmation.py", line 833, in _validate_preflight_slurm
+    allocation = subprocess.run(
+  File "/usr/lib/python3.10/subprocess.py", line 503, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/usr/lib/python3.10/subprocess.py", line 971, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/usr/lib/python3.10/subprocess.py", line 1863, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'scontrol'
+srun: error: n29: task 0: Exited with exit code 1
+srun: Terminating StepId=394392.0

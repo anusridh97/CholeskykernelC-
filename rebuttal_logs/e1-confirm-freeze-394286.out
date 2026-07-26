@@ -1,0 +1,7 @@
+E1 confirmation self-test passed
+running build_ext
+building 'fast_cholesky' extension
+x86_64-linux-gnu-gcc -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -I/users/arjo/.local/lib/python3.10/site-packages/torch/include -I/users/arjo/.local/lib/python3.10/site-packages/torch/include/torch/csrc/api/include -I/usr/include/python3.10 -c fast_update.cpp -o build/temp.linux-x86_64-3.10/fast_update.o -O3 -std=c++17 -march=native -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=fast_cholesky
+x86_64-linux-gnu-g++ -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-Bsymbolic-functions -g -fwrapv -O2 -Wl,-Bsymbolic-functions -g -fwrapv -O2 -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 build/temp.linux-x86_64-3.10/fast_update.o -L/users/arjo/.local/lib/python3.10/site-packages/torch/lib -lc10 -ltorch -ltorch_cpu -ltorch_python -o build/lib.linux-x86_64-3.10/fast_cholesky.so
+copying build/lib.linux-x86_64-3.10/fast_cholesky.so -> 
+wrote immutable source lock /scratch/m000151-pm06/arjo-e1-confirmation-v2-control/rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v4/source_lock.json
