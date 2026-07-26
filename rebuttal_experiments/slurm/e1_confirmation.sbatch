@@ -16,6 +16,8 @@
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR}"
+export PATH=/cm/shared/apps/slurm/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export SLURM_CONF=/cm/shared/apps/slurm/var/etc/slurm/slurm.conf
 
 task_index="${SLURM_ARRAY_TASK_ID}"
 if (( task_index % 2 == 0 )); then

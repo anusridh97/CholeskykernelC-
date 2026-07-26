@@ -15,6 +15,8 @@
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR}"
+export PATH=/cm/shared/apps/slurm/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export SLURM_CONF=/cm/shared/apps/slurm/var/etc/slurm/slurm.conf
 
 candidate_dir="${PWD}/rebuttal_experiments"
 package_dir="${PWD}/Cholesky-main-2/corrected_incremental_cholesky"
