@@ -696,6 +696,8 @@ def run_confirmation(args: argparse.Namespace) -> dict[str, Any]:
 def _validate_artifact(
     payload: dict[str, Any],
     spec: dict[str, Any],
+    directory: Path,
+    lock: dict[str, Any],
     lock_sha256: str,
     preflight_sha256: str,
 ) -> None:
@@ -707,13 +709,38 @@ def _validate_artifact(
         raise RuntimeError("artifact task mapping mismatch")
     if payload.get("fixed_config") != FIXED_CONFIG:
         raise RuntimeError("artifact fixed configuration mismatch")
-    if payload["source_lock"]["sha256"] != lock_sha256:
+    source = payload["source_lock"]
+    if (
+        source["path"] != str(directory / "source_lock.json")
+        or source["sha256"] != lock_sha256
+        or source["locked_git_commit"] != lock["git_commit"]
+        or source["files"] != lock["files"]
+        or source["runtime"] != lock["runtime"]
+    ):
         raise RuntimeError("artifact source-lock hash mismatch")
+    if (
+        base._git(
+            "merge-base",
+            "--is-ancestor",
+            source["run_git_commit"],
+            "HEAD",
+            check=False,
+        ).returncode
+        != 0
+    ):
+        raise RuntimeError("artifact run commit is not an ancestor of HEAD")
+    data = payload["data"]
+    for key, expected in base.EXPECTED_DATA_PARTITION.items():
+        if data.get(key) != expected:
+            raise RuntimeError(f"artifact data manifest mismatch for {key}")
+    if (
+        data.get("sha256") != lock["files"]["protein_data"]["sha256"]
+        or data.get("heldout_tensors_materialized_after_all_trainings")
+        is not True
+    ):
+        raise RuntimeError("artifact data provenance/test timing mismatch")
     claim = payload["confirmation_exactly_once_claim"]
-    expected_claim_path = _claim_path(
-        Path(payload["confirmation_exactly_once_claim"]["path"]).parents[1],
-        spec,
-    )
+    expected_claim_path = _claim_path(directory, spec)
     if (
         Path(claim["path"]) != expected_claim_path
         or claim["payload"]["spec"] != spec
@@ -727,6 +754,13 @@ def _validate_artifact(
         raise RuntimeError("embedded claim differs from write-once claim")
     if payload["preflight"]["sha256"] != preflight_sha256:
         raise RuntimeError("artifact preflight mismatch")
+    if (
+        payload["preflight"]["path"]
+        != str(directory / "preflight_receipt.json")
+        or base._read_json(Path(payload["preflight"]["path"]))
+        != payload["preflight"]["payload"]
+    ):
+        raise RuntimeError("embedded preflight differs from committed receipt")
     expected_keys = {_tau_key(tau) for tau in TAUS}
     results = payload["threshold_results"]
     if set(results) != expected_keys:
@@ -805,6 +839,12 @@ def _validate_artifact(
         raise RuntimeError("artifact Slurm audit failed")
     if not payload["implementation"]["kernel_equivalence_probe"]["passed"]:
         raise RuntimeError("artifact kernel probe failed")
+    if (
+        payload["implementation"]["incremental_extension"]
+        != str((ROOT / LOCKED_FILES["incremental_binary"]).resolve())
+        or payload["environment"]["runtime_lock"] != lock["runtime"]
+    ):
+        raise RuntimeError("artifact implementation/runtime provenance mismatch")
 
 
 def _mean_sd(values: list[float]) -> dict[str, Any]:
@@ -833,7 +873,7 @@ def _paired_95_ci(values: list[float]) -> dict[str, Any]:
 
 
 def aggregate_confirmation(args: argparse.Namespace) -> dict[str, Any]:
-    _, lock_sha256, _ = _verify_lock(args)
+    lock, lock_sha256, _ = _verify_lock(args)
     preflight = _require_preflight(args, lock_sha256)
     directory = _campaign_dir(args)
     payloads = []
@@ -850,7 +890,12 @@ def aggregate_confirmation(args: argparse.Namespace) -> dict[str, Any]:
     for spec in _task_specs():
         payload = base._read_json(_artifact_path(directory, spec))
         _validate_artifact(
-            payload, spec, lock_sha256, preflight["sha256"]
+            payload,
+            spec,
+            directory,
+            lock,
+            lock_sha256,
+            preflight["sha256"],
         )
         payloads.append(payload)
 
