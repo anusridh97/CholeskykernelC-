@@ -549,6 +549,19 @@ def audit_probes(
     return rows
 
 
+def payload_array_task_id(payload: dict[str, Any]) -> Any:
+    """Read task metadata from each frozen driver's documented location."""
+    if payload.get("experiment") in {
+        "cuda_scaling",
+        "cuda_inverse_refresh",
+    }:
+        environment = payload.get("environment")
+        if not isinstance(environment, dict):
+            raise LockError("environment-bearing payload has no environment object")
+        return environment.get("slurm_array_task_id")
+    return payload.get("slurm_array_task_id")
+
+
 def command_preflight(args: argparse.Namespace) -> None:
     source = verify_lock(args.repository, args.lock)
     scheduler = scheduler_identity(seed_required=False)
@@ -629,7 +642,7 @@ def command_attest_task(args: argparse.Namespace) -> None:
             raise LockError(f"{path}: seed {payload.get('seed')!r} != {seed}")
         if payload.get("output_suffix") != suffix:
             raise LockError(f"{path}: wrong output_suffix")
-        if str(payload.get("slurm_array_task_id")) != str(task):
+        if str(payload_array_task_id(payload)) != str(task):
             raise LockError(f"{path}: wrong Slurm array task")
         payloads.append((path, payload))
     probe_rows = audit_probes(args.repository, payloads)
