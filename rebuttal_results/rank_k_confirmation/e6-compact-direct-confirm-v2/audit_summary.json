@@ -22,6 +22,7 @@
     "exclusive_nodes": 1,
     "allocated_cpus": 112,
     "requested_cpus_recorded_by_slurm": 6,
+    "requested_cpu_note": "Slurm derived ReqCPUS=6 from the 96 GiB memory request; the measured srun process was pinned to one physical CPU as frozen.",
     "experimental_process_affinity_cpus": 1,
     "allocated_gpu_devices": 8,
     "gpu_devices_used_by_experiment": 0,
