@@ -1067,6 +1067,54 @@ def _markdown(summary: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+EXECUTION_CONTEXT_SLURM_KEYS = (
+    "job_id",
+    "array_job_id",
+    "array_task_id",
+    "array_task_count",
+    "array_task_min",
+    "array_task_max",
+    "array_task_step",
+    "account",
+    "partition",
+    "cpus_per_task",
+    "job_name",
+    "node_list",
+    "cuda_visible_devices",
+    "job_gpus",
+    "step_gpus",
+    "gpus_on_node",
+)
+
+
+def _execution_context(
+    *,
+    rank: int,
+    attestation: dict[str, Any],
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    slurm = _object(attestation.get("slurm"), "attestation Slurm")
+    missing = set(EXECUTION_CONTEXT_SLURM_KEYS) - set(slurm)
+    if missing:
+        raise LockedRerunError(
+            "attestation Slurm metadata is missing execution-context fields: "
+            + ", ".join(sorted(missing))
+        )
+    return {
+        "rank": rank,
+        **{key: slurm[key] for key in EXECUTION_CONTEXT_SLURM_KEYS},
+        "host": attestation["host"],
+        "gpu": attestation["gpu"],
+        "hardware": payload["hardware"],
+        "platform": payload["platform"],
+        "python": payload["python"],
+        "raw_result_sha256": attestation["raw_result_sha256"],
+        "campaign_lock_git_commit": attestation[
+            "campaign_lock_git_commit"
+        ],
+    }
+
+
 def _validate_parallel_contexts(
     contexts: list[dict[str, Any]],
     *,
@@ -1116,6 +1164,11 @@ def _validate_parallel_contexts(
         {row["partition"] for row in contexts},
         {expected_partition},
         "Slurm partition set",
+    )
+    _equal(
+        {row["cpus_per_task"] for row in contexts},
+        {OUTER_CPUS_PER_TASK},
+        "Slurm CPUs-per-task set",
     )
     _equal(
         len({row["campaign_lock_git_commit"] for row in contexts}),
@@ -1302,23 +1355,11 @@ def aggregate(args: argparse.Namespace) -> None:
             _equal(source_context[0], LOCKED_COMMIT, f"rank {rank} base commit")
             records.append(record)
             contexts.append(
-                {
-                    "rank": rank,
-                    "array_job_id": attestation["slurm"]["array_job_id"],
-                    "array_task_id": attestation["slurm"]["array_task_id"],
-                    "job_id": attestation["slurm"]["job_id"],
-                    "account": attestation["slurm"]["account"],
-                    "partition": attestation["slurm"]["partition"],
-                    "host": attestation["host"],
-                    "gpu": attestation["gpu"],
-                    "hardware": payload["hardware"],
-                    "platform": payload["platform"],
-                    "python": payload["python"],
-                    "raw_result_sha256": attestation["raw_result_sha256"],
-                    "campaign_lock_git_commit": attestation[
-                        "campaign_lock_git_commit"
-                    ],
-                }
+                _execution_context(
+                    rank=rank,
+                    attestation=attestation,
+                    payload=payload,
+                )
             )
 
     _validate_parallel_contexts(
@@ -1510,18 +1551,28 @@ def self_test(args: argparse.Namespace) -> None:
         "platform": "test-platform",
         "python": "test-python",
     }
-    contexts = [
-        {
-            "rank": rank,
+    contexts = []
+    for task, rank in TASK_TO_RANK.items():
+        synthetic_slurm = {
+            "job_id": str(700 + task),
             "array_job_id": "700",
             "array_task_id": str(task),
             "array_task_count": "7",
             "array_task_min": "0",
             "array_task_max": "6",
             "array_task_step": "1",
-            "job_id": str(700 + task),
             "account": "authorized",
             "partition": "h100",
+            "cpus_per_task": OUTER_CPUS_PER_TASK,
+            "job_name": "synthetic",
+            "node_list": f"n{task}",
+            "cuda_visible_devices": "0",
+            "job_gpus": "0",
+            "step_gpus": None,
+            "gpus_on_node": "1",
+        }
+        synthetic_attestation = {
+            "slurm": synthetic_slurm,
             "host": f"n{task}",
             "gpu": {
                 "uuid": f"GPU-{task:032x}",
@@ -1530,10 +1581,15 @@ def self_test(args: argparse.Namespace) -> None:
                 "driver_version": "test",
             },
             "campaign_lock_git_commit": "f" * 40,
-            **environment,
+            "raw_result_sha256": f"{task:064x}",
         }
-        for task, rank in TASK_TO_RANK.items()
-    ]
+        contexts.append(
+            _execution_context(
+                rank=rank,
+                attestation=synthetic_attestation,
+                payload=environment,
+            )
+        )
     _validate_parallel_contexts(
         contexts,
         expected_account="authorized",
