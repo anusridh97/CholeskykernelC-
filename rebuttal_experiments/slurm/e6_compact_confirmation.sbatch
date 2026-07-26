@@ -23,7 +23,7 @@ git diff --cached --quiet
 
 readonly TORCH_SITE="/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site"
 readonly REBUTTAL_DEPS="/scratch/m000151-pm06/arjo/blackhole-0977166-final/rebuttal_deps"
-readonly BUILD_ROOT="${SLURM_TMPDIR}/e6-compact-build"
+readonly BUILD_ROOT="/scratch/m000151-pm06/arjo/job-builds/${SLURM_JOB_ID}/e6-compact"
 mkdir -p "${BUILD_ROOT}/temp" "${BUILD_ROOT}/lib" rebuttal_logs
 
 export PYTHONNOUSERSITE=1

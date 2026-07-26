@@ -23,7 +23,7 @@ git diff --cached --quiet
 
 readonly TORCH_SITE="/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site"
 readonly REBUTTAL_DEPS="/scratch/m000151-pm06/arjo/blackhole-0977166-final/rebuttal_deps"
-readonly BUILD_ROOT="${SLURM_TMPDIR}/e3-metric-build"
+readonly BUILD_ROOT="/scratch/m000151-pm06/arjo/job-builds/${SLURM_JOB_ID}/e3-metric"
 mkdir -p "${BUILD_ROOT}/temp-metric" "${BUILD_ROOT}/temp-one-sided" \
   "${BUILD_ROOT}/lib" rebuttal_logs
 
