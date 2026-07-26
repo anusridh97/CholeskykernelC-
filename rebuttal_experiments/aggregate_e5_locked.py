@@ -122,7 +122,11 @@ def run(
     campaign_dir: Path,
 ) -> dict[str, Any]:
     previous = original.EXPECTED_SEEDS
+    previous_task_matcher = original._task_id_matches
     original.EXPECTED_SEEDS = SEEDS
+    original._task_id_matches = (
+        lambda value, seed: str(value) == str(seed - SEEDS[0])
+    )
     try:
         summary = original.audit_and_aggregate(
             repository / "rebuttal_results",
@@ -130,6 +134,7 @@ def run(
         )
     finally:
         original.EXPECTED_SEEDS = previous
+        original._task_id_matches = previous_task_matcher
     summary["locked_confirmation"] = audit_attestations(
         repository,
         campaign_dir,

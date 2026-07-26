@@ -28,7 +28,7 @@ import torch
 SCHEMA_LOCK = "e5_locked_confirmation_lock_v1"
 SCHEMA_PREFLIGHT = "e5_locked_confirmation_preflight_v1"
 SCHEMA_ATTESTATION = "e5_locked_confirmation_attestation_v1"
-CAMPAIGN_TAG = "e5-locked-confirm-v2"
+CAMPAIGN_TAG = "e5-locked-confirm-v3"
 SEEDS = tuple(range(5001, 5011))
 RANKS = (2048, 4096, 8192, 16384, 32768, 49152, 65536)
 PROBE_RANKS = (49152, 65536)
@@ -228,9 +228,9 @@ def scheduler_identity(seed_required: bool) -> dict[str, Any]:
             raise LockError(f"required scheduler variable {key} is missing")
         if expected is not None and actual != expected:
             raise LockError(f"{key}={actual!r}, expected {expected!r}")
-    if seed_required and int(os.environ["SLURM_ARRAY_TASK_ID"]) not in SEEDS:
+    if seed_required and int(os.environ["SLURM_ARRAY_TASK_ID"]) not in range(10):
         raise LockError(
-            f"array task must be one of {SEEDS}, got "
+            "array task must be an index in 0..9, got "
             f"{os.environ['SLURM_ARRAY_TASK_ID']!r}"
         )
     job_id = os.environ["SLURM_JOB_ID"]
@@ -352,7 +352,10 @@ def make_lock(repository: Path, output: Path) -> None:
             "account": EXPECTED_ACCOUNT,
             "partition": EXPECTED_PARTITION,
             "qos": EXPECTED_QOS,
-            "array": "5001-5010%10",
+            "array": "0-9%10",
+            "array_task_to_seed": {
+                str(index): seed for index, seed in enumerate(SEEDS)
+            },
             "cpus_per_task": EXPECTED_CPUS,
             "gpus_per_task": 1,
             "memory": "64G",
@@ -564,9 +567,14 @@ def command_preflight(args: argparse.Namespace) -> None:
 
 
 def command_verify_task(args: argparse.Namespace) -> None:
-    seed = int(os.environ.get("SLURM_ARRAY_TASK_ID", "-1"))
-    if seed != args.seed or seed not in SEEDS:
-        raise LockError(f"task seed {seed} != requested seed {args.seed}")
+    task = int(os.environ.get("SLURM_ARRAY_TASK_ID", "-1"))
+    expected_seed = SEEDS[task] if task in range(10) else None
+    if expected_seed != args.seed:
+        raise LockError(
+            f"array task {task} maps to {expected_seed}, "
+            f"not requested seed {args.seed}"
+        )
+    seed = args.seed
     source = verify_lock(args.repository, args.lock)
     scheduler = scheduler_identity(seed_required=True)
     gpu = gpu_identity()
@@ -586,9 +594,14 @@ def command_verify_task(args: argparse.Namespace) -> None:
 
 
 def command_attest_task(args: argparse.Namespace) -> None:
-    seed = int(os.environ.get("SLURM_ARRAY_TASK_ID", "-1"))
-    if seed != args.seed or seed not in SEEDS:
-        raise LockError(f"task seed {seed} != requested seed {args.seed}")
+    task = int(os.environ.get("SLURM_ARRAY_TASK_ID", "-1"))
+    expected_seed = SEEDS[task] if task in range(10) else None
+    if expected_seed != args.seed:
+        raise LockError(
+            f"array task {task} maps to {expected_seed}, "
+            f"not requested seed {args.seed}"
+        )
+    seed = args.seed
     source = verify_lock(args.repository, args.lock)
     scheduler = scheduler_identity(seed_required=True)
     gpu = gpu_identity()
@@ -616,7 +629,7 @@ def command_attest_task(args: argparse.Namespace) -> None:
             raise LockError(f"{path}: seed {payload.get('seed')!r} != {seed}")
         if payload.get("output_suffix") != suffix:
             raise LockError(f"{path}: wrong output_suffix")
-        if str(payload.get("slurm_array_task_id")) != str(seed):
+        if str(payload.get("slurm_array_task_id")) != str(task):
             raise LockError(f"{path}: wrong Slurm array task")
         payloads.append((path, payload))
     probe_rows = audit_probes(args.repository, payloads)

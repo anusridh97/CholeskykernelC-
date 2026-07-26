@@ -4,7 +4,7 @@ This campaign repeats the exact displayed E5 grid with ten fresh, predeclared
 seeds `5001..5010`. It does not replace or alter the original campaign. No
 configuration may be tuned, no seed may be replaced, and no run may be
 stopped or repeated based on an observed numerical outcome. All ten seeds are
-aggregated.
+aggregated. Slurm array indices `0..9` map immutably to seed `5001 + index`.
 
 The timed regions, warmups, repetitions, ranks, batches, policies, launch
 parameters, and alternating large-rank method order are unchanged from the

@@ -3,7 +3,7 @@
 #SBATCH --account=marlowe-m000151-pm06
 #SBATCH --partition=batch
 #SBATCH --qos=medium
-#SBATCH --array=5001-5010%10
+#SBATCH --array=0-9%10
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
@@ -19,14 +19,15 @@ readonly repository="${E5_LOCKED_REPOSITORY:?set E5_LOCKED_REPOSITORY}"
 readonly campaign_dir="${E5_CAMPAIGN_DIR:?set E5_CAMPAIGN_DIR}"
 readonly lock="${campaign_dir}/campaign_lock.json"
 readonly dependency_root="/users/ravid/.local/lib/python3.10/site-packages"
-readonly seed="${SLURM_ARRAY_TASK_ID}"
-readonly campaign_tag="e5-locked-confirm-v2"
+readonly task_id="${SLURM_ARRAY_TASK_ID}"
+readonly seed="$((5001 + task_id))"
+readonly campaign_tag="e5-locked-confirm-v3"
 readonly output_suffix="${campaign_tag}-task${seed}"
 readonly attestation="${campaign_dir}/attestation_seed${seed}.json"
 readonly claim="${campaign_dir}/.claims/seed${seed}.claim"
 
-if (( seed < 5001 || seed > 5010 )); then
-  echo "expected an array task in 5001..5010, got ${seed}" >&2
+if (( task_id < 0 || task_id > 9 )); then
+  echo "expected an array task in 0..9, got ${task_id}" >&2
   exit 2
 fi
 if [[ ! -r "${campaign_dir}/preflight.json" ]]; then
