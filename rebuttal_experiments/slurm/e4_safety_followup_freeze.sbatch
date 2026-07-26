@@ -7,7 +7,6 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --hint=nomultithread
-#SBATCH --exclusive
 #SBATCH --mem=16G
 #SBATCH --time=00:10:00
 #SBATCH --no-requeue
