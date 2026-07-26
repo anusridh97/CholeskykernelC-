@@ -70,8 +70,9 @@ Each artifact also contains:
 
 - source, binary, data, driver, and Slurm-script SHA-256 hashes;
 - a runtime lock covering the exact Python executable, PyTorch, NumPy, SciPy,
-  torch build configuration, libc/machine tuple, and extension dependency
-  manifest;
+  torch build configuration, libc/machine and CPU-ISA fingerprints, and
+  extension dependency manifest (the extension is built with
+  `-march=native`);
 - the exact git commit and complete source lock;
 - requested and runtime-observed ATen/OpenMP/MKL thread counts;
 - process CPU affinity and Slurm allocation metadata;

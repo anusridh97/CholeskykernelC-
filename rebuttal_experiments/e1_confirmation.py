@@ -195,6 +195,28 @@ def _file_record(path: Path) -> dict[str, Any]:
     }
 
 
+def _cpu_isa_manifest() -> dict[str, str]:
+    first_processor: dict[str, str] = {}
+    for line in Path("/proc/cpuinfo").read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            break
+        if ":" in line:
+            name, value = line.split(":", 1)
+            first_processor[name.strip()] = value.strip()
+    required = (
+        "vendor_id",
+        "cpu family",
+        "model",
+        "model name",
+        "stepping",
+        "flags",
+    )
+    missing = [name for name in required if name not in first_processor]
+    if missing:
+        raise RuntimeError(f"CPU ISA manifest omitted {missing}")
+    return {name: first_processor[name] for name in required}
+
+
 def _runtime_manifest() -> dict[str, Any]:
     """Return stable runtime fields that must match on every campaign task."""
     if os.environ.get("PYTHONNOUSERSITE") != "1":
@@ -271,6 +293,7 @@ def _runtime_manifest() -> dict[str, Any]:
         "platform": {
             "machine": platform.machine(),
             "libc": list(platform.libc_ver()),
+            "cpu_isa": _cpu_isa_manifest(),
         },
         "extension_ldd_sha256": _text_sha256(ldd),
         "extension_ldd": ldd_lines,
