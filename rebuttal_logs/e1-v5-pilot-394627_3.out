@@ -1,0 +1,21 @@
+phase=pilot method=ours rank=512 epoch=1/10 steps=142 refreshes=34
+phase=pilot method=ours rank=512 epoch=2/10 steps=284 refreshes=60
+phase=pilot method=ours rank=512 epoch=3/10 steps=426 refreshes=87
+phase=pilot method=ours rank=512 epoch=4/10 steps=568 refreshes=118
+phase=pilot method=ours rank=512 epoch=5/10 steps=710 refreshes=141
+phase=pilot method=ours rank=512 epoch=6/10 steps=852 refreshes=162
+phase=pilot method=ours rank=512 epoch=7/10 steps=994 refreshes=181
+phase=pilot method=ours rank=512 epoch=8/10 steps=1136 refreshes=193
+phase=pilot method=ours rank=512 epoch=9/10 steps=1278 refreshes=206
+phase=pilot method=ours rank=512 epoch=10/10 steps=1420 refreshes=217
+phase=pilot method=refact rank=512 epoch=1/10 steps=142 refreshes=32
+phase=pilot method=refact rank=512 epoch=2/10 steps=284 refreshes=64
+phase=pilot method=refact rank=512 epoch=3/10 steps=426 refreshes=89
+phase=pilot method=refact rank=512 epoch=4/10 steps=568 refreshes=119
+phase=pilot method=refact rank=512 epoch=5/10 steps=710 refreshes=146
+phase=pilot method=refact rank=512 epoch=6/10 steps=852 refreshes=164
+phase=pilot method=refact rank=512 epoch=7/10 steps=994 refreshes=182
+phase=pilot method=refact rank=512 epoch=8/10 steps=1136 refreshes=198
+phase=pilot method=refact rank=512 epoch=9/10 steps=1278 refreshes=209
+phase=pilot method=refact rank=512 epoch=10/10 steps=1420 refreshes=219
+wrote immutable paired result /scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_results/e1_confirmation/e1-confirm-samevector-out-v5/pilot_pair_r512_t10_seed63001.json

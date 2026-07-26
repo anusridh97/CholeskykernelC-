@@ -1,0 +1,26 @@
+{
+  "approval_git_commit": "7ee97661286fe0e77cd74849701b6998161294eb",
+  "campaign_tag": "e1-confirm-samevector-out-v5",
+  "confirmation_configuration_changed_after_pilot": false,
+  "confirmation_seeds": [
+    62001,
+    62002,
+    62003,
+    62004,
+    62005,
+    62006,
+    62007,
+    62008,
+    62009,
+    62010
+  ],
+  "created_utc": "2026-07-26T07:04:58.084086+00:00",
+  "decision": "approve_untouched_confirmation",
+  "experiment": "e1_pilot_review_gate",
+  "pilot_summary_path": "/scratch/m000151-pm06/arjo-e1-confirmation-v5-control/rebuttal_results/e1_confirmation/e1-confirm-samevector-out-v5/pilot_summary.json",
+  "pilot_summary_sha256": "d8b6706be425193157d35e2304457898b01d4f812cea32f7c99feda07a1d9f4b",
+  "review_note": "Reviewed_all_18_no-test_pilot_artifacts_and_diagnostics_all_predeclared_checks_passed_proceed_unchanged_non-outcome-adaptive",
+  "reviewer": "Codex_independent_protocol_audit",
+  "schema_version": 1,
+  "source_lock_sha256": "59373aad6adebc1d1902b00811bb13bc99ad1afbc2460da89cd9cf9d24db8f81"
+}
