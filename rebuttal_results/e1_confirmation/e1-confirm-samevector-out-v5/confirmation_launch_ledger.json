@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "campaign_tag": "e1-confirm-samevector-out-v5",
+  "run_git_commit": "cfd9fb419444b9420268368a5ecec24e0cc1cfac",
+  "purpose": "Machine-readable scheduler launch ledger for the source-locked 60-cell confirmation",
+  "scientific_configuration_changed": false,
+  "scheduler_only_changes": {
+    "reason": "The Marlowe account's MaxSubmitJobsPerAccount policy required outcome-blind incremental submission of the locked array indices.",
+    "array_indices": "The locked bijection from each index to seed, rank, thread count, and method order was unchanged.",
+    "task_command": "The locked rebuttal_experiments/slurm/e1_confirmation.sbatch task body was unchanged.",
+    "time_limit": "Each task received a scheduler-only 00:05:00 limit; the frozen pilot maximum was below this limit.",
+    "concurrency": "The initial tranche used %10, the second used %3, and single-index refills used one element.",
+    "outcome_access_policy": "Confirmation result artifacts remain unopened until all 60 tasks are terminal; the final audit records compliance."
+  },
+  "launches": [
+    {
+      "array_job_id": "394684",
+      "task_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "array_override": "0-19%10",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394690",
+      "task_indices": [
+        20,
+        21,
+        22
+      ],
+      "array_override": "20-22%3",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394691",
+      "task_indices": [
+        23
+      ],
+      "array_override": "23",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394693",
+      "task_indices": [
+        24
+      ],
+      "array_override": "24",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394698",
+      "task_indices": [
+        25
+      ],
+      "array_override": "25",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394700",
+      "task_indices": [
+        26
+      ],
+      "array_override": "26",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394701",
+      "task_indices": [
+        27
+      ],
+      "array_override": "27",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394702",
+      "task_indices": [
+        28
+      ],
+      "array_override": "28",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394704",
+      "task_indices": [
+        29
+      ],
+      "array_override": "29",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394706",
+      "task_indices": [
+        30
+      ],
+      "array_override": "30",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394707",
+      "task_indices": [
+        31
+      ],
+      "array_override": "31",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394708",
+      "task_indices": [
+        32
+      ],
+      "array_override": "32",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394709",
+      "task_indices": [
+        33
+      ],
+      "array_override": "33",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394711",
+      "task_indices": [
+        34
+      ],
+      "array_override": "34",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394712",
+      "task_indices": [
+        35
+      ],
+      "array_override": "35",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394713",
+      "task_indices": [
+        36
+      ],
+      "array_override": "36",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394714",
+      "task_indices": [
+        37
+      ],
+      "array_override": "37",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394715",
+      "task_indices": [
+        38
+      ],
+      "array_override": "38",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394716",
+      "task_indices": [
+        39
+      ],
+      "array_override": "39",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394717",
+      "task_indices": [
+        40
+      ],
+      "array_override": "40",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394718",
+      "task_indices": [
+        41
+      ],
+      "array_override": "41",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394720",
+      "task_indices": [
+        42
+      ],
+      "array_override": "42",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394722",
+      "task_indices": [
+        43
+      ],
+      "array_override": "43",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394725",
+      "task_indices": [
+        44
+      ],
+      "array_override": "44",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394727",
+      "task_indices": [
+        45
+      ],
+      "array_override": "45",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394729",
+      "task_indices": [
+        46
+      ],
+      "array_override": "46",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394731",
+      "task_indices": [
+        47
+      ],
+      "array_override": "47",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394733",
+      "task_indices": [
+        48
+      ],
+      "array_override": "48",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394735",
+      "task_indices": [
+        49
+      ],
+      "array_override": "49",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394737",
+      "task_indices": [
+        50
+      ],
+      "array_override": "50",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394739",
+      "task_indices": [
+        51
+      ],
+      "array_override": "51",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394740",
+      "task_indices": [
+        52
+      ],
+      "array_override": "52",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394741",
+      "task_indices": [
+        53
+      ],
+      "array_override": "53",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394742",
+      "task_indices": [
+        54
+      ],
+      "array_override": "54",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394743",
+      "task_indices": [
+        55
+      ],
+      "array_override": "55",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394744",
+      "task_indices": [
+        56
+      ],
+      "array_override": "56",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394745",
+      "task_indices": [
+        57
+      ],
+      "array_override": "57",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394746",
+      "task_indices": [
+        58
+      ],
+      "array_override": "58",
+      "time_override": "00:05:00"
+    },
+    {
+      "array_job_id": "394747",
+      "task_indices": [
+        59
+      ],
+      "array_override": "59",
+      "time_override": "00:05:00"
+    }
+  ],
+  "coverage": {
+    "expected_task_indices": "0-59",
+    "launched_task_count": 60,
+    "missing_task_indices": [],
+    "duplicate_task_indices": []
+  }
+}

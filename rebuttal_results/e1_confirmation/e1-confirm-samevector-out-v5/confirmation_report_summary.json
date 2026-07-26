@@ -1,0 +1,2144 @@
+{
+  "analysis_policy": {
+    "application_ratio": "paired Refact/Ours ratio of complete per-step application time; refresh and reset work included",
+    "confidence_intervals": "two-sided Student-t 95% intervals across ten paired seeds with df=9",
+    "core_normalization": "each method's total non-refresh core seconds divided by its own steps minus refresh_count; paired Refact/Ours ratios are then summarized across seeds",
+    "fixed_before_confirmation_launch": true,
+    "test_policy": "one terminal test evaluation per method per pair after both trainings; no test-based selection"
+  },
+  "artifact_count": 60,
+  "audit": {
+    "all_60_exactly_once_claims_present": true,
+    "all_60_results_present": true,
+    "all_locked_sources_and_runtimes_match": true,
+    "all_paired_inputs_match": true,
+    "all_runtime_threads_and_affinities_match": true,
+    "all_test_evaluations_exactly_once": true,
+    "core_denominators_use_actual_nonrefresh_invocations": true
+  },
+  "campaign_tag": "e1-confirm-samevector-out-v5",
+  "experiment": "e1_v5_report_aggregate",
+  "groups": [
+    {
+      "individual_pairs": [
+        {
+          "application_speedup_refact_over_ours": 1.085723964663426,
+          "core_speedup_refact_over_ours": 4.463869437809367,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.2140614612436914,
+          "ours_refresh_count": 222,
+          "ours_test_mse": 0.5368537306785583,
+          "refact_core_ms_per_nonrefresh_call": 0.9555424146585284,
+          "refact_refresh_count": 219,
+          "refact_test_mse": 0.5425705313682556,
+          "seed": 62001,
+          "test_mse_difference_ours_minus_refact": -0.005716800689697266
+        },
+        {
+          "application_speedup_refact_over_ours": 1.1068651330103918,
+          "core_speedup_refact_over_ours": 4.4118964599110395,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.21536976855713874,
+          "ours_refresh_count": 220,
+          "ours_test_mse": 0.5456410050392151,
+          "refact_core_ms_per_nonrefresh_call": 0.9501891194691002,
+          "refact_refresh_count": 211,
+          "refact_test_mse": 0.5450009703636169,
+          "seed": 62002,
+          "test_mse_difference_ours_minus_refact": 0.0006400346755981445
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0803153887943702,
+          "core_speedup_refact_over_ours": 4.399665024301254,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.21542714024194673,
+          "ours_refresh_count": 216,
+          "ours_test_mse": 0.5595493912696838,
+          "refact_core_ms_per_nonrefresh_call": 0.9478072542077343,
+          "refact_refresh_count": 218,
+          "refact_test_mse": 0.5638177990913391,
+          "seed": 62003,
+          "test_mse_difference_ours_minus_refact": -0.0042684078216552734
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0940892123547403,
+          "core_speedup_refact_over_ours": 4.386851544909822,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.21443781911299892,
+          "ours_refresh_count": 212,
+          "ours_test_mse": 0.5744315981864929,
+          "refact_core_ms_per_nonrefresh_call": 0.9407068780629524,
+          "refact_refresh_count": 208,
+          "refact_test_mse": 0.5852349996566772,
+          "seed": 62004,
+          "test_mse_difference_ours_minus_refact": -0.010803401470184326
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0952014612597838,
+          "core_speedup_refact_over_ours": 4.37337403264159,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.21788341950525922,
+          "ours_refresh_count": 219,
+          "ours_test_mse": 0.5413224101066589,
+          "refact_core_ms_per_nonrefresh_call": 0.9528856890074549,
+          "refact_refresh_count": 230,
+          "refact_test_mse": 0.5434102416038513,
+          "seed": 62005,
+          "test_mse_difference_ours_minus_refact": -0.002087831497192383
+        },
+        {
+          "application_speedup_refact_over_ours": 1.1068580082377675,
+          "core_speedup_refact_over_ours": 4.471997796836562,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.21388421000091304,
+          "ours_refresh_count": 216,
+          "ours_test_mse": 0.5354650020599365,
+          "refact_core_ms_per_nonrefresh_call": 0.9564897159022118,
+          "refact_refresh_count": 210,
+          "refact_test_mse": 0.5246487259864807,
+          "seed": 62006,
+          "test_mse_difference_ours_minus_refact": 0.01081627607345581
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0941634142663685,
+          "core_speedup_refact_over_ours": 4.432290584109935,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.21424299005115005,
+          "ours_refresh_count": 213,
+          "ours_test_mse": 0.5406415462493896,
+          "refact_core_ms_per_nonrefresh_call": 0.9495871875152708,
+          "refact_refresh_count": 213,
+          "refact_test_mse": 0.5511027574539185,
+          "seed": 62007,
+          "test_mse_difference_ours_minus_refact": -0.010461211204528809
+        },
+        {
+          "application_speedup_refact_over_ours": 1.104835044518677,
+          "core_speedup_refact_over_ours": 4.451542347555259,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.21478416891106128,
+          "ours_refresh_count": 225,
+          "ours_test_mse": 0.5345356464385986,
+          "refact_core_ms_per_nonrefresh_call": 0.9561208234920511,
+          "refact_refresh_count": 226,
+          "refact_test_mse": 0.5321691632270813,
+          "seed": 62008,
+          "test_mse_difference_ours_minus_refact": 0.002366483211517334
+        },
+        {
+          "application_speedup_refact_over_ours": 1.083818753541723,
+          "core_speedup_refact_over_ours": 4.384416940412991,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.21660129109454868,
+          "ours_refresh_count": 218,
+          "ours_test_mse": 0.5652145743370056,
+          "refact_core_ms_per_nonrefresh_call": 0.9496703699902648,
+          "refact_refresh_count": 221,
+          "refact_test_mse": 0.5646483898162842,
+          "seed": 62009,
+          "test_mse_difference_ours_minus_refact": 0.0005661845207214355
+        },
+        {
+          "application_speedup_refact_over_ours": 1.1247543144020162,
+          "core_speedup_refact_over_ours": 4.330508536361671,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.22100540162044813,
+          "ours_refresh_count": 215,
+          "ours_test_mse": 0.5404690504074097,
+          "refact_core_ms_per_nonrefresh_call": 0.95706577829939,
+          "refact_refresh_count": 220,
+          "refact_test_mse": 0.54072105884552,
+          "seed": 62010,
+          "test_mse_difference_ours_minus_refact": -0.00025200843811035156
+        }
+      ],
+      "method_order_counts": {
+        "ours_first": 5,
+        "refact_first": 5
+      },
+      "ours_core_ms_per_nonrefresh_call": {
+        "ci95_high": 0.21735862522339944,
+        "ci95_low": 0.2141809088444318,
+        "mean": 0.21576976703391562,
+        "n": 10,
+        "sample_sd": 0.0022210705960377867,
+        "values": [
+          0.2140614612436914,
+          0.21536976855713874,
+          0.21542714024194673,
+          0.21443781911299892,
+          0.21788341950525922,
+          0.21388421000091304,
+          0.21424299005115005,
+          0.21478416891106128,
+          0.21660129109454868,
+          0.22100540162044813
+        ]
+      },
+      "ours_final_test_mse": {
+        "ci95_high": 0.5573835173977936,
+        "ci95_low": 0.5374412735567963,
+        "mean": 0.5474123954772949,
+        "n": 10,
+        "sample_sd": 0.013938667310719641,
+        "values": [
+          0.5368537306785583,
+          0.5456410050392151,
+          0.5595493912696838,
+          0.5744315981864929,
+          0.5413224101066589,
+          0.5354650020599365,
+          0.5406415462493896,
+          0.5345356464385986,
+          0.5652145743370056,
+          0.5404690504074097
+        ]
+      },
+      "ours_refresh_fraction": {
+        "ci95_high": 0.1552712495199416,
+        "ci95_low": 0.15120762371949503,
+        "mean": 0.1532394366197183,
+        "n": 10,
+        "sample_sd": 0.002840278584460883,
+        "values": [
+          0.1563380281690141,
+          0.15492957746478872,
+          0.15211267605633802,
+          0.14929577464788732,
+          0.15422535211267605,
+          0.15211267605633802,
+          0.15,
+          0.15845070422535212,
+          0.15352112676056337,
+          0.15140845070422534
+        ]
+      },
+      "paired_application_speedup_refact_over_ours": {
+        "ci95_high": 1.1072624375717899,
+        "ci95_low": 1.088062501438063,
+        "mean": 1.0976624695049264,
+        "n": 10,
+        "sample_sd": 0.013419829999516408,
+        "values": [
+          1.085723964663426,
+          1.1068651330103918,
+          1.0803153887943702,
+          1.0940892123547403,
+          1.0952014612597838,
+          1.1068580082377675,
+          1.0941634142663685,
+          1.104835044518677,
+          1.083818753541723,
+          1.1247543144020162
+        ]
+      },
+      "paired_core_speedup_refact_over_ours_per_nonrefresh_call": {
+        "ci95_high": 4.442566528969139,
+        "ci95_low": 4.378716012000759,
+        "mean": 4.410641270484949,
+        "n": 10,
+        "sample_sd": 0.04462843402857483,
+        "values": [
+          4.463869437809367,
+          4.4118964599110395,
+          4.399665024301254,
+          4.386851544909822,
+          4.37337403264159,
+          4.471997796836562,
+          4.432290584109935,
+          4.451542347555259,
+          4.384416940412991,
+          4.330508536361671
+        ]
+      },
+      "paired_test_mse_difference_ours_minus_refact": {
+        "ci95_high": 0.0026538033470690637,
+        "ci95_low": -0.0064939398750842,
+        "mean": -0.0019200682640075684,
+        "n": 10,
+        "sample_sd": 0.006393831628683371,
+        "values": [
+          -0.005716800689697266,
+          0.0006400346755981445,
+          -0.0042684078216552734,
+          -0.010803401470184326,
+          -0.002087831497192383,
+          0.01081627607345581,
+          -0.010461211204528809,
+          0.002366483211517334,
+          0.0005661845207214355,
+          -0.00025200843811035156
+        ]
+      },
+      "rank": 256,
+      "refact_core_ms_per_nonrefresh_call": {
+        "ci95_high": 0.955255915373629,
+        "ci95_low": 0.9479571307473628,
+        "mean": 0.9516065230604959,
+        "n": 10,
+        "sample_sd": 0.005101498682358562,
+        "values": [
+          0.9555424146585284,
+          0.9501891194691002,
+          0.9478072542077343,
+          0.9407068780629524,
+          0.9528856890074549,
+          0.9564897159022118,
+          0.9495871875152708,
+          0.9561208234920511,
+          0.9496703699902648,
+          0.95706577829939
+        ]
+      },
+      "refact_final_test_mse": {
+        "ci95_high": 0.5619819233065874,
+        "ci95_low": 0.5366830041760177,
+        "mean": 0.5493324637413025,
+        "n": 10,
+        "sample_sd": 0.017682725168412006,
+        "values": [
+          0.5425705313682556,
+          0.5450009703636169,
+          0.5638177990913391,
+          0.5852349996566772,
+          0.5434102416038513,
+          0.5246487259864807,
+          0.5511027574539185,
+          0.5321691632270813,
+          0.5646483898162842,
+          0.54072105884552
+        ]
+      },
+      "refact_refresh_fraction": {
+        "ci95_high": 0.15683473947376006,
+        "ci95_low": 0.14964413376567656,
+        "mean": 0.1532394366197183,
+        "n": 10,
+        "sample_sd": 0.005025886832327753,
+        "values": [
+          0.15422535211267605,
+          0.14859154929577464,
+          0.15352112676056337,
+          0.14647887323943662,
+          0.1619718309859155,
+          0.14788732394366197,
+          0.15,
+          0.1591549295774648,
+          0.1556338028169014,
+          0.15492957746478872
+        ]
+      },
+      "seeds": [
+        62001,
+        62002,
+        62003,
+        62004,
+        62005,
+        62006,
+        62007,
+        62008,
+        62009,
+        62010
+      ],
+      "threads": 1
+    },
+    {
+      "individual_pairs": [
+        {
+          "application_speedup_refact_over_ours": 1.2547314797728628,
+          "core_speedup_refact_over_ours": 3.252430832421658,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.17554026743014042,
+          "ours_refresh_count": 219,
+          "ours_test_mse": 0.5427547097206116,
+          "refact_core_ms_per_nonrefresh_call": 0.5709325781213321,
+          "refact_refresh_count": 222,
+          "refact_test_mse": 0.53791743516922,
+          "seed": 62001,
+          "test_mse_difference_ours_minus_refact": 0.0048372745513916016
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0756779019995257,
+          "core_speedup_refact_over_ours": 3.1635561044069154,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.18155886621188105,
+          "ours_refresh_count": 218,
+          "ours_test_mse": 0.5497567057609558,
+          "refact_core_ms_per_nonrefresh_call": 0.5743716595137948,
+          "refact_refresh_count": 215,
+          "refact_test_mse": 0.5425641536712646,
+          "seed": 62002,
+          "test_mse_difference_ours_minus_refact": 0.007192552089691162
+        },
+        {
+          "application_speedup_refact_over_ours": 1.1952663063257596,
+          "core_speedup_refact_over_ours": 3.2196122836903487,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.17767867352190525,
+          "ours_refresh_count": 224,
+          "ours_test_mse": 0.5560610294342041,
+          "refact_core_ms_per_nonrefresh_call": 0.5720564398209332,
+          "refact_refresh_count": 213,
+          "refact_test_mse": 0.5583521723747253,
+          "seed": 62003,
+          "test_mse_difference_ours_minus_refact": -0.0022911429405212402
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0698638846863486,
+          "core_speedup_refact_over_ours": 3.180369568298695,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.18072671114410066,
+          "ours_refresh_count": 195,
+          "ours_test_mse": 0.5684747099876404,
+          "refact_core_ms_per_nonrefresh_call": 0.5747777323014064,
+          "refact_refresh_count": 192,
+          "refact_test_mse": 0.594566285610199,
+          "seed": 62004,
+          "test_mse_difference_ours_minus_refact": -0.026091575622558594
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2020719483474762,
+          "core_speedup_refact_over_ours": 3.3116223217198497,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.17247855625796638,
+          "ours_refresh_count": 228,
+          "ours_test_mse": 0.5403212904930115,
+          "refact_core_ms_per_nonrefresh_call": 0.5711838369218943,
+          "refact_refresh_count": 220,
+          "refact_test_mse": 0.5433947443962097,
+          "seed": 62005,
+          "test_mse_difference_ours_minus_refact": -0.003073453903198242
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0920409774427564,
+          "core_speedup_refact_over_ours": 3.2148868797843972,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.17708562042874595,
+          "ours_refresh_count": 220,
+          "ours_test_mse": 0.5314744114875793,
+          "refact_core_ms_per_nonrefresh_call": 0.5693102377148552,
+          "refact_refresh_count": 216,
+          "refact_test_mse": 0.5322306156158447,
+          "seed": 62006,
+          "test_mse_difference_ours_minus_refact": -0.0007562041282653809
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2532343959443824,
+          "core_speedup_refact_over_ours": 3.2339781567669745,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.1761126906803793,
+          "ours_refresh_count": 217,
+          "ours_test_mse": 0.5363661646842957,
+          "refact_core_ms_per_nonrefresh_call": 0.5695445947898053,
+          "refact_refresh_count": 224,
+          "refact_test_mse": 0.5477361679077148,
+          "seed": 62007,
+          "test_mse_difference_ours_minus_refact": -0.01137000322341919
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0895918454418332,
+          "core_speedup_refact_over_ours": 3.2321381377640708,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.17682513094567998,
+          "ours_refresh_count": 226,
+          "ours_test_mse": 0.5418090224266052,
+          "refact_core_ms_per_nonrefresh_call": 0.571523249444658,
+          "refact_refresh_count": 228,
+          "refact_test_mse": 0.5305757522583008,
+          "seed": 62008,
+          "test_mse_difference_ours_minus_refact": 0.011233270168304443
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2392737612130937,
+          "core_speedup_refact_over_ours": 3.195572179746867,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.18019266521556615,
+          "ours_refresh_count": 219,
+          "ours_test_mse": 0.5528125762939453,
+          "refact_core_ms_per_nonrefresh_call": 0.5758186679573042,
+          "refact_refresh_count": 215,
+          "refact_test_mse": 0.5706374645233154,
+          "seed": 62009,
+          "test_mse_difference_ours_minus_refact": -0.017824888229370117
+        },
+        {
+          "application_speedup_refact_over_ours": 1.1002903938410755,
+          "core_speedup_refact_over_ours": 3.1198290758290588,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.18430494919992885,
+          "ours_refresh_count": 212,
+          "ours_test_mse": 0.5449885129928589,
+          "refact_core_ms_per_nonrefresh_call": 0.5749999393331356,
+          "refact_refresh_count": 219,
+          "refact_test_mse": 0.5306636691093445,
+          "seed": 62010,
+          "test_mse_difference_ours_minus_refact": 0.014324843883514404
+        }
+      ],
+      "method_order_counts": {
+        "ours_first": 5,
+        "refact_first": 5
+      },
+      "ours_core_ms_per_nonrefresh_call": {
+        "ci95_high": 0.180710656213911,
+        "ci95_low": 0.17579016999334782,
+        "mean": 0.1782504131036294,
+        "n": 10,
+        "sample_sd": 0.00343918272097413,
+        "values": [
+          0.17554026743014042,
+          0.18155886621188105,
+          0.17767867352190525,
+          0.18072671114410066,
+          0.17247855625796638,
+          0.17708562042874595,
+          0.1761126906803793,
+          0.17682513094567998,
+          0.18019266521556615,
+          0.18430494919992885
+        ]
+      },
+      "ours_final_test_mse": {
+        "ci95_high": 0.5541336284364393,
+        "ci95_low": 0.5388301982199022,
+        "mean": 0.5464819133281708,
+        "n": 10,
+        "sample_sd": 0.01069636015896087,
+        "values": [
+          0.5427547097206116,
+          0.5497567057609558,
+          0.5560610294342041,
+          0.5684747099876404,
+          0.5403212904930115,
+          0.5314744114875793,
+          0.5363661646842957,
+          0.5418090224266052,
+          0.5528125762939453,
+          0.5449885129928589
+        ]
+      },
+      "ours_refresh_fraction": {
+        "ci95_high": 0.15804482666149458,
+        "ci95_low": 0.1487157367187871,
+        "mean": 0.15338028169014084,
+        "n": 10,
+        "sample_sd": 0.006520584246184663,
+        "values": [
+          0.15422535211267605,
+          0.15352112676056337,
+          0.15774647887323945,
+          0.13732394366197184,
+          0.16056338028169015,
+          0.15492957746478872,
+          0.1528169014084507,
+          0.1591549295774648,
+          0.15422535211267605,
+          0.14929577464788732
+        ]
+      },
+      "paired_application_speedup_refact_over_ours": {
+        "ci95_high": 1.2132595244975917,
+        "ci95_low": 1.101149054505431,
+        "mean": 1.1572042895015113,
+        "n": 10,
+        "sample_sd": 0.07835981526093884,
+        "values": [
+          1.2547314797728628,
+          1.0756779019995257,
+          1.1952663063257596,
+          1.0698638846863486,
+          1.2020719483474762,
+          1.0920409774427564,
+          1.2532343959443824,
+          1.0895918454418332,
+          1.2392737612130937,
+          1.1002903938410755
+        ]
+      },
+      "paired_core_speedup_refact_over_ours_per_nonrefresh_call": {
+        "ci95_high": 3.249818468653923,
+        "ci95_low": 3.174980639431844,
+        "mean": 3.2123995540428836,
+        "n": 10,
+        "sample_sd": 0.05230803575064751,
+        "values": [
+          3.252430832421658,
+          3.1635561044069154,
+          3.2196122836903487,
+          3.180369568298695,
+          3.3116223217198497,
+          3.2148868797843972,
+          3.2339781567669745,
+          3.2321381377640708,
+          3.195572179746867,
+          3.1198290758290588
+        ]
+      },
+      "paired_test_mse_difference_ours_minus_refact": {
+        "ci95_high": 0.0068311703605066195,
+        "ci95_low": -0.01159503583139285,
+        "mean": -0.002381932735443115,
+        "n": 10,
+        "sample_sd": 0.01287903006077998,
+        "values": [
+          0.0048372745513916016,
+          0.007192552089691162,
+          -0.0022911429405212402,
+          -0.026091575622558594,
+          -0.003073453903198242,
+          -0.0007562041282653809,
+          -0.01137000322341919,
+          0.011233270168304443,
+          -0.017824888229370117,
+          0.014324843883514404
+        ]
+      },
+      "rank": 256,
+      "refact_core_ms_per_nonrefresh_call": {
+        "ci95_high": 0.5741410411673944,
+        "ci95_low": 0.5707627460164295,
+        "mean": 0.572451893591912,
+        "n": 10,
+        "sample_sd": 0.0023612654905918774,
+        "values": [
+          0.5709325781213321,
+          0.5743716595137948,
+          0.5720564398209332,
+          0.5747777323014064,
+          0.5711838369218943,
+          0.5693102377148552,
+          0.5695445947898053,
+          0.571523249444658,
+          0.5758186679573042,
+          0.5749999393331356
+        ]
+      },
+      "refact_final_test_mse": {
+        "ci95_high": 0.5635357170248534,
+        "ci95_low": 0.5341919751023745,
+        "mean": 0.5488638460636139,
+        "n": 10,
+        "sample_sd": 0.020509861356132836,
+        "values": [
+          0.53791743516922,
+          0.5425641536712646,
+          0.5583521723747253,
+          0.594566285610199,
+          0.5433947443962097,
+          0.5322306156158447,
+          0.5477361679077148,
+          0.5305757522583008,
+          0.5706374645233154,
+          0.5306636691093445
+        ]
+      },
+      "refact_refresh_fraction": {
+        "ci95_high": 0.15730280968105945,
+        "ci95_low": 0.14748592271330677,
+        "mean": 0.1523943661971831,
+        "n": 10,
+        "sample_sd": 0.006861530856880799,
+        "values": [
+          0.1563380281690141,
+          0.15140845070422534,
+          0.15,
+          0.1352112676056338,
+          0.15492957746478872,
+          0.15211267605633802,
+          0.15774647887323945,
+          0.16056338028169015,
+          0.15140845070422534,
+          0.15422535211267605
+        ]
+      },
+      "seeds": [
+        62001,
+        62002,
+        62003,
+        62004,
+        62005,
+        62006,
+        62007,
+        62008,
+        62009,
+        62010
+      ],
+      "threads": 10
+    },
+    {
+      "individual_pairs": [
+        {
+          "application_speedup_refact_over_ours": 1.3182026202113475,
+          "core_speedup_refact_over_ours": 6.230559401815222,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.7397812003795351,
+          "ours_refresh_count": 215,
+          "ours_test_mse": 0.5433180332183838,
+          "refact_core_ms_per_nonrefresh_call": 4.609250713310863,
+          "refact_refresh_count": 217,
+          "refact_test_mse": 0.5443207025527954,
+          "seed": 62001,
+          "test_mse_difference_ours_minus_refact": -0.001002669334411621
+        },
+        {
+          "application_speedup_refact_over_ours": 1.276632680811689,
+          "core_speedup_refact_over_ours": 6.198121293063601,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.7446653453885778,
+          "ours_refresh_count": 218,
+          "ours_test_mse": 0.5560653209686279,
+          "refact_core_ms_per_nonrefresh_call": 4.615526133459505,
+          "refact_refresh_count": 203,
+          "refact_test_mse": 0.5514171123504639,
+          "seed": 62002,
+          "test_mse_difference_ours_minus_refact": 0.0046482086181640625
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2968185280630042,
+          "core_speedup_refact_over_ours": 6.205666154348787,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.741542067305639,
+          "ours_refresh_count": 210,
+          "ours_test_mse": 0.5594502687454224,
+          "refact_core_ms_per_nonrefresh_call": 4.601762509104434,
+          "refact_refresh_count": 211,
+          "refact_test_mse": 0.5457409024238586,
+          "seed": 62003,
+          "test_mse_difference_ours_minus_refact": 0.01370936632156372
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2993354530686587,
+          "core_speedup_refact_over_ours": 6.197616161634234,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.7392584627230735,
+          "ours_refresh_count": 197,
+          "ours_test_mse": 0.6215531229972839,
+          "refact_core_ms_per_nonrefresh_call": 4.581640196197399,
+          "refact_refresh_count": 209,
+          "refact_test_mse": 0.5611751675605774,
+          "seed": 62004,
+          "test_mse_difference_ours_minus_refact": 0.06037795543670654
+        },
+        {
+          "application_speedup_refact_over_ours": 1.311261310142775,
+          "core_speedup_refact_over_ours": 6.100529426599709,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.7512963137237924,
+          "ours_refresh_count": 217,
+          "ours_test_mse": 0.5453019738197327,
+          "refact_core_ms_per_nonrefresh_call": 4.583305269967882,
+          "refact_refresh_count": 218,
+          "refact_test_mse": 0.5468039512634277,
+          "seed": 62005,
+          "test_mse_difference_ours_minus_refact": -0.0015019774436950684
+        },
+        {
+          "application_speedup_refact_over_ours": 1.3113529056761823,
+          "core_speedup_refact_over_ours": 6.2017924345379765,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.742664410161752,
+          "ours_refresh_count": 208,
+          "ours_test_mse": 0.5280079245567322,
+          "refact_core_ms_per_nonrefresh_call": 4.605850520341762,
+          "refact_refresh_count": 212,
+          "refact_test_mse": 0.531427264213562,
+          "seed": 62006,
+          "test_mse_difference_ours_minus_refact": -0.003419339656829834
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2911126004147209,
+          "core_speedup_refact_over_ours": 6.103296837468275,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.7486285475398818,
+          "ours_refresh_count": 218,
+          "ours_test_mse": 0.5403563380241394,
+          "refact_core_ms_per_nonrefresh_call": 4.569102246638629,
+          "refact_refresh_count": 214,
+          "refact_test_mse": 0.5575011372566223,
+          "seed": 62007,
+          "test_mse_difference_ours_minus_refact": -0.01714479923248291
+        },
+        {
+          "application_speedup_refact_over_ours": 1.295066808802416,
+          "core_speedup_refact_over_ours": 6.167283280612306,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.7460114789900767,
+          "ours_refresh_count": 208,
+          "ours_test_mse": 0.5320752859115601,
+          "refact_core_ms_per_nonrefresh_call": 4.600864121520359,
+          "refact_refresh_count": 215,
+          "refact_test_mse": 0.5385644435882568,
+          "seed": 62008,
+          "test_mse_difference_ours_minus_refact": -0.006489157676696777
+        },
+        {
+          "application_speedup_refact_over_ours": 1.3105426246606688,
+          "core_speedup_refact_over_ours": 6.101881350256744,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.7511988801980273,
+          "ours_refresh_count": 211,
+          "ours_test_mse": 0.5525102019309998,
+          "refact_core_ms_per_nonrefresh_call": 4.583726437414093,
+          "refact_refresh_count": 206,
+          "refact_test_mse": 0.5614472031593323,
+          "seed": 62009,
+          "test_mse_difference_ours_minus_refact": -0.00893700122833252
+        },
+        {
+          "application_speedup_refact_over_ours": 1.315231681232765,
+          "core_speedup_refact_over_ours": 6.136412855717155,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.7467489383795388,
+          "ours_refresh_count": 201,
+          "ours_test_mse": 0.5330318808555603,
+          "refact_core_ms_per_nonrefresh_call": 4.582359785465339,
+          "refact_refresh_count": 208,
+          "refact_test_mse": 0.538589596748352,
+          "seed": 62010,
+          "test_mse_difference_ours_minus_refact": -0.005557715892791748
+        }
+      ],
+      "method_order_counts": {
+        "ours_first": 5,
+        "refact_first": 5
+      },
+      "ours_core_ms_per_nonrefresh_call": {
+        "ci95_high": 0.7483133836359109,
+        "ci95_low": 0.742045745322068,
+        "mean": 0.7451795644789895,
+        "n": 10,
+        "sample_sd": 0.004380777106986101,
+        "values": [
+          0.7397812003795351,
+          0.7446653453885778,
+          0.741542067305639,
+          0.7392584627230735,
+          0.7512963137237924,
+          0.742664410161752,
+          0.7486285475398818,
+          0.7460114789900767,
+          0.7511988801980273,
+          0.7467489383795388
+        ]
+      },
+      "ours_final_test_mse": {
+        "ci95_high": 0.5703786720964825,
+        "ci95_low": 0.531955398109206,
+        "mean": 0.5511670351028443,
+        "n": 10,
+        "sample_sd": 0.026856016673321863,
+        "values": [
+          0.5433180332183838,
+          0.5560653209686279,
+          0.5594502687454224,
+          0.6215531229972839,
+          0.5453019738197327,
+          0.5280079245567322,
+          0.5403563380241394,
+          0.5320752859115601,
+          0.5525102019309998,
+          0.5330318808555603
+        ]
+      },
+      "ours_refresh_fraction": {
+        "ci95_high": 0.15170055491670437,
+        "ci95_low": 0.1444966281818872,
+        "mean": 0.14809859154929578,
+        "n": 10,
+        "sample_sd": 0.0050351975879959,
+        "values": [
+          0.15140845070422534,
+          0.15352112676056337,
+          0.14788732394366197,
+          0.1387323943661972,
+          0.1528169014084507,
+          0.14647887323943662,
+          0.15352112676056337,
+          0.14647887323943662,
+          0.14859154929577464,
+          0.1415492957746479
+        ]
+      },
+      "paired_application_speedup_refact_over_ours": {
+        "ci95_high": 1.3118669467136792,
+        "ci95_low": 1.2932444959031661,
+        "mean": 1.3025557213084227,
+        "n": 10,
+        "sample_sd": 0.013016195591007447,
+        "values": [
+          1.3182026202113475,
+          1.276632680811689,
+          1.2968185280630042,
+          1.2993354530686587,
+          1.311261310142775,
+          1.3113529056761823,
+          1.2911126004147209,
+          1.295066808802416,
+          1.3105426246606688,
+          1.315231681232765
+        ]
+      },
+      "paired_core_speedup_refact_over_ours_per_nonrefresh_call": {
+        "ci95_high": 6.199869906400631,
+        "ci95_low": 6.128761932810171,
+        "mean": 6.164315919605401,
+        "n": 10,
+        "sample_sd": 0.0497010464278464,
+        "values": [
+          6.230559401815222,
+          6.198121293063601,
+          6.205666154348787,
+          6.197616161634234,
+          6.100529426599709,
+          6.2017924345379765,
+          6.103296837468275,
+          6.167283280612306,
+          6.101881350256744,
+          6.136412855717155
+        ]
+      },
+      "paired_test_mse_difference_ours_minus_refact": {
+        "ci95_high": 0.018915367348565464,
+        "ci95_low": -0.011978793366326693,
+        "mean": 0.0034682869911193846,
+        "n": 10,
+        "sample_sd": 0.021593529368220305,
+        "values": [
+          -0.001002669334411621,
+          0.0046482086181640625,
+          0.01370936632156372,
+          0.06037795543670654,
+          -0.0015019774436950684,
+          -0.003419339656829834,
+          -0.01714479923248291,
+          -0.006489157676696777,
+          -0.00893700122833252,
+          -0.005557715892791748
+        ]
+      },
+      "rank": 512,
+      "refact_core_ms_per_nonrefresh_call": {
+        "ci95_high": 4.604181099383218,
+        "ci95_low": 4.582496487300834,
+        "mean": 4.593338793342026,
+        "n": 10,
+        "sample_sd": 0.015156498736464625,
+        "values": [
+          4.609250713310863,
+          4.615526133459505,
+          4.601762509104434,
+          4.581640196197399,
+          4.583305269967882,
+          4.605850520341762,
+          4.569102246638629,
+          4.600864121520359,
+          4.583726437414093,
+          4.582359785465339
+        ]
+      },
+      "refact_final_test_mse": {
+        "ci95_high": 0.554961824086311,
+        "ci95_low": 0.5404356721371386,
+        "mean": 0.5476987481117248,
+        "n": 10,
+        "sample_sd": 0.010153080111688651,
+        "values": [
+          0.5443207025527954,
+          0.5514171123504639,
+          0.5457409024238586,
+          0.5611751675605774,
+          0.5468039512634277,
+          0.531427264213562,
+          0.5575011372566223,
+          0.5385644435882568,
+          0.5614472031593323,
+          0.538589596748352
+        ]
+      },
+      "refact_refresh_fraction": {
+        "ci95_high": 0.15124840610959223,
+        "ci95_low": 0.14635722769322468,
+        "mean": 0.14880281690140845,
+        "n": 10,
+        "sample_sd": 0.0034186979783569767,
+        "values": [
+          0.1528169014084507,
+          0.14295774647887324,
+          0.14859154929577464,
+          0.1471830985915493,
+          0.15352112676056337,
+          0.14929577464788732,
+          0.15070422535211267,
+          0.15140845070422534,
+          0.14507042253521127,
+          0.14647887323943662
+        ]
+      },
+      "seeds": [
+        62001,
+        62002,
+        62003,
+        62004,
+        62005,
+        62006,
+        62007,
+        62008,
+        62009,
+        62010
+      ],
+      "threads": 1
+    },
+    {
+      "individual_pairs": [
+        {
+          "application_speedup_refact_over_ours": 1.2050307858567146,
+          "core_speedup_refact_over_ours": 3.760081618169003,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.3407499802250885,
+          "ours_refresh_count": 216,
+          "ours_test_mse": 0.5475549697875977,
+          "refact_core_ms_per_nonrefresh_call": 1.2812477370358066,
+          "refact_refresh_count": 219,
+          "refact_test_mse": 0.5426625609397888,
+          "seed": 62001,
+          "test_mse_difference_ours_minus_refact": 0.004892408847808838
+        },
+        {
+          "application_speedup_refact_over_ours": 1.3722029995637381,
+          "core_speedup_refact_over_ours": 3.9134069915133756,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.3375903161545323,
+          "ours_refresh_count": 214,
+          "ours_test_mse": 0.5475485324859619,
+          "refact_core_ms_per_nonrefresh_call": 1.3211283035063575,
+          "refact_refresh_count": 214,
+          "refact_test_mse": 0.561001181602478,
+          "seed": 62002,
+          "test_mse_difference_ours_minus_refact": -0.013452649116516113
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2230329357324365,
+          "core_speedup_refact_over_ours": 3.7087388922836655,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.3456742409235019,
+          "ours_refresh_count": 200,
+          "ours_test_mse": 0.550564169883728,
+          "refact_core_ms_per_nonrefresh_call": 1.2820155013736254,
+          "refact_refresh_count": 211,
+          "refact_test_mse": 0.5526998043060303,
+          "seed": 62003,
+          "test_mse_difference_ours_minus_refact": -0.002135634422302246
+        },
+        {
+          "application_speedup_refact_over_ours": 1.0844054235197191,
+          "core_speedup_refact_over_ours": 3.820081650591378,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.33967296890746634,
+          "ours_refresh_count": 199,
+          "ours_test_mse": 0.5572789311408997,
+          "refact_core_ms_per_nonrefresh_call": 1.297578475725308,
+          "refact_refresh_count": 68,
+          "refact_test_mse": 1.0432424545288086,
+          "seed": 62004,
+          "test_mse_difference_ours_minus_refact": -0.48596352338790894
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2108279603115053,
+          "core_speedup_refact_over_ours": 3.7168166775652685,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.3433933693712942,
+          "ours_refresh_count": 216,
+          "ours_test_mse": 0.547042965888977,
+          "refact_core_ms_per_nonrefresh_call": 1.2763302022445568,
+          "refact_refresh_count": 218,
+          "refact_test_mse": 0.534140408039093,
+          "seed": 62005,
+          "test_mse_difference_ours_minus_refact": 0.012902557849884033
+        },
+        {
+          "application_speedup_refact_over_ours": 1.328752904849229,
+          "core_speedup_refact_over_ours": 3.905550843857111,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.3378253623410489,
+          "ours_refresh_count": 219,
+          "ours_test_mse": 0.5300212502479553,
+          "refact_core_ms_per_nonrefresh_call": 1.3193941289674178,
+          "refact_refresh_count": 203,
+          "refact_test_mse": 0.5338631272315979,
+          "seed": 62006,
+          "test_mse_difference_ours_minus_refact": -0.003841876983642578
+        },
+        {
+          "application_speedup_refact_over_ours": 1.228717782523951,
+          "core_speedup_refact_over_ours": 3.703333538572167,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.34377181924967004,
+          "ours_refresh_count": 206,
+          "ours_test_mse": 0.5415748953819275,
+          "refact_core_ms_per_nonrefresh_call": 1.273101707843272,
+          "refact_refresh_count": 213,
+          "refact_test_mse": 0.540592610836029,
+          "seed": 62007,
+          "test_mse_difference_ours_minus_refact": 0.0009822845458984375
+        },
+        {
+          "application_speedup_refact_over_ours": 1.3554139576922795,
+          "core_speedup_refact_over_ours": 3.877239653959197,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.34211135791936437,
+          "ours_refresh_count": 216,
+          "ours_test_mse": 0.5352076888084412,
+          "refact_core_ms_per_nonrefresh_call": 1.3264477229947873,
+          "refact_refresh_count": 216,
+          "refact_test_mse": 0.5348644256591797,
+          "seed": 62008,
+          "test_mse_difference_ours_minus_refact": 0.0003432631492614746
+        },
+        {
+          "application_speedup_refact_over_ours": 1.2320715189402136,
+          "core_speedup_refact_over_ours": 3.736393541086101,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.3412707611013911,
+          "ours_refresh_count": 203,
+          "ours_test_mse": 0.5644888877868652,
+          "refact_core_ms_per_nonrefresh_call": 1.2751218675407754,
+          "refact_refresh_count": 215,
+          "refact_test_mse": 0.5561177134513855,
+          "seed": 62009,
+          "test_mse_difference_ours_minus_refact": 0.008371174335479736
+        },
+        {
+          "application_speedup_refact_over_ours": 1.3442190029755454,
+          "core_speedup_refact_over_ours": 3.8554893519425435,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.34301109497209686,
+          "ours_refresh_count": 211,
+          "ours_test_mse": 0.5402525067329407,
+          "refact_core_ms_per_nonrefresh_call": 1.322475624263072,
+          "refact_refresh_count": 205,
+          "refact_test_mse": 0.5380392670631409,
+          "seed": 62010,
+          "test_mse_difference_ours_minus_refact": 0.0022132396697998047
+        }
+      ],
+      "method_order_counts": {
+        "ours_first": 5,
+        "refact_first": 5
+      },
+      "ours_core_ms_per_nonrefresh_call": {
+        "ci95_high": 0.3433781599143778,
+        "ci95_low": 0.3396360943187131,
+        "mean": 0.34150712711654546,
+        "n": 10,
+        "sample_sd": 0.002615523499197721,
+        "values": [
+          0.3407499802250885,
+          0.3375903161545323,
+          0.3456742409235019,
+          0.33967296890746634,
+          0.3433933693712942,
+          0.3378253623410489,
+          0.34377181924967004,
+          0.34211135791936437,
+          0.3412707611013911,
+          0.34301109497209686
+        ]
+      },
+      "ours_final_test_mse": {
+        "ci95_high": 0.55338594946495,
+        "ci95_low": 0.5389210101641089,
+        "mean": 0.5461534798145294,
+        "n": 10,
+        "sample_sd": 0.010110295420702953,
+        "values": [
+          0.5475549697875977,
+          0.5475485324859619,
+          0.550564169883728,
+          0.5572789311408997,
+          0.547042965888977,
+          0.5300212502479553,
+          0.5415748953819275,
+          0.5352076888084412,
+          0.5644888877868652,
+          0.5402525067329407
+        ]
+      },
+      "ours_refresh_fraction": {
+        "ci95_high": 0.15161206191576482,
+        "ci95_low": 0.14416258597155912,
+        "mean": 0.14788732394366197,
+        "n": 10,
+        "sample_sd": 0.005206824650896433,
+        "values": [
+          0.15211267605633802,
+          0.15070422535211267,
+          0.14084507042253522,
+          0.14014084507042254,
+          0.15211267605633802,
+          0.15422535211267605,
+          0.14507042253521127,
+          0.15211267605633802,
+          0.14295774647887324,
+          0.14859154929577464
+        ]
+      },
+      "paired_application_speedup_refact_over_ours": {
+        "ci95_high": 1.3228442411122037,
+        "ci95_low": 1.194090813280863,
+        "mean": 1.2584675271965333,
+        "n": 10,
+        "sample_sd": 0.08999244066840469,
+        "values": [
+          1.2050307858567146,
+          1.3722029995637381,
+          1.2230329357324365,
+          1.0844054235197191,
+          1.2108279603115053,
+          1.328752904849229,
+          1.228717782523951,
+          1.3554139576922795,
+          1.2320715189402136,
+          1.3442190029755454
+        ]
+      },
+      "paired_core_speedup_refact_over_ours_per_nonrefresh_call": {
+        "ci95_high": 3.8598870948195705,
+        "ci95_low": 3.7395394570883917,
+        "mean": 3.799713275953981,
+        "n": 10,
+        "sample_sd": 0.08411719851290421,
+        "values": [
+          3.760081618169003,
+          3.9134069915133756,
+          3.7087388922836655,
+          3.820081650591378,
+          3.7168166775652685,
+          3.905550843857111,
+          3.703333538572167,
+          3.877239653959197,
+          3.736393541086101,
+          3.8554893519425435
+        ]
+      },
+      "paired_test_mse_difference_ours_minus_refact": {
+        "ci95_high": 0.06273930649483629,
+        "ci95_low": -0.15787705759728382,
+        "mean": -0.04756887555122376,
+        "n": 10,
+        "sample_sd": 0.15420020569896256,
+        "values": [
+          0.004892408847808838,
+          -0.013452649116516113,
+          -0.002135634422302246,
+          -0.48596352338790894,
+          0.012902557849884033,
+          -0.003841876983642578,
+          0.0009822845458984375,
+          0.0003432631492614746,
+          0.008371174335479736,
+          0.0022132396697998047
+        ]
+      },
+      "rank": 512,
+      "refact_core_ms_per_nonrefresh_call": {
+        "ci95_high": 1.3135642466340873,
+        "ci95_low": 1.2814040076649085,
+        "mean": 1.297484127149498,
+        "n": 10,
+        "sample_sd": 0.022478457048201846,
+        "values": [
+          1.2812477370358066,
+          1.3211283035063575,
+          1.2820155013736254,
+          1.297578475725308,
+          1.2763302022445568,
+          1.3193941289674178,
+          1.273101707843272,
+          1.3264477229947873,
+          1.2751218675407754,
+          1.322475624263072
+        ]
+      },
+      "refact_final_test_mse": {
+        "ci95_high": 0.7069216239582878,
+        "ci95_low": 0.4805230867732184,
+        "mean": 0.5937223553657531,
+        "n": 10,
+        "sample_sd": 0.15824166601397116,
+        "values": [
+          0.5426625609397888,
+          0.561001181602478,
+          0.5526998043060303,
+          1.0432424545288086,
+          0.534140408039093,
+          0.5338631272315979,
+          0.540592610836029,
+          0.5348644256591797,
+          0.5561177134513855,
+          0.5380392670631409
+        ]
+      },
+      "refact_refresh_fraction": {
+        "ci95_high": 0.1627714322935098,
+        "ci95_low": 0.116383497283955,
+        "mean": 0.1395774647887324,
+        "n": 10,
+        "sample_sd": 0.03242293086398909,
+        "values": [
+          0.15422535211267605,
+          0.15070422535211267,
+          0.14859154929577464,
+          0.04788732394366197,
+          0.15352112676056337,
+          0.14295774647887324,
+          0.15,
+          0.15211267605633802,
+          0.15140845070422534,
+          0.1443661971830986
+        ]
+      },
+      "seeds": [
+        62001,
+        62002,
+        62003,
+        62004,
+        62005,
+        62006,
+        62007,
+        62008,
+        62009,
+        62010
+      ],
+      "threads": 10
+    },
+    {
+      "individual_pairs": [
+        {
+          "application_speedup_refact_over_ours": 1.9423341031585568,
+          "core_speedup_refact_over_ours": 13.647021608476022,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 3.027798220466435,
+          "ours_refresh_count": 199,
+          "ours_test_mse": 0.5568899512290955,
+          "refact_core_ms_per_nonrefresh_call": 41.320427740810686,
+          "refact_refresh_count": 196,
+          "refact_test_mse": 0.542756199836731,
+          "seed": 62001,
+          "test_mse_difference_ours_minus_refact": 0.014133751392364502
+        },
+        {
+          "application_speedup_refact_over_ours": 1.9854837258178433,
+          "core_speedup_refact_over_ours": 13.971330468147892,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 3.0058557304608473,
+          "ours_refresh_count": 196,
+          "ours_test_mse": 0.5458953976631165,
+          "refact_core_ms_per_nonrefresh_call": 41.995803749844576,
+          "refact_refresh_count": 193,
+          "refact_test_mse": 0.560122013092041,
+          "seed": 62002,
+          "test_mse_difference_ours_minus_refact": -0.01422661542892456
+        },
+        {
+          "application_speedup_refact_over_ours": 1.9581581454492631,
+          "core_speedup_refact_over_ours": 13.73760437723913,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 3.008835669284864,
+          "ours_refresh_count": 191,
+          "ours_test_mse": 0.5588123202323914,
+          "refact_core_ms_per_nonrefresh_call": 41.33419406076097,
+          "refact_refresh_count": 187,
+          "refact_test_mse": 0.5502451062202454,
+          "seed": 62003,
+          "test_mse_difference_ours_minus_refact": 0.008567214012145996
+        },
+        {
+          "application_speedup_refact_over_ours": 1.9212653840131322,
+          "core_speedup_refact_over_ours": 13.610659809373155,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 3.0465165781025147,
+          "ours_refresh_count": 200,
+          "ours_test_mse": 0.5680944919586182,
+          "refact_core_ms_per_nonrefresh_call": 41.46510074816893,
+          "refact_refresh_count": 191,
+          "refact_test_mse": 0.5650456547737122,
+          "seed": 62004,
+          "test_mse_difference_ours_minus_refact": 0.003048837184906006
+        },
+        {
+          "application_speedup_refact_over_ours": 2.0239038360228228,
+          "core_speedup_refact_over_ours": 13.818814928057979,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 2.9892137832185517,
+          "ours_refresh_count": 185,
+          "ours_test_mse": 0.5405492782592773,
+          "refact_core_ms_per_nonrefresh_call": 41.30739205069719,
+          "refact_refresh_count": 187,
+          "refact_test_mse": 0.5481500029563904,
+          "seed": 62005,
+          "test_mse_difference_ours_minus_refact": -0.007600724697113037
+        },
+        {
+          "application_speedup_refact_over_ours": 1.9299966624360796,
+          "core_speedup_refact_over_ours": 13.562066909219691,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 3.020550785691897,
+          "ours_refresh_count": 197,
+          "ours_test_mse": 0.5287970900535583,
+          "refact_core_ms_per_nonrefresh_call": 40.964911858249614,
+          "refact_refresh_count": 184,
+          "refact_test_mse": 0.5258123874664307,
+          "seed": 62006,
+          "test_mse_difference_ours_minus_refact": 0.0029847025871276855
+        },
+        {
+          "application_speedup_refact_over_ours": 1.931263098816339,
+          "core_speedup_refact_over_ours": 13.645759103349372,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 3.002431716476033,
+          "ours_refresh_count": 200,
+          "ours_test_mse": 0.5428985357284546,
+          "refact_core_ms_per_nonrefresh_call": 40.970459927287706,
+          "refact_refresh_count": 197,
+          "refact_test_mse": 0.5422850847244263,
+          "seed": 62007,
+          "test_mse_difference_ours_minus_refact": 0.0006134510040283203
+        },
+        {
+          "application_speedup_refact_over_ours": 1.9409105233216202,
+          "core_speedup_refact_over_ours": 13.742375421854343,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 2.9872102325573526,
+          "ours_refresh_count": 197,
+          "ours_test_mse": 0.5439565777778625,
+          "refact_core_ms_per_nonrefresh_call": 41.05136447980796,
+          "refact_refresh_count": 190,
+          "refact_test_mse": 0.537371814250946,
+          "seed": 62008,
+          "test_mse_difference_ours_minus_refact": 0.006584763526916504
+        },
+        {
+          "application_speedup_refact_over_ours": 1.9916935611938407,
+          "core_speedup_refact_over_ours": 13.883020945183969,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 2.996015399823477,
+          "ours_refresh_count": 193,
+          "ours_test_mse": 0.5611813068389893,
+          "refact_core_ms_per_nonrefresh_call": 41.59374454784305,
+          "refact_refresh_count": 196,
+          "refact_test_mse": 0.5671680569648743,
+          "seed": 62009,
+          "test_mse_difference_ours_minus_refact": -0.00598675012588501
+        },
+        {
+          "application_speedup_refact_over_ours": 2.0308445705649385,
+          "core_speedup_refact_over_ours": 13.917127551890077,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 3.0043553065146633,
+          "ours_refresh_count": 185,
+          "ours_test_mse": 0.5380198955535889,
+          "refact_core_ms_per_nonrefresh_call": 41.81199601196238,
+          "refact_refresh_count": 184,
+          "refact_test_mse": 0.5355387926101685,
+          "seed": 62010,
+          "test_mse_difference_ours_minus_refact": 0.00248110294342041
+        }
+      ],
+      "method_order_counts": {
+        "ours_first": 5,
+        "refact_first": 5
+      },
+      "ours_core_ms_per_nonrefresh_call": {
+        "ci95_high": 3.0219468696604848,
+        "ci95_low": 2.995809814858842,
+        "mean": 3.0088783422596634,
+        "n": 10,
+        "sample_sd": 0.01826854160779945,
+        "values": [
+          3.027798220466435,
+          3.0058557304608473,
+          3.008835669284864,
+          3.0465165781025147,
+          2.9892137832185517,
+          3.020550785691897,
+          3.002431716476033,
+          2.9872102325573526,
+          2.996015399823477,
+          3.0043553065146633
+        ]
+      },
+      "ours_final_test_mse": {
+        "ci95_high": 0.5572433132124577,
+        "ci95_low": 0.5397756558465328,
+        "mean": 0.5485094845294952,
+        "n": 10,
+        "sample_sd": 0.01220905062953493,
+        "values": [
+          0.5568899512290955,
+          0.5458953976631165,
+          0.5588123202323914,
+          0.5680944919586182,
+          0.5405492782592773,
+          0.5287970900535583,
+          0.5428985357284546,
+          0.5439565777778625,
+          0.5611813068389893,
+          0.5380198955535889
+        ]
+      },
+      "ours_refresh_fraction": {
+        "ci95_high": 0.13969112425355928,
+        "ci95_low": 0.13397084757742667,
+        "mean": 0.13683098591549298,
+        "n": 10,
+        "sample_sd": 0.003998197702806449,
+        "values": [
+          0.14014084507042254,
+          0.13802816901408452,
+          0.13450704225352111,
+          0.14084507042253522,
+          0.13028169014084506,
+          0.1387323943661972,
+          0.14084507042253522,
+          0.1387323943661972,
+          0.1359154929577465,
+          0.13028169014084506
+        ]
+      },
+      "paired_application_speedup_refact_over_ours": {
+        "ci95_high": 1.9941507701417707,
+        "ci95_low": 1.9370199520171165,
+        "mean": 1.9655853610794436,
+        "n": 10,
+        "sample_sd": 0.03993168839865934,
+        "values": [
+          1.9423341031585568,
+          1.9854837258178433,
+          1.9581581454492631,
+          1.9212653840131322,
+          2.0239038360228228,
+          1.9299966624360796,
+          1.931263098816339,
+          1.9409105233216202,
+          1.9916935611938407,
+          2.0308445705649385
+        ]
+      },
+      "paired_core_speedup_refact_over_ours_per_nonrefresh_call": {
+        "ci95_high": 13.853511496776697,
+        "ci95_low": 13.653644727781629,
+        "mean": 13.753578112279163,
+        "n": 10,
+        "sample_sd": 0.13969723877127224,
+        "values": [
+          13.647021608476022,
+          13.971330468147892,
+          13.73760437723913,
+          13.610659809373155,
+          13.818814928057979,
+          13.562066909219691,
+          13.645759103349372,
+          13.742375421854343,
+          13.883020945183969,
+          13.917127551890077
+        ]
+      },
+      "paired_test_mse_difference_ours_minus_refact": {
+        "ci95_high": 0.0070261841830368005,
+        "ci95_low": -0.004906237703239438,
+        "mean": 0.0010599732398986817,
+        "n": 10,
+        "sample_sd": 0.008340187804846154,
+        "values": [
+          0.014133751392364502,
+          -0.01422661542892456,
+          0.008567214012145996,
+          0.003048837184906006,
+          -0.007600724697113037,
+          0.0029847025871276855,
+          0.0006134510040283203,
+          0.006584763526916504,
+          -0.00598675012588501,
+          0.00248110294342041
+        ]
+      },
+      "rank": 1024,
+      "refact_core_ms_per_nonrefresh_call": {
+        "ci95_high": 41.62908028218642,
+        "ci95_low": 41.13399875290018,
+        "mean": 41.3815395175433,
+        "n": 10,
+        "sample_sd": 0.3460381280774711,
+        "values": [
+          41.320427740810686,
+          41.995803749844576,
+          41.33419406076097,
+          41.46510074816893,
+          41.30739205069719,
+          40.964911858249614,
+          40.970459927287706,
+          41.05136447980796,
+          41.59374454784305,
+          41.81199601196238
+        ]
+      },
+      "refact_final_test_mse": {
+        "ci95_high": 0.5570696135637219,
+        "ci95_low": 0.5378294090154712,
+        "mean": 0.5474495112895965,
+        "n": 10,
+        "sample_sd": 0.013447975680496485,
+        "values": [
+          0.542756199836731,
+          0.560122013092041,
+          0.5502451062202454,
+          0.5650456547737122,
+          0.5481500029563904,
+          0.5258123874664307,
+          0.5422850847244263,
+          0.537371814250946,
+          0.5671680569648743,
+          0.5355387926101685
+        ]
+      },
+      "refact_refresh_fraction": {
+        "ci95_high": 0.1366371417194391,
+        "ci95_low": 0.13167271743549044,
+        "mean": 0.13415492957746478,
+        "n": 10,
+        "sample_sd": 0.0034698933096466,
+        "values": [
+          0.13802816901408452,
+          0.1359154929577465,
+          0.1316901408450704,
+          0.13450704225352111,
+          0.1316901408450704,
+          0.1295774647887324,
+          0.1387323943661972,
+          0.13380281690140844,
+          0.13802816901408452,
+          0.1295774647887324
+        ]
+      },
+      "seeds": [
+        62001,
+        62002,
+        62003,
+        62004,
+        62005,
+        62006,
+        62007,
+        62008,
+        62009,
+        62010
+      ],
+      "threads": 1
+    },
+    {
+      "individual_pairs": [
+        {
+          "application_speedup_refact_over_ours": 1.6858322711030411,
+          "core_speedup_refact_over_ours": 7.854590382879297,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.8609815379216329,
+          "ours_refresh_count": 197,
+          "ours_test_mse": 0.5534756183624268,
+          "refact_core_ms_per_nonrefresh_call": 6.762657307595885,
+          "refact_refresh_count": 196,
+          "refact_test_mse": 0.5416565537452698,
+          "seed": 62001,
+          "test_mse_difference_ours_minus_refact": 0.011819064617156982
+        },
+        {
+          "application_speedup_refact_over_ours": 1.6190528900019208,
+          "core_speedup_refact_over_ours": 7.687554982182001,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.8733668890024001,
+          "ours_refresh_count": 197,
+          "ours_test_mse": 0.5421015620231628,
+          "refact_core_ms_per_nonrefresh_call": 6.714055978823196,
+          "refact_refresh_count": 189,
+          "refact_test_mse": 0.5594200491905212,
+          "seed": 62002,
+          "test_mse_difference_ours_minus_refact": -0.0173184871673584
+        },
+        {
+          "application_speedup_refact_over_ours": 1.6745752230413675,
+          "core_speedup_refact_over_ours": 7.810127547690719,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.8602314778904478,
+          "ours_refresh_count": 188,
+          "ours_test_mse": 0.5611352324485779,
+          "refact_core_ms_per_nonrefresh_call": 6.718517562862886,
+          "refact_refresh_count": 192,
+          "refact_test_mse": 0.5496197938919067,
+          "seed": 62003,
+          "test_mse_difference_ours_minus_refact": 0.011515438556671143
+        },
+        {
+          "application_speedup_refact_over_ours": 1.5083365191549396,
+          "core_speedup_refact_over_ours": 7.4986837107669455,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.8989483200599219,
+          "ours_refresh_count": 224,
+          "ours_test_mse": 0.5634334087371826,
+          "refact_core_ms_per_nonrefresh_call": 6.740929124454647,
+          "refact_refresh_count": 209,
+          "refact_test_mse": 0.5630990862846375,
+          "seed": 62004,
+          "test_mse_difference_ours_minus_refact": 0.000334322452545166
+        },
+        {
+          "application_speedup_refact_over_ours": 1.679988768793985,
+          "core_speedup_refact_over_ours": 7.723196122881852,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.8657114932540916,
+          "ours_refresh_count": 187,
+          "ours_test_mse": 0.5497209429740906,
+          "refact_core_ms_per_nonrefresh_call": 6.6860596482342585,
+          "refact_refresh_count": 182,
+          "refact_test_mse": 0.5513294339179993,
+          "seed": 62005,
+          "test_mse_difference_ours_minus_refact": -0.0016084909439086914
+        },
+        {
+          "application_speedup_refact_over_ours": 1.6419760849056135,
+          "core_speedup_refact_over_ours": 7.767441459702861,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.862384509548946,
+          "ours_refresh_count": 194,
+          "ours_test_mse": 0.532695472240448,
+          "refact_core_ms_per_nonrefresh_call": 6.698521193676001,
+          "refact_refresh_count": 194,
+          "refact_test_mse": 0.5380799174308777,
+          "seed": 62006,
+          "test_mse_difference_ours_minus_refact": -0.0053844451904296875
+        },
+        {
+          "application_speedup_refact_over_ours": 1.6747969414822457,
+          "core_speedup_refact_over_ours": 7.65556597684135,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.8715632759782123,
+          "ours_refresh_count": 194,
+          "ours_test_mse": 0.5477293729782104,
+          "refact_core_ms_per_nonrefresh_call": 6.67231016224319,
+          "refact_refresh_count": 201,
+          "refact_test_mse": 0.5523566007614136,
+          "seed": 62007,
+          "test_mse_difference_ours_minus_refact": -0.004627227783203125
+        },
+        {
+          "application_speedup_refact_over_ours": 1.686723604616412,
+          "core_speedup_refact_over_ours": 7.6457002539038275,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.8761223872208889,
+          "ours_refresh_count": 192,
+          "ours_test_mse": 0.5349557399749756,
+          "refact_core_ms_per_nonrefresh_call": 6.6985691584255775,
+          "refact_refresh_count": 205,
+          "refact_test_mse": 0.5345998406410217,
+          "seed": 62008,
+          "test_mse_difference_ours_minus_refact": 0.0003558993339538574
+        },
+        {
+          "application_speedup_refact_over_ours": 1.6855652879053125,
+          "core_speedup_refact_over_ours": 7.840400345776614,
+          "method_order": [
+            "refact",
+            "ours"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.849661119008997,
+          "ours_refresh_count": 193,
+          "ours_test_mse": 0.5664776563644409,
+          "refact_core_ms_per_nonrefresh_call": 6.661683331271085,
+          "refact_refresh_count": 196,
+          "refact_test_mse": 0.5548380017280579,
+          "seed": 62009,
+          "test_mse_difference_ours_minus_refact": 0.011639654636383057
+        },
+        {
+          "application_speedup_refact_over_ours": 1.646673278694842,
+          "core_speedup_refact_over_ours": 7.62121703198417,
+          "method_order": [
+            "ours",
+            "refact"
+          ],
+          "ours_core_ms_per_nonrefresh_call": 0.879087766061186,
+          "ours_refresh_count": 194,
+          "ours_test_mse": 0.5354319214820862,
+          "refact_core_ms_per_nonrefresh_call": 6.699718655314426,
+          "refact_refresh_count": 183,
+          "refact_test_mse": 0.5417826175689697,
+          "seed": 62010,
+          "test_mse_difference_ours_minus_refact": -0.006350696086883545
+        }
+      ],
+      "method_order_counts": {
+        "ours_first": 5,
+        "refact_first": 5
+      },
+      "ours_core_ms_per_nonrefresh_call": {
+        "ci95_high": 0.879457433089688,
+        "ci95_low": 0.8601543220996568,
+        "mean": 0.8698058775946724,
+        "n": 10,
+        "sample_sd": 0.013491944251469278,
+        "values": [
+          0.8609815379216329,
+          0.8733668890024001,
+          0.8602314778904478,
+          0.8989483200599219,
+          0.8657114932540916,
+          0.862384509548946,
+          0.8715632759782123,
+          0.8761223872208889,
+          0.849661119008997,
+          0.879087766061186
+        ]
+      },
+      "ours_final_test_mse": {
+        "ci95_high": 0.5575647241833254,
+        "ci95_low": 0.5398666613337949,
+        "mean": 0.5487156927585601,
+        "n": 10,
+        "sample_sd": 0.012370092957978467,
+        "values": [
+          0.5534756183624268,
+          0.5421015620231628,
+          0.5611352324485779,
+          0.5634334087371826,
+          0.5497209429740906,
+          0.532695472240448,
+          0.5477293729782104,
+          0.5349557399749756,
+          0.5664776563644409,
+          0.5354319214820862
+        ]
+      },
+      "ours_refresh_fraction": {
+        "ci95_high": 0.14325274263929072,
+        "ci95_low": 0.13280359538887831,
+        "mean": 0.13802816901408452,
+        "n": 10,
+        "sample_sd": 0.00730345032211458,
+        "values": [
+          0.1387323943661972,
+          0.1387323943661972,
+          0.1323943661971831,
+          0.15774647887323945,
+          0.1316901408450704,
+          0.13661971830985917,
+          0.13661971830985917,
+          0.1352112676056338,
+          0.1359154929577465,
+          0.13661971830985917
+        ]
+      },
+      "paired_application_speedup_refact_over_ours": {
+        "ci95_high": 1.6896179463002867,
+        "ci95_low": 1.6110862276396491,
+        "mean": 1.650352086969968,
+        "n": 10,
+        "sample_sd": 0.054889886437920254,
+        "values": [
+          1.6858322711030411,
+          1.6190528900019208,
+          1.6745752230413675,
+          1.5083365191549396,
+          1.679988768793985,
+          1.6419760849056135,
+          1.6747969414822457,
+          1.686723604616412,
+          1.6855652879053125,
+          1.646673278694842
+        ]
+      },
+      "paired_core_speedup_refact_over_ours_per_nonrefresh_call": {
+        "ci95_high": 7.790087315308005,
+        "ci95_low": 7.630808247613922,
+        "mean": 7.710447781460964,
+        "n": 10,
+        "sample_sd": 0.1113283917221613,
+        "values": [
+          7.854590382879297,
+          7.687554982182001,
+          7.810127547690719,
+          7.4986837107669455,
+          7.723196122881852,
+          7.767441459702861,
+          7.65556597684135,
+          7.6457002539038275,
+          7.840400345776614,
+          7.62121703198417
+        ]
+      },
+      "paired_test_mse_difference_ours_minus_refact": {
+        "ci95_high": 0.006787235094643695,
+        "ci95_low": -0.0067122286096583435,
+        "mean": 3.7503242492675784e-05,
+        "n": 10,
+        "sample_sd": 0.009435474510675267,
+        "values": [
+          0.011819064617156982,
+          -0.0173184871673584,
+          0.011515438556671143,
+          0.000334322452545166,
+          -0.0016084909439086914,
+          -0.0053844451904296875,
+          -0.004627227783203125,
+          0.0003558993339538574,
+          0.011639654636383057,
+          -0.006350696086883545
+        ]
+      },
+      "rank": 1024,
+      "refact_core_ms_per_nonrefresh_call": {
+        "ci95_high": 6.7270184085297675,
+        "ci95_low": 6.683586016050462,
+        "mean": 6.705302212290115,
+        "n": 10,
+        "sample_sd": 0.0303571490803392,
+        "values": [
+          6.762657307595885,
+          6.714055978823196,
+          6.718517562862886,
+          6.740929124454647,
+          6.6860596482342585,
+          6.698521193676001,
+          6.67231016224319,
+          6.6985691584255775,
+          6.661683331271085,
+          6.699718655314426
+        ]
+      },
+      "refact_final_test_mse": {
+        "ci95_high": 0.5553808418917848,
+        "ci95_low": 0.5419755371403502,
+        "mean": 0.5486781895160675,
+        "n": 10,
+        "sample_sd": 0.009369661940695257,
+        "values": [
+          0.5416565537452698,
+          0.5594200491905212,
+          0.5496197938919067,
+          0.5630990862846375,
+          0.5513294339179993,
+          0.5380799174308777,
+          0.5523566007614136,
+          0.5345998406410217,
+          0.5548380017280579,
+          0.5417826175689697
+        ]
+      },
+      "refact_refresh_fraction": {
+        "ci95_high": 0.14153039008835422,
+        "ci95_low": 0.13269496202432185,
+        "mean": 0.13711267605633803,
+        "n": 10,
+        "sample_sd": 0.006175538385463032,
+        "values": [
+          0.13802816901408452,
+          0.13309859154929576,
+          0.1352112676056338,
+          0.1471830985915493,
+          0.12816901408450704,
+          0.13661971830985917,
+          0.1415492957746479,
+          0.1443661971830986,
+          0.13802816901408452,
+          0.1288732394366197
+        ]
+      },
+      "seeds": [
+        62001,
+        62002,
+        62003,
+        62004,
+        62005,
+        62006,
+        62007,
+        62008,
+        62009,
+        62010
+      ],
+      "threads": 10
+    }
+  ],
+  "locked_confirmation_summary_sha256": "1df69b4c1ca650cfe717f81e19dd4ed63cfd8af10dba3660dc8c1f598eb56618",
+  "schema_version": 1,
+  "source_lock_sha256": "59373aad6adebc1d1902b00811bb13bc99ad1afbc2460da89cd9cf9d24db8f81"
+}
