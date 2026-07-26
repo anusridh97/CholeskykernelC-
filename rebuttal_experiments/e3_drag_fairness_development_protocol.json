@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "pilot_id": "e3-drag-fairness-dev-v1",
+  "status": "frozen_before_target_cpu_development",
+  "objective": "Select a fair one-sided update and dense-materialization implementation on development-only seeds before freezing a new E3 confirmation.",
+  "report_use": "development_only_not_reportable",
+  "dtype": "float64",
+  "threads": 1,
+  "seeds": [
+    75001,
+    75002,
+    75003
+  ],
+  "reserved_untouched_confirmation_seeds": [
+    76001,
+    76002,
+    76003,
+    76004,
+    76005,
+    76006,
+    76007,
+    76008,
+    76009,
+    76010
+  ],
+  "warmups_per_path": 3,
+  "timed_repeats_per_path": 21,
+  "ranks_and_widths": {
+    "256": [
+      1,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512
+    ],
+    "1024": [
+      1,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048
+    ]
+  },
+  "paths": {
+    "metric_only_specialized": {
+      "output_contract": "dense_same_output",
+      "role": "reference proposed implementation"
+    },
+    "original_drag_factor": {
+      "output_contract": "thin_factor_only",
+      "role": "frozen E3 one-sided implementation with internal vector allocation"
+    },
+    "original_drag_materialize_alloc": {
+      "output_contract": "dense_same_output",
+      "role": "exact frozen E3 drag-plus-materialization implementation, including dense output allocation"
+    },
+    "original_drag_materialize_out": {
+      "output_contract": "dense_same_output",
+      "role": "original one-sided update followed by MKL materialization into caller-owned output"
+    },
+    "fair_drag_factor": {
+      "output_contract": "thin_factor_only",
+      "role": "caller-workspace row-major and SIMD one-sided update candidate"
+    },
+    "fair_drag_materialize_mkl_out": {
+      "output_contract": "dense_same_output",
+      "role": "fair update followed by single-thread MKL materialization into caller-owned output"
+    },
+    "fair_drag_materialize_candidate": {
+      "output_contract": "dense_same_output",
+      "role": "fair update followed by the retained contiguous-dot materialization candidate into caller-owned output"
+    }
+  },
+  "timing_order": "Every repetition contains every path once. The seven-path order is cyclically rotated by (seed + width_index + repetition) modulo seven, so each path occupies every timing position exactly three times.",
+  "state_preparation": "All mutable input cloning, caller-owned update workspace creation, and caller-owned dense output creation occur before each timed interval.",
+  "steady_state_representation_boundary": "The dense metric path begins from stored (L, Aw); drag paths begin from stored (L, Vb, Vc). Initial factor solves, initial dense materialization, and conversion between these persistent representations are excluded. This is a steady-state representation comparison, not a same-input kernel dispatcher benchmark.",
+  "correctness_reference": "Fresh FP64 Cholesky of G+zz^T, fresh triangular solves for B and C, and their dense product.",
+  "relative_error_tolerance": 1e-11,
+  "selection_rule": {
+    "eligibility": "Every retained path must pass the relative-error tolerance in every development cell.",
+    "update_candidate": "Select fair_drag_factor over original_drag_factor only if the geometric mean of within-seed median time ratios fair/original across all development cells is at most 0.98 and the median ratio in no rank-width cell exceeds 1.02; otherwise retain the original update.",
+    "materialization_candidates": "Evaluate all-MKL and the family custom-if-p<=T-else-MKL for every tested T. A custom family is eligible only if its geometric-mean within-seed total-path ratio to all-MKL is at most 0.95 and its median ratio in no rank-width cell exceeds 1.02. Select the eligible family with the smallest geometric mean; ties and no eligible custom family select all-MKL.",
+    "no_confirmation_tuning": "The selected eligible implementation is frozen before any reserved confirmation seed is evaluated."
+  },
+  "resource_contract": {
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "qos": "medium",
+    "exclusive_node": true,
+    "processes": 1,
+    "physical_cpus_per_process": 1,
+    "omp_threads": 1,
+    "mkl_threads": 1,
+    "openblas_threads": 1
+  },
+  "retain_all_rows_and_candidates": true,
+  "stopping_rule": "Run every declared rank, width, seed, path, warmup, and timing repetition. Do not filter or rerun based on development outcomes.",
+  "result_path": "rebuttal_results/development/e3_drag_fairness_dev_v1.json"
+}
