@@ -1,0 +1,137 @@
+{
+  "campaign_tag": "e4-safety-followup-v1",
+  "confirmation_seed_attestation": {
+    "checked_paths": [
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/preflight.json",
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/attempt.json",
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/rows.jsonl",
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/result.json",
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/audit_summary.json"
+    ],
+    "checked_utc": "2026-07-26T04:33:49.105976+00:00",
+    "confirmation_seeds": [
+      46001,
+      46002,
+      46003,
+      46004,
+      46005,
+      46006,
+      46007,
+      46008,
+      46009,
+      46010,
+      46011,
+      46012,
+      46013,
+      46014,
+      46015,
+      46016,
+      46017,
+      46018,
+      46019,
+      46020
+    ],
+    "existing_paths": [],
+    "no_confirmation_science_artifacts": true
+  },
+  "created_utc": "2026-07-26T04:33:49.116633+00:00",
+  "development_inventory_sha256": "246f880b42a58e58e0d64fe55a2ca991f254dcfe6572fa3d2755bfefdc98db02",
+  "development_seed_count": 10,
+  "experiment": "e4_safety_followup_source_lock",
+  "files": {
+    "audit_wrapper": {
+      "bytes": 178,
+      "path": "rebuttal_experiments/audit_e4_safety_followup.py",
+      "sha256": "c2299ac8d107091612cf89c43365ed7cdc7df6f60d8a2195f4b01634ce68b2ee"
+    },
+    "common_helpers": {
+      "bytes": 2724,
+      "path": "rebuttal_experiments/common.py",
+      "sha256": "2019b77c7ee0a415239c776ccf79a98c49180c6bd7c04629ae9baab9cde43905"
+    },
+    "confirmation_sbatch": {
+      "bytes": 2188,
+      "path": "rebuttal_experiments/slurm/e4_safety_followup_confirmation.sbatch",
+      "sha256": "eb265152f94bdbeea4ae8eaa7d5ada7a154975ea35c5b64d1a37879df4a64ea2"
+    },
+    "development_inventory": {
+      "bytes": 7730,
+      "path": "rebuttal_experiments/e4_safety_development_inventory.json",
+      "sha256": "246f880b42a58e58e0d64fe55a2ca991f254dcfe6572fa3d2755bfefdc98db02"
+    },
+    "extension_build": {
+      "bytes": 486,
+      "path": "Cholesky-main-2/corrected_incremental_cholesky/setup_ext.py",
+      "sha256": "a3ee87b2675a668c945a495c726e966d7c98f763931d964098305d2c3df66b85"
+    },
+    "freeze_sbatch": {
+      "bytes": 2316,
+      "path": "rebuttal_experiments/slurm/e4_safety_followup_freeze.sbatch",
+      "sha256": "b6504203ebde9c1ed9f0d3ed026a5483685646e5f8f958411f1c050fa2dfe1dc"
+    },
+    "implementation_source": {
+      "bytes": 27464,
+      "path": "Cholesky-main-2/corrected_incremental_cholesky/fast_update.cpp",
+      "sha256": "b1c92d7fcbca869eba625623b5d7ab440a38eceba79b715db2b8087dbf2d87b4"
+    },
+    "kernel_generator": {
+      "bytes": 6879,
+      "path": "rebuttal_experiments/kernel_stability.py",
+      "sha256": "d84d872d46e748a1796794524e59629c95c9322287a3730ab148c312715c2c3b"
+    },
+    "original_e4_audit": {
+      "bytes": 2227488,
+      "path": "rebuttal_results/e4_direct_confirmation/e4-direct-confirm-v1/audit_summary.json",
+      "sha256": "b96613a437b2f7a99da9d5f182caf4c4f50672582a457fb8fe3bed82365512ab"
+    },
+    "preflight_sbatch": {
+      "bytes": 2103,
+      "path": "rebuttal_experiments/slurm/e4_safety_followup_preflight.sbatch",
+      "sha256": "8cc11dbd4e26401a1bd5e4d9c8d478eb937c5dc4acc0d83919e5d465b4ccee44"
+    },
+    "protocol": {
+      "bytes": 4380,
+      "path": "rebuttal_experiments/e4_safety_followup_protocol.json",
+      "sha256": "8bf93b3bb169918b9a39ec53d56cca1756d60e7256120c3d511e3461d0c79c0c"
+    },
+    "runner": {
+      "bytes": 54221,
+      "path": "rebuttal_experiments/e4_safety_followup.py",
+      "sha256": "78414a7ed4a82d9385ddf6dd3dc56e3761eee5461676e4b6040443b7a8fe4e1c"
+    },
+    "tests": {
+      "bytes": 4197,
+      "path": "rebuttal_experiments/tests/test_e4_safety_followup.py",
+      "sha256": "d2af19689db632bc4def4693b2ec24c7920979e0ffe317a2956e309062764e83"
+    }
+  },
+  "freeze_environment": {
+    "host": "n12",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "process_affinity": [
+      40
+    ],
+    "python": "3.10.12 (main, Jun 22 2026, 18:55:27) [GCC 11.4.0]",
+    "python_executable": "/usr/bin/python3",
+    "python_no_user_site": "1",
+    "slurm_cpus_per_task": "1",
+    "slurm_job_account": "marlowe-m000151-pm06",
+    "slurm_job_id": "394343",
+    "slurm_job_partition": "batch",
+    "slurm_job_qos": "medium",
+    "slurm_node_list": "n12",
+    "source_commit": "1e94dbf8c3c89934c431fced0d5028990037f4aa",
+    "thread_environment": {
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "torch": "2.12.0+cu126",
+    "torch_num_interop_threads": 1,
+    "torch_num_threads": 1
+  },
+  "git_commit": "1e94dbf8c3c89934c431fced0d5028990037f4aa",
+  "protocol_sha256": "8bf93b3bb169918b9a39ec53d56cca1756d60e7256120c3d511e3461d0c79c0c",
+  "schema_version": 1,
+  "status": "frozen_before_confirmation"
+}
