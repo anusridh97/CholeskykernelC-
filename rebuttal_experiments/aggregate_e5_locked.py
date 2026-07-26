@@ -142,6 +142,16 @@ def run(
     return summary
 
 
+def render_markdown(summary: dict[str, Any]) -> str:
+    """Render the original tables with the locked fresh-seed label."""
+    markdown = original.render_markdown(summary)
+    stale = "seeds 1–10"
+    replacement = f"seeds {SEEDS[0]}–{SEEDS[-1]}"
+    if stale not in markdown:
+        raise LockError("cannot locate original seed label in rendered Markdown")
+    return markdown.replace(stale, replacement, 1)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repository", type=Path, required=True)
@@ -155,7 +165,7 @@ def main() -> int:
     args = parse_args()
     try:
         summary = run(args.repository.resolve(), args.campaign_dir.resolve())
-        markdown = original.render_markdown(summary)
+        markdown = render_markdown(summary)
     except (LockError, original.AuditError) as error:
         print(str(error), file=sys.stderr)
         return 2
