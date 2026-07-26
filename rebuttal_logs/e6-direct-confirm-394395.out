@@ -1,0 +1,147 @@
+running build_ext
+building 'fast_cholesky' extension
+x86_64-linux-gnu-g++ -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC -I/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/include -I/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/include/torch/csrc/api/include -I/usr/include/python3.10 -c fast_update.cpp -o /scratch/m000151-pm06/arjo/job-builds/394395/e6-compact/temp/fast_update.o -O3 -march=native -ffast-math -mavx512f -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=fast_cholesky -std=c++20
+x86_64-linux-gnu-g++ -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -shared -Wl,-O1 -Wl,-Bsymbolic-functions /scratch/m000151-pm06/arjo/job-builds/394395/e6-compact/temp/fast_update.o -L/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/lib -L/usr/lib/x86_64-linux-gnu -lc10 -ltorch -ltorch_cpu -ltorch_python -o /scratch/m000151-pm06/arjo/job-builds/394395/e6-compact/lib/fast_cholesky.cpython-310-x86_64-linux-gnu.so
+.......................................................................  [100%]
+71 passed in 10.04s
+r=256 k=1 sequential=0.453ms  compact=0.410ms legacy/compact=1.104x refact/compact=2.911x refact=1.194ms speedup=2.638x
+r=256 k=2 sequential=0.890ms  compact=0.473ms legacy/compact=1.881x refact/compact=2.452x refact=1.161ms speedup=1.304x
+r=256 k=4 sequential=1.750ms  compact=0.521ms legacy/compact=3.357x refact/compact=2.245x refact=1.170ms speedup=0.669x
+r=256 k=8 sequential=3.484ms  compact=0.626ms legacy/compact=5.564x refact/compact=1.886x refact=1.181ms speedup=0.339x
+r=256 k=16 sequential=6.774ms  compact=0.750ms legacy/compact=9.027x refact/compact=1.575x refact=1.182ms speedup=0.174x
+r=256 k=32 sequential=13.109ms  compact=1.146ms legacy/compact=11.443x refact/compact=1.081x refact=1.238ms speedup=0.094x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88001.json
+r=256 k=1 sequential=0.445ms  compact=0.419ms legacy/compact=1.064x refact/compact=2.821x refact=1.181ms speedup=2.652x
+r=256 k=2 sequential=0.889ms  compact=0.469ms legacy/compact=1.895x refact/compact=2.492x refact=1.169ms speedup=1.315x
+r=256 k=4 sequential=1.805ms  compact=0.521ms legacy/compact=3.466x refact/compact=2.319x refact=1.208ms speedup=0.669x
+r=256 k=8 sequential=3.435ms  compact=0.627ms legacy/compact=5.481x refact/compact=1.945x refact=1.219ms speedup=0.355x
+r=256 k=16 sequential=6.676ms  compact=0.752ms legacy/compact=8.873x refact/compact=1.567x refact=1.179ms speedup=0.177x
+r=256 k=32 sequential=13.081ms  compact=1.141ms legacy/compact=11.465x refact/compact=1.100x refact=1.255ms speedup=0.096x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88002.json
+r=256 k=1 sequential=0.447ms  compact=0.406ms legacy/compact=1.100x refact/compact=2.899x refact=1.178ms speedup=2.637x
+r=256 k=2 sequential=0.892ms  compact=0.470ms legacy/compact=1.895x refact/compact=2.536x refact=1.193ms speedup=1.338x
+r=256 k=4 sequential=1.767ms  compact=0.519ms legacy/compact=3.408x refact/compact=2.337x refact=1.212ms speedup=0.686x
+r=256 k=8 sequential=4.072ms  compact=0.766ms legacy/compact=5.316x refact/compact=1.853x refact=1.419ms speedup=0.349x
+r=256 k=16 sequential=8.483ms  compact=1.037ms legacy/compact=8.183x refact/compact=1.519x refact=1.575ms speedup=0.186x
+r=256 k=32 sequential=13.054ms  compact=1.136ms legacy/compact=11.492x refact/compact=1.110x refact=1.260ms speedup=0.097x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88003.json
+r=256 k=1 sequential=0.453ms  compact=0.419ms legacy/compact=1.080x refact/compact=2.803x refact=1.175ms speedup=2.595x
+r=256 k=2 sequential=0.887ms  compact=0.473ms legacy/compact=1.874x refact/compact=2.453x refact=1.161ms speedup=1.309x
+r=256 k=4 sequential=1.735ms  compact=0.521ms legacy/compact=3.330x refact/compact=2.238x refact=1.166ms speedup=0.672x
+r=256 k=8 sequential=3.444ms  compact=0.622ms legacy/compact=5.536x refact/compact=1.895x refact=1.179ms speedup=0.342x
+r=256 k=16 sequential=6.575ms  compact=0.749ms legacy/compact=8.777x refact/compact=1.574x refact=1.179ms speedup=0.179x
+r=256 k=32 sequential=12.962ms  compact=1.148ms legacy/compact=11.290x refact/compact=1.075x refact=1.234ms speedup=0.095x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88004.json
+r=256 k=1 sequential=0.462ms  compact=0.421ms legacy/compact=1.097x refact/compact=2.883x refact=1.214ms speedup=2.628x
+r=256 k=2 sequential=0.886ms  compact=0.471ms legacy/compact=1.879x refact/compact=2.552x refact=1.203ms speedup=1.358x
+r=256 k=4 sequential=1.772ms  compact=0.523ms legacy/compact=3.390x refact/compact=2.238x refact=1.170ms speedup=0.660x
+r=256 k=8 sequential=3.456ms  compact=0.621ms legacy/compact=5.569x refact/compact=1.933x refact=1.199ms speedup=0.347x
+r=256 k=16 sequential=6.653ms  compact=0.753ms legacy/compact=8.836x refact/compact=1.584x refact=1.193ms speedup=0.179x
+r=256 k=32 sequential=13.086ms  compact=1.152ms legacy/compact=11.354x refact/compact=1.069x refact=1.232ms speedup=0.094x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88005.json
+r=256 k=1 sequential=0.461ms  compact=0.427ms legacy/compact=1.082x refact/compact=2.805x refact=1.197ms speedup=2.593x
+r=256 k=2 sequential=0.888ms  compact=0.474ms legacy/compact=1.874x refact/compact=2.540x refact=1.203ms speedup=1.355x
+r=256 k=4 sequential=1.746ms  compact=0.523ms legacy/compact=3.336x refact/compact=2.303x refact=1.205ms speedup=0.690x
+r=256 k=8 sequential=3.470ms  compact=0.620ms legacy/compact=5.597x refact/compact=1.904x refact=1.181ms speedup=0.340x
+r=256 k=16 sequential=6.608ms  compact=0.747ms legacy/compact=8.844x refact/compact=1.609x refact=1.203ms speedup=0.182x
+r=256 k=32 sequential=13.207ms  compact=1.196ms legacy/compact=11.041x refact/compact=1.083x refact=1.295ms speedup=0.098x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88006.json
+r=256 k=1 sequential=0.448ms  compact=0.407ms legacy/compact=1.100x refact/compact=2.842x refact=1.157ms speedup=2.583x
+r=256 k=2 sequential=0.885ms  compact=0.467ms legacy/compact=1.894x refact/compact=2.491x refact=1.163ms speedup=1.315x
+r=256 k=4 sequential=1.698ms  compact=0.518ms legacy/compact=3.278x refact/compact=2.245x refact=1.163ms speedup=0.685x
+r=256 k=8 sequential=3.432ms  compact=0.626ms legacy/compact=5.483x refact/compact=1.883x refact=1.178ms speedup=0.343x
+r=256 k=16 sequential=6.597ms  compact=0.748ms legacy/compact=8.825x refact/compact=1.581x refact=1.182ms speedup=0.179x
+r=256 k=32 sequential=12.934ms  compact=1.146ms legacy/compact=11.284x refact/compact=1.078x refact=1.236ms speedup=0.096x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88007.json
+r=256 k=1 sequential=0.443ms  compact=0.401ms legacy/compact=1.105x refact/compact=2.879x refact=1.154ms speedup=2.605x
+r=256 k=2 sequential=0.892ms  compact=0.477ms legacy/compact=1.871x refact/compact=2.463x refact=1.175ms speedup=1.317x
+r=256 k=4 sequential=1.727ms  compact=0.515ms legacy/compact=3.355x refact/compact=2.259x refact=1.163ms speedup=0.673x
+r=256 k=8 sequential=3.434ms  compact=0.623ms legacy/compact=5.510x refact/compact=1.889x refact=1.177ms speedup=0.343x
+r=256 k=16 sequential=6.574ms  compact=0.753ms legacy/compact=8.729x refact/compact=1.559x refact=1.174ms speedup=0.179x
+r=256 k=32 sequential=12.851ms  compact=1.142ms legacy/compact=11.254x refact/compact=1.077x refact=1.230ms speedup=0.096x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88008.json
+r=256 k=1 sequential=0.446ms  compact=0.416ms legacy/compact=1.072x refact/compact=2.860x refact=1.190ms speedup=2.669x
+r=256 k=2 sequential=0.889ms  compact=0.474ms legacy/compact=1.873x refact/compact=2.539x refact=1.205ms speedup=1.356x
+r=256 k=4 sequential=1.805ms  compact=0.519ms legacy/compact=3.481x refact/compact=2.325x refact=1.206ms speedup=0.668x
+r=256 k=8 sequential=3.422ms  compact=0.622ms legacy/compact=5.499x refact/compact=1.900x refact=1.182ms speedup=0.346x
+r=256 k=16 sequential=6.624ms  compact=0.748ms legacy/compact=8.857x refact/compact=1.596x refact=1.194ms speedup=0.180x
+r=256 k=32 sequential=13.021ms  compact=1.142ms legacy/compact=11.400x refact/compact=1.099x refact=1.255ms speedup=0.096x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88009.json
+r=256 k=1 sequential=0.465ms  compact=0.411ms legacy/compact=1.132x refact/compact=2.824x refact=1.160ms speedup=2.496x
+r=256 k=2 sequential=0.889ms  compact=0.482ms legacy/compact=1.843x refact/compact=2.428x refact=1.171ms speedup=1.318x
+r=256 k=4 sequential=1.808ms  compact=0.519ms legacy/compact=3.486x refact/compact=2.243x refact=1.163ms speedup=0.643x
+r=256 k=8 sequential=3.516ms  compact=0.625ms legacy/compact=5.628x refact/compact=1.887x refact=1.179ms speedup=0.335x
+r=256 k=16 sequential=6.753ms  compact=0.749ms legacy/compact=9.013x refact/compact=1.563x refact=1.171ms speedup=0.173x
+r=256 k=32 sequential=13.319ms  compact=1.145ms legacy/compact=11.633x refact/compact=1.075x refact=1.231ms speedup=0.092x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r256_seed88010.json
+r=1024 k=1 sequential=7.100ms  compact=6.777ms legacy/compact=1.048x refact/compact=8.535x refact=57.844ms speedup=8.147x
+r=1024 k=2 sequential=14.387ms  compact=7.746ms legacy/compact=1.857x refact/compact=7.057x refact=54.660ms speedup=3.799x
+r=1024 k=4 sequential=31.053ms  compact=8.575ms legacy/compact=3.622x refact/compact=6.976x refact=59.813ms speedup=1.926x
+r=1024 k=8 sequential=58.510ms  compact=10.007ms legacy/compact=5.847x refact/compact=5.477x refact=54.808ms speedup=0.937x
+r=1024 k=16 sequential=117.261ms  compact=12.737ms legacy/compact=9.206x refact/compact=4.322x refact=55.051ms speedup=0.469x
+r=1024 k=32 sequential=226.341ms  compact=18.173ms legacy/compact=12.455x refact/compact=3.061x refact=55.630ms speedup=0.246x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88001.json
+r=1024 k=1 sequential=7.618ms  compact=7.431ms legacy/compact=1.025x refact/compact=8.508x refact=63.226ms speedup=8.300x
+r=1024 k=2 sequential=14.705ms  compact=8.303ms legacy/compact=1.771x refact/compact=7.187x refact=59.675ms speedup=4.058x
+r=1024 k=4 sequential=29.691ms  compact=8.743ms legacy/compact=3.396x refact/compact=6.588x refact=57.599ms speedup=1.940x
+r=1024 k=8 sequential=58.140ms  compact=10.437ms legacy/compact=5.571x refact/compact=5.519x refact=57.597ms speedup=0.991x
+r=1024 k=16 sequential=113.963ms  compact=12.942ms legacy/compact=8.806x refact/compact=4.389x refact=56.797ms speedup=0.498x
+r=1024 k=32 sequential=227.520ms  compact=18.169ms legacy/compact=12.523x refact/compact=3.064x refact=55.670ms speedup=0.245x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88002.json
+r=1024 k=1 sequential=7.350ms  compact=6.946ms legacy/compact=1.058x refact/compact=8.496x refact=59.009ms speedup=8.029x
+r=1024 k=2 sequential=14.972ms  compact=8.155ms legacy/compact=1.836x refact/compact=7.051x refact=57.497ms speedup=3.840x
+r=1024 k=4 sequential=30.032ms  compact=9.017ms legacy/compact=3.330x refact/compact=6.397x refact=57.688ms speedup=1.921x
+r=1024 k=8 sequential=61.951ms  compact=10.558ms legacy/compact=5.867x refact/compact=5.513x refact=58.214ms speedup=0.940x
+r=1024 k=16 sequential=122.915ms  compact=13.366ms legacy/compact=9.196x refact/compact=4.328x refact=57.844ms speedup=0.471x
+r=1024 k=32 sequential=237.425ms  compact=18.270ms legacy/compact=12.995x refact/compact=3.218x refact=58.797ms speedup=0.248x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88003.json
+r=1024 k=1 sequential=7.424ms  compact=6.831ms legacy/compact=1.087x refact/compact=8.452x refact=57.733ms speedup=7.777x
+r=1024 k=2 sequential=14.547ms  compact=7.684ms legacy/compact=1.893x refact/compact=7.070x refact=54.330ms speedup=3.735x
+r=1024 k=4 sequential=31.089ms  compact=8.614ms legacy/compact=3.609x refact/compact=6.939x refact=59.773ms speedup=1.923x
+r=1024 k=8 sequential=59.009ms  compact=9.986ms legacy/compact=5.910x refact/compact=5.484x refact=54.765ms speedup=0.928x
+r=1024 k=16 sequential=113.362ms  compact=12.718ms legacy/compact=8.914x refact/compact=4.331x refact=55.086ms speedup=0.486x
+r=1024 k=32 sequential=234.074ms  compact=18.268ms legacy/compact=12.813x refact/compact=3.053x refact=55.771ms speedup=0.238x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88004.json
+r=1024 k=1 sequential=7.505ms  compact=7.042ms legacy/compact=1.066x refact/compact=8.080x refact=56.900ms speedup=7.582x
+r=1024 k=2 sequential=14.555ms  compact=7.897ms legacy/compact=1.843x refact/compact=7.077x refact=55.886ms speedup=3.840x
+r=1024 k=4 sequential=29.155ms  compact=8.888ms legacy/compact=3.280x refact/compact=6.392x refact=56.812ms speedup=1.949x
+r=1024 k=8 sequential=57.792ms  compact=10.166ms legacy/compact=5.685x refact/compact=5.472x refact=55.626ms speedup=0.963x
+r=1024 k=16 sequential=119.251ms  compact=13.140ms legacy/compact=9.075x refact/compact=4.423x refact=58.116ms speedup=0.487x
+r=1024 k=32 sequential=228.694ms  compact=18.398ms legacy/compact=12.431x refact/compact=3.147x refact=57.903ms speedup=0.253x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88005.json
+r=1024 k=1 sequential=7.257ms  compact=6.993ms legacy/compact=1.038x refact/compact=8.502x refact=59.452ms speedup=8.192x
+r=1024 k=2 sequential=14.623ms  compact=7.964ms legacy/compact=1.836x refact/compact=7.011x refact=55.836ms speedup=3.819x
+r=1024 k=4 sequential=29.321ms  compact=9.012ms legacy/compact=3.254x refact/compact=6.538x refact=58.921ms speedup=2.010x
+r=1024 k=8 sequential=59.605ms  compact=10.363ms legacy/compact=5.752x refact/compact=5.527x refact=57.277ms speedup=0.961x
+r=1024 k=16 sequential=117.752ms  compact=13.015ms legacy/compact=9.048x refact/compact=4.330x refact=56.360ms speedup=0.479x
+r=1024 k=32 sequential=228.776ms  compact=18.326ms legacy/compact=12.483x refact/compact=3.102x refact=56.857ms speedup=0.249x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88006.json
+r=1024 k=1 sequential=7.555ms  compact=6.996ms legacy/compact=1.080x refact/compact=8.100x refact=56.664ms speedup=7.501x
+r=1024 k=2 sequential=14.847ms  compact=8.112ms legacy/compact=1.830x refact/compact=7.271x refact=58.981ms speedup=3.973x
+r=1024 k=4 sequential=29.056ms  compact=8.959ms legacy/compact=3.243x refact/compact=6.212x refact=55.656ms speedup=1.915x
+r=1024 k=8 sequential=59.074ms  compact=10.239ms legacy/compact=5.769x refact/compact=5.659x refact=57.938ms speedup=0.981x
+r=1024 k=16 sequential=119.779ms  compact=13.287ms legacy/compact=9.014x refact/compact=4.365x refact=58.001ms speedup=0.484x
+r=1024 k=32 sequential=230.329ms  compact=18.663ms legacy/compact=12.341x refact/compact=3.307x refact=61.717ms speedup=0.268x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88007.json
+r=1024 k=1 sequential=7.773ms  compact=7.274ms legacy/compact=1.069x refact/compact=8.637x refact=62.828ms speedup=8.083x
+r=1024 k=2 sequential=15.069ms  compact=8.176ms legacy/compact=1.843x refact/compact=7.365x refact=60.216ms speedup=3.996x
+r=1024 k=4 sequential=29.049ms  compact=8.870ms legacy/compact=3.275x refact/compact=6.285x refact=55.747ms speedup=1.919x
+r=1024 k=8 sequential=60.670ms  compact=10.584ms legacy/compact=5.732x refact/compact=6.045x refact=63.982ms speedup=1.055x
+r=1024 k=16 sequential=120.088ms  compact=12.909ms legacy/compact=9.303x refact/compact=4.694x refact=60.594ms speedup=0.505x
+r=1024 k=32 sequential=234.954ms  compact=18.303ms legacy/compact=12.837x refact/compact=3.120x refact=57.114ms speedup=0.243x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88008.json
+r=1024 k=1 sequential=7.235ms  compact=6.993ms legacy/compact=1.035x refact/compact=8.329x refact=58.249ms speedup=8.051x
+r=1024 k=2 sequential=15.391ms  compact=7.954ms legacy/compact=1.935x refact/compact=7.360x refact=58.539ms speedup=3.803x
+r=1024 k=4 sequential=30.829ms  compact=9.247ms legacy/compact=3.334x refact/compact=6.801x refact=62.884ms speedup=2.040x
+r=1024 k=8 sequential=61.565ms  compact=10.498ms legacy/compact=5.864x refact/compact=5.557x refact=58.342ms speedup=0.948x
+r=1024 k=16 sequential=118.084ms  compact=12.926ms legacy/compact=9.135x refact/compact=4.369x refact=56.472ms speedup=0.478x
+r=1024 k=32 sequential=237.966ms  compact=18.350ms legacy/compact=12.968x refact/compact=3.107x refact=57.009ms speedup=0.240x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88009.json
+r=1024 k=1 sequential=7.444ms  compact=6.786ms legacy/compact=1.097x refact/compact=8.523x refact=57.837ms speedup=7.770x
+r=1024 k=2 sequential=14.232ms  compact=7.749ms legacy/compact=1.837x refact/compact=7.047x refact=54.609ms speedup=3.837x
+r=1024 k=4 sequential=31.022ms  compact=8.517ms legacy/compact=3.642x refact/compact=7.024x refact=59.825ms speedup=1.928x
+r=1024 k=8 sequential=56.837ms  compact=10.026ms legacy/compact=5.669x refact/compact=5.468x refact=54.823ms speedup=0.965x
+r=1024 k=16 sequential=113.379ms  compact=12.693ms legacy/compact=8.933x refact/compact=4.336x refact=55.035ms speedup=0.485x
+r=1024 k=32 sequential=234.393ms  compact=18.338ms legacy/compact=12.782x refact/compact=3.036x refact=55.668ms speedup=0.237x
+wrote /scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/rank_k_compact_r1024_seed88010.json
+/scratch/m000151-pm06/arjo/cholesky-e6-direct-b111469/rebuttal_results/rank_k_confirmation/e6-compact-direct-confirm-v2/summary.json

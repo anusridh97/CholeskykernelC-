@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "audit": "independent_e6_compact_direct_confirmation_audit",
+  "campaign_tag": "e6-compact-direct-confirm-v2",
+  "status": "PASS",
+  "provenance": {
+    "source_commit": "b111469bcd41bbd6e09bb8f0ce4313f7e8de613b",
+    "protocol_sha256": "bef91f8fd0e85d8c56d3745db9c064a21eeffa6a0f347071786a01144ae7f891",
+    "driver_sha256": "86bb0061dab8e8e0f05a339a0375bdcebdb926514e6de4b8b0b883bbf3fe249a",
+    "kernel_sha256": "b2af801c36881090b5b2424c15053298aa8b5e31deec5f5a92be10b1afb2e01a",
+    "extension_sha256": "9e7f98b866359f5b25fd41b2bd65e45508a5d92146905391067b5269adcf71c8",
+    "slurm_job_id": "394395",
+    "node": "n29",
+    "start": "2026-07-25T21:59:08-07:00",
+    "end": "2026-07-25T22:06:20-07:00",
+    "elapsed_seconds": 432,
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "import_archive_sha256": "427f2abb043e52965c6faf56fde70d98e81da440f378be209ed28d1d4f0e54c4"
+  },
+  "resource_accounting": {
+    "exclusive_nodes": 1,
+    "allocated_cpus": 112,
+    "requested_cpus_recorded_by_slurm": 6,
+    "experimental_process_affinity_cpus": 1,
+    "allocated_gpu_devices": 8,
+    "gpu_devices_used_by_experiment": 0,
+    "allocated_node_hours": 0.12,
+    "allocated_cpu_hours": 13.44,
+    "allocated_gpu_hours": 0.96,
+    "note": "The single-thread CPU experiment reserved an exclusive eight-GPU node to eliminate co-tenant timing interference; it issued no CUDA work."
+  },
+  "integrity_checks": {
+    "raw_artifact_count": 20,
+    "aggregate_cell_count": 12,
+    "ranks": [
+      256,
+      1024
+    ],
+    "rank_k_values": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32
+    ],
+    "independent_problem_seeds_per_cell": 10,
+    "timed_repeats_per_method_seed_cell": 30,
+    "timed_method_calls": 10800,
+    "method_order_counterbalanced": true,
+    "all_runs_single_thread": true,
+    "all_runs_one_cpu_affinity": true,
+    "all_runs_same_source_commit": true,
+    "all_driver_and_kernel_hashes_match_local_source": true,
+    "all_extension_hashes_identical": true,
+    "all_rows_used_direct_cpp_left_and_right_backend": true,
+    "all_rows_report_three_dense_operator_sweeps": true,
+    "all_rows_report_zero_timed_dense_allocations": true,
+    "all_summary_statistics_exactly_recomputed_from_raw_rows": true,
+    "maximum_compact_operator_relative_error": 6.865971575727365e-16
+  },
+  "results": [
+    {
+      "rank": 256,
+      "k": 1,
+      "compact_milliseconds_mean": 0.4136887495405972,
+      "compact_milliseconds_sample_sd": 0.00789797638969569,
+      "fresh_over_compact_mean": 2.8526344686357086,
+      "fresh_over_compact_sample_sd": 0.03931737309807346,
+      "fresh_over_compact_ci95": [
+        2.8245085142646817,
+        2.8807604230067354
+      ],
+      "legacy_over_compact_mean": 1.0933711603061773
+    },
+    {
+      "rank": 256,
+      "k": 2,
+      "compact_milliseconds_mean": 0.4731944005470723,
+      "compact_milliseconds_sample_sd": 0.0042213368996157925,
+      "fresh_over_compact_mean": 2.494629306087036,
+      "fresh_over_compact_sample_sd": 0.04465572682939539,
+      "fresh_over_compact_ci95": [
+        2.4626845235076993,
+        2.5265740886663726
+      ],
+      "legacy_over_compact_mean": 1.8779853680511576
+    },
+    {
+      "rank": 256,
+      "k": 4,
+      "compact_milliseconds_mean": 0.5197846563532948,
+      "compact_milliseconds_sample_sd": 0.0025641344110743907,
+      "fresh_over_compact_mean": 2.2750985875156005,
+      "fresh_over_compact_sample_sd": 0.04048601394483965,
+      "fresh_over_compact_ci95": [
+        2.246136637844219,
+        2.304060537186982
+      ],
+      "legacy_over_compact_mean": 3.3888175550811566
+    },
+    {
+      "rank": 256,
+      "k": 8,
+      "compact_milliseconds_mean": 0.637792976340279,
+      "compact_milliseconds_sample_sd": 0.04513208476030926,
+      "fresh_over_compact_mean": 1.8973996708117729,
+      "fresh_over_compact_sample_sd": 0.02604350809252338,
+      "fresh_over_compact_ci95": [
+        1.878769267441623,
+        1.9160300741819227
+      ],
+      "legacy_over_compact_mean": 5.518263705317757
+    },
+    {
+      "rank": 256,
+      "k": 16,
+      "compact_milliseconds_mean": 0.7786508998833597,
+      "compact_milliseconds_sample_sd": 0.09067986094911196,
+      "fresh_over_compact_mean": 1.5728486790359737,
+      "fresh_over_compact_sample_sd": 0.024232370693446866,
+      "fresh_over_compact_ci95": [
+        1.555513885311947,
+        1.5901834727600004
+      ],
+      "legacy_over_compact_mean": 8.796310851393088
+    },
+    {
+      "rank": 256,
+      "k": 32,
+      "compact_milliseconds_mean": 1.1494519014377147,
+      "compact_milliseconds_sample_sd": 0.017021463677640254,
+      "fresh_over_compact_mean": 1.0846921001061243,
+      "fresh_over_compact_sample_sd": 0.013294376751335879,
+      "fresh_over_compact_ci95": [
+        1.0751818758862453,
+        1.0942023243260033
+      ],
+      "legacy_over_compact_mean": 11.365526201076841
+    },
+    {
+      "rank": 1024,
+      "k": 1,
+      "compact_milliseconds_mean": 7.006994285620749,
+      "compact_milliseconds_sample_sd": 0.20813192389172083,
+      "fresh_over_compact_mean": 8.416099398297115,
+      "fresh_over_compact_sample_sd": 0.18810598506420523,
+      "fresh_over_compact_ci95": [
+        8.281536482823697,
+        8.550662313770534
+      ],
+      "legacy_over_compact_mean": 1.0600976457929638
+    },
+    {
+      "rank": 1024,
+      "k": 2,
+      "compact_milliseconds_mean": 7.973998098168521,
+      "compact_milliseconds_sample_sd": 0.20905900665074825,
+      "fresh_over_compact_mean": 7.149562867461908,
+      "fresh_over_compact_sample_sd": 0.13609662375693535,
+      "fresh_over_compact_ci95": [
+        7.052205207775687,
+        7.246920527148129
+      ],
+      "legacy_over_compact_mean": 1.8481600369596727
+    },
+    {
+      "rank": 1024,
+      "k": 4,
+      "compact_milliseconds_mean": 8.844113210216165,
+      "compact_milliseconds_sample_sd": 0.2305989687438522,
+      "fresh_over_compact_mean": 6.615254086959123,
+      "fresh_over_compact_sample_sd": 0.30022801192963167,
+      "fresh_over_compact_ci95": [
+        6.400483905254111,
+        6.830024268664134
+      ],
+      "legacy_over_compact_mean": 3.3985806604081388
+    },
+    {
+      "rank": 1024,
+      "k": 8,
+      "compact_milliseconds_mean": 10.286340594757348,
+      "compact_milliseconds_sample_sd": 0.23317508973221138,
+      "fresh_over_compact_mean": 5.572166603019911,
+      "fresh_over_compact_sample_sd": 0.17544583944264394,
+      "fresh_over_compact_ci95": [
+        5.4466602101476935,
+        5.697672995892128
+      ],
+      "legacy_over_compact_mean": 5.766650418511923
+    },
+    {
+      "rank": 1024,
+      "k": 16,
+      "compact_milliseconds_mean": 12.973290082300082,
+      "compact_milliseconds_sample_sd": 0.23328187535828016,
+      "fresh_over_compact_mean": 4.388691308235916,
+      "fresh_over_compact_sample_sd": 0.11199772651846457,
+      "fresh_over_compact_ci95": [
+        4.308572961115939,
+        4.4688096553558925
+      ],
+      "legacy_over_compact_mean": 9.06296691152148
+    },
+    {
+      "rank": 1024,
+      "k": 32,
+      "compact_milliseconds_mean": 18.325822259066626,
+      "compact_milliseconds_sample_sd": 0.13932854663443925,
+      "fresh_over_compact_mean": 3.121578369205922,
+      "fresh_over_compact_sample_sd": 0.08432547516299194,
+      "fresh_over_compact_ci95": [
+        3.061255558197327,
+        3.1819011802145165
+      ],
+      "legacy_over_compact_mean": 12.66281622939466
+    }
+  ],
+  "conclusion": {
+    "all_twelve_cells_faster_than_fresh_at_95_percent_confidence": true,
+    "formerly_losing_r256_k32_cell_remediated": true,
+    "r256_k32_fresh_over_compact_mean": 1.0846921001061243,
+    "r256_k32_fresh_over_compact_ci95": [
+      1.0751818758862453,
+      1.0942023243260033
+    ],
+    "r1024_k32_legacy_over_compact_mean": 12.66281622939466,
+    "r1024_k32_fresh_over_compact_mean": 3.121578369205922
+  }
+}
