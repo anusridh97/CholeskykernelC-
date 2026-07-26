@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "campaign_tag": "e3-drag-fair-confirm-v1",
+  "slurm_job_id": "394529",
+  "state": "COMPLETED",
+  "exit_code": "0:0",
+  "started_at": "2026-07-25T22:53:28-07:00",
+  "ended_at": "2026-07-25T23:03:36-07:00",
+  "elapsed_seconds": 608,
+  "measurement_elapsed_seconds": 503.66415,
+  "host": "n26",
+  "cpu_model": "Intel(R) Xeon(R) Platinum 8480C",
+  "source_commit": "23632e9c0f467c2173c5c4cf2720426735797850",
+  "source_tree": "94bd67ff7676e088af2e35ff6ae12788d23cbc66",
+  "result_sha256": "00fa7876dcbb9a6a6a68172dd052e0044dd0426199323146e07313b2c30bd00b",
+  "audit_sha256": "8b052fa08575d80affb275895be67c449b1975c511771491a24a854f38d85fb6",
+  "audit_status": "passed",
+  "audit_cell_count": 200,
+  "seed_count_per_cell": 10,
+  "timing_samples_per_path_per_seed": 30,
+  "maximum_relative_error": 1.1081049887954355e-15,
+  "independent_read_only_audit_recomputed_exactly": true,
+  "outcomes_inspected_only_after_terminal_completion": true,
+  "crossover_convention": "alternative_time/metric_time >= 1; ratio > 1 favors metric",
+  "drag_materialize_crossover": {
+    "r256": {
+      "first_tested_metric_win": 128,
+      "bracketing_interval": "(64, 128]"
+    },
+    "r1024": {
+      "first_tested_metric_win": 64,
+      "bracketing_interval": "(32, 64]"
+    }
+  }
+}
