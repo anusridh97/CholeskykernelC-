@@ -86,6 +86,36 @@ two test defects and is superseded by the passing test job `393425`.
 Early refresh job `393437` predates complete pre-refresh diagnostics and is
 superseded by `393472`.
 
+## Locked The Well black-hole ladder
+
+The final real-data E5 extension is campaign
+`blackhole-s4-v1-locked-rerun2`, under
+`blackhole/blackhole-s4-v1-locked-rerun2/`.  It uses the official
+Polymathic AI `post_neutron_star_merger` scenario 4 trajectory, a frozen DCT
+feature map, ten predeclared transitions, and ranks 2,048 through 65,536.
+Slurm array `394033` ran the seven ranks on seven distinct H100 UUIDs.  The
+directory retains all seven raw result JSONs, seven source/result
+attestations, the feature manifest, the campaign lock, worker logs, and the
+write-once strict aggregate.
+
+All seven rows passed the frozen `1e-3` correctness gate.  The audited paired
+speedup rises from `1.7119 ± 0.0085x` at rank 2,048 to
+`71.7546 ± 0.2247x` at rank 65,536.  The latter has a 95% Student-t interval
+of `[71.5939, 71.9153]` across the ten transition-level ratios.  Timing
+repeats are retained but are not treated as independent observations.
+
+Reconcile every displayed report cell and regenerate the figure with:
+
+```bash
+python3 rebuttal_experiments/audit_blackhole_report.py
+python3 rebuttal_experiments/plot_blackhole_rank_scaling.py
+```
+
+The exact raw HDF5 file and the 47 MB feature trace are identified by hashes
+in the lock and attestations but are not duplicated in the result directory.
+The mixed-HEAD diagnostic campaign and the pre-execution failed first locked
+attempt remain excluded from report claims.
+
 The repository intentionally does not version local `summary.json` or
 `SUMMARY.md` snapshots.  They predate the final CUDA audit and can be
 regenerated from the canonical raw files with:
@@ -119,5 +149,8 @@ directory with:
 tectonic rebuttal_experiment_report.tex
 ```
 
-LaTeX auxiliary files, Slurm logs, Python environments, compiled extensions,
-and unrelated local datasets are not versioned.
+LaTeX auxiliary files, general Slurm logs, Python environments, compiled
+extensions, and unrelated local datasets are not versioned.  The locked
+black-hole campaign's seven worker logs and seven no-claim preflight logs are
+the exception: they are retained beside its attestations as execution
+provenance.

@@ -115,3 +115,27 @@ python3 -m rebuttal_experiments.aggregate_e5n10 \
   --output-json /tmp/e5n10-2ee46ba-summary.json \
   --output-rows /tmp/e5n10-2ee46ba-rows.md
 ```
+
+## Locked real-data black-hole ladder
+
+`BLACKHOLE_PROTOCOL.md` freezes the scientific design and
+`BLACKHOLE_LOCKED_RERUN_PROTOCOL.md` documents the provenance-only locked
+rerun.  The numerical driver executes unmodified from detached commit
+`96c8018cdd0b56ffe1fd93bddf48fa4affb34697`; the outer lock verifies the
+source, official The Well data revision, DCT feature trace, rank/task mapping,
+Slurm allocation, software environment, and physical GPU identities before
+accepting a result.
+
+The completed campaign is
+`rebuttal_results/blackhole/blackhole-s4-v1-locked-rerun2/`.  Its write-once
+aggregate treats the ten predeclared physical transitions—not timing
+repeats—as the statistical units.  To audit the report mapping and regenerate
+the checked-in vector figure:
+
+```bash
+python3 rebuttal_experiments/audit_blackhole_report.py
+python3 rebuttal_experiments/plot_blackhole_rank_scaling.py
+```
+
+Neither command reruns an experiment.  The plotter refuses an aggregate whose
+strict audit or headline correctness gate did not pass.

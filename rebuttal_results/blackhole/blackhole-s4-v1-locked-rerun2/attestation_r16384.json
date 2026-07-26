@@ -1,0 +1,60 @@
+{
+  "array_task_id": 3,
+  "campaign_lock": {
+    "bytes": 5042,
+    "git_commit": "168478e0c02770937542bf045c7c13b36baa319f",
+    "sha256": "cecb0e4fe3271754dab72f86b43f4ee4ee53929ea35982661c99e376adf7f660"
+  },
+  "campaign_tag": "blackhole-s4-v1-locked-rerun2",
+  "created_utc": "2026-07-26T01:48:55.593037+00:00",
+  "gpu": {
+    "driver_version": "565.57.01",
+    "memory_mib": "81559",
+    "name": "NVIDIA H100 80GB HBM3",
+    "uuid": "GPU-8f520a8e-8086-dccf-1a67-296b05677f3b"
+  },
+  "host": "n30",
+  "immutable_source": {
+    "git_commit": "96c8018cdd0b56ffe1fd93bddf48fa4affb34697",
+    "mode": "detached_git_worktree",
+    "source_hashes": {
+      "rebuttal_experiments/__init__.py": "1c320630271ec27dc0155effb53647b394d91db7ebf30f614065e8b3fe0eb097",
+      "rebuttal_experiments/aggregate_blackhole.py": "e498ed24a07a295c1df5f4639f2a4640750bda6b517fb9da374feaf216146db0",
+      "rebuttal_experiments/blackhole_features.py": "4c6b9ad11892a028784b11ff856be4b2681931a683b392fcf9b2f7139e5e9776",
+      "rebuttal_experiments/common.py": "2019b77c7ee0a415239c776ccf79a98c49180c6bd7c04629ae9baab9cde43905",
+      "rebuttal_experiments/cuda_blackhole_rank_scaling.py": "1f267c106df2e1b458f56b22b3309670c5b2e163c4a9af436a9d6c7b80d9f026",
+      "rebuttal_experiments/cuda_blackhole_stability.py": "a3eaf6c02832298c401cb6e189f86201a7360426f736ded5f283dfc2feb3c1d3",
+      "student_pkg/doublesided_cholesky.py": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa"
+    }
+  },
+  "inner_campaign_tag": "blackhole-s4-v1",
+  "inputs": {
+    "feature_manifest_sha256": "3b8c6e32da3842b8a9f21ee722e8b9fb1093899744d283d4e939427dd116a5c2",
+    "feature_trace_sha256": "bdf1619a70af70585af317d25aa69452fcb8e94d8417e525de9d50f878e530b4"
+  },
+  "rank": 16384,
+  "raw_result": {
+    "bytes": 110554,
+    "filename": "ladder_r16384.json",
+    "sha256": "bee74c746eb7fb5d3d3c13d15d285a48b6a10a3bd0274187f3d45e590808183d"
+  },
+  "schema_version": "blackhole_locked_rerun_attestation_v1",
+  "slurm": {
+    "account": "marlowe-m000151-pm06",
+    "array_job_id": "394033",
+    "array_task_count": "7",
+    "array_task_id": "3",
+    "array_task_max": "6",
+    "array_task_min": "0",
+    "array_task_step": "1",
+    "cpus_per_task": "12",
+    "cuda_visible_devices": "0",
+    "gpus_on_node": "1",
+    "job_gpus": "4",
+    "job_id": "394037",
+    "job_name": "bh-s4-locked-r2",
+    "node_list": "n30",
+    "partition": "batch",
+    "step_gpus": null
+  }
+}

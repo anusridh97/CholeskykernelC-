@@ -10,6 +10,8 @@
 \usepackage{multirow}
 \usepackage{pdflscape}
 \usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{seqsplit}
 \usepackage{microtype}
 \usepackage{hyperref}
 
@@ -29,6 +31,7 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\reviewer}[1]{\textbf{Reviewer response:} #1}
 \newcommand{\paperchange}[1]{\textbf{Recommended paper change:} #1}
+\newcommand{\hexid}[1]{\texttt{\seqsplit{#1}}}
 \newcommand{\caveat}[1]{\par\noindent\colorbox{yellow!18}{%
   \parbox{\dimexpr\linewidth-2\fboxsep\relax}{\textbf{Scope caveat.} #1}}\par}
 
@@ -60,6 +63,10 @@ repeated-update stability, refresh-cost, and large-rank comparisons.
 A separate post-audit E2 rerun uses the recovered UCI Protein data, calibrates
 its time ceiling solely on excluded pilot seeds, selects the last completed
 training batch without test feedback, and evaluates each fixed seed once.
+A provenance-locked E5 extension additionally evaluates seven ranks through
+\(65{,}536\) on fixed transitions from The Well's
+\texttt{post\_neutron\_star\_merger} trajectory; it was frozen before feature
+generation or timing and is reported separately from the synthetic ladder.
 
 The results sharpen rather than uniformly strengthen the original claims.
 The refresh threshold controls a clear refresh-frequency--accuracy trade-off.
@@ -75,13 +82,15 @@ independent-update batching, and an exact prefix-scan fallback is
 \(1.8\)--\(2.1\times\) faster than CUDA refactorization at
 \(r=256\)--1024.  A separately labeled inverse-factor representation is
 \(3.3\)--\(12.2\times\) faster in held-out cached-state kernel timing at
-\(r=256\)--1024 and \(1.8\)--\(71.3\times\) faster in a self-contained
-four-state ladder through \(r=65{,}536\).  Its repeated-update and refresh
-tests show low drift for well-conditioned problems but strong condition
-dependence.  Repeated rank-one updates are advantageous for small \(k\), but
-their measured crossover occurs much earlier than a FLOP-only model predicts.
-We state below precisely which claims these data support and which manuscript
-statements should be weakened.
+\(r=256\)--1024.  Its synthetic self-contained four-state ladder reaches
+\(71.3\pm0.1\times\) at \(r=65{,}536\), and the independently locked
+real-trajectory ladder reaches \(71.755\pm0.225\times\) at the same rank
+while passing every predeclared correctness gate.  Repeated-update and
+refresh tests show low drift for well-conditioned problems but strong
+condition dependence.  Repeated rank-one updates are advantageous for small
+\(k\), but their measured crossover occurs much earlier than a FLOP-only
+model predicts.  We state below precisely which claims these data support and
+which manuscript statements should be weakened.
 \end{abstract}
 
 \caveat{The E1 natural-gradient sweep uses a reconstructed, corrected
@@ -133,9 +142,9 @@ URn7 Q1 & Add forward- and backward-error stress tests, state the role of
 E5 & GPU scaling and the sequential nature of Givens rotations &
 URn7 Q2 & Report supported fused-kernel correctness and batching together
 with the tuned, baseline-compatible parallel fallback; report corrected
-held-out inverse-factor timing, repeated-update and refresh evidence, and the
-measured large-rank ladder as a separately labeled experimental
-representation. \\
+held-out inverse-factor timing, repeated-update and refresh evidence, and
+synthetic plus provenance-locked real-data large-rank ladders as a separately
+labeled experimental representation. \\
 E6 & Constants and practical cost for rank-\(k\) updates &
 URn7 Q4 & Move the full \(O(r^2k+rk^2+k^3)\) cost into the main text and report
 measured rather than FLOP-only crossover points. \\
@@ -154,7 +163,8 @@ inverse-free regime comparison; and give a concrete code-release plan.
 \label{sec:protocol}
 
 \paragraph{Completion.}
-All planned tasks completed on their first worker attempt:
+All tasks in the original planned matrix completed on their first worker
+attempt:
 48/48 natural-gradient configurations, 86/86 CPU synthetic configurations,
 and 11/11 CUDA configurations.  The CPU and GPU worker error logs are empty.
 Preflight smoke tests, which use reduced data or reduced rank and overlap
@@ -165,6 +175,11 @@ claim cells.  The corrected E2 campaign likewise completed with exactly three
 excluded pilot files, one frozen-budget file, twelve evaluation files, and
 one summary; every aggregate was independently reconstructed from the raw
 JSON.
+The locked black-hole extension completed all seven ranks with one result and
+one attestation per rank; a strict write-once audit accepted all 70
+predeclared real transitions.  One array element had a Slurm
+environment-retrieval restart before its batch script or scientific code ran;
+that recovery is documented in the provenance appendix.
 
 \paragraph{Software and compute environment.}
 All planned runs used PyTorch 2.12.0 with CUDA 12.6 on a Linux compute node.
@@ -191,6 +206,10 @@ batch script requested three exclusive seed steps at once, Slurm serialized
 all fifteen training steps.  The prior E2 diagnostic job was serialized in
 the same way, so concurrency is comparable across those two campaigns but is
 one process, not the three claimed by the script comment.
+The black-hole ladder used Slurm array \texttt{394033} on seven distinct H100
+UUIDs, one per rank, under the \texttt{marlowe-m000151-pm06} allocation.
+Every element received 12 CPUs and recorded the same PyTorch
+2.12.0+\texttt{cu126}, CUDA 12.6, cuDNN 91002, and Python 3.10.12 stack.
 
 \paragraph{Core correctness checks.}
 Every planned benchmark constructs the exact updated metric and operator and
@@ -201,6 +220,9 @@ below \(2\times10^{-4}\); all planned configurations passed.  The post-audit
 inverse-factor follow-ups use the validation scopes stated in
 Section~\ref{sec:e5-inverse}: numerical comparison with fresh results through
 \(r=32{,}768\), and full finite-output checks at larger measured ranks.
+The locked real-data ladder in Section~\ref{sec:e5-blackhole} additionally
+retains sixteen fresh cross-method action probes at every rank; all seven rows
+passed their predeclared \(10^{-3}\) gate.
 
 \paragraph{Summary statistics.}
 Natural-gradient and the original controlled stability sweeps use three
@@ -218,6 +240,12 @@ deviation are computed.  The refresh table instead aggregates one timed
 fresh-factorization baseline for each seed and rank.  Because job 393591 ran
 serially on one node and one GPU, these E5 standard deviations quantify
 seed/process/time variation on that device, not device-to-device uncertainty.
+The real-data ladder instead treats ten fixed, temporally related transitions
+as its \(n=10\) observations: each contributes its within-transition timing
+median, paired ratios are formed within transition, and the reported 95\%
+intervals use Student's \(t_9\).  Repeat-level timings are not treated as
+independent observations.  These intervals describe variation along one
+trajectory rather than uncertainty across independent simulations.
 Other microbenchmarks report median latency after warm-up; their mutable input
 state is prepared outside the timed interval.  The representation and
 rank-\(k\) microbenchmarks pin each operation to one CPU thread.
@@ -1285,7 +1313,7 @@ most \(1.2\,\mu\)s).  By contrast, the \(r=1024,q=100\) row is bimodal
 do not interpret \(q=100\) as a stable timing point; the \(q=50\)
 recommendation does not depend on either anomalous row.
 
-\subsubsection{Self-contained large-rank comparison}
+\subsubsection{Synthetic self-contained large-rank comparison}
 
 The full-axis in-place path removes the single-block rank limit while retaining
 exact \(G,M\) for future refresh.  The comparison maintains four dense FP32
@@ -1353,14 +1381,225 @@ largest row is a full finite-output check, not a fresh numerical-correctness
 check, and the 64\,GiB four-matrix state leaves limited headroom on the
 80\,GB device.  We therefore make no claim beyond the measured range.
 
+\subsubsection{Real-data large-rank scaling on The Well}
+\label{sec:e5-blackhole}
+
+To answer URn7 Q2's request to analyze scaling at large rank, we froze a
+real-data extension before feature generation or benchmark timing.  This is a
+streaming Koopman/operator-regression workload, not a predictive-accuracy or
+natural-gradient experiment.  We use the official Polymathic AI
+\href{https://huggingface.co/datasets/polymathic-ai/post_neutron_star_merger}%
+{\texttt{post\_neutron\_star\_merger}} dataset from The Well, training
+scenario~4 (\texttt{torus\_MBH\_10}), a disk from a black-hole--neutron-star
+merger with a 10-solar-mass black hole.  The pinned Hugging Face revision is
+\texttt{1fd582f3e29749ac4d0c14bc816bddb2394258cc}.  The exact
+14,109,638,656-byte file contains one 181-snapshot trajectory on a
+\(192\times128\times66\) spherical grid.
+
+The feature map uses twelve dynamic channels: density, internal energy,
+pressure, temperature, electron fraction, entropy, and the three spatial
+components of both magnetic field and velocity.  We exclude the
+time-independent contravariant spacetime metric.  Per-channel scalar means
+and population standard deviations are accumulated in FP64 over every
+spatial point in snapshots 0--63 and then fixed.  Each standardized channel
+receives an orthonormal separable 3-D DCT-II.  Spatial frequencies are ordered
+by
+\[
+ (k_{\log r}/192)^2+(k_\theta/128)^2+(k_\phi/66)^2
+\]
+with ascending lexicographic indices as the exact tie-break; coefficients are
+interleaved frequency-major and channel-minor.  This yields one C-contiguous
+FP32 trace of shape \(181\times65{,}536\), and every tested representation is
+an exact prefix of that trace.  For rank \(r\), the unscaled prefix is divided
+by
+\[
+ s_r^2=\frac1{64}\sum_{t=0}^{63}\|\phi_r(x_t)\|_2^2 ,
+\]
+so feature energy is comparable across ranks without using an evaluation
+transition.
+
+Writing \(z_t=\phi_r(x_t)/s_r\) and
+\(w_t=\phi_r(x_{t+1})/s_r\), the common state is
+\[
+ G_0=I+\sum_{t=0}^{63}z_tz_t^\top,\qquad
+ M_0=\sum_{t=0}^{63}z_tw_t^\top,\qquad
+ {\Aw}_0=L_0^{-1}M_0L_0^{-\top};
+\]
+the ridge coefficient is one.  Transition 64 is used only for compilation
+and warm-up.  The ten predeclared evaluation transitions are
+\(80,91,102,113,124,135,146,157,168,179\).  Each is applied separately to
+the same state after transition 63, isolating one recurrent update rather
+than a long-horizon drift trajectory.  Even-numbered cases execute the
+inverse path first and odd-numbered cases reverse the method order.
+
+Both methods maintain four dense FP32 matrices:
+\(G,M,L^{-1},\Aw\) for the experimental inverse-factor path and
+\(G,M,L,\Aw\) for \refact{}.  The inverse kernel consumes a row-major
+contiguous, explicitly lower-triangular \(L^{-1}\).  It packs \(z,w\) into
+one two-column right-hand side and obtains
+\(u=L^{-1}z,\ y=L^{-1}w\) with one dense matrix multiplication.
+Elementwise \(u_i^2\) and \(u_i y_i\) terms are prefix-summed to form the
+exact Givens parameters and correction vectors.  One Triton program owns
+each independent column tile, updates \(L^{-1}\) in place, and applies the
+left sweep to \(\Aw\); a second owns independent row tiles and fuses the
+right sweep with the rank-one \(v_zv_w^\top\) correction.  Each recurrence
+remains serial within its row or column, while independent chains execute
+concurrently.  The kernel therefore performs \(O(r^2)\) work without an
+\(r\times r\) scratch matrix; its reusable workspace is \(9r\) FP32 values
+(five vectors and two \(r\times2\) buffers).  Frozen row/column tiles are
+\(8,8,8,16,32,32,32\) at the seven ascending ranks; setup uses four warps
+and each sweep one.  \refact{} uses CUDA \texttt{cholesky\_ex} followed by
+the two triangular solves that form the newly whitened operator.  TF32 is
+disabled.
+
+A CUDA event includes the common dense updates
+\(G\leftarrow G+zz^\top\) and \(M\leftarrow M+zw^\top\), followed by the
+selected method core.  Feature I/O and DCT work, host-to-device transfer,
+initial-state construction, state restoration, compilation, warm-up,
+pre-timing synchronization, and correctness checks are excluded.  Each
+transition contributes its within-case event median: ten repeats through
+\(r=8192\), five through \(r=32768\), and three thereafter.  Paired speedup
+is formed within transition, then summarized by its mean, sample SD, and
+two-sided 95\% Student-\(t\) interval across the ten transitions.  Timing
+repeats are retained in the raw JSON but are not pseudoreplicated as
+independent observations, and no timing-based filtering is performed.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\caption{Locked real-data rank scaling on one H100 per row.  Event times are
+mean \(\pm\) sample SD in milliseconds; speedup is the mean \(\pm\) sample SD
+of the ten paired transition ratios.  The interval is the two-sided 95\%
+\(t_9\) interval for paired speedup.  ``State'' is the exact minimum storage
+for four dense FP32 matrices.}
+\label{tab:e5-blackhole-scale}
+{\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+\(r\) & Inverse ms & Refact ms & Paired speedup &
+95\% interval & State GiB \\
+\midrule
+2,048  & \(1.494\pm0.007\) & \(2.5578\pm0.0029\) &
+  \(1.7119\pm0.0085\) & \([1.7058,1.7179]\) & 0.0625 \\
+4,096  & \(3.576\pm0.021\) & \(7.6513\pm0.0025\) &
+  \(2.1395\pm0.0120\) & \([2.1310,2.1481]\) & 0.25 \\
+8,192  & \(7.948\pm0.014\) & \(39.7979\pm0.0141\) &
+  \(5.0076\pm0.0104\) & \([5.0002,5.0151]\) & 1 \\
+16,384 & \(19.792\pm0.012\) & \(247.008\pm0.016\) &
+  \(12.4802\pm0.0074\) & \([12.4749,12.4855]\) & 4 \\
+32,768 & \(58.093\pm0.103\) & \(1{,}755.897\pm0.337\) &
+  \(30.2255\pm0.0577\) & \([30.1842,30.2668]\) & 16 \\
+49,152 & \(113.944\pm0.182\) & \(5{,}696.014\pm8.706\) &
+  \(49.9896\pm0.1153\) & \([49.9071,50.0721]\) & 36 \\
+65,536 & \(183.720\pm0.188\) & \(13{,}182.753\pm33.306\) &
+  \(71.7546\pm0.2247\) & \([71.5939,71.9153]\) & 64 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{%
+  blackhole/blackhole-s4-v1-locked-rerun2/rank_scaling.pdf}
+\caption{The Well isolated-transition ladder.  Error bars are 95\%
+Student-\(t\) intervals across the ten predeclared transition medians, not
+repeat-level intervals.  Both methods include the common \(G,M\) outer
+updates.}
+\label{fig:e5-blackhole-scale}
+\end{figure}
+
+Correctness is evaluated after timing.  Every fresh factorization must return
+Cholesky \texttt{info=0}, and every element of the state and output must be
+finite.  At every rank, sixteen normalized Rademacher probes with fixed seed
+29421 compare
+\[
+ L_{\rm inc}^{-1}P\quad\text{with}\quad
+ \operatorname{solve}(L_{\rm fresh},P),\qquad
+ {\Aw}_{\rm inc}P\quad\text{with}\quad{\Aw}_{\rm fresh}P,
+\]
+and independently check the factor and whitened-operator identities.  Full
+dense relative errors against fresh \(L^{-1}\) and \(\Aw\) are additionally
+retained through \(r=32{,}768\).
+Ranks 49,152 and 65,536 retain the fresh action-probe comparison and a
+full-element finiteness scan, but not a full dense difference.  A row is
+eligible for a speedup claim only if every predeclared relative error is at
+most \(10^{-3}\).  Because each updated metric is \(I+ZZ^\top\) with only 65
+stored vectors and \(r>65\), \(\lambda_{\min}(G)=1\) exactly; we compute
+\(\kappa_2(G)=1+\lambda_{\max}(Z^\top Z)\) from the \(65\times65\) FP64
+Gram matrix.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\caption{Real-data correctness over ten transitions per rank.  Probe columns
+are the maximum cross-method relative error; the dense column is the maximum
+direct incremental-versus-fresh \(L^{-1}/\Aw\) relative-Frobenius error.
+Every predeclared residual, including diagnostics not shown, passed the
+\(10^{-3}\) gate.}
+\label{tab:e5-blackhole-valid}
+{\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}rcrrrl@{}}
+\toprule
+\(r\) & \(\kappa_2(G)\) range &
+\(\max L^{-1}P\) & \(\max \Aw P\) &
+Dense \(L^{-1}/\Aw\) & Scope \\
+\midrule
+2,048  & 57.69--57.99 & \(2.69\times10^{-7}\) & \(4.18\times10^{-5}\) &
+  \(2.33\times10^{-7}/1.53\times10^{-5}\) & dense+probe+finite \\
+4,096  & 56.45--56.75 & \(2.10\times10^{-7}\) & \(4.59\times10^{-5}\) &
+  \(1.76\times10^{-7}/1.65\times10^{-5}\) & dense+probe+finite \\
+8,192  & 55.12--55.41 & \(1.62\times10^{-7}\) & \(3.44\times10^{-5}\) &
+  \(1.33\times10^{-7}/1.81\times10^{-5}\) & dense+probe+finite \\
+16,384 & 53.73--54.02 & \(1.34\times10^{-7}\) & \(2.73\times10^{-5}\) &
+  \(1.06\times10^{-7}/1.80\times10^{-5}\) & dense+probe+finite \\
+32,768 & 52.36--52.64 & \(1.11\times10^{-7}\) & \(2.62\times10^{-5}\) &
+  \(8.71\times10^{-8}/2.46\times10^{-5}\) & dense+probe+finite \\
+49,152 & 51.57--51.84 & \(1.13\times10^{-7}\) & \(2.71\times10^{-5}\) &
+  -- & probe+finite \\
+65,536 & 51.01--51.28 & \(1.04\times10^{-7}\) & \(2.55\times10^{-5}\) &
+  -- & probe+finite \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+Table~\ref{tab:e5-blackhole-scale} and
+Figure~\ref{fig:e5-blackhole-scale} show that all seven rows and all 70 paired
+transitions favor the inverse-factor path; Table~\ref{tab:e5-blackhole-valid}
+confirms that every row passes the frozen correctness gate.  Mean paired
+speedup grows monotonically
+from \(1.7119\pm0.0085\times\) at \(r=2048\) to
+\(71.7546\pm0.2247\times\) at \(r=65{,}536\); at the latter rank, mean event
+times are \(183.720\pm0.188\)\,ms and
+\(13.182753\pm0.033306\)\,s, respectively.  The largest of any predeclared
+relative-error diagnostics is \(1.84\times10^{-4}\), below the \(10^{-3}\)
+gate.  The increasing advantage is consistent with the common \(O(r^2)\)
+outer updates plus an \(O(r^2)\) inverse-factor core versus dense
+\(O(r^3)\) factorization and solves.  This independently extends the
+synthetic ladder to structured update vectors from a physical trajectory; it
+does not establish predictive accuracy or remove the inverse-state refresh
+requirement.
+
+The statistical interval is descriptive across ten temporally related
+transitions from one trajectory, not across independent simulations.  Each
+rank used a distinct H100, so paired comparisons are within one GPU whereas
+the cross-rank curve also contains device-to-device variation.  This is an
+isolated restored-state update in FP32, not end-to-end HDF5/DCT throughput or
+a large-rank repeated-update stability test.  No specialized Woodbury
+baseline is included, and the four matrices require 64\,GiB at the largest
+rank.  The black-hole dataset was frozen as the primary real-data result
+regardless of favorability; it was not selected after comparison with HIGGS.
+We therefore do not extrapolate beyond \(65{,}536\).
+
 \paperchange{Use the fused batching results and the baseline-compatible
 parallel rows of Table~\ref{tab:e5} to answer URn7 Q2, and explain the exact
 prefix-scan reformulation.  Present Tables~\ref{tab:e5-inverse-heldout}--%
-\ref{tab:e5-large-scale} separately as evidence for an experimental
+\ref{tab:e5-blackhole-valid} separately as evidence for an experimental
 inverse-factor state: distinguish isolated cached-state timing from
 self-contained timing, report the condition-dependent drift and measured
-refresh trade-off, and limit large-rank claims to the validation scope stated
-in the table.}
+refresh trade-off, add the frozen real-trajectory ladder, and limit
+large-rank claims to each table's stated validation scope.}
 
 \section{E6: practical \texorpdfstring{rank-\(k\)}{rank-k} cost}
 \label{sec:e6}
@@ -1476,10 +1715,11 @@ future work.}
   downdate leverage.
   \item \textbf{Q2, GPU scaling.} Report fused FP32 correctness and batching
   speedups together with the tuned, baseline-compatible prefix-scan fallback.
-  Separately report the corrected held-out inverse-factor timing,
-  condition-dependent 500-update drift, refresh-cost sweep, and self-contained
-  large-rank ladder.  Keep this representation explicitly experimental,
-  distinguish fresh numerical checks from finite-only checks, and state its
+  Separately report the corrected held-out inverse-factor timing and synthetic
+  condition-dependent 500-update drift and refresh-cost sweep.  Add the
+  provenance-locked The Well isolated-transition ladder through
+  \(r=65{,}536\), while keeping this representation explicitly experimental,
+  distinguishing full-dense checks from fresh action probes, and stating its
   refresh and four-matrix memory requirements.
   \item \textbf{Q3, inverse-free methods.} Add a textual regime comparison:
   inverse-free methods are attractive for batch-oriented, matrix-multiply
@@ -1504,7 +1744,8 @@ checkpoint-truncated comparison;
 (iv) forward and backward stability evidence plus a downdate guard;
 (v) supported fused CUDA batching and baseline-compatible parallel-fallback
 results, with the corrected inverse-factor timing, refresh, and large-rank
-evidence separated as an experimental stored-state representation;
+evidence---including the frozen real-trajectory ladder---separated as an
+experimental stored-state representation;
 and
 (vi) the complete rank-\(k\) complexity with measured constants.
 Independently, the abstract and introduction should state explicitly that
@@ -1519,12 +1760,16 @@ regime raised by RVfB, demonstrate backward stability and exact downdate
 amplification, and show that fused CUDA batching is effective.  They also
 show that the exact prefix-scan fallback is faster than CUDA refactorization
 through rank 1024.  The corrected inverse-factor follow-up adds a
-condition-aware refresh policy and a self-contained measured ladder from
-\(r=2048\) to \(r=65{,}536\), where the final finite-checked row is
-\(71.3\pm0.1\times\) faster than refactorization across ten paired seeds.
-It also identifies the limits of that result: the representation changes
-stored state, drift grows sharply under extreme conditioning, and fresh
-numerical correctness is checked only through \(r=32{,}768\).  More broadly,
+condition-aware refresh policy and a synthetic self-contained measured ladder
+from \(r=2048\) to \(r=65{,}536\).  The independently locked real-data
+extension uses structured transitions from The Well and reaches
+\(71.7546\pm0.2247\times\) at \(r=65{,}536\), with a 95\% interval of
+\([71.5939,71.9153]\), while all seven ranks pass their frozen correctness
+gate.  It also identifies the limits of that result: the representation
+changes stored state, drift grows sharply under extreme conditioning, the
+real-data intervals describe ten related transitions from one trajectory,
+and full-dense numerical comparison stops at \(r=32{,}768\) (fresh action
+probes continue to \(65{,}536\)).  More broadly,
 the corrected E2 matched-rank comparison gives a paired
 \ours{}--\refact{} MSE difference of \(0.005079\pm0.005808\) and provides no
 evidence that the update itself improves MSE,
@@ -1569,6 +1814,48 @@ Files whose names contain \texttt{smoke}, tuning rows, and early reduced-rank
 diagnostics remain excluded from inferential summaries and final speedup
 claims.
 
+The real-data ladder is outer campaign
+\texttt{blackhole-s4-v1-locked-rerun2}, with raw results, attestations, audit,
+and logs under
+\path{rebuttal_results/blackhole/blackhole-s4-v1-locked-rerun2/}.
+Its unmodified numerical driver and kernel execute from detached commit
+\hexid{96c8018cdd0b56ffe1fd93bddf48fa4affb34697}; the rerun-2 control
+tree is commit
+\hexid{168478e0c02770937542bf045c7c13b36baa319f}, its locked harness
+commit is
+\hexid{653d8d916da04e1031c0ef2408093152a22642b4}, and the campaign-lock
+SHA-256 is
+\hexid{cecb0e4fe3271754dab72f86b43f4ee4ee53929ea35982661c99e376adf7f660}.
+The raw HDF5, feature manifest, and feature-trace SHA-256 values are,
+respectively,
+\hexid{21e587c90c006c4b7d37e2b04899bd7e928967ae506e9ceb5afd05dfca6909fd},
+\hexid{3b8c6e32da3842b8a9f21ee722e8b9fb1093899744d283d4e939427dd116a5c2},
+and
+\hexid{bdf1619a70af70585af317d25aa69452fcb8e94d8417e525de9d50f878e530b4}.
+
+Slurm array 394033 ran under account \texttt{marlowe-m000151-pm06} in the
+\texttt{batch} partition.  Its seven element job IDs used seven distinct
+H100 UUIDs; every raw result records Python 3.10.12, PyTorch
+2.12.0+\texttt{cu126}, CUDA 12.6, and cuDNN 91002.  Array task 3 records
+\texttt{Restarts=1}: its first allocation failed during Slurm environment
+retrieval before the batch script produced any output, claim, result, or
+attestation; the same element then ran once scientifically on node
+\texttt{n30}.  This infrastructure recovery is retained in provenance and
+does not change task identity or the frozen protocol.  The original
+mixed-HEAD diagnostic campaign is excluded.  Locked rerun~1 (array 393982)
+is also excluded: its four-CPU lock rejected the scheduler's actual
+12-CPU allocation before numerical execution, and its failed claims remain
+preserved.  The terminal accounting and task-3 recovery record is
+\path{rebuttal_results/blackhole/blackhole-s4-v1-locked-rerun2/SCHEDULER_PROVENANCE.md}.
+
+The write-once aggregate was emitted only after all seven results and
+attestations passed both the original v1 validator and the outer lock audit.
+It treats the ten physical transitions as the statistical observations and
+retains repeat-level samples without pseudoreplication.  The plotting script
+\path{rebuttal_experiments/plot_blackhole_rank_scaling.py} accepts only this
+passing campaign and reads
+\path{blackhole-s4-v1-locked-rerun2/aggregate.json}.
+
 Corrected E2 is a separate post-audit campaign with the following paths,
 relative to the repository root:
 \begin{quote}
@@ -1610,14 +1897,21 @@ artifact.
   \item E5's production-compatible batch-one comparison is limited to one
   H100, FP32, and \(r\le1024\).  The inverse-factor path changes stored state
   and is evaluated on ten synthetic problem seeds; its repeated-update and
-  refresh validation stop at \(r=1024\), and the large-rank ladder measures
-  one prepared update per repeat.  All ten seeds ran serially on one GPU, so
-  the reported SD does not measure device-to-device variation.  Periodic
-  refresh cost is included only in the \(r\le1024\) refresh sweep.  The
-  four-state large-rank comparison checks numerical agreement with fresh
-  results through \(r=32{,}768\), but checks only 10/10 full-output finiteness
-  at \(r=49{,}152\) and \(65{,}536\); the latter requires 64\,GiB of matrix
-  state and leaves limited device-memory headroom.
+  refresh validation stop at \(r=1024\), and both large-rank ladders measure
+  isolated prepared updates.  All ten synthetic seeds ran serially on one
+  GPU, so their SD does not measure device-to-device variation.  The real-data
+  ladder uses one distinct H100 per rank and ten temporally related
+  transitions from one trajectory, so its intervals are descriptive rather
+  than estimates across independent simulations and its cross-rank curve
+  includes device variation.  It excludes HDF5/DCT preprocessing,
+  host-to-device transfer, and end-to-end forecasting, and does not include a
+  specialized Woodbury baseline or the preregistered 100-transition secondary
+  trace.  Periodic refresh cost is included only in the \(r\le1024\)
+  synthetic refresh sweep.  Both ladders compare full dense results through
+  \(r=32{,}768\); at larger ranks the synthetic ladder checks full-output
+  finiteness, whereas the real-data ladder additionally compares sixteen
+  fresh action probes.  Rank \(65{,}536\) requires 64\,GiB of matrix state and
+  leaves limited device-memory headroom.
   \item E6 compares repeated rank-one calls with refactorization; it does not
   evaluate a native blocked rank-\(k\) kernel.
 \end{itemize}
