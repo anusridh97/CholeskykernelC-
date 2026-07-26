@@ -30,17 +30,7 @@ export MKL_DYNAMIC=FALSE
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
 
-(
-  cd "${package_dir}"
-  /usr/bin/python3 setup_ext.py build_ext --inplace --force
-)
-
 srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=10 \
   --hint=nomultithread --distribution=block:block --cpu-bind=cores \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
-  --action freeze-lock --campaign-tag e1-confirm-fastpositive-v2
-
-srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=10 \
-  --hint=nomultithread --distribution=block:block --cpu-bind=cores \
-  /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
-  --action preflight --campaign-tag e1-confirm-fastpositive-v2
+  --action preflight --campaign-tag e1-confirm-fastpositive-v3

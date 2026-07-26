@@ -1,7 +1,7 @@
 # E1 confirmation prior-outcome audit
 
 This note records the outcome inventory and design provenance before the
-`e1-confirm-fastpositive-v2` pilot launch.
+`e1-confirm-fastpositive-v3` pilot launch.
 
 ## Inventory
 
@@ -9,7 +9,7 @@ This note records the outcome inventory and design provenance before the
   `rebuttal_results/e1_confirmation/` is the v1 source lock.  There are no v1
   pilot artifacts, pilot summaries, approval gates, confirmation artifacts,
   or confirmation summaries.
-- The v2 pilot seeds are 1000--1002 and the untouched confirmation seeds are
+- The v3 pilot seeds are 1000--1002 and the untouched confirmation seeds are
   2000--2009.  Repository-wide inspection found no E1 outcomes for those
   seeds.  Seeds 1000--1002 do occur in a separate E2 pilot campaign; those
   training-only E2 measurements are not read by this driver and cannot alter
@@ -19,20 +19,28 @@ This note records the outcome inventory and design provenance before the
 
 ## Frozen-choice provenance
 
-The v2 grid is unchanged from the source-locked v1 protocol committed in
+The v3 grid is unchanged from the source-locked v1 protocol committed in
 `00f2b85` and locked in `f8c7a9c`: Protein, fixed split seed 42, ranks
 256/512/1024, `tau=0.1`, ten epochs, batch size 256, learning rate 0.1,
 damping 1.0, momentum 0.9, and resets every 50 steps.  These are the existing
 matched Ours/Refact E1 comparison settings; they were not selected after
-seeing a v1 or v2 pilot.  In particular, `tau=0.1` is not the best old E1 cell
+seeing a v1, v2, or v3 pilot.  In particular, `tau=0.1` is not the best old E1 cell
 by either mean MSE or wall time.  V2 changes execution control and provenance,
 not an experimental hyperparameter.
 
 The old seed-0--2 E1 table motivated the need for a controlled confirmation
 because it mixed a serial C++ incremental call with shared, multithreaded
-BLAS/LAPACK workers.  It was not used to add, remove, or tune v2 cells.  The
+BLAS/LAPACK workers.  It was not used to add, remove, or tune v3 cells.  The
 driver intentionally exposes no rank, threshold, optimizer, epoch, batch,
 split, precision, or seed override.
+
+The v2 exact-node job 394128 compiled the extension and created its immutable
+source/runtime lock, then failed while trying to require that newly created
+lock to already be Git-tracked.  It ended before kernel probes, pilot training,
+or any test access.  V2 is retired and its lock/logs are preserved.  V3 changes
+only the control flow by separating lock generation from tracked-lock
+preflight validation; no experimental setting or outcome-dependent choice
+changed.
 
 ## Prospective boundary
 

@@ -40,7 +40,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CORRECTED_DIR = ROOT / "Cholesky-main-2" / "corrected_incremental_cholesky"
 DATA_PATH = ROOT / "Cholesky-main-2" / "data" / "protein.mat"
 DEFAULT_RESULTS = ROOT / "rebuttal_results" / "e1_confirmation"
-DEFAULT_CAMPAIGN = "e1-confirm-fastpositive-v2"
+DEFAULT_CAMPAIGN = "e1-confirm-fastpositive-v3"
 EXPECTED_SLURM_ACCOUNT = "marlowe-m000151-pm06"
 EXPECTED_SLURM_PARTITION = "batch"
 EXPECTED_TORCH_SITE = Path(
@@ -122,6 +122,9 @@ LOCKED_FILES = {
         "rebuttal_experiments/E1_PRIOR_OUTCOME_AUDIT.md"
     ),
     "pilot_sbatch": "rebuttal_experiments/slurm/e1_confirmation_pilot.sbatch",
+    "freeze_sbatch": (
+        "rebuttal_experiments/slurm/e1_confirmation_freeze.sbatch"
+    ),
     "preflight_sbatch": (
         "rebuttal_experiments/slurm/e1_confirmation_preflight.sbatch"
     ),
@@ -2106,6 +2109,7 @@ def self_test() -> None:
     if set(train_a.tolist()) & set(test_a.tolist()):
         raise AssertionError("train/test split overlaps")
     for relative in (
+        LOCKED_FILES["freeze_sbatch"],
         LOCKED_FILES["preflight_sbatch"],
         LOCKED_FILES["pilot_sbatch"],
         LOCKED_FILES["confirmation_sbatch"],

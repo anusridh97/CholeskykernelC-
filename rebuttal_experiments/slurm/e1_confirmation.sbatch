@@ -42,4 +42,4 @@ srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=10 \
   --hint=nomultithread --distribution=block:block --cpu-bind=cores \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action run-pair --phase confirmation --task-index "${task_index}" \
-  --campaign-tag e1-confirm-fastpositive-v2
+  --campaign-tag e1-confirm-fastpositive-v3

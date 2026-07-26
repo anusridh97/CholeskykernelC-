@@ -43,9 +43,13 @@ reported as isolated kernel timing.
   materialized.  Each method then evaluates test MSE exactly once, in a
   terminal pass, with no test-based selection.
 
-The v2 grid is unchanged from the source-locked v1 design.  The outcome
+The v3 grid is unchanged from the source-locked v1 design.  The outcome
 inventory and non-adaptive choice provenance are recorded in
 `E1_PRIOR_OUTCOME_AUDIT.md`.  No v1 pilot or confirmation outcomes exist.
+The v2 exact-node job built and froze its lock but failed before preflight
+because lock generation and tracked-lock verification were incorrectly placed
+in the same job.  Its lock and logs are preserved; v2 produced no pilot or
+confirmation outcomes and is retired.
 
 Ours calls `fast_incremental_update` with explicit `metric_sign=1` and
 `operator_sign=1`.  In the locked corrected implementation this dispatches
@@ -97,17 +101,27 @@ PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebutt
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action self-test
 
+sbatch rebuttal_experiments/slurm/e1_confirmation_freeze.sbatch
+```
+
+The freeze job builds the native extension on the target CPU and writes
+`rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v3/source_lock.json`.
+Commit and push that lock before validation.  The generation job deliberately
+does not try to verify that its just-created lock is already tracked.
+
+Then submit the separate exact-node validation:
+
+```bash
 sbatch rebuttal_experiments/slurm/e1_confirmation_preflight.sbatch
 ```
 
-The preflight job writes both the source/runtime lock and an immutable
-preflight receipt.  Commit and push
-`rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v2/source_lock.json`
-and `preflight_receipt.json` before any pilot.  Runtime verification requires
-that immutable lock to be tracked and clean.  The lock commit may be an
-ancestor of the run commit, so unrelated E3, E6, or black-hole work can
-continue in parallel; every locked file must still match its exact locked
-bytes.  Each run records both commits.
+The preflight job requires the immutable lock to be tracked and clean, verifies
+its runtime and every file hash, checks allocation/thread affinity, loads the
+fixed training partition, and tests the positive kernel at all three ranks.  It
+writes `preflight_receipt.json`; commit and push that receipt before any pilot.
+The lock commit may be an ancestor of the run commit, so unrelated E3, E6, or
+black-hole work can continue in parallel; every locked file must still match
+its exact locked bytes.  Each run records both commits.
 
 After review, submit the pilot array:
 

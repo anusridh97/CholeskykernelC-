@@ -1,0 +1,27 @@
+{
+  "campaign_tag": "e1-confirm-fastpositive-v2",
+  "classification": "failed_before_scientific_execution",
+  "elapsed": "00:00:58",
+  "end": "2026-07-25T20:16:05-07:00",
+  "exit_code": "1:0",
+  "failed_stage": "tracked-lock prerequisite during preflight validation",
+  "failure": "source-lock prerequisite is not tracked by git: rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v2/source_lock.json",
+  "git_commit": "8d7df785943d39d426c376a0000280ab722610ec",
+  "job_id": 394128,
+  "logs": {
+    "stderr": "rebuttal_logs/e1-confirm-preflight-394128.err",
+    "stdout": "rebuttal_logs/e1-confirm-preflight-394128.out"
+  },
+  "pilot_artifacts_written": 0,
+  "pilot_jobs_submitted": 0,
+  "preflight_receipt_written": false,
+  "source_lock_sha256": "e19d3ffd6a011fc1903a12c21f66baa8ba445816a2ed358a6155016181ff6bd4",
+  "stages_completed": [
+    "native extension build",
+    "source/runtime lock generation",
+    "static self-test"
+  ],
+  "start": "2026-07-25T20:15:07-07:00",
+  "state": "FAILED",
+  "test_evaluations": 0
+}
