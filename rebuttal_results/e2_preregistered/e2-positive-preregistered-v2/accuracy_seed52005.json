@@ -1,0 +1,637 @@
+{
+  "attempt_claim": {
+    "attempt_ordinal": 1,
+    "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/claims/accuracy-pair_task4_seed52005.json",
+    "sha256": "3f5d5a9252c2f5f89bb15106d26b3fb28d394258a564502745dfdecac86b0c3c"
+  },
+  "budget": null,
+  "campaign": "e2-positive-preregistered-v2",
+  "dataset": {
+    "development_fraction": 0.8,
+    "development_steps_per_epoch": 142,
+    "evaluation_examples": 9146,
+    "evaluation_kind": "test",
+    "index_sha256": {
+      "development": "56e742f8cdc9fac02f818399c64926fb9461979d85a1951423e9764ae2a83ad8",
+      "pilot_train": "a405340fe80764cb0ab858528dc838d6478f6534bdf4898e1053fabc74ad9b58",
+      "pilot_validation": "efe646946fd6e253a219fb4e9eaa72d9a9000dd39a529b0d50121c5db17390e7",
+      "test": "af1980ae96eb9c3862bd61a372272fcffb7533d179b3f6d47224bb850bb5608f"
+    },
+    "inner_split_seed": 314159,
+    "inner_train_fraction": 0.9,
+    "normalizer_sha256": "47fe3a9b6e280f0368382ba445f207ac8e9daafc6416b04ab0da44af3baba9f9",
+    "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/Cholesky-main-2/data/protein.mat",
+    "raw_shape": [
+      45730,
+      10
+    ],
+    "sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13",
+    "split_seed": 381857132,
+    "split_seed_derivation": "SHA256('NeurIPS-29421|e2-positive-preregistered-v2|heldout-test-split') first 8 bytes big-endian modulo 2^31-1",
+    "split_seed_derivation_sha256": "42c28436913da4fee653e7f536c1118b535d4a44e5607e36b4f7b72d6e723b75",
+    "steps_per_epoch": 142,
+    "test_tensor_constructed": true,
+    "train_examples": 36584
+  },
+  "exact_node_preflight": {
+    "cases": [
+      {
+        "maximum_relative_errors": {
+          "Aw": 2.208593627983646e-07,
+          "L": 7.0254259298963e-08,
+          "vz": 1.936923581524752e-07
+        },
+        "production_reset": null,
+        "rank": 17,
+        "repeats": 1,
+        "seed": 88001,
+        "width": 7
+      },
+      {
+        "maximum_relative_errors": {
+          "Aw": 1.3625536894323886e-06,
+          "L": 2.76507705621043e-07,
+          "vz": 5.115140993439127e-06
+        },
+        "production_reset": {
+          "Aw_relative_error": 1.3625536894323886e-06,
+          "L_relative_error": 2.76507705621043e-07,
+          "after_update": 50
+        },
+        "rank": 1024,
+        "repeats": 64,
+        "seed": 88002,
+        "width": 32
+      }
+    ],
+    "dtype": "float32",
+    "rank1024_required_repeats": 64,
+    "rank1024_reset_after": 50,
+    "status": "PASS",
+    "tolerances": {
+      "Aw": 5e-05,
+      "L": 5e-06,
+      "vz": 5e-05
+    }
+  },
+  "experiment": "e2_preregistered_paired_protein",
+  "manual_pilot_gate": {
+    "created_unix_ns": 1785036145020820130,
+    "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_gate.json",
+    "sha256": "be3882c81317f5d001a138019b06913bb4ebfda413989492ce5e108c8c2c944f"
+  },
+  "method_order": [
+    "ours",
+    "refact"
+  ],
+  "method_process_concurrency": 1,
+  "methods": {
+    "ours": {
+      "attempted_steps": 1420,
+      "attempted_training_seconds": 10.490159003995359,
+      "budget_crossed": false,
+      "budget_seconds": null,
+      "core_seconds": 1.0817373784957454,
+      "drop_last_incomplete_batch": true,
+      "evaluation_calls": 1,
+      "evaluation_kind": "test",
+      "final_evaluation_mse": 0.5263614654541016,
+      "final_model_sha256": "3f076ef6e9bf6ac7b976a8985acc91d361cefa307fa7343e5ba56981ce644166",
+      "fixed_epoch_run": true,
+      "initial_state_sha256": "2a61962e8683fb3cdb88c9614a75a1be3ceb04a7b7edae8b528c6fe1f88e22ea",
+      "max_reset_drift": 2.3307659375859657e-06,
+      "mean_unexplained_energy": 0.05871491052427011,
+      "method": "ours",
+      "over_budget_attempt_excluded_from_reported_counters": false,
+      "rank": 1024,
+      "refresh_count": 187,
+      "refresh_seconds": 6.309328545816243,
+      "reset_seconds": 0.2144357217475772,
+      "selected_batch_mse": 0.5716860890388489,
+      "selected_model_state_materialized": true,
+      "selected_steps": 1420,
+      "selected_training_seconds": 10.490159003995359,
+      "test_evaluations": 1
+    },
+    "refact": {
+      "attempted_steps": 1420,
+      "attempted_training_seconds": 17.567053428967483,
+      "budget_crossed": false,
+      "budget_seconds": null,
+      "core_seconds": 8.436497466405854,
+      "drop_last_incomplete_batch": true,
+      "evaluation_calls": 1,
+      "evaluation_kind": "test",
+      "final_evaluation_mse": 0.5265998244285583,
+      "final_model_sha256": "dabe27f6d345d93da1e5a615e36af023b193b6438f58ff64f5fba47a9ddb6e83",
+      "fixed_epoch_run": true,
+      "initial_state_sha256": "2a61962e8683fb3cdb88c9614a75a1be3ceb04a7b7edae8b528c6fe1f88e22ea",
+      "max_reset_drift": null,
+      "mean_unexplained_energy": 0.059945189550832334,
+      "method": "refact",
+      "over_budget_attempt_excluded_from_reported_counters": false,
+      "rank": 1024,
+      "refresh_count": 186,
+      "refresh_seconds": 6.156179238576442,
+      "reset_seconds": 0.0,
+      "selected_batch_mse": 0.583736777305603,
+      "selected_model_state_materialized": true,
+      "selected_steps": 1420,
+      "selected_training_seconds": 17.567053428967483,
+      "test_evaluations": 1
+    }
+  },
+  "methods_executed_sequentially": true,
+  "minibatch_schedule_sha256": "24957829f7634d43f6a52e9d9b6d4c11d2ba9f1795fe0f834bcbacaf5324740c",
+  "provenance": {
+    "candidate_binary_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate.so",
+    "candidate_binary_sha256": "b94285904eb7cf7633ab955b5f3f0b63560b4b7c66ff396e59acf5b56e977c19",
+    "candidate_source_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate_ext.cpp",
+    "candidate_source_sha256": "a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0",
+    "data_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/Cholesky-main-2/data/protein.mat",
+    "data_sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13",
+    "driver_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_campaign.py",
+    "driver_sha256": "fe05be4ef234ddbc30e6c4b5f78c482cfc982757bd636eafd6b01a4c3d729506",
+    "git_commit": "112f8a3e237776a1a6bcfd53aa9c51a3cb440590",
+    "lock_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_lock.json",
+    "lock_sha256": "51c41ed86e7a7702e0d9e852d3e2f9b4cb6960c9a432699cf88b93804b25d038",
+    "protocol_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_protocol.json",
+    "protocol_sha256": "df008561ab124e95297d540bbe37b3b4afd0fac9ef1cc2ef7a32f95b20c39ba5",
+    "runtime_contract_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_runtime_contract.json",
+    "runtime_contract_sha256": "7fb40c812e2f026ce8a4b324500bc158957998d8a6090231b5f2c900cbca3d02"
+  },
+  "runtime": {
+    "affinity_before_torch_import": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "candidate_avx512_evidence": {
+      "selected_disassembly_sha256": "b4e732438b5d0d75335f031fcadaeb7752995242848bee08b96e7601392daee4",
+      "symbols": [
+        "000000000000a660 t (anonymous namespace)::positive_same_vector_core(at::Tensor, at::Tensor const&, at::Tensor const&, at::Tensor, at::Tensor, at::Tensor, double*)",
+        "00000000000098e0 t (anonymous namespace)::positive_same_vector_core(at::Tensor, at::Tensor const&, at::Tensor const&, at::Tensor, at::Tensor, at::Tensor, double*) [clone ._omp_fn.0]",
+        "0000000000009b90 t (anonymous namespace)::positive_same_vector_core(at::Tensor, at::Tensor const&, at::Tensor const&, at::Tensor, at::Tensor, at::Tensor, double*) [clone ._omp_fn.1]",
+        "00000000000099d0 t (anonymous namespace)::positive_same_vector_core(at::Tensor, at::Tensor const&, at::Tensor const&, at::Tensor, at::Tensor, at::Tensor, double*) [clone ._omp_fn.2]"
+      ],
+      "zmm_operand_count": 19,
+      "zmm_registers": [
+        "zmm0",
+        "zmm1",
+        "zmm2",
+        "zmm3",
+        "zmm5",
+        "zmm6"
+      ]
+    },
+    "candidate_binary": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate.so",
+    "candidate_binary_sha256": "b94285904eb7cf7633ab955b5f3f0b63560b4b7c66ff396e59acf5b56e977c19",
+    "cpu_flags": [
+      "3dnowprefetch",
+      "abm",
+      "acpi",
+      "adx",
+      "aes",
+      "amx_bf16",
+      "amx_int8",
+      "amx_tile",
+      "aperfmperf",
+      "apic",
+      "arat",
+      "arch_capabilities",
+      "arch_lbr",
+      "arch_perfmon",
+      "art",
+      "avx",
+      "avx2",
+      "avx512_bf16",
+      "avx512_bitalg",
+      "avx512_fp16",
+      "avx512_vbmi2",
+      "avx512_vnni",
+      "avx512_vpopcntdq",
+      "avx512bw",
+      "avx512cd",
+      "avx512dq",
+      "avx512f",
+      "avx512ifma",
+      "avx512vbmi",
+      "avx512vl",
+      "avx_vnni",
+      "bmi1",
+      "bmi2",
+      "bts",
+      "bus_lock_detect",
+      "cat_l2",
+      "cat_l3",
+      "cdp_l2",
+      "cdp_l3",
+      "cldemote",
+      "clflush",
+      "clflushopt",
+      "clwb",
+      "cmov",
+      "constant_tsc",
+      "cpuid",
+      "cpuid_fault",
+      "cqm",
+      "cqm_llc",
+      "cqm_mbm_local",
+      "cqm_mbm_total",
+      "cqm_occup_llc",
+      "cx16",
+      "cx8",
+      "dca",
+      "de",
+      "ds_cpl",
+      "dtes64",
+      "dtherm",
+      "dts",
+      "enqcmd",
+      "epb",
+      "ept",
+      "ept_ad",
+      "erms",
+      "est",
+      "f16c",
+      "flexpriority",
+      "flush_l1d",
+      "fma",
+      "fpu",
+      "fsgsbase",
+      "fsrm",
+      "fxsr",
+      "gfni",
+      "ht",
+      "hwp",
+      "hwp_act_window",
+      "hwp_epp",
+      "hwp_pkg_req",
+      "ibpb",
+      "ibpb_exit_to_user",
+      "ibrs",
+      "ibrs_enhanced",
+      "ida",
+      "intel_ppin",
+      "intel_pt",
+      "invpcid",
+      "invpcid_single",
+      "la57",
+      "lahf_lm",
+      "lm",
+      "mba",
+      "mca",
+      "mce",
+      "md_clear",
+      "mmx",
+      "monitor",
+      "movbe",
+      "movdir64b",
+      "movdiri",
+      "msr",
+      "mtrr",
+      "nonstop_tsc",
+      "nopl",
+      "nx",
+      "ospke",
+      "pae",
+      "pat",
+      "pbe",
+      "pcid",
+      "pclmulqdq",
+      "pconfig",
+      "pdcm",
+      "pdpe1gb",
+      "pebs",
+      "pge",
+      "pku",
+      "pln",
+      "pni",
+      "popcnt",
+      "pse",
+      "pse36",
+      "pts",
+      "rdpid",
+      "rdrand",
+      "rdseed",
+      "rdt_a",
+      "rdtscp",
+      "rep_good",
+      "sdbg",
+      "sep",
+      "serialize",
+      "sha_ni",
+      "smap",
+      "smep",
+      "smx",
+      "split_lock_detect",
+      "ss",
+      "ssbd",
+      "sse",
+      "sse2",
+      "sse4_1",
+      "sse4_2",
+      "ssse3",
+      "stibp",
+      "syscall",
+      "tm",
+      "tm2",
+      "tme",
+      "tpr_shadow",
+      "tsc",
+      "tsc_adjust",
+      "tsc_deadline_timer",
+      "tsc_known_freq",
+      "tsxldtrk",
+      "umip",
+      "vaes",
+      "vme",
+      "vmx",
+      "vnmi",
+      "vpclmulqdq",
+      "vpid",
+      "waitpkg",
+      "wbnoinvd",
+      "x2apic",
+      "xgetbv1",
+      "xsave",
+      "xsavec",
+      "xsaveopt",
+      "xsaves",
+      "xtopology",
+      "xtpr"
+    ],
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8480C",
+    "cpu_topology": [
+      {
+        "core_id": 0,
+        "logical_cpu": 0,
+        "physical_package": 0
+      },
+      {
+        "core_id": 1,
+        "logical_cpu": 1,
+        "physical_package": 0
+      },
+      {
+        "core_id": 2,
+        "logical_cpu": 2,
+        "physical_package": 0
+      },
+      {
+        "core_id": 3,
+        "logical_cpu": 3,
+        "physical_package": 0
+      },
+      {
+        "core_id": 4,
+        "logical_cpu": 4,
+        "physical_package": 0
+      },
+      {
+        "core_id": 5,
+        "logical_cpu": 5,
+        "physical_package": 0
+      },
+      {
+        "core_id": 6,
+        "logical_cpu": 6,
+        "physical_package": 0
+      },
+      {
+        "core_id": 7,
+        "logical_cpu": 7,
+        "physical_package": 0
+      },
+      {
+        "core_id": 8,
+        "logical_cpu": 8,
+        "physical_package": 0
+      },
+      {
+        "core_id": 9,
+        "logical_cpu": 9,
+        "physical_package": 0
+      }
+    ],
+    "host": "n29",
+    "numpy": "2.2.6",
+    "pid": 2804802,
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "python": "3.10.12 (main, Jun 22 2026, 18:55:27) [GCC 11.4.0]",
+    "python_executable": "/usr/bin/python3",
+    "required_cpu_flags": [
+      "avx512f",
+      "avx512dq",
+      "avx512bw",
+      "avx512vl"
+    ],
+    "required_environment": {
+      "E2_EXCLUSIVE_NODE": "1",
+      "E2_ONE_ATTEMPT": "1",
+      "E2_PROCESS_CONCURRENCY": "1",
+      "MKL_DYNAMIC": "FALSE",
+      "MKL_NUM_THREADS": "10",
+      "OMP_DYNAMIC": "FALSE",
+      "OMP_NUM_THREADS": "10",
+      "OMP_PLACES": "cores",
+      "OMP_PROC_BIND": "close",
+      "OPENBLAS_NUM_THREADS": "10",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONHASHSEED": "0",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "runtime_contract_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_runtime_contract.json",
+    "runtime_contract_sha256": "7fb40c812e2f026ce8a4b324500bc158957998d8a6090231b5f2c900cbca3d02",
+    "runtime_files": {
+      "packages": {
+        "numpy": {
+          "file_sha256": {
+            "__init__.py": "6ae17b070c0f70a8e3cad89a510a256942e5a1f37ea5feb120cec167ed2a6236",
+            "_core/_multiarray_umath.cpython-310-x86_64-linux-gnu.so": "c634eaf05367af02b815cf3d2020fbeee9b47426af1fe26cf3189e4798932dc5",
+            "version.py": "a7fcfa08bc3d730a77a7d31ec027bf53a9695812c353a526dd077dc1451b7d7a"
+          },
+          "module_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/runtime/numeric_site/numpy/__init__.py",
+          "site_root": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/runtime/numeric_site",
+          "version": "2.2.6"
+        },
+        "scipy": {
+          "file_sha256": {
+            "__init__.py": "185913aa107512fafd5cf89dfd452a8719b45a6eba833e2dcee2cbfd18b4bbe5",
+            "io/matlab/_mio.py": "41afc530ff9989deed3854cd88d8e756b622ed890ae212ad70626202ff3ce01c",
+            "io/matlab/_mio5_utils.cpython-310-x86_64-linux-gnu.so": "d30e994b09d9f30f7efeb6dc81fa05ab4a7be32b4e78c2b48fc3b6228197bfb1",
+            "io/matlab/_streams.cpython-310-x86_64-linux-gnu.so": "074ce037474f72e2fc9945195ed4c16fb5461760294fcf879724257094ee1810",
+            "version.py": "a271fdebc4f15ae566cd3c8ca9686bcf52e123dd5d2254b1618acbd9d4292ebc"
+          },
+          "module_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/runtime/numeric_site/scipy/__init__.py",
+          "site_root": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/runtime/numeric_site",
+          "version": "1.15.3"
+        },
+        "torch": {
+          "file_sha256": {
+            "lib/libtorch_cpu.so": "ba048f04fb4c7eff738f6b6d66cba772eb477376ab597c5c4dae1169a02f3228",
+            "lib/libtorch_python.so": "94a27daf0f9d08992de6ef11eb1b685caea2b662bb58a1c5ade029abc94c078f",
+            "version.py": "6649c6a5ce8422677b26a529d4af2710f89bdf085054373c7b2881862397fd13"
+          },
+          "module_path": "/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site/torch/__init__.py",
+          "site_root": "/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site",
+          "version": "2.12.0+cu126"
+        }
+      },
+      "python_executable": "/usr/bin/python3.10",
+      "python_executable_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86"
+    },
+    "runtime_roots": {
+      "numeric": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/runtime/numeric_site",
+      "torch": "/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site"
+    },
+    "runtime_values": {
+      "aten_interop": 1,
+      "aten_intraop": 10,
+      "mkl_max": 10,
+      "openmp_max": 10
+    },
+    "scipy": "1.15.3",
+    "slurm": {
+      "SLURM_ARRAY_JOB_ID": "394184",
+      "SLURM_ARRAY_TASK_ID": "4",
+      "SLURM_CPUS_PER_TASK": "10",
+      "SLURM_JOB_ACCOUNT": "marlowe-m000151-pm06",
+      "SLURM_JOB_ID": "394192",
+      "SLURM_JOB_NUM_NODES": "1",
+      "SLURM_JOB_PARTITION": "batch",
+      "SLURM_LOCALID": "0",
+      "SLURM_NTASKS": "1",
+      "SLURM_PROCID": "0",
+      "SLURM_RESTART_COUNT": null,
+      "SLURM_STEP_ID": "0"
+    },
+    "sys_path": [
+      "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments",
+      "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments",
+      "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e",
+      "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/runtime/numeric_site",
+      "/scratch/m000151-pm06/arjo/blackhole-0977166-final/torch_site",
+      "/usr/lib/python310.zip",
+      "/usr/lib/python3.10",
+      "/usr/lib/python3.10/lib-dynload",
+      "/usr/local/lib/python3.10/dist-packages",
+      "/usr/local/lib/python3.10/dist-packages/websockify-0.12.0-py3.10.egg",
+      "/usr/local/lib/python3.10/dist-packages/redis-5.2.1-py3.10.egg",
+      "/usr/local/lib/python3.10/dist-packages/numpy-2.2.0-py3.10-linux-x86_64.egg",
+      "/usr/local/lib/python3.10/dist-packages/jwcrypto-1.5.6-py3.10.egg",
+      "/usr/local/lib/python3.10/dist-packages/async_timeout-5.0.1-py3.10.egg",
+      "/usr/local/lib/python3.10/dist-packages/typing_extensions-4.12.2-py3.10.egg",
+      "/usr/lib/python3/dist-packages",
+      "/usr/lib/python3.10/dist-packages"
+    ],
+    "tasks_after_pair": {
+      "2804802": [
+        0
+      ],
+      "2804926": [
+        0
+      ],
+      "2804927": [
+        0
+      ],
+      "2804928": [
+        0
+      ],
+      "2804929": [
+        0
+      ],
+      "2804930": [
+        0
+      ],
+      "2804931": [
+        0
+      ],
+      "2804932": [
+        0
+      ],
+      "2804933": [
+        0
+      ],
+      "2804934": [
+        0
+      ],
+      "2804957": [
+        1
+      ],
+      "2804958": [
+        2
+      ],
+      "2804959": [
+        3
+      ],
+      "2804960": [
+        4
+      ],
+      "2804961": [
+        5
+      ],
+      "2804962": [
+        6
+      ],
+      "2804963": [
+        7
+      ],
+      "2804974": [
+        0
+      ],
+      "2811081": [
+        8
+      ],
+      "2811082": [
+        9
+      ]
+    },
+    "torch": "2.12.0+cu126",
+    "torch_parallel_info": "ATen/Parallel:\n\tat::get_num_threads() : 10\n\tat::get_num_interop_threads() : 1\nOpenMP 201511 (a.k.a. OpenMP 4.5)\n\tomp_get_max_threads() : 10\nIntel(R) oneAPI Math Kernel Library Version 2024.2-Product Build 20240605 for Intel(R) 64 architecture applications\n\tmkl_get_max_threads() : 10\nIntel(R) MKL-DNN v3.11.2 (Git Hash 03c022d3ffdcee958cfacbe720048e725fdf644c)\nstd::thread::hardware_concurrency() : 112\nEnvironment variables:\n\tOMP_NUM_THREADS : 10\n\tMKL_NUM_THREADS : 10\nATen parallel backend: OpenMP\n",
+    "worker_affinity_union": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  },
+  "schedule_epochs": 10,
+  "schema_version": 1,
+  "scientific_guardrails": {
+    "checkpoint_selection": false,
+    "historical_seed42_outcomes_previously_viewed": true,
+    "pair_complete_before_write": true,
+    "test_evaluations_total": 2,
+    "v2_split_selected_mechanically": true,
+    "v2_test_outcomes_read_before_preregistration": false
+  },
+  "seed": 52005,
+  "shared_initial_state_sha256": "2a61962e8683fb3cdb88c9614a75a1be3ceb04a7b7edae8b528c6fe1f88e22ea",
+  "stage": "accuracy-pair",
+  "status": "complete",
+  "task_id": 4,
+  "training": {
+    "batch_size": 256,
+    "damping": 1.0,
+    "drop_last_incomplete_batch": true,
+    "learning_rate": 0.1,
+    "momentum": 0.9,
+    "ours_refactor_every": 50,
+    "rank": 1024,
+    "refresh_threshold": 0.1
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "attempt_ordinal": 1,
+  "campaign": "e2-positive-preregistered-v2",
+  "claimed_unix_ns": 1785036948365422827,
+  "experiment": "e2_preregistered_one_attempt_claim",
+  "git_commit": "112f8a3e237776a1a6bcfd53aa9c51a3cb440590",
+  "lock_sha256": "51c41ed86e7a7702e0d9e852d3e2f9b4cb6960c9a432699cf88b93804b25d038",
+  "protocol_sha256": "df008561ab124e95297d540bbe37b3b4afd0fac9ef1cc2ef7a32f95b20c39ba5",
+  "schema_version": 1,
+  "seed": 52019,
+  "slurm_array_job_id": "394184",
+  "slurm_array_task_id": "18",
+  "slurm_job_id": "394222",
+  "slurm_restart_count": 0,
+  "stage": "accuracy-pair",
+  "task_id": 18
+}

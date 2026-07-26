@@ -1,0 +1,86 @@
+{
+  "budget_seconds": 11.074692814578157,
+  "calibration_rule": "median pilot Ours application seconds per completed batch times batches in ten full-development epochs",
+  "campaign": "e2-positive-preregistered-v2",
+  "cpu_model": "Intel(R) Xeon(R) Platinum 8480C",
+  "experiment": "e2_preregistered_budget_calibration",
+  "median_ours_seconds_per_step": 0.007799079446886026,
+  "pilot_ours_seconds_per_step": [
+    0.008246115324209314,
+    0.007676875446895793,
+    0.007799079446886026,
+    0.008495986592197368,
+    0.007526576734380797
+  ],
+  "pilot_seeds": [
+    51001,
+    51002,
+    51003,
+    51004,
+    51005
+  ],
+  "pilot_sources": [
+    {
+      "ours_seconds": 10.555027614987921,
+      "ours_seconds_per_step": 0.008246115324209314,
+      "ours_steps": 1280,
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51001.json",
+      "seed": 51001,
+      "sha256": "b8549ae5133ab0f8c611678f8186039eecee0e6b95a3d2126489d1db779f64a5"
+    },
+    {
+      "ours_seconds": 9.826400572026614,
+      "ours_seconds_per_step": 0.007676875446895793,
+      "ours_steps": 1280,
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51002.json",
+      "seed": 51002,
+      "sha256": "0ed1e836ace8e22aaf1e5fe81d3d6ad20a36bb79157090dbb7819097ca6a987b"
+    },
+    {
+      "ours_seconds": 9.982821692014113,
+      "ours_seconds_per_step": 0.007799079446886026,
+      "ours_steps": 1280,
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51003.json",
+      "seed": 51003,
+      "sha256": "e7a4c6fc2a6842ce22e98432806b8ad6f0e2bff5ae55ce372bfde85ee9e23f64"
+    },
+    {
+      "ours_seconds": 10.874862838012632,
+      "ours_seconds_per_step": 0.008495986592197368,
+      "ours_steps": 1280,
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51004.json",
+      "seed": 51004,
+      "sha256": "439c9f1bf4e3021b8750c0f9553a3c2d0edbdbd19af667fbb401f01dd6070548"
+    },
+    {
+      "ours_seconds": 9.63401822000742,
+      "ours_seconds_per_step": 0.007526576734380797,
+      "ours_steps": 1280,
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51005.json",
+      "seed": 51005,
+      "sha256": "64ab7b6faec1364f3491e40278c7e302319ddf990b56485f0fe1be528fd5b2ab"
+    }
+  ],
+  "provenance": {
+    "candidate_binary_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate.so",
+    "candidate_binary_sha256": "b94285904eb7cf7633ab955b5f3f0b63560b4b7c66ff396e59acf5b56e977c19",
+    "candidate_source_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate_ext.cpp",
+    "candidate_source_sha256": "a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0",
+    "data_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/Cholesky-main-2/data/protein.mat",
+    "data_sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13",
+    "driver_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_campaign.py",
+    "driver_sha256": "fe05be4ef234ddbc30e6c4b5f78c482cfc982757bd636eafd6b01a4c3d729506",
+    "git_commit": "112f8a3e237776a1a6bcfd53aa9c51a3cb440590",
+    "lock_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_lock.json",
+    "lock_sha256": "51c41ed86e7a7702e0d9e852d3e2f9b4cb6960c9a432699cf88b93804b25d038",
+    "protocol_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_protocol.json",
+    "protocol_sha256": "df008561ab124e95297d540bbe37b3b4afd0fac9ef1cc2ef7a32f95b20c39ba5",
+    "runtime_contract_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_runtime_contract.json",
+    "runtime_contract_sha256": "7fb40c812e2f026ce8a4b324500bc158957998d8a6090231b5f2c900cbca3d02"
+  },
+  "schema_version": 1,
+  "status": "complete",
+  "target_development_steps": 1420,
+  "test_values_used": false,
+  "validation_values_used": false
+}

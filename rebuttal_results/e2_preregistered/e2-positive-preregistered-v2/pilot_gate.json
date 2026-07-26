@@ -1,0 +1,66 @@
+{
+  "budget": {
+    "budget_seconds": 11.074692814578157,
+    "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/budget.json",
+    "sha256": "162217cec8613d715a718f7bc195535985d455686329a0b6d9547a5e06c98080"
+  },
+  "campaign": "e2-positive-preregistered-v2",
+  "confirmation_may_run": true,
+  "created_unix_ns": 1785036145020820130,
+  "experiment": "e2_preregistered_manual_pilot_gate",
+  "manual_attestation": "I audited all five E2 v2 pilots and freeze confirmation without outcome-dependent changes",
+  "manual_operator": "arjo",
+  "outcome_dependent_protocol_change": false,
+  "pilot_sources": [
+    {
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51001.json",
+      "seed": 51001,
+      "sha256": "b8549ae5133ab0f8c611678f8186039eecee0e6b95a3d2126489d1db779f64a5",
+      "task_id": 0
+    },
+    {
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51002.json",
+      "seed": 51002,
+      "sha256": "0ed1e836ace8e22aaf1e5fe81d3d6ad20a36bb79157090dbb7819097ca6a987b",
+      "task_id": 1
+    },
+    {
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51003.json",
+      "seed": 51003,
+      "sha256": "e7a4c6fc2a6842ce22e98432806b8ad6f0e2bff5ae55ce372bfde85ee9e23f64",
+      "task_id": 2
+    },
+    {
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51004.json",
+      "seed": 51004,
+      "sha256": "439c9f1bf4e3021b8750c0f9553a3c2d0edbdbd19af667fbb401f01dd6070548",
+      "task_id": 3
+    },
+    {
+      "path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_results/e2_preregistered/e2-positive-preregistered-v2/pilot_seed51005.json",
+      "seed": 51005,
+      "sha256": "64ab7b6faec1364f3491e40278c7e302319ddf990b56485f0fe1be528fd5b2ab",
+      "task_id": 4
+    }
+  ],
+  "provenance": {
+    "candidate_binary_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate.so",
+    "candidate_binary_sha256": "b94285904eb7cf7633ab955b5f3f0b63560b4b7c66ff396e59acf5b56e977c19",
+    "candidate_source_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate_ext.cpp",
+    "candidate_source_sha256": "a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0",
+    "data_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/Cholesky-main-2/data/protein.mat",
+    "data_sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13",
+    "driver_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_campaign.py",
+    "driver_sha256": "fe05be4ef234ddbc30e6c4b5f78c482cfc982757bd636eafd6b01a4c3d729506",
+    "git_commit": "112f8a3e237776a1a6bcfd53aa9c51a3cb440590",
+    "lock_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_lock.json",
+    "lock_sha256": "51c41ed86e7a7702e0d9e852d3e2f9b4cb6960c9a432699cf88b93804b25d038",
+    "protocol_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_preregistered_protocol.json",
+    "protocol_sha256": "df008561ab124e95297d540bbe37b3b4afd0fac9ef1cc2ef7a32f95b20c39ba5",
+    "runtime_contract_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e2_runtime_contract.json",
+    "runtime_contract_sha256": "7fb40c812e2f026ce8a4b324500bc158957998d8a6090231b5f2c900cbca3d02"
+  },
+  "schema_version": 1,
+  "split_index_signature_sha256": "25fa8ed368d961f02af904d5015cd1fadd8cf75a0184343ec1df3cae4ae16b52",
+  "status": "confirmation-authorized"
+}

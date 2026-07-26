@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "audit": "e2_preregistered_confirmation_independent_audit",
+  "audited_at": "2026-07-25T21:57:59-07:00",
+  "campaign": "e2-positive-preregistered-v2",
+  "status": "PASS",
+  "scope": {
+    "frozen_root_json_files": 49,
+    "pair_artifacts": {
+      "pilot": 5,
+      "accuracy": 20,
+      "throughput": 20
+    },
+    "write_once_claims": 46,
+    "frozen_campaign_files_before_audit": 95,
+    "frozen_artifact_manifest": "frozen_artifacts.sha256",
+    "frozen_artifact_manifest_sha256": "e8e35591463d127e30d5b66f5f2e7809860effe824b92988528860e328f3fc69",
+    "summary_sha256": "64b449647ee0340b86011485ebfeb333c294c8cd79db6eb252eb588234f83f2b",
+    "pilot_gate_sha256": "be3882c81317f5d001a138019b06913bb4ebfda413989492ce5e108c8c2c944f",
+    "budget_sha256": "162217cec8613d715a718f7bc195535985d455686329a0b6d9547a5e06c98080"
+  },
+  "frozen_provenance": {
+    "git_commit": "112f8a3e237776a1a6bcfd53aa9c51a3cb440590",
+    "lock_sha256": "51c41ed86e7a7702e0d9e852d3e2f9b4cb6960c9a432699cf88b93804b25d038",
+    "protocol_sha256": "df008561ab124e95297d540bbe37b3b4afd0fac9ef1cc2ef7a32f95b20c39ba5",
+    "runtime_contract_sha256": "7fb40c812e2f026ce8a4b324500bc158957998d8a6090231b5f2c900cbca3d02",
+    "candidate_source_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate_ext.cpp",
+    "candidate_source_sha256": "a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0",
+    "candidate_binary_path": "/scratch/m000151-pm06/arjo/e2-positive-preregistered-v2-112f8a3e/rebuttal_experiments/e1_positive_candidate.so",
+    "candidate_binary_sha256": "b94285904eb7cf7633ab955b5f3f0b63560b4b7c66ff396e59acf5b56e977c19",
+    "protein_data_sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13",
+    "all_45_pair_artifacts_match": true
+  },
+  "integrity_checks": {
+    "all_claims_attempt_ordinal_one": true,
+    "all_claims_restart_count_zero": true,
+    "all_pair_artifacts_complete": true,
+    "all_methods_paired_from_identical_initial_state": true,
+    "method_order_balanced_by_task_parity": true,
+    "methods_executed_sequentially": true,
+    "threads": 10,
+    "interop_threads": 1,
+    "one_process_per_exclusive_node": true,
+    "all_artifacts_verified_ten_distinct_physical_cores_on_one_socket": true,
+    "all_worker_affinity_unions_match_selected_affinity": true,
+    "all_exact_node_preflights_passed": true,
+    "all_confirmation_stderr_empty": true,
+    "successful_log_files": {
+      "stdout": 47,
+      "stderr": 47,
+      "nonempty_stderr": 0
+    }
+  },
+  "heldout_test_audit": {
+    "accuracy_seeds": 20,
+    "methods_per_seed": 2,
+    "test_evaluations_per_method_seed": 1,
+    "total_test_evaluations": 40,
+    "pilot_test_evaluations": 0,
+    "throughput_test_evaluations": 0,
+    "checkpoint_selection": false,
+    "accuracy_evaluation_state": "final state after exactly 10 epochs"
+  },
+  "budget": {
+    "seconds": 11.074692814578157,
+    "calibration_pilot_seeds": [
+      51001,
+      51002,
+      51003,
+      51004,
+      51005
+    ],
+    "test_values_used": false,
+    "validation_values_used": false
+  },
+  "accuracy_confirmation": {
+    "rank": 1024,
+    "pairs": 20,
+    "steps_per_method_seed": 1420,
+    "ours_test_mse": {
+      "mean": 0.5414928942918777,
+      "sample_sd": 0.01522174224234893
+    },
+    "refact_test_mse": {
+      "mean": 0.5430390983819962,
+      "sample_sd": 0.014208601554530326
+    },
+    "paired_ours_minus_refact": {
+      "mean": -0.0015462040901184082,
+      "sample_sd": 0.011547408210970007,
+      "ci_95": [
+        -0.006950557489663924,
+        0.003858149309427108
+      ],
+      "ci_90_for_tost": [
+        -0.006010961563177244,
+        0.0029185533829404276
+      ]
+    },
+    "preregistered_equivalence_margin": 0.01,
+    "equivalent_at_two_one_sided_alpha_0_05": true,
+    "interpretation": "The complete paired 90% interval is inside the preregistered +/-0.01 margin. Ours is not worse; its sample mean is slightly lower, but the paired 95% interval crosses zero, so this is an equivalence result rather than a superiority claim.",
+    "application_seconds": {
+      "ours_mean": 10.82371247864794,
+      "ours_sample_sd": 0.40731734299487243,
+      "refact_mean": 18.011375772650354,
+      "refact_sample_sd": 0.4167518349467878,
+      "paired_refact_over_ours_ratio_mean": 1.665044130170212,
+      "paired_ratio_sample_sd": 0.03254922764924918
+    },
+    "core_milliseconds_per_step": {
+      "ours_mean": 0.7546242338918399,
+      "ours_sample_sd": 0.011305592152004707,
+      "refact_mean": 5.889832266482597,
+      "refact_sample_sd": 0.06939963085382993,
+      "paired_refact_over_ours_speedup_mean": 7.805709097052278,
+      "paired_speedup_sample_sd": 0.08121863624951633
+    },
+    "refresh_fraction": {
+      "ours_mean": 0.1382394366197183,
+      "refact_mean": 0.13827464788732394
+    },
+    "ours_max_reset_drift": 5.5932009672687855e-06
+  },
+  "time_budget_throughput_confirmation": {
+    "rank": 1024,
+    "pairs": 20,
+    "budget_seconds_per_method": 11.074692814578157,
+    "ours_completed_batches": {
+      "mean": 1504.05,
+      "sample_sd": 54.26104059374266,
+      "min": 1345,
+      "max": 1573
+    },
+    "refact_completed_batches": {
+      "mean": 829.95,
+      "sample_sd": 19.666897114320378,
+      "min": 785,
+      "max": 861
+    },
+    "paired_ours_minus_refact_batches": {
+      "mean": 674.1,
+      "sample_sd": 46.398616131813334,
+      "min": 531,
+      "max": 739
+    },
+    "ours_over_refact_batch_ratio": {
+      "geometric_mean": 1.8115512155238735,
+      "ci_95": [
+        1.7853558269703358,
+        1.8381309523239089
+      ]
+    },
+    "core_milliseconds_per_step": {
+      "ours_mean": 0.751729883607555,
+      "ours_sample_sd": 0.00929746154042227,
+      "refact_mean": 5.624068737899374,
+      "refact_sample_sd": 0.07636804831909977,
+      "paired_refact_over_ours_speedup_mean": 7.48210071123308,
+      "paired_speedup_sample_sd": 0.10590869853684605
+    },
+    "ours_max_reset_drift": 5.394463642005576e-06
+  },
+  "prior_campaign_descriptive_comparison": {
+    "campaign": "e2proper-dataf073752",
+    "warning": "The prior campaign used three evaluation seeds, a different split/protocol and implementation/runtime, and a 33.7393-second budget. Absolute MSE and timing differences are descriptive, not a paired statistical comparison.",
+    "prior_rank_1024": {
+      "ours_test_mse_mean": 0.5513320167859396,
+      "ours_test_mse_sample_sd": 0.016692559744032914,
+      "refact_test_mse_mean": 0.5556289354960123,
+      "refact_test_mse_sample_sd": 0.014897102314612108,
+      "ours_selected_seconds_mean": 33.394271984948624,
+      "refact_selected_seconds_mean": 18.097768873655394,
+      "ours_steps_mean": 1418,
+      "refact_steps_mean": 1420
+    },
+    "new_fixed_epoch_ours_time_improvement_factor_vs_prior_mean": 3.0852881625251856,
+    "new_refact_time_factor_vs_prior_mean": 1.00479658534115
+  },
+  "slurm_accounting": {
+    "successful_scheduler_records": 47,
+    "all_states_completed": true,
+    "all_exit_codes": "0:0",
+    "jobs": [
+      {
+        "job_id": 394126,
+        "stage": "exact-node preflight",
+        "tasks": 1,
+        "node": "n19",
+        "start": "2026-07-25T20:14:51-07:00",
+        "end": "2026-07-25T20:15:07-07:00",
+        "summed_task_elapsed_seconds": 16
+      },
+      {
+        "job_id": 394127,
+        "stage": "pilot pairs",
+        "tasks": 5,
+        "node": "n19",
+        "start": "2026-07-25T20:16:05-07:00",
+        "end": "2026-07-25T20:19:00-07:00",
+        "summed_task_elapsed_seconds": 175
+      },
+      {
+        "job_id": 394184,
+        "stage": "accuracy pairs",
+        "tasks": 20,
+        "node": "n29",
+        "start": "2026-07-25T20:24:01-07:00",
+        "end": "2026-07-25T20:36:58-07:00",
+        "summed_task_elapsed_seconds": 777
+      },
+      {
+        "job_id": 394226,
+        "stage": "throughput pairs",
+        "tasks": 20,
+        "node": "n21",
+        "start": "2026-07-25T21:37:17-07:00",
+        "end": "2026-07-25T21:48:14-07:00",
+        "summed_task_elapsed_seconds": 656
+      },
+      {
+        "job_id": 394227,
+        "stage": "strict aggregate",
+        "tasks": 1,
+        "node": "n21",
+        "start": "2026-07-25T21:52:13-07:00",
+        "end": "2026-07-25T21:52:17-07:00",
+        "summed_task_elapsed_seconds": 4
+      }
+    ],
+    "campaign_wall_span_seconds_including_queue_gaps": 5846,
+    "summed_exclusive_node_seconds": 1628,
+    "summed_exclusive_node_hours": 0.45222222222222225,
+    "slurm_alloc_cpus_per_exclusive_job": 112,
+    "allocated_cpu_hours": 50.64888888888889,
+    "verified_runtime_threads_per_experiment": 10,
+    "nominal_active_thread_hours": 4.522222222222222,
+    "scheduler_only_adjustments": [
+      "Pending throughput job 394226 TimeLimit was reduced from 02:00:00 to 00:10:00 after confirming more than 10x margin over observed task time.",
+      "Pending aggregate job 394227 TimeLimit was reduced from 02:00:00 to 00:10:00; it performed no training and completed in four seconds.",
+      "These changes affected scheduler backfill only. They did not change source, hashes, seeds, data, affinity, exclusivity, budget, estimands, analysis or results."
+    ]
+  }
+}
