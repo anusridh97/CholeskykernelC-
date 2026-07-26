@@ -43,13 +43,21 @@ reported as isolated kernel timing.
   materialized.  Each method then evaluates test MSE exactly once, in a
   terminal pass, with no test-based selection.
 
-The v3 grid is unchanged from the source-locked v1 design.  The outcome
+The v4 grid is unchanged from the source-locked v1 design.  The outcome
 inventory and non-adaptive choice provenance are recorded in
 `E1_PRIOR_OUTCOME_AUDIT.md`.  No v1 pilot or confirmation outcomes exist.
 The v2 exact-node job built and froze its lock but failed before preflight
 because lock generation and tracked-lock verification were incorrectly placed
 in the same job.  Its lock and logs are preserved; v2 produced no pilot or
-confirmation outcomes and is retired.
+confirmation outcomes and is retired.  The separate v3 preflight then failed
+before loading data or running a kernel probe because the driver inspected the
+calling thread's affinity after importing the OpenMP runtime.  With
+`OMP_PROC_BIND=close`, that thread showed one OpenMP place even though Slurm
+had allocated ten cores.  V4 captures the task mask before numerical imports,
+restores the selected mask to every extant runtime thread, and uses the same
+single-process `srun` launch pattern that was independently successful for the
+controlled E2 campaign on the same node.  The v3 lock, failure record, and logs
+are preserved; v3 produced no pilot or confirmation outcomes.
 
 Ours calls `fast_incremental_update` with explicit `metric_sign=1` and
 `operator_sign=1`.  In the locked corrected implementation this dispatches
@@ -105,7 +113,7 @@ sbatch rebuttal_experiments/slurm/e1_confirmation_freeze.sbatch
 ```
 
 The freeze job builds the native extension on the target CPU and writes
-`rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v3/source_lock.json`.
+`rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v4/source_lock.json`.
 Commit and push that lock before validation.  The generation job deliberately
 does not try to verify that its just-created lock is already tracked.
 
@@ -116,9 +124,11 @@ sbatch rebuttal_experiments/slurm/e1_confirmation_preflight.sbatch
 ```
 
 The preflight job requires the immutable lock to be tracked and clean, verifies
-its runtime and every file hash, checks allocation/thread affinity, loads the
-fixed training partition, and tests the positive kernel at all three ranks.  It
-writes `preflight_receipt.json`; commit and push that receipt before any pilot.
+its runtime and every file hash, checks the pre-import ten-core Slurm task mask,
+the selected physical-core mask, and the post-workload worker-affinity union,
+loads the fixed training partition, and tests the positive kernel at all three
+ranks.  It writes `preflight_receipt.json`; commit and push that receipt before
+any pilot.
 The lock commit may be an ancestor of the run commit, so unrelated E3, E6, or
 black-hole work can continue in parallel; every locked file must still match
 its exact locked bytes.  Each run records both commits.

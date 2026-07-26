@@ -1,0 +1,29 @@
+{
+  "campaign_tag": "e1-confirm-fastpositive-v3",
+  "classification": "failed_before_scientific_execution",
+  "elapsed": "00:00:15",
+  "end": "2026-07-25T20:37:13-07:00",
+  "exit_code": "1:0",
+  "failed_stage": "CPU-affinity validation before data or kernel probes",
+  "failure": "allocation exposes only 1 CPUs for 10 threads",
+  "failure_cause": "The driver inspected the calling thread's affinity only after importing PyTorch and its OpenMP runtime. OMP_PROC_BIND=close had narrowed that thread to one OpenMP place even though Slurm had correctly allocated ten physical CPU slots.",
+  "git_commit": "308c3f8f475c9cedf92679fecf7dd4eab3628ba3",
+  "job_id": 394185,
+  "logs": {
+    "stderr": "rebuttal_logs/e1-confirm-preflight-394185.err",
+    "stdout": "rebuttal_logs/e1-confirm-preflight-394185.out"
+  },
+  "node": "n29",
+  "pilot_artifacts_written": 0,
+  "pilot_jobs_submitted": 0,
+  "preflight_receipt_written": false,
+  "source_lock_sha256": "c7570b567915f347a79faf3c4797425e990d3de614343a7943817aa95a98a37c",
+  "stages_completed": [
+    "source/runtime/file lock verification",
+    "static self-test",
+    "Slurm exclusive-allocation verification"
+  ],
+  "start": "2026-07-25T20:36:58-07:00",
+  "state": "FAILED",
+  "test_evaluations": 0
+}

@@ -40,7 +40,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CORRECTED_DIR = ROOT / "Cholesky-main-2" / "corrected_incremental_cholesky"
 DATA_PATH = ROOT / "Cholesky-main-2" / "data" / "protein.mat"
 DEFAULT_RESULTS = ROOT / "rebuttal_results" / "e1_confirmation"
-DEFAULT_CAMPAIGN = "e1-confirm-fastpositive-v3"
+DEFAULT_CAMPAIGN = "e1-confirm-fastpositive-v4"
 EXPECTED_SLURM_ACCOUNT = "marlowe-m000151-pm06"
 EXPECTED_SLURM_PARTITION = "batch"
 EXPECTED_TORCH_SITE = Path(
@@ -53,6 +53,11 @@ if str(CORRECTED_DIR) not in sys.path:
     sys.path.insert(0, str(CORRECTED_DIR))
 if str(ROOT) not in sys.path:
     sys.path.insert(1, str(ROOT))
+
+# Capture Slurm's task mask before importing any numerical runtime.  OpenMP
+# initialization may narrow the calling thread to one OMP place, which is not
+# the same thing as the task's ten-core allocation.
+AFFINITY_BEFORE_NUMERIC_IMPORT = tuple(sorted(os.sched_getaffinity(0)))
 
 import numpy
 import scipy
@@ -437,6 +442,9 @@ def freeze_lock(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError(
             f"the reviewed campaign tag is frozen as {DEFAULT_CAMPAIGN!r}"
         )
+    slurm = _validate_preflight_slurm()
+    thread_report = configure_and_verify_threads(10)
+    torch.use_deterministic_algorithms(True)
     relative_tracked = [LOCKED_FILES[key] for key in TRACKED_LOCK_KEYS]
     _scoped_git_clean(relative_tracked)
     head = _git("rev-parse", "HEAD").stdout.strip()
@@ -452,6 +460,7 @@ def freeze_lock(args: argparse.Namespace) -> dict[str, Any]:
             "git_tracked": key in TRACKED_LOCK_KEYS,
         }
 
+    _finalize_thread_affinity(thread_report)
     payload = {
         "schema_version": 2,
         "experiment": "e1_paired_confirmation_source_lock",
@@ -475,6 +484,10 @@ def freeze_lock(args: argparse.Namespace) -> dict[str, Any]:
             "precision": "both methods use CPU torch.float32 throughout",
         },
         "runtime": _runtime_manifest(),
+        "freeze_environment": {
+            "slurm": slurm,
+            "thread_verification": thread_report,
+        },
         "files": files,
     }
     output = _lock_path(args)
@@ -570,51 +583,54 @@ def _cpu_topology(cpu: int) -> dict[str, int]:
 
 def configure_and_verify_threads(threads: int) -> dict[str, Any]:
     required_environment = {
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0",
         "OMP_NUM_THREADS": str(threads),
         "MKL_NUM_THREADS": str(threads),
         "OPENBLAS_NUM_THREADS": str(threads),
         "OMP_DYNAMIC": "FALSE",
         "MKL_DYNAMIC": "FALSE",
+        "OMP_PROC_BIND": "close",
+        "OMP_PLACES": "cores",
+        "E1_PROCESS_CONCURRENCY": "1",
+        "E1_EXCLUSIVE_NODE": "1",
     }
     for name, expected in required_environment.items():
         actual = os.environ.get(name)
-        if actual is None or actual.upper() != expected:
+        if actual is None or actual.lower() != expected.lower():
             raise RuntimeError(
                 f"{name} must be {expected!r} before Python starts, got {actual!r}"
             )
 
-    affinity_before = sorted(os.sched_getaffinity(0))
-    if len(affinity_before) < threads:
+    affinity_after_numeric_import = sorted(os.sched_getaffinity(0))
+    affinity_before = list(AFFINITY_BEFORE_NUMERIC_IMPORT)
+    if len(affinity_before) != 10:
         raise RuntimeError(
-            f"allocation exposes only {len(affinity_before)} CPUs for {threads} threads"
+            "Slurm must expose exactly ten logical CPUs before numerical "
+            f"imports, got {affinity_before}"
         )
     affinity_topology = [_cpu_topology(cpu) for cpu in affinity_before]
-    by_package: dict[int, list[dict[str, int]]] = {}
-    for entry in affinity_topology:
-        by_package.setdefault(entry["physical_package"], []).append(entry)
-    eligible_packages = [
-        (package, entries)
-        for package, entries in by_package.items()
-        if len(
-            {
-                (entry["physical_package"], entry["core_id"])
-                for entry in entries
-            }
-        )
-        >= threads
-    ]
-    if not eligible_packages:
+    allocation_packages = {
+        entry["physical_package"] for entry in affinity_topology
+    }
+    allocation_physical_cores = {
+        (entry["physical_package"], entry["core_id"])
+        for entry in affinity_topology
+    }
+    if (
+        len(allocation_packages) != 1
+        or len(allocation_physical_cores) != 10
+    ):
         raise RuntimeError(
-            f"allocation does not expose {threads} distinct cores on one socket"
+            "Slurm task mask must contain exactly ten distinct physical "
+            "cores on one socket"
         )
-    selected_package, package_entries = min(
-        eligible_packages,
-        key=lambda item: (-len(item[1]), item[0]),
-    )
+    selected_package = next(iter(allocation_packages))
     selected_entries: list[dict[str, int]] = []
     seen_cores: set[int] = set()
     for entry in sorted(
-        package_entries,
+        affinity_topology,
         key=lambda item: (item["core_id"], item["logical_cpu"]),
     ):
         if entry["core_id"] in seen_cores:
@@ -624,7 +640,11 @@ def configure_and_verify_threads(threads: int) -> dict[str, Any]:
         if len(selected_entries) == threads:
             break
     selected_cpus = sorted(entry["logical_cpu"] for entry in selected_entries)
-    os.sched_setaffinity(0, set(selected_cpus))
+    for task in list(Path("/proc/self/task").iterdir()):
+        try:
+            os.sched_setaffinity(int(task.name), set(selected_cpus))
+        except (FileNotFoundError, ProcessLookupError):
+            continue
     affinity_after = sorted(os.sched_getaffinity(0))
     if affinity_after != selected_cpus:
         raise RuntimeError("failed to establish exact process CPU affinity")
@@ -671,8 +691,16 @@ def configure_and_verify_threads(threads: int) -> dict[str, Any]:
         "environment": {
             name: os.environ.get(name) for name in required_environment
         },
+        "affinity_before_numeric_import": affinity_before,
+        "affinity_after_numeric_import_before_restore": (
+            affinity_after_numeric_import
+        ),
         "affinity_before": affinity_before,
         "affinity_before_topology": affinity_topology,
+        "allocation_unique_physical_cores": len(
+            allocation_physical_cores
+        ),
+        "allocation_physical_package": selected_package,
         "selected_cpus": selected_cpus,
         "affinity_after": affinity_after,
         "selected_cpu_topology": selected_topology,
@@ -681,6 +709,38 @@ def configure_and_verify_threads(threads: int) -> dict[str, Any]:
         "runtime_values": runtime_values,
         "torch_parallel_info": report,
     }
+
+
+def _task_affinities() -> dict[str, list[int]]:
+    affinities: dict[str, list[int]] = {}
+    for task in list(Path("/proc/self/task").iterdir()):
+        try:
+            affinities[task.name] = sorted(
+                os.sched_getaffinity(int(task.name))
+            )
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+    return affinities
+
+
+def _finalize_thread_affinity(report: dict[str, Any]) -> None:
+    affinities = _task_affinities()
+    if not affinities:
+        raise RuntimeError("no process tasks found for affinity audit")
+    selected = set(report["selected_cpus"])
+    if any(
+        not set(task_set).issubset(selected)
+        for task_set in affinities.values()
+    ):
+        raise RuntimeError("a runtime thread escaped the selected CPU set")
+    union = set().union(*(set(value) for value in affinities.values()))
+    if union != selected:
+        raise RuntimeError(
+            f"worker affinity union {sorted(union)} does not equal "
+            f"selected CPUs {sorted(selected)}"
+        )
+    report["tasks_after_workload"] = affinities
+    report["worker_affinity_union"] = sorted(union)
 
 
 def _validate_slurm_task(spec: dict[str, Any]) -> dict[str, Any]:
@@ -707,6 +767,8 @@ def _validate_slurm_task(spec: dict[str, Any]) -> dict[str, Any]:
         "SLURM_JOB_PARTITION": EXPECTED_SLURM_PARTITION,
         "SLURM_NTASKS": "1",
         "SLURM_JOB_NUM_NODES": "1",
+        "SLURM_LOCALID": "0",
+        "SLURM_PROCID": "0",
     }
     for name, expected in required.items():
         actual = os.environ.get(name)
@@ -739,6 +801,8 @@ def _validate_slurm_task(spec: dict[str, Any]) -> dict[str, Any]:
         "job_num_nodes": os.environ.get("SLURM_JOB_NUM_NODES"),
         "node_list": os.environ.get("SLURM_JOB_NODELIST"),
         "step_id": os.environ.get("SLURM_STEP_ID"),
+        "local_id": os.environ.get("SLURM_LOCALID"),
+        "process_id": os.environ.get("SLURM_PROCID"),
         "scontrol_job_sha256": _text_sha256(allocation),
         "exclusive_allocation_verified": True,
         "restart_count": os.environ.get("SLURM_RESTART_COUNT", "0"),
@@ -749,12 +813,16 @@ def _validate_preflight_slurm() -> dict[str, Any]:
     job_id = os.environ.get("SLURM_JOB_ID")
     if not job_id or os.environ.get("SLURM_ARRAY_TASK_ID") is not None:
         raise RuntimeError("preflight requires one non-array Slurm job")
+    if os.environ.get("SLURM_RESTART_COUNT", "0") != "0":
+        raise RuntimeError("requeued/restarted preflight jobs are forbidden")
     required = {
         "SLURM_JOB_ACCOUNT": EXPECTED_SLURM_ACCOUNT,
         "SLURM_JOB_PARTITION": EXPECTED_SLURM_PARTITION,
         "SLURM_NTASKS": "1",
         "SLURM_JOB_NUM_NODES": "1",
         "SLURM_CPUS_PER_TASK": "10",
+        "SLURM_LOCALID": "0",
+        "SLURM_PROCID": "0",
     }
     for name, expected in required.items():
         actual = os.environ.get(name)
@@ -778,6 +846,14 @@ def _validate_preflight_slurm() -> dict[str, Any]:
         "job_id": job_id,
         "account": os.environ["SLURM_JOB_ACCOUNT"],
         "partition": os.environ["SLURM_JOB_PARTITION"],
+        "cpus_per_task": os.environ["SLURM_CPUS_PER_TASK"],
+        "ntasks": os.environ["SLURM_NTASKS"],
+        "job_num_nodes": os.environ["SLURM_JOB_NUM_NODES"],
+        "local_id": os.environ["SLURM_LOCALID"],
+        "process_id": os.environ["SLURM_PROCID"],
+        "step_id": os.environ.get("SLURM_STEP_ID"),
+        "restart_count": os.environ.get("SLURM_RESTART_COUNT", "0"),
+        "scontrol_job_sha256": _text_sha256(allocation),
         "exclusive_allocation_verified": True,
         "node_list": os.environ.get("SLURM_JOB_NODELIST"),
     }
@@ -1620,6 +1696,7 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
             methods, private, X_test, y_test
         )
     paired = _paired_diagnostics(methods, private)
+    _finalize_thread_affinity(thread_report)
 
     payload = {
         "schema_version": 1,
@@ -1787,13 +1864,30 @@ def _validate_artifact(
     ]
     if len(affinity) != threads:
         raise RuntimeError("artifact CPU affinity width is wrong")
+    thread_verification = payload["environment"]["thread_verification"]
+    if len(thread_verification["affinity_before_numeric_import"]) != 10:
+        raise RuntimeError("artifact did not begin with the ten-core task mask")
+    if thread_verification["allocation_unique_physical_cores"] != 10:
+        raise RuntimeError("artifact was not allocated ten physical cores")
+    if thread_verification.get("worker_affinity_union") != (
+        thread_verification["selected_cpus"]
+    ):
+        raise RuntimeError("artifact worker affinity did not cover selected CPUs")
     if (
-        payload["environment"]["thread_verification"][
-            "unique_physical_cores"
-        ]
+        thread_verification["unique_physical_cores"]
         != threads
     ):
         raise RuntimeError("artifact physical-core pinning is wrong")
+    slurm = payload["environment"]["slurm"]
+    if (
+        slurm.get("local_id") != "0"
+        or slurm.get("process_id") != "0"
+        or slurm.get("cpus_per_task") != "10"
+        or slurm.get("ntasks") != "1"
+        or slurm.get("job_num_nodes") != "1"
+        or not slurm.get("exclusive_allocation_verified")
+    ):
+        raise RuntimeError("artifact Slurm allocation verification failed")
     if not payload["implementation"]["kernel_equivalence_probe"]["passed"]:
         raise RuntimeError("artifact kernel equivalence probe failed")
 
@@ -2131,6 +2225,24 @@ def self_test() -> None:
                 raise AssertionError(f"{relative} omitted {line!r}")
         if "#SBATCH --requeue" in text:
             raise AssertionError(f"{relative} enables requeue")
+        if "--distribution" in text:
+            raise AssertionError(
+                f"{relative} overrides the E2-proven Slurm distribution"
+            )
+        if "/cm/shared/apps/slurm/current/bin/srun" not in text:
+            raise AssertionError(f"{relative} does not pin the srun binary")
+        if "exec /cm/shared/apps/slurm/current/bin/srun" not in text:
+            raise AssertionError(
+                f"{relative} does not make srun the sole final process"
+            )
+        if "--kill-on-bad-exit=1" not in text:
+            raise AssertionError(
+                f"{relative} omitted immediate step-failure propagation"
+            )
+        if "PYTHONDONTWRITEBYTECODE=1" not in text:
+            raise AssertionError(
+                f"{relative} permits runtime bytecode side effects"
+            )
     confirmation_text = (
         ROOT / LOCKED_FILES["confirmation_sbatch"]
     ).read_text(encoding="utf-8")
@@ -2177,6 +2289,7 @@ def preflight(args: argparse.Namespace) -> dict[str, Any]:
         _kernel_equivalence_probe(rank, fast_cholesky)
         for rank in RANKS
     ]
+    _finalize_thread_affinity(thread_report)
     payload = {
         "schema_version": 1,
         "experiment": "e1_confirmation_preflight",

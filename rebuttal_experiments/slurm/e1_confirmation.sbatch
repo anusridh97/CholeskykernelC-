@@ -7,7 +7,6 @@
 #SBATCH --cpus-per-task=10
 #SBATCH --exclusive
 #SBATCH --hint=nomultithread
-#SBATCH --distribution=block:block
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
 #SBATCH --array=0-59%10
@@ -29,6 +28,7 @@ package_dir="${PWD}/Cholesky-main-2/corrected_incremental_cholesky"
 export E1_TORCH_SITE=/users/arjo/.local/lib/python3.10/site-packages
 export PYTHONPATH="${package_dir}:${PWD}:${PWD}/rebuttal_deps:${E1_TORCH_SITE}"
 export PYTHONNOUSERSITE=1
+export PYTHONDONTWRITEBYTECODE=1
 export PYTHONHASHSEED=0
 export OMP_NUM_THREADS="${thread_count}"
 export MKL_NUM_THREADS="${thread_count}"
@@ -37,9 +37,12 @@ export OMP_DYNAMIC=FALSE
 export MKL_DYNAMIC=FALSE
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
+export E1_PROCESS_CONCURRENCY=1
+export E1_EXCLUSIVE_NODE=1
 
-srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=10 \
-  --hint=nomultithread --distribution=block:block --cpu-bind=cores \
+exec /cm/shared/apps/slurm/current/bin/srun \
+  --exclusive --nodes=1 --ntasks=1 --cpus-per-task=10 \
+  --hint=nomultithread --cpu-bind=cores --kill-on-bad-exit=1 \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action run-pair --phase confirmation --task-index "${task_index}" \
-  --campaign-tag e1-confirm-fastpositive-v3
+  --campaign-tag e1-confirm-fastpositive-v4
