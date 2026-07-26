@@ -97,13 +97,27 @@ RIDGE = 1.0
 
 SCALAR_FIELDS = (
     "density",
-    "electron_fraction",
-    "entropy",
     "internal_energy",
     "pressure",
     "temperature",
+    "electron_fraction",
+    "entropy",
 )
 VECTOR_FIELDS = ("magnetic_field", "velocity")
+CHANNEL_ORDER = (
+    "density",
+    "internal_energy",
+    "pressure",
+    "temperature",
+    "electron_fraction",
+    "entropy",
+    "magnetic_field/log_r",
+    "magnetic_field/theta",
+    "magnetic_field/phi",
+    "velocity/log_r",
+    "velocity/theta",
+    "velocity/phi",
+)
 EXPECTED_ROOT_KEYS = (
     "additional_information",
     "boundary_conditions",
@@ -202,6 +216,8 @@ def _channels() -> tuple[Channel, ...]:
 
 
 CHANNELS = _channels()
+if tuple(channel.name for channel in CHANNELS) != CHANNEL_ORDER:
+    raise AssertionError("dynamic channel order differs from the frozen protocol")
 
 
 def _sha256_file(path: Path, *, report_progress: bool = False) -> str:

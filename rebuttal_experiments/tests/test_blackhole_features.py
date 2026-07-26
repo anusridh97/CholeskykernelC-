@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 
 from rebuttal_experiments.blackhole_features import (
+    CHANNEL_ORDER,
     CHANNELS,
     EXPECTED_ROOT_KEYS,
     SCALAR_FIELDS,
@@ -19,6 +20,31 @@ from rebuttal_experiments.blackhole_features import (
     _select_low_frequencies,
     _write_channel_coefficients,
 )
+
+
+class ChannelOrderTest(unittest.TestCase):
+    def test_channel_order_matches_frozen_protocol(self) -> None:
+        self.assertEqual(
+            tuple(channel.name for channel in CHANNELS),
+            CHANNEL_ORDER,
+        )
+        self.assertEqual(
+            CHANNEL_ORDER,
+            (
+                "density",
+                "internal_energy",
+                "pressure",
+                "temperature",
+                "electron_fraction",
+                "entropy",
+                "magnetic_field/log_r",
+                "magnetic_field/theta",
+                "magnetic_field/phi",
+                "velocity/log_r",
+                "velocity/theta",
+                "velocity/phi",
+            ),
+        )
 
 
 class RunningMomentsTest(unittest.TestCase):
