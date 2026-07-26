@@ -1,0 +1,205 @@
+{
+  "campaign_tag": "blackhole-s4-v1-locked-rerun2",
+  "configuration": {
+    "array_task_to_rank": {
+      "0": 2048,
+      "1": 4096,
+      "2": 8192,
+      "3": 16384,
+      "4": 32768,
+      "5": 49152,
+      "6": 65536
+    },
+    "dtype": "float32",
+    "evaluation_transitions": [
+      80,
+      91,
+      102,
+      113,
+      124,
+      135,
+      146,
+      157,
+      168,
+      179
+    ],
+    "initial_transitions": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+    ],
+    "method_order": [
+      "inverse",
+      "fresh_refact"
+    ],
+    "ranks": [
+      2048,
+      4096,
+      8192,
+      16384,
+      32768,
+      49152,
+      65536
+    ],
+    "repeats": {
+      "16384": 5,
+      "2048": 10,
+      "32768": 5,
+      "4096": 10,
+      "49152": 3,
+      "65536": 3,
+      "8192": 10
+    },
+    "ridge": 1.0,
+    "tiles": {
+      "16384": 16,
+      "2048": 8,
+      "32768": 32,
+      "4096": 8,
+      "49152": 32,
+      "65536": 32,
+      "8192": 8
+    },
+    "warmup_transition": 64
+  },
+  "created_utc": "2026-07-26T01:28:17Z",
+  "execution": {
+    "account": "marlowe-m000151-pm06",
+    "array_concurrency_cap": 7,
+    "cpus_per_task": 12,
+    "gpus_per_task": 1,
+    "immutable_mode": "detached_git_worktree",
+    "inner_driver_is_unmodified": true,
+    "outer_attestation_required": true,
+    "partition": "batch",
+    "result_publication": "atomic_claim_then_inner_driver_write-once"
+  },
+  "harness": {
+    "rebuttal_experiments/BLACKHOLE_LOCKED_RERUN_PROTOCOL.md": {
+      "bytes": 7073,
+      "sha256": "90eed11db0fcd83afdd34105820c6cfb05f9c84e39b08a10b73c3fad623ed3a2"
+    },
+    "rebuttal_experiments/blackhole_locked_rerun.py": {
+      "bytes": 59564,
+      "sha256": "7b4ab0825c6f19dc2df6e3598f18633876cb46421ae23254c69146a148705cd4"
+    },
+    "rebuttal_experiments/slurm/cuda_blackhole_rank_scaling_locked.sbatch": {
+      "bytes": 2582,
+      "sha256": "92c52f469fc59653806bf1926d112ef54aefad6c33793ce35ae1c5b4c7ab2315"
+    }
+  },
+  "harness_git_commit": "375ae82afd48059ab85f615b221c8a26570e713b",
+  "inner_campaign_tag": "blackhole-s4-v1",
+  "inputs": {
+    "feature_manifest": {
+      "bytes": 24020,
+      "embedded_campaign_tag": "blackhole-s4-v1",
+      "path": "rebuttal_results/blackhole/blackhole-s4-v1/feature_manifest.json",
+      "sha256": "3b8c6e32da3842b8a9f21ee722e8b9fb1093899744d283d4e939427dd116a5c2"
+    },
+    "feature_trace": {
+      "bytes": 47448192,
+      "dtype": "float32",
+      "path": "data/the_well/processed/post_neutron_star_merger_scenario_4_dct65536.npy",
+      "sha256": "bdf1619a70af70585af317d25aa69452fcb8e94d8417e525de9d50f878e530b4",
+      "shape": [
+        181,
+        65536
+      ]
+    }
+  },
+  "locked_git_commit": "96c8018cdd0b56ffe1fd93bddf48fa4affb34697",
+  "rationale": "Provenance-only parallel rerun of the unchanged v1 ladder after unrelated main-branch commits caused mixed live git_commit metadata in serial job 393886. Locked rerun1 array 393982 then failed closed before numerical execution because the batch partition allocated 12 CPUs per one-H100 task while its lock expected 4; its claims and logs remain preserved. Rerun2 records the actual 12-CPU allocation; no numerical outcome changed this protocol.",
+  "schema_version": "blackhole_locked_rerun_lock_v1",
+  "sources": {
+    "rebuttal_experiments/__init__.py": {
+      "bytes": 64,
+      "sha256": "1c320630271ec27dc0155effb53647b394d91db7ebf30f614065e8b3fe0eb097"
+    },
+    "rebuttal_experiments/aggregate_blackhole.py": {
+      "bytes": 82677,
+      "sha256": "e498ed24a07a295c1df5f4639f2a4640750bda6b517fb9da374feaf216146db0"
+    },
+    "rebuttal_experiments/blackhole_features.py": {
+      "bytes": 38110,
+      "sha256": "4c6b9ad11892a028784b11ff856be4b2681931a683b392fcf9b2f7139e5e9776"
+    },
+    "rebuttal_experiments/common.py": {
+      "bytes": 2724,
+      "sha256": "2019b77c7ee0a415239c776ccf79a98c49180c6bd7c04629ae9baab9cde43905"
+    },
+    "rebuttal_experiments/cuda_blackhole_rank_scaling.py": {
+      "bytes": 43949,
+      "sha256": "1f267c106df2e1b458f56b22b3309670c5b2e163c4a9af436a9d6c7b80d9f026"
+    },
+    "rebuttal_experiments/cuda_blackhole_stability.py": {
+      "bytes": 46188,
+      "sha256": "a3eaf6c02832298c401cb6e189f86201a7360426f736ded5f283dfc2feb3c1d3"
+    },
+    "student_pkg/doublesided_cholesky.py": {
+      "bytes": 85744,
+      "sha256": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa"
+    }
+  }
+}
