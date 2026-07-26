@@ -10,6 +10,7 @@
 #SBATCH --exclusive
 #SBATCH --mem=96G
 #SBATCH --time=01:00:00
+#SBATCH --no-requeue
 #SBATCH --output=rebuttal_logs/e3-e6-confirm-%j.out
 #SBATCH --error=rebuttal_logs/e3-e6-confirm-%j.err
 

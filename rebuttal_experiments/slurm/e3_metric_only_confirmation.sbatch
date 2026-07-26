@@ -51,7 +51,7 @@ export PYTHONPATH="${BUILD_ROOT}/lib:${PWD}:${REBUTTAL_DEPS}:${TORCH_SITE}"
 /usr/bin/python3 -m pytest -q \
   rebuttal_experiments/tests/test_e3_metric_only.py
 
-srun \
+/cm/shared/apps/slurm/current/bin/srun \
   --exclusive \
   --nodes=1 \
   --ntasks=1 \
