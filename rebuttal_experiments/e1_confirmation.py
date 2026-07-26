@@ -695,7 +695,10 @@ def _validate_slurm_task(spec: dict[str, Any]) -> dict[str, Any]:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     ).stdout.strip()
-    if not re.search(r"(?:^|\s)Shared=(?:0|EXCLUSIVE)(?:\s|$)", allocation):
+    if not re.search(
+        r"(?:^|\s)(?:Shared=(?:0|EXCLUSIVE)|OverSubscribe=NO)(?:\s|$)",
+        allocation,
+    ):
         raise RuntimeError(
             "Slurm allocation is not exclusive; expected #SBATCH --exclusive"
         )
@@ -740,7 +743,10 @@ def _validate_preflight_slurm() -> dict[str, Any]:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     ).stdout.strip()
-    if not re.search(r"(?:^|\s)Shared=(?:0|EXCLUSIVE)(?:\s|$)", allocation):
+    if not re.search(
+        r"(?:^|\s)(?:Shared=(?:0|EXCLUSIVE)|OverSubscribe=NO)(?:\s|$)",
+        allocation,
+    ):
         raise RuntimeError("preflight allocation is not exclusive")
     return {
         "job_id": job_id,
