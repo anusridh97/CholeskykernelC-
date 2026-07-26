@@ -86,7 +86,7 @@ def _validate_protocol(protocol: dict[str, Any]) -> None:
         raise ValueError("development protocol must retain every candidate")
     resource = protocol.get("resource_contract", {})
     if (
-        resource.get("account") != "marlowe-m000151-pm06"
+        resource.get("account") != "marlowe-m000151"
         or resource.get("partition") != "batch"
         or resource.get("physical_cpus_per_process") != 1
         or not resource.get("exclusive_node")
@@ -106,7 +106,7 @@ def _configure_runtime() -> dict[str, Any]:
     }
     if invalid:
         raise RuntimeError(f"invalid hermetic environment: {invalid}")
-    if os.environ.get("SLURM_JOB_ACCOUNT") != "marlowe-m000151-pm06":
+    if os.environ.get("SLURM_JOB_ACCOUNT") != "marlowe-m000151":
         raise RuntimeError("development pilot is on the wrong account")
     if os.environ.get("SLURM_JOB_PARTITION") != "batch":
         raise RuntimeError("development pilot is on the wrong partition")
