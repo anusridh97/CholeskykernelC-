@@ -141,15 +141,15 @@
       "sha256": "b158678ca9b949b4880eba5c38e42a517df2854648dbe645cb2ffc8e7f73143e"
     },
     "rebuttal_experiments/blackhole_locked_rerun.py": {
-      "bytes": 60779,
-      "sha256": "45792cba6f5e5d3a2a0a67dbf7d9586d64eea6e73215e60753c4eb8a03979c64"
+      "bytes": 61999,
+      "sha256": "0b739d3f505ee09c94334c3991cb8e526a08c79019d4163b6b1358de7343fd8c"
     },
     "rebuttal_experiments/slurm/cuda_blackhole_rank_scaling_locked.sbatch": {
       "bytes": 2582,
       "sha256": "92c52f469fc59653806bf1926d112ef54aefad6c33793ce35ae1c5b4c7ab2315"
     }
   },
-  "harness_git_commit": "dd869b2de46febcc2c39ec102ae03e46ec61b3e7",
+  "harness_git_commit": "653d8d916da04e1031c0ef2408093152a22642b4",
   "inner_campaign_tag": "blackhole-s4-v1",
   "inputs": {
     "feature_manifest": {
