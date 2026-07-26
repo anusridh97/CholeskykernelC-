@@ -27,6 +27,27 @@
       "job_created": false
     }
   ],
+  "accepted_submission": {
+    "submitted_identity": "arjo",
+    "source_commit": "0050862f8980bf442694be50f1fef1a02829c2a5",
+    "job_id": "394475",
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "qos": "medium"
+  },
+  "scheduler_only_events": [
+    {
+      "recorded_at": "2026-07-25T22:31:11-07:00",
+      "job_id": "394475",
+      "event": "pending_time_limit_reduction",
+      "old_time_limit_seconds": 1800,
+      "new_time_limit_seconds": 1200,
+      "job_state_at_change": "PENDING",
+      "rationale": "Conservative full-grid estimate was under 10 minutes including three extension builds, 47 tests, and the deliberately slow retained materializer candidate; 20 minutes leaves a greater than twofold margin and improves backfill eligibility.",
+      "scientific_protocol_changed": false,
+      "sample_count_changed": false
+    }
+  ],
   "development_timings_observed": false,
   "reserved_confirmation_seeds_evaluated": false,
   "scientific_outcomes_observed": false,
