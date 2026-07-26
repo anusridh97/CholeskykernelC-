@@ -1,0 +1,40 @@
+{
+  "campaign_tag": "e1-confirm-fastpositive-v4",
+  "created_utc": "2026-07-26T05:52:52.119826+00:00",
+  "experiment": "e1_confirmation_exactly_once_claim",
+  "policy": "This task index may never be retried in this campaign. If it fails before publishing its result, retire the campaign tag rather than risk a second held-out evaluation.",
+  "run_git_commit": "296124918f26c97ceaa22400cdca07cabb302fa8",
+  "schema_version": 1,
+  "slurm": {
+    "account": "marlowe-m000151-pm06",
+    "array_job_id": "394525",
+    "array_task_id": "59",
+    "cpus_per_task": "10",
+    "exclusive_allocation_verified": true,
+    "job_id": "394525",
+    "job_num_nodes": "1",
+    "local_id": "0",
+    "node_list": "n26",
+    "ntasks": "1",
+    "partition": "batch",
+    "process_id": "0",
+    "restart_count": "0",
+    "scontrol_job_sha256": "55e01c1aad748621fc01f6bf6b0164520ec9280f76362b834cc98d7e6f50b248",
+    "step_id": "0"
+  },
+  "source_lock_sha256": "c1d317dd1c361081dd0ebffb5c8da4cdee8abb9d899ce517b1800aac019d543c",
+  "spec": {
+    "method_order": [
+      "ours",
+      "refact"
+    ],
+    "phase": "confirmation",
+    "rank": 1024,
+    "rank_index": 2,
+    "seed": 2009,
+    "seed_index": 9,
+    "task_index": 59,
+    "thread_index": 1,
+    "threads": 10
+  }
+}

@@ -1,0 +1,21 @@
+phase=confirmation method=refact rank=512 epoch=1/10 steps=142 refreshes=40
+phase=confirmation method=refact rank=512 epoch=2/10 steps=284 refreshes=75
+phase=confirmation method=refact rank=512 epoch=3/10 steps=426 refreshes=94
+phase=confirmation method=refact rank=512 epoch=4/10 steps=568 refreshes=124
+phase=confirmation method=refact rank=512 epoch=5/10 steps=710 refreshes=151
+phase=confirmation method=refact rank=512 epoch=6/10 steps=852 refreshes=168
+phase=confirmation method=refact rank=512 epoch=7/10 steps=994 refreshes=182
+phase=confirmation method=refact rank=512 epoch=8/10 steps=1136 refreshes=190
+phase=confirmation method=refact rank=512 epoch=9/10 steps=1278 refreshes=199
+phase=confirmation method=refact rank=512 epoch=10/10 steps=1420 refreshes=211
+phase=confirmation method=ours rank=512 epoch=1/10 steps=142 refreshes=39
+phase=confirmation method=ours rank=512 epoch=2/10 steps=284 refreshes=73
+phase=confirmation method=ours rank=512 epoch=3/10 steps=426 refreshes=93
+phase=confirmation method=ours rank=512 epoch=4/10 steps=568 refreshes=122
+phase=confirmation method=ours rank=512 epoch=5/10 steps=710 refreshes=144
+phase=confirmation method=ours rank=512 epoch=6/10 steps=852 refreshes=163
+phase=confirmation method=ours rank=512 epoch=7/10 steps=994 refreshes=184
+phase=confirmation method=ours rank=512 epoch=8/10 steps=1136 refreshes=190
+phase=confirmation method=ours rank=512 epoch=9/10 steps=1278 refreshes=206
+phase=confirmation method=ours rank=512 epoch=10/10 steps=1420 refreshes=222
+wrote immutable paired result /scratch/m000151-pm06/arjo-e1-confirmation-v2-control/rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v4/confirmation_pair_r512_t10_seed2005.json
