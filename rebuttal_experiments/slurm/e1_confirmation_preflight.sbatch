@@ -9,7 +9,7 @@
 #SBATCH --hint=nomultithread
 #SBATCH --distribution=block:block
 #SBATCH --mem=32G
-#SBATCH --time=00:20:00
+#SBATCH --time=00:10:00
 #SBATCH --no-requeue
 #SBATCH --output=rebuttal_logs/e1-confirm-preflight-%j.out
 #SBATCH --error=rebuttal_logs/e1-confirm-preflight-%j.err
