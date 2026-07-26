@@ -1,0 +1,50 @@
+{
+  "campaign": "e2-positive-preregistered-v2",
+  "packages": {
+    "numpy": {
+      "file_sha256": {
+        "__init__.py": "6ae17b070c0f70a8e3cad89a510a256942e5a1f37ea5feb120cec167ed2a6236",
+        "_core/_multiarray_umath.cpython-310-x86_64-linux-gnu.so": "c634eaf05367af02b815cf3d2020fbeee9b47426af1fe26cf3189e4798932dc5",
+        "version.py": "a7fcfa08bc3d730a77a7d31ec027bf53a9695812c353a526dd077dc1451b7d7a"
+      },
+      "version": "2.2.6"
+    },
+    "scipy": {
+      "file_sha256": {
+        "__init__.py": "185913aa107512fafd5cf89dfd452a8719b45a6eba833e2dcee2cbfd18b4bbe5",
+        "io/matlab/_mio.py": "41afc530ff9989deed3854cd88d8e756b622ed890ae212ad70626202ff3ce01c",
+        "io/matlab/_mio5_utils.cpython-310-x86_64-linux-gnu.so": "d30e994b09d9f30f7efeb6dc81fa05ab4a7be32b4e78c2b48fc3b6228197bfb1",
+        "io/matlab/_streams.cpython-310-x86_64-linux-gnu.so": "074ce037474f72e2fc9945195ed4c16fb5461760294fcf879724257094ee1810",
+        "version.py": "a271fdebc4f15ae566cd3c8ca9686bcf52e123dd5d2254b1618acbd9d4292ebc"
+      },
+      "version": "1.15.3"
+    },
+    "torch": {
+      "file_sha256": {
+        "lib/libtorch_cpu.so": "ba048f04fb4c7eff738f6b6d66cba772eb477376ab597c5c4dae1169a02f3228",
+        "lib/libtorch_python.so": "94a27daf0f9d08992de6ef11eb1b685caea2b662bb58a1c5ade029abc94c078f",
+        "version.py": "6649c6a5ce8422677b26a529d4af2710f89bdf085054373c7b2881862397fd13"
+      },
+      "version": "2.12.0+cu126"
+    }
+  },
+  "python": {
+    "executable": "/usr/bin/python3",
+    "executable_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+    "version": "3.10.12 (main, Jun 22 2026, 18:55:27) [GCC 11.4.0]"
+  },
+  "required_cpu_flags": [
+    "avx512f",
+    "avx512dq",
+    "avx512bw",
+    "avx512vl"
+  ],
+  "required_environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "schema_version": 1,
+  "slurm_account": "marlowe-m000151-pm06",
+  "slurm_partition": "batch"
+}

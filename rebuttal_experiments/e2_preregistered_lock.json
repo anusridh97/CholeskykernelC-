@@ -1,0 +1,56 @@
+{
+  "campaign": "e2-positive-preregistered-v2",
+  "candidate_binary_build": {
+    "binary": "rebuttal_experiments/e1_positive_candidate.so",
+    "build_description": "rebuttal_experiments/setup_e1_positive_candidate.py",
+    "source": "rebuttal_experiments/e1_positive_candidate_ext.cpp"
+  },
+  "external_artifacts": [
+    "Cholesky-main-2/data/protein.mat",
+    "rebuttal_experiments/e1_positive_candidate.so"
+  ],
+  "files": {
+    "Cholesky-main-2/data/protein.mat": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13",
+    "rebuttal_experiments/E2_PREREGISTERED_CAMPAIGN.md": "dccea41646c604f88ba04def6f96ffc648195738e0dd4f2f49591111a62eb377",
+    "rebuttal_experiments/e1_positive_candidate.so": "b94285904eb7cf7633ab955b5f3f0b63560b4b7c66ff396e59acf5b56e977c19",
+    "rebuttal_experiments/e1_positive_candidate_ext.cpp": "a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0",
+    "rebuttal_experiments/e1_positive_candidate_pilot.py": "7abe3d2f2ab3114c9fb43aaa4d4c378c08b407d3fd84dbc2a222bc6723de5663",
+    "rebuttal_experiments/e1_positive_candidate_protocol.json": "93477961d7edfa6a3661dde79a5dc56c1e83f0f7dbc9cf76cb8618ee5fe64b9f",
+    "rebuttal_experiments/e2_preregistered_campaign.py": "fe05be4ef234ddbc30e6c4b5f78c482cfc982757bd636eafd6b01a4c3d729506",
+    "rebuttal_experiments/e2_preregistered_protocol.json": "df008561ab124e95297d540bbe37b3b4afd0fac9ef1cc2ef7a32f95b20c39ba5",
+    "rebuttal_experiments/e2_runtime_contract.json": "7fb40c812e2f026ce8a4b324500bc158957998d8a6090231b5f2c900cbca3d02",
+    "rebuttal_experiments/record_e2_pilot_gate.sh": "ab9d82a4bd88c86f87dea2e1c6ffdcb45058a6bf9d49f81efbd1f3ea495a5c75",
+    "rebuttal_experiments/setup_e1_positive_candidate.py": "f87da588c72a0b6e6812e7de75ed364344f1def389195b8d787443783deebf32",
+    "rebuttal_experiments/slurm/e2_preregistered.sbatch": "eeb868c23752d148f631ff91e49c7f521514ffb9a8c7565304293cf3752c95c4",
+    "rebuttal_experiments/submit_e2_confirmation.sh": "53375ef6b62c6cf10718242fd1e61f8ddd31a11a00763bf0e707052f562258ca",
+    "rebuttal_experiments/submit_e2_preregistered.sh": "412bb857776f0868b8e9dd4c683b0f355337d714cc0ba2cf9c1d28fcfe6e1d82",
+    "rebuttal_experiments/tests/test_e1_positive_candidate.py": "420bdb9ea24fffe8da4deb7704c369d7e7032f378df86a07c3bb58a3df17fd12",
+    "rebuttal_experiments/tests/test_e2_preregistered_campaign.py": "cf228a04965ea45cd5773fc653a705c7035e5ce90418b7943ebe38f8111b3692"
+  },
+  "git_tracked_files": [
+    "rebuttal_experiments/E2_PREREGISTERED_CAMPAIGN.md",
+    "rebuttal_experiments/e1_positive_candidate_ext.cpp",
+    "rebuttal_experiments/e1_positive_candidate_pilot.py",
+    "rebuttal_experiments/e1_positive_candidate_protocol.json",
+    "rebuttal_experiments/e2_preregistered_campaign.py",
+    "rebuttal_experiments/e2_preregistered_protocol.json",
+    "rebuttal_experiments/e2_runtime_contract.json",
+    "rebuttal_experiments/record_e2_pilot_gate.sh",
+    "rebuttal_experiments/setup_e1_positive_candidate.py",
+    "rebuttal_experiments/slurm/e2_preregistered.sbatch",
+    "rebuttal_experiments/submit_e2_confirmation.sh",
+    "rebuttal_experiments/submit_e2_preregistered.sh",
+    "rebuttal_experiments/tests/test_e1_positive_candidate.py",
+    "rebuttal_experiments/tests/test_e2_preregistered_campaign.py"
+  ],
+  "locked_before_any_campaign_artifact": true,
+  "notes": [
+    "The manifest itself is authenticated by the required external SHA-256 argument and must be the exact blob in detached HEAD.",
+    "Historical seed-42 outcomes were viewed; v2 uses the untouched mechanically derived split seed 381857132.",
+    "Initial submission ends after exactly five pilots. Confirmation requires a separately audited, immutable manual gate.",
+    "Requeue is disabled and every compute stage/task has one permanent attempt claim.",
+    "Protein and the compiled extension are external byte artifacts; all source, protocol, build, execution, submission, documentation, runtime-contract, and test files must match detached HEAD.",
+    "Any hash, protocol, seed, resource, task mapping, budget rule, gate rule, or analysis change requires a new campaign tag."
+  ],
+  "schema_version": 1
+}
