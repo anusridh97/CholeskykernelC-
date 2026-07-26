@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "campaign_tag": "e4-direct-confirm-v1",
+  "status": "frozen_before_confirmation",
+  "objective": "Directly separate incremental floating-point error from fresh-factorization error and execute the signed downdate implementation across the admissible leverage range.",
+  "dtype_policy": "Each FP32/FP64 incremental state is compared both with a fresh factorization in the same dtype and with an FP64 mathematical reference built from the exact quantized inputs supplied to the implementation.",
+  "reference_policy": "The FP64 quantized reference accumulates the dtype-quantized implementation inputs exactly in FP64 and casts the accumulated state once at each fresh same-dtype checkpoint. It is a diagnostic reference, not an operational same-dtype dense accumulator.",
+  "pairing_policy": "For each common seed, FP32 and FP64 use the same FP64-generated problem, update directions, and operator directions before dtype casting. Near-duplicate cumulative and random operator modes use the same metric and update trajectory; a separate RNG stream generates only the random initial operator.",
+  "threads": 1,
+  "positive_trajectories": {
+    "rank": 128,
+    "conditions": [
+      100.0,
+      10000.0,
+      1000000.0,
+      100000000.0
+    ],
+    "precisions": [
+      "float32",
+      "float64"
+    ],
+    "reset_intervals": [
+      0,
+      50
+    ],
+    "seeds": [
+      42001,
+      42002,
+      42003,
+      42004,
+      42005,
+      42006,
+      42007,
+      42008,
+      42009,
+      42010
+    ],
+    "steps": 200,
+    "checkpoints": [
+      0,
+      1,
+      10,
+      50,
+      100,
+      200
+    ],
+    "pre_reset_steps": [
+      50,
+      100,
+      150,
+      200
+    ],
+    "update_scale": 0.01
+  },
+  "near_duplicate_kernels": {
+    "rank": 128,
+    "deltas": [
+      0.1,
+      0.01,
+      0.001,
+      0.0001,
+      0.00001,
+      0.000001
+    ],
+    "precisions": [
+      "float32",
+      "float64"
+    ],
+    "operators": [
+      "cumulative",
+      "random"
+    ],
+    "reset_intervals": [
+      0,
+      50
+    ],
+    "seeds": [
+      43001,
+      43002,
+      43003,
+      43004,
+      43005,
+      43006,
+      43007,
+      43008,
+      43009,
+      43010
+    ],
+    "jitter": 0.000001,
+    "steps": 100,
+    "checkpoints": [
+      0,
+      1,
+      10,
+      50,
+      100
+    ],
+    "pre_reset_steps": [
+      50,
+      100
+    ],
+    "update_scale": 0.01
+  },
+  "signed_downdates": {
+    "ranks": [
+      64,
+      256
+    ],
+    "leverages": [
+      0.1,
+      0.5,
+      0.9,
+      0.99,
+      0.999
+    ],
+    "precisions": [
+      "float32",
+      "float64"
+    ],
+    "operator_cases": [
+      {
+        "name": "pure_transport",
+        "operator_sign": 0,
+        "w_mode": "zero"
+      },
+      {
+        "name": "random_minus",
+        "operator_sign": -1,
+        "w_mode": "random"
+      },
+      {
+        "name": "random_plus",
+        "operator_sign": 1,
+        "w_mode": "random"
+      },
+      {
+        "name": "matched_downdate",
+        "operator_sign": -1,
+        "w_mode": "matched_z"
+      }
+    ],
+    "seeds": [
+      44001,
+      44002,
+      44003,
+      44004,
+      44005,
+      44006,
+      44007,
+      44008,
+      44009,
+      44010
+    ],
+    "implementation_downdate_tolerance": 1e-8,
+    "guard_leverage": 0.5,
+    "pairing_policy": "For each rank, target leverage, operator case, and seed, form one FP64 G, M, direction, z, and random w. Cast those same tensors independently to FP32 and FP64. The requested z is calibrated to the target leverage under the original FP64 G; both the implementation-state and quantized-mathematical leverages are reported after casting.",
+    "guard_policy": "Run the requested admissible downdate and separately report a guard when needed. The guard scales z against the larger of (i) leverage measured by the implementation's rounded triangular state and (ii) leverage under the FP64 mathematical target represented by the quantized G. Its dtype-specific target is the representable value immediately below 0.5, with post-scale verification of both leverages. For a nonzero random operator event, w receives the same scale so both zz^T and zw^T receive the same event weight beta; for matched_z, guarded w equals guarded z; pure transport ignores w. Never substitute the guarded result for the requested result."
+  },
+  "predeclared_correctness_criteria": {
+    "positive_and_kernel_all_trajectories_complete": true,
+    "maximum_backward_error_float32": 0.0005,
+    "maximum_backward_error_float64": 1e-10,
+    "backward_error_scope": "Maximum over incremental_factor and incremental_operator in every positive and near-duplicate-kernel diagnostic record. Fresh-reference errors are reported but are not thresholded by this criterion; any incomplete trajectory makes the all-complete criterion false.",
+    "requested_fp64_downdates_all_complete": true,
+    "guarded_downdates_all_complete": true,
+    "maximum_guarded_incremental_vs_fresh_Aw_float32": 0.001,
+    "maximum_guarded_incremental_vs_fresh_Aw_float64": 1e-10,
+    "guarded_error_scope": "Maximum incremental_vs_fresh_same_dtype Aw relative error over every guarded signed-downdate success. A guarded failure makes the all-complete criterion false and is never omitted from the maximum/error accounting."
+  },
+  "predeclared_integrity_requirements": {
+    "exact_grid_and_unique_row_identities": true,
+    "phase_aware_pre_and_post_reset_records": true,
+    "row_journal_exactly_matches_result_payload": true,
+    "tracked_sources_match_the_recorded_git_commit": true,
+    "runtime_extension_matches_the_fresh_persistent_build": true,
+    "paired_input_fingerprints_match_across_declared_comparisons": true,
+    "all_failures_are_retained": true
+  },
+  "resource_contract": {
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "qos": "medium",
+    "processes": 1,
+    "physical_cpus_per_process": 1,
+    "omp_threads": 1,
+    "mkl_threads": 1,
+    "openblas_threads": 1,
+    "timing_claims": false
+  },
+  "statistical_unit": "One independently generated problem seed. Checkpoints within a trajectory are repeated measures, not independent replicates.",
+  "retain_all_rows_and_failures": true,
+  "stopping_rule": "Run every declared cell. Do not tune, filter, stop, or rerun based on confirmation outcomes.",
+  "implementation_source": "Cholesky-main-2/corrected_incremental_cholesky/fast_update.cpp",
+  "attempt_claim_path": "rebuttal_results/e4_direct_confirmation/e4-direct-confirm-v1/attempt.json",
+  "journal_path": "rebuttal_results/e4_direct_confirmation/e4-direct-confirm-v1/rows.jsonl",
+  "result_path": "rebuttal_results/e4_direct_confirmation/e4-direct-confirm-v1/result.json",
+  "audit_path": "rebuttal_results/e4_direct_confirmation/e4-direct-confirm-v1/audit_summary.json",
+  "report_edit_authorized_after_complete_audit": true
+}
