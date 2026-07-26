@@ -1,0 +1,222 @@
+{
+  "analysis_rule": "No tuning, early stopping, seed replacement, or outcome-dependent rerun; aggregate all ten predeclared seeds.",
+  "campaign_tag": "e5-locked-confirm-v2",
+  "configuration": {
+    "cuda_scaling": {
+      "cached_inverse": {
+        "batch": 1,
+        "ranks": [
+          256,
+          512,
+          1024
+        ],
+        "repeats": 60,
+        "warmup": 10
+      },
+      "fused": {
+        "batches": [
+          1,
+          4,
+          16,
+          64
+        ],
+        "ranks": [
+          64,
+          128
+        ],
+        "repeats": 60,
+        "warmup": 10
+      },
+      "parallel": {
+        "batch": 1,
+        "ranks": [
+          256,
+          512,
+          1024
+        ],
+        "repeats": 60,
+        "warmup": 10
+      }
+    },
+    "expected_probe_files_per_seed": 4,
+    "expected_raw_jsons_per_seed": 38,
+    "large_rank": {
+      "dense_correctness_through_rank": 32768,
+      "method_order": "odd seeds inverse-first; even seeds fresh-first",
+      "probe_validation": {
+        "cross_method_actions": [
+          "inverse_factor_action",
+          "whitened_operator_action"
+        ],
+        "excluded_from_timing": true,
+        "generator": "numpy.PCG64 Rademacher",
+        "ranks": [
+          49152,
+          65536
+        ],
+        "seed_plus_rank": 29421,
+        "storage": "O(r*q)",
+        "tolerance": 0.001,
+        "width": 16
+      },
+      "ranks": [
+        2048,
+        4096,
+        8192,
+        16384,
+        32768,
+        49152,
+        65536
+      ],
+      "repeats": {
+        "16384": 5,
+        "2048": 10,
+        "32768": 5,
+        "4096": 10,
+        "49152": 3,
+        "65536": 3,
+        "8192": 10
+      },
+      "timing_region_changed_from_original_e5": false,
+      "warmup": 1
+    },
+    "refresh": {
+      "intervals": [
+        0,
+        10,
+        50,
+        100,
+        200
+      ],
+      "ranks": [
+        256,
+        512,
+        1024
+      ],
+      "steps": 200
+    },
+    "seeds": [
+      5001,
+      5002,
+      5003,
+      5004,
+      5005,
+      5006,
+      5007,
+      5008,
+      5009,
+      5010
+    ],
+    "stability": {
+      "condition": {
+        "rank": 256,
+        "steps": 200,
+        "target_conditions": [
+          100.0,
+          10000.0,
+          1000000.0
+        ]
+      },
+      "inplace": {
+        "ranks": [
+          1024
+        ],
+        "steps": 500
+      },
+      "single_block": {
+        "ranks": [
+          256,
+          512,
+          1024
+        ],
+        "steps": 500
+      }
+    }
+  },
+  "created_utc": "2026-07-26T05:50:03.779782+00:00",
+  "gpu": {
+    "driver": "565.57.01",
+    "name": "NVIDIA H100 80GB HBM3",
+    "total_memory_bytes": 85045477376
+  },
+  "implementation_commit": "8edbcf0e853bfe2e227846c0830c2d1e9b9a9c34",
+  "runtime": {
+    "cudnn": 91002,
+    "cudnn_allow_tf32": true,
+    "float32_matmul_precision": "highest",
+    "matmul_allow_tf32": false,
+    "numpy": "2.2.6",
+    "python_executable": "/usr/bin/python3",
+    "python_resolved_executable": "/usr/bin/python3.10",
+    "python_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+    "python_version": "3.10.12",
+    "torch": "2.12.0+cu126",
+    "torch_cuda": "12.6",
+    "triton": "3.7.0"
+  },
+  "scheduler": {
+    "account": "marlowe-m000151-pm06",
+    "array": "5001-5010%10",
+    "cpus_per_task": 4,
+    "gpus_per_task": 1,
+    "memory": "64G",
+    "partition": "batch",
+    "qos": "medium",
+    "time_limit": "01:00:00"
+  },
+  "schema_version": "e5_locked_confirmation_lock_v1",
+  "sources": {
+    "rebuttal_experiments/E5_LOCKED_CONFIRMATION_PROTOCOL.md": {
+      "bytes": 2128,
+      "sha256": "48113e1084411b8faa71c7a4280583391e879978f05d7a254ed7653f730673a4"
+    },
+    "rebuttal_experiments/__init__.py": {
+      "bytes": 64,
+      "sha256": "1c320630271ec27dc0155effb53647b394d91db7ebf30f614065e8b3fe0eb097"
+    },
+    "rebuttal_experiments/aggregate_e5_locked.py": {
+      "bytes": 5662,
+      "sha256": "ec591cc79e98d1e549ceee3d7fc5a25be8ee1148034d3c8d10a9d534a016c5bd"
+    },
+    "rebuttal_experiments/aggregate_e5n10.py": {
+      "bytes": 70329,
+      "sha256": "7ff627100de9c53b28fb8af2a28feebc07a1e0dbeb9349389abd4c0b090d45ab"
+    },
+    "rebuttal_experiments/common.py": {
+      "bytes": 2724,
+      "sha256": "2019b77c7ee0a415239c776ccf79a98c49180c6bd7c04629ae9baab9cde43905"
+    },
+    "rebuttal_experiments/cuda_inverse_refresh.py": {
+      "bytes": 11819,
+      "sha256": "9c8bc9e01444ec6d7c84a64d14100d76397c32c433ba4fdf7cc5de220b2e8a00"
+    },
+    "rebuttal_experiments/cuda_inverse_stability.py": {
+      "bytes": 7934,
+      "sha256": "4871acb47a1b6c3330abe711101866b8fbca11256981f5f1d14ac718137c0320"
+    },
+    "rebuttal_experiments/cuda_large_rank_compare.py": {
+      "bytes": 22024,
+      "sha256": "2b9fa1b5d6c48f27e0268a802818a797badf7ee2ca466318a8bd490474f5e941"
+    },
+    "rebuttal_experiments/cuda_scaling.py": {
+      "bytes": 19419,
+      "sha256": "0068a3f1049617d134fab58016f4c8fc6fbab86627bc420237f68d217659a839"
+    },
+    "rebuttal_experiments/e5_locked_confirmation.py": {
+      "bytes": 25237,
+      "sha256": "88166b0b57599f4f656510557aa1b8ea7ad7c47962ecf65b48834432dd9acf82"
+    },
+    "rebuttal_experiments/slurm/cuda_e5_locked_confirmation.sbatch": {
+      "bytes": 5722,
+      "sha256": "abeee85fad3aaecc3b7e4b3ef8590ac06f15c076030076776b1011b75a54a242"
+    },
+    "rebuttal_experiments/slurm/cuda_e5_locked_preflight.sbatch": {
+      "bytes": 1089,
+      "sha256": "78ef8e96721ff83363536cfbeb876ecb8dcfaa03378c930dbbd0f53436629b3b"
+    },
+    "student_pkg/doublesided_cholesky.py": {
+      "bytes": 85744,
+      "sha256": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa"
+    }
+  }
+}
