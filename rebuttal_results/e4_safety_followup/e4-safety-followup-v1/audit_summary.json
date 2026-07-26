@@ -1,0 +1,167 @@
+{
+  "campaign_tag": "e4-safety-followup-v1",
+  "created_utc": "2026-07-26T04:51:13.623977+00:00",
+  "development_inventory": {
+    "check_seeds": [
+      45004,
+      45005,
+      45006,
+      45007,
+      45008,
+      45009,
+      45010
+    ],
+    "confirmation_overlap": [],
+    "path": "rebuttal_experiments/e4_safety_development_inventory.json",
+    "selection_seeds": [
+      45001,
+      45002,
+      45003
+    ],
+    "sha256": "246f880b42a58e58e0d64fe55a2ca991f254dcfe6572fa3d2755bfefdc98db02"
+  },
+  "experiment": "e4_safety_followup_audit",
+  "integrity": {
+    "all_failures_retained": true,
+    "attempt_claimed_before_science": true,
+    "confirmation_seed_set": [
+      46001,
+      46002,
+      46003,
+      46004,
+      46005,
+      46006,
+      46007,
+      46008,
+      46009,
+      46010,
+      46011,
+      46012,
+      46013,
+      46014,
+      46015,
+      46016,
+      46017,
+      46018,
+      46019,
+      46020
+    ],
+    "dispatch_has_no_exact_residual_argument": true,
+    "duplicate_count": 0,
+    "expected_trajectory_count": 480,
+    "failure_count": 0,
+    "journal_line_count": 480,
+    "journal_replay_exact": true,
+    "metric_and_updates_paired_across_operators_and_precisions": true,
+    "observed_trajectory_count": 480,
+    "paired_original_inputs_and_probes": true,
+    "probe_matrix_paired_across_all_cells_for_each_seed": true,
+    "source_files_match_lock": true
+  },
+  "label": "Post-hoc safety follow-up; does not replace or alter e4-direct-confirm-v1.",
+  "original_e4": {
+    "path": "rebuttal_results/e4_direct_confirmation/e4-direct-confirm-v1/audit_summary.json",
+    "scientific_status_preserved": "criteria_failed",
+    "sha256": "b96613a437b2f7a99da9d5f182caf4c4f50672582a457fb8fe3bed82365512ab"
+  },
+  "preflight_sha256": "39cfcef61bcc05924792395b9b95a295c51f0301b9f8d2e3c647c0dae5ed3c86",
+  "protocol_sha256": "8bf93b3bb169918b9a39ec53d56cca1756d60e7256120c3d511e3461d0c79c0c",
+  "provenance": {
+    "locked_file_count": 13,
+    "runtime_extension": "/scratch/m000151-pm06/arjo/job-builds/394350/e4-safety-confirm/lib/fast_cholesky.so",
+    "runtime_extension_sha256": "eeaed46edb249d65ecfa4c79cc55a3a23d289103dc37df316bb80012112b7944",
+    "slurm_job_id": "394350",
+    "source_commit": "95bee813c511100c58122f55b0545339f4cd4c37"
+  },
+  "results": {
+    "action_counts": {
+      "none": 48270,
+      "promote_fp64": 64,
+      "refresh_fp64": 146
+    },
+    "false_negative_count": 0,
+    "post_policy_exact_residual_by_cell": [
+      {
+        "maximum": 1.850898118759038e-06,
+        "mean": 6.804355406945636e-07,
+        "minimum": 1.5344278262638283e-07,
+        "n": 12120,
+        "operator": "cumulative",
+        "starting_precision": "float32"
+      },
+      {
+        "maximum": 0.00028445475553391826,
+        "mean": 3.0147578314848613e-05,
+        "minimum": 1.1391524685465101e-13,
+        "n": 12120,
+        "operator": "random",
+        "starting_precision": "float32"
+      },
+      {
+        "maximum": 3.606531953641171e-15,
+        "mean": 1.3286318684281857e-15,
+        "minimum": 5.092211128665326e-16,
+        "n": 12120,
+        "operator": "cumulative",
+        "starting_precision": "float64"
+      },
+      {
+        "maximum": 7.447815970819921e-11,
+        "mean": 8.277342822818749e-12,
+        "minimum": 8.805708603517018e-15,
+        "n": 12120,
+        "operator": "random",
+        "starting_precision": "float64"
+      }
+    ],
+    "post_policy_exact_residual_by_starting_precision": {
+      "float32": {
+        "maximum": 0.00028445475553391826,
+        "mean": 1.5414006927771574e-05,
+        "minimum": 1.1391524685465101e-13,
+        "n": 24240
+      },
+      "float64": {
+        "maximum": 7.447815970819921e-11,
+        "mean": 4.1393357273435884e-12,
+        "minimum": 5.092211128665326e-16,
+        "n": 24240
+      }
+    },
+    "promoted_trajectory_count": 64,
+    "timing_claims": false
+  },
+  "schema_version": 1,
+  "scientific_criteria": {
+    "all_passed": true,
+    "checks": {
+      "all_trajectories_complete": {
+        "expected": true,
+        "observed": true,
+        "passed": true
+      },
+      "false_negative_count": {
+        "expected": 0,
+        "observed": 0,
+        "passed": true
+      },
+      "maximum_post_policy_exact_residual_float32_start": {
+        "maximum_allowed": 0.0005,
+        "observed": 0.00028445475553391826,
+        "passed": true
+      },
+      "maximum_post_policy_exact_residual_float64_start": {
+        "maximum_allowed": 1e-10,
+        "observed": 7.447815970819921e-11,
+        "passed": true
+      }
+    },
+    "outcome_does_not_affect_integrity_status": true,
+    "status": "criteria_passed"
+  },
+  "scientific_status": "criteria_passed",
+  "source_lock_sha256": "655b39609057100686449ae7e2b8b8e675b9ef355ffc6e0f2bd26d862b013768",
+  "source_result": "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/result.json",
+  "source_result_sha256": "ca9b015d3666e56e65cff0ef720a070a311cfcc6372454b5778199478961d971",
+  "status": "integrity_passed"
+}
