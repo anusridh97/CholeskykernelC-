@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`blackhole-s4-v1-stability-locked-rerun1` is an immutable provenance rerun of
+`blackhole-s4-v1-stability-locked-rerun2` is an immutable provenance rerun of
 the secondary 100-transition stability trace predeclared in
 `BLACKHOLE_PROTOCOL.md`.  It executes the unmodified numerical driver at Git
 commit `96c8018cdd0b56ffe1fd93bddf48fa4affb34697`.
@@ -11,6 +11,12 @@ Two earlier `blackhole-s4-v1` stability JSONs are preserved.  Their numerical
 driver, feature producer, and kernel hashes match the frozen files, but their
 live `git_commit` metadata was taken after unrelated repository commits.  No
 earlier numerical outcome was used to change this rerun.
+
+Locked rerun 1 stopped during its data-free remote preflight: its dependency
+lock named the invoked `/usr/bin/python3` symlink while the verifier compared
+the normalized `/usr/bin/python3.10` target.  It created no Slurm task claim,
+submitted no job, and ran no numerical code.  Its prepared directory and lock
+remain preserved.  Rerun 2 changes only that dependency-path spelling.
 
 ## Frozen scientific design
 

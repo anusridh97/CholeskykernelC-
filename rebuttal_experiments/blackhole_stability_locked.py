@@ -29,7 +29,7 @@ CONTROL_ROOT = Path(__file__).resolve().parents[1]
 LOCK_SCHEMA = "blackhole_stability_locked_lock_v1"
 ATTESTATION_SCHEMA = "blackhole_stability_locked_attestation_v1"
 AGGREGATE_SCHEMA = "blackhole_stability_locked_aggregate_v1"
-OUTER_CAMPAIGN_TAG = "blackhole-s4-v1-stability-locked-rerun1"
+OUTER_CAMPAIGN_TAG = "blackhole-s4-v1-stability-locked-rerun2"
 INNER_CAMPAIGN_TAG = "blackhole-s4-v1"
 LOCKED_COMMIT = "96c8018cdd0b56ffe1fd93bddf48fa4affb34697"
 OUTER_ACCOUNT = "marlowe-m000151-pm06"
@@ -73,7 +73,7 @@ LOCKED_SOURCE_PATHS = (
 )
 EXPECTED_SOFTWARE = {
     "python_version_prefix": "3.10.12 ",
-    "python_executable": "/usr/bin/python3",
+    "python_executable": "/usr/bin/python3.10",
     "python_executable_sha256": (
         "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86"
     ),
@@ -466,7 +466,11 @@ def make_lock(args: argparse.Namespace) -> None:
         "rationale": (
             "Immutable provenance rerun of the predeclared 100-transition "
             "secondary stability trace. Existing unlocked outputs are "
-            "preserved and were not used to alter any experimental choice."
+            "preserved and were not used to alter any experimental choice. "
+            "Locked rerun1 stopped during a data-free preflight because its "
+            "lock named the /usr/bin/python3 symlink while verification "
+            "normalized it to /usr/bin/python3.10; it created no task claim "
+            "and ran no numerical code. Rerun2 corrects only that pathname."
         ),
         "locked_git_commit": LOCKED_COMMIT,
         "harness_git_commit": harness_commit,

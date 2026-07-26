@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-readonly outer_tag="blackhole-s4-v1-stability-locked-rerun1"
+readonly outer_tag="blackhole-s4-v1-stability-locked-rerun2"
 readonly inner_tag="blackhole-s4-v1"
 readonly control_repo="${BLACKHOLE_STABILITY_CONTROL_REPO:?set BLACKHOLE_STABILITY_CONTROL_REPO}"
 readonly locked_worktree="${BLACKHOLE_STABILITY_LOCKED_WORKTREE:?set BLACKHOLE_STABILITY_LOCKED_WORKTREE}"
