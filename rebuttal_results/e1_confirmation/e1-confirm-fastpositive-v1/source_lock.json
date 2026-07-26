@@ -1,0 +1,132 @@
+{
+  "campaign_tag": "e1-confirm-fastpositive-v1",
+  "created_utc": "2026-07-26T00:24:18.389980+00:00",
+  "experiment": "e1_paired_confirmation_source_lock",
+  "files": {
+    "common_helpers": {
+      "bytes": 2724,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/common.py",
+      "sha256": "2019b77c7ee0a415239c776ccf79a98c49180c6bd7c04629ae9baab9cde43905"
+    },
+    "confirmation_sbatch": {
+      "bytes": 1290,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/slurm/e1_confirmation.sbatch",
+      "sha256": "78dbe8c3d9a881c08cea3f6621cadc7328e4f201563dae2315bbc9fb311b8582"
+    },
+    "corrected_data_loader": {
+      "bytes": 4384,
+      "git_tracked": true,
+      "path": "Cholesky-main-2/corrected_incremental_cholesky/data_utils.py",
+      "sha256": "6b578b29e53a63e79780ddbce122cc9716bae035c7c022642b079af665672740"
+    },
+    "driver": {
+      "bytes": 63940,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/e1_confirmation.py",
+      "sha256": "874b27d735cc89cfa7f91712dfe366bec7f0038ab24f1ba85af6c04e780d3aa1"
+    },
+    "extension_build": {
+      "bytes": 486,
+      "git_tracked": true,
+      "path": "Cholesky-main-2/corrected_incremental_cholesky/setup_ext.py",
+      "sha256": "a3ee87b2675a668c945a495c726e966d7c98f763931d964098305d2c3df66b85"
+    },
+    "incremental_binary": {
+      "bytes": 10969304,
+      "git_tracked": false,
+      "path": "Cholesky-main-2/corrected_incremental_cholesky/fast_cholesky.so",
+      "sha256": "e500c96a5528477c3c18a69f47c1e7e92f4a9583ba64a7e1c0a251f9040fb4d0"
+    },
+    "incremental_source": {
+      "bytes": 27464,
+      "git_tracked": true,
+      "path": "Cholesky-main-2/corrected_incremental_cholesky/fast_update.cpp",
+      "sha256": "b1c92d7fcbca869eba625623b5d7ab440a38eceba79b715db2b8087dbf2d87b4"
+    },
+    "ng_reference_driver": {
+      "bytes": 12604,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/ng_sweep.py",
+      "sha256": "62744c89d4dcf88e9eebc6905794cc6114511fc9674e037d702504d0b06dd3d3"
+    },
+    "pilot_sbatch": {
+      "bytes": 1277,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/slurm/e1_confirmation_pilot.sbatch",
+      "sha256": "e3236b7a713faa89e9301ee4b7bc0303d50959607ba3dd055bea415b78bb83bc"
+    },
+    "protein_data": {
+      "bytes": 1725537,
+      "git_tracked": true,
+      "path": "Cholesky-main-2/data/protein.mat",
+      "sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13"
+    },
+    "protocol": {
+      "bytes": 5822,
+      "git_tracked": true,
+      "path": "rebuttal_experiments/E1_CONFIRMATION_PROTOCOL.md",
+      "sha256": "48b6b164532b81ec68ed9b2b51804deffa1f6e33711ca01ac754ec87766ee15d"
+    }
+  },
+  "fixed_config": {
+    "architecture": [
+      9,
+      512,
+      512,
+      128,
+      1
+    ],
+    "batch_size": 256,
+    "confirmation_seeds": [
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009
+    ],
+    "damping": 1.0,
+    "dataset": "UCI Protein protein.mat",
+    "dtype": "float32",
+    "epochs": 10,
+    "learning_rate": 0.1,
+    "method_order": "parity counterbalanced by seed_index + rank_index + thread_index",
+    "momentum": 0.9,
+    "pilot_seeds": [
+      1000,
+      1001,
+      1002
+    ],
+    "ranks": [
+      256,
+      512,
+      1024
+    ],
+    "refactor_every": 50,
+    "refresh_threshold": 0.1,
+    "split_seed": 42,
+    "test_policy": "zero test evaluations in pilots; exactly one final test evaluation per method in each confirmation pair",
+    "thread_counts": [
+      1,
+      10
+    ],
+    "train_fraction": 0.8
+  },
+  "git_commit": "00f2b85edcbe074c1c53b7be138fb30816d29d36",
+  "implementation": {
+    "ours": "explicit metric_sign=+1/operator_sign=+1 dispatch to the row-major virtual-padding SIMD positive-update kernel",
+    "precision": "both methods use CPU torch.float32 throughout",
+    "refact": "G += aa^T, fresh Cholesky, complete rewhitening, and two triangular solves"
+  },
+  "schema_version": 1,
+  "task_counts": {
+    "confirmation": 60,
+    "pilot": 18
+  }
+}
