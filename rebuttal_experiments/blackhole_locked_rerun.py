@@ -855,6 +855,7 @@ def _validate_attestation(
     result_path: Path,
     rank: int,
     lock_sha256: str,
+    expected_lock_git_commit: str,
     lock: dict[str, Any],
     expected_account: str,
     expected_partition: str,
@@ -896,6 +897,11 @@ def _validate_attestation(
     )
     if not COMMIT_RE.fullmatch(lock_commit):
         raise LockedRerunError(f"{path}: malformed campaign lock Git commit")
+    _equal(
+        lock_commit,
+        expected_lock_git_commit,
+        f"{path} canonical campaign lock Git commit",
+    )
     raw = _object(value.get("raw_result"), f"{path} raw result")
     _equal(raw.get("filename"), result_path.name, f"{path} result filename")
     _equal(raw.get("bytes"), result_path.stat().st_size, f"{path} result bytes")
@@ -1054,6 +1060,32 @@ def _validate_parallel_contexts(
         )
 
 
+def _preflight_output_pair(output_json: Path, output_markdown: Path) -> None:
+    if output_json == output_markdown:
+        raise LockedRerunError("aggregate JSON and Markdown paths must differ")
+    existing = [path for path in (output_json, output_markdown) if path.exists()]
+    if existing:
+        raise LockedRerunError(
+            "refusing a partial or replacement aggregate; existing output(s): "
+            + ", ".join(str(path) for path in existing)
+        )
+
+
+def _validate_claim_entries(claims_dir: Path) -> None:
+    claim_entries = list(claims_dir.iterdir()) if claims_dir.is_dir() else []
+    _equal(
+        {path.name for path in claim_entries},
+        {f"ladder_r{rank}.claim" for rank in RANKS},
+        "persistent task claim set",
+    )
+    non_directories = [path for path in claim_entries if not path.is_dir()]
+    if non_directories:
+        raise LockedRerunError(
+            "every task claim must be a directory: "
+            + ", ".join(str(path) for path in non_directories)
+        )
+
+
 def aggregate(args: argparse.Namespace) -> None:
     control_repo = args.control_repo.resolve()
     source_repo = args.source_repo.resolve()
@@ -1070,6 +1102,7 @@ def aggregate(args: argparse.Namespace) -> None:
     )
     _equal(source_repo, locked_worktree, "aggregate source/worktree identity")
     lock_sha256 = _sha256_file(lock_path)
+    lock_git_commit = _canonical_lock_commit(control_repo, lock)
     manifest_path = campaign_dir / "feature_manifest.json"
     _verify_input_file(
         manifest_path,
@@ -1095,6 +1128,7 @@ def aggregate(args: argparse.Namespace) -> None:
         if args.output_markdown is not None
         else campaign_dir / "aggregate.md"
     )
+    _preflight_output_pair(output_json, output_markdown)
     excluded = {output_json, output_markdown}
     observed_json = {
         path.name
@@ -1102,15 +1136,7 @@ def aggregate(args: argparse.Namespace) -> None:
         if path.resolve() not in excluded
     }
     _equal(observed_json, _expected_json_names(), "campaign JSON artifact set")
-    claims_dir = campaign_dir / ".claims"
-    observed_claims = (
-        {path.name for path in claims_dir.iterdir()} if claims_dir.is_dir() else set()
-    )
-    _equal(
-        observed_claims,
-        {f"ladder_r{rank}.claim" for rank in RANKS},
-        "persistent task claim set",
-    )
+    _validate_claim_entries(campaign_dir / ".claims")
 
     base = _import_locked_aggregator(locked_worktree)
     (
@@ -1133,6 +1159,7 @@ def aggregate(args: argparse.Namespace) -> None:
                 result_path=result_path,
                 rank=rank,
                 lock_sha256=lock_sha256,
+                expected_lock_git_commit=lock_git_commit,
                 lock=lock,
                 expected_account=expected_account,
                 expected_partition=expected_partition,
@@ -1312,13 +1339,31 @@ def self_test(args: argparse.Namespace) -> None:
         else:
             raise AssertionError("duplicate JSON key was accepted")
         aggregate_markdown = root / "aggregate.md"
+        aggregate_json = root / "aggregate.json"
+        _preflight_output_pair(aggregate_json, aggregate_markdown)
         _atomic_write_once_bytes(aggregate_markdown, b"first\n")
+        expect_locked_error(
+            lambda: _preflight_output_pair(aggregate_json, aggregate_markdown),
+            "half-published aggregate pair",
+        )
         try:
             _atomic_write_once_bytes(aggregate_markdown, b"replacement\n")
         except FileExistsError:
             pass
         else:
             raise AssertionError("write-once aggregate was replaceable")
+        claims = root / ".claims"
+        claims.mkdir()
+        for rank in RANKS:
+            (claims / f"ladder_r{rank}.claim").mkdir()
+        _validate_claim_entries(claims)
+        corrupt_claim = claims / f"ladder_r{RANKS[-1]}.claim"
+        corrupt_claim.rmdir()
+        corrupt_claim.write_text("not a directory", encoding="utf-8")
+        expect_locked_error(
+            lambda: _validate_claim_entries(claims),
+            "non-directory claim",
+        )
 
     environment = {
         "hardware": {
