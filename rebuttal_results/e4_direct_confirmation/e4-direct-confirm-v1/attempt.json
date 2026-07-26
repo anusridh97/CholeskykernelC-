@@ -1,0 +1,12 @@
+{
+  "campaign_tag": "e4-direct-confirm-v1",
+  "claimed_utc": "2026-07-26T03:43:21.608499+00:00",
+  "implementation_extension": "/scratch/m000151-pm06/arjo/job-builds/394233/e4-direct/lib/fast_cholesky.so",
+  "implementation_extension_sha256": "320f8f561897504bc176708b3bfa8437ef12e074e7c40354a63c8ddd2c6758bb",
+  "implementation_source_sha256": "b1c92d7fcbca869eba625623b5d7ab440a38eceba79b715db2b8087dbf2d87b4",
+  "protocol_sha256": "10f2ad4bc27bb2bcaf39001f2f76fea8ed474f4de3988c7aff857786563987ee",
+  "schema_version": 1,
+  "slurm_job_id": "394233",
+  "source_commit": "79f8e58382a03a8fb1f367121688cf7122996e98",
+  "status": "claimed_before_science"
+}
