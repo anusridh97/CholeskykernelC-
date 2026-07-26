@@ -1,0 +1,87 @@
+{
+  "campaign_tag": "e4-safety-followup-v1",
+  "confirmation_artifacts_before_preflight": {
+    "checked_paths": [
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/preflight.json",
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/attempt.json",
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/rows.jsonl",
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/result.json",
+      "rebuttal_results/e4_safety_followup/e4-safety-followup-v1/audit_summary.json"
+    ],
+    "checked_utc": "2026-07-26T04:35:37.233098+00:00",
+    "confirmation_seeds": [
+      46001,
+      46002,
+      46003,
+      46004,
+      46005,
+      46006,
+      46007,
+      46008,
+      46009,
+      46010,
+      46011,
+      46012,
+      46013,
+      46014,
+      46015,
+      46016,
+      46017,
+      46018,
+      46019,
+      46020
+    ],
+    "existing_paths": [],
+    "no_confirmation_science_artifacts": true
+  },
+  "created_utc": "2026-07-26T04:35:37.219271+00:00",
+  "development_inventory_sha256": "246f880b42a58e58e0d64fe55a2ca991f254dcfe6572fa3d2755bfefdc98db02",
+  "environment": {
+    "host": "n12",
+    "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+    "process_affinity": [
+      40
+    ],
+    "python": "3.10.12 (main, Jun 22 2026, 18:55:27) [GCC 11.4.0]",
+    "python_executable": "/usr/bin/python3",
+    "python_no_user_site": "1",
+    "slurm_cpus_per_task": "1",
+    "slurm_job_account": "marlowe-m000151-pm06",
+    "slurm_job_id": "394346",
+    "slurm_job_partition": "batch",
+    "slurm_job_qos": "medium",
+    "slurm_node_list": "n12",
+    "source_commit": "140018e44fc542c44c64b250e2c385897f4c5b07",
+    "thread_environment": {
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "torch": "2.12.0+cu126",
+    "torch_num_interop_threads": 1,
+    "torch_num_threads": 1
+  },
+  "experiment": "e4_safety_followup_preflight",
+  "implementation_extension": "/scratch/m000151-pm06/arjo/job-builds/394346/e4-safety-preflight/lib/fast_cholesky.so",
+  "implementation_extension_sha256": "eeaed46edb249d65ecfa4c79cc55a3a23d289103dc37df316bb80012112b7944",
+  "implementation_source_sha256": "b1c92d7fcbca869eba625623b5d7ab440a38eceba79b715db2b8087dbf2d87b4",
+  "protocol_sha256": "8bf93b3bb169918b9a39ec53d56cca1756d60e7256120c3d511e3461d0c79c0c",
+  "schema_version": 1,
+  "self_tests": {
+    "float32": {
+      "action": "promote_fp64",
+      "clean_probe_residual": 0.0,
+      "injected_probe_residual": 0.06145564653436205,
+      "post_exact_residual": 0.0
+    },
+    "float64": {
+      "action": "refresh_fp64",
+      "clean_probe_residual": 0.0,
+      "injected_probe_residual": 0.06618039922417138,
+      "post_exact_residual": 0.0
+    }
+  },
+  "source_commit": "140018e44fc542c44c64b250e2c385897f4c5b07",
+  "source_lock_sha256": "655b39609057100686449ae7e2b8b8e675b9ef355ffc6e0f2bd26d862b013768",
+  "status": "passed"
+}
