@@ -16,17 +16,21 @@ reported as isolated kernel timing.
 ## Frozen design
 
 - Data: `Cholesky-main-2/data/protein.mat`, fixed randomized 80/20 split with
-  split seed 42, with normalization fitted only on the training partition.
+  split seed 42.  The final stored column is the regression target.  Feature
+  min/range and target mean/standard deviation are fitted only on training
+  rows; the reported MSE is therefore on the train-standardized stored target.
 - Model: `9-512-512-128-1`; only the first layer is preconditioned.
 - Ranks: 256, 512, and 1024.
 - Refresh threshold: `tau=0.1`.
 - Training: ten epochs, batch size 256, learning rate 0.1, damping 1.0,
   momentum 0.9, and an exact Ours reset every 50 steps.
 - Precision: CPU FP32 for both methods.
-- Thread modes: equal 1-thread and equal 10-thread runs.  Each array task
-  reserves ten physical CPU slots, launches one worker, pins that worker to
-  exactly the requested number of distinct allocated cores on one socket,
-  and checks the live ATen, OpenMP, and MKL thread counts.
+- Thread modes: equal 1-thread and equal 10-thread runs on account
+  `marlowe-m000151-pm06`, partition `batch`.  Each array element receives an
+  exclusive one-node allocation, launches exactly one process/task, reserves
+  ten physical CPU slots, pins that process to exactly the requested number
+  of distinct cores on one socket, and checks the live ATen, OpenMP, and MKL
+  thread counts.  Requeue/restart is disabled.
 - Pairing: one task runs both methods sequentially from byte-identical model,
   curvature, velocity, and minibatch-permutation state.  Method order is
   parity-counterbalanced.  Each rank/thread confirmation cell has five
@@ -34,9 +38,14 @@ reported as isolated kernel timing.
 - Pilots: seeds 1000--1002, 18 paired tasks.  Pilots are operational checks,
   never evaluate the test set, and cannot alter the already-frozen
   configuration.
-- Confirmation: untouched seeds 2000--2009, 60 paired tasks.  Each method
-  evaluates test MSE exactly once, after all training, with no test-based
-  selection.
+- Confirmation: untouched seeds 2000--2009, 60 paired tasks.  Both methods
+  finish training and all paired invariants pass before held-out tensors are
+  materialized.  Each method then evaluates test MSE exactly once, in a
+  terminal pass, with no test-based selection.
+
+The v2 grid is unchanged from the source-locked v1 design.  The outcome
+inventory and non-adaptive choice provenance are recorded in
+`E1_PRIOR_OUTCOME_AUDIT.md`.  No v1 pilot or confirmation outcomes exist.
 
 Ours calls `fast_incremental_update` with explicit `metric_sign=1` and
 `operator_sign=1`.  In the locked corrected implementation this dispatches
@@ -60,6 +69,9 @@ diagnostic.
 Each artifact also contains:
 
 - source, binary, data, driver, and Slurm-script SHA-256 hashes;
+- a runtime lock covering the exact Python executable, PyTorch, NumPy, SciPy,
+  torch build configuration, libc/machine tuple, and extension dependency
+  manifest;
 - the exact git commit and complete source lock;
 - requested and runtime-observed ATen/OpenMP/MKL thread counts;
 - process CPU affinity and Slurm allocation metadata;
@@ -75,24 +87,26 @@ on the basis of confirmation outcomes.
 ## Immutable workflow
 
 The harness and all locked sources must first be committed and clean.  The
-binary is not required to be tracked, but its exact bytes are locked.
+binary is not required to be tracked, but its exact bytes are locked.  Freeze
+the lock on a `batch` compute node so the runtime lock describes the actual
+execution environment, not a login node.
 
 ```bash
 PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action self-test
 
-PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebuttal_deps" \
-  /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
-  --action freeze-lock
+sbatch rebuttal_experiments/slurm/e1_confirmation_preflight.sbatch
 ```
 
-Commit and push the newly written
-`rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v1/source_lock.json`
-before any pilot.  Runtime verification requires that immutable lock to be
-tracked and clean.  The lock commit may be an ancestor of the run commit, so
-unrelated E3, E6, or black-hole work can continue in parallel; every locked
-file must still match its exact locked bytes.  Each run records both commits.
+The preflight job writes both the source/runtime lock and an immutable
+preflight receipt.  Commit and push
+`rebuttal_results/e1_confirmation/e1-confirm-fastpositive-v2/source_lock.json`
+and `preflight_receipt.json` before any pilot.  Runtime verification requires
+that immutable lock to be tracked and clean.  The lock commit may be an
+ancestor of the run commit, so unrelated E3, E6, or black-hole work can
+continue in parallel; every locked file must still match its exact locked
+bytes.  Each run records both commits.
 
 After review, submit the pilot array:
 
@@ -113,7 +127,11 @@ PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebutt
   --note "Reviewed all pilot diagnostics; proceed unchanged."
 ```
 
-The confirmation script refuses to run without that write-once approval:
+The confirmation script refuses to run without that write-once approval.
+Each confirmation pair also writes a permanent attempt claim before training.
+There is no automatic requeue and a claimed pair may not be retried under this
+campaign tag, preventing a crash after test access from producing a second
+held-out evaluation:
 
 ```bash
 sbatch rebuttal_experiments/slurm/e1_confirmation.sbatch
@@ -127,6 +145,7 @@ PYTHONPATH="$PWD/Cholesky-main-2/corrected_incremental_cholesky:$PWD:$PWD/rebutt
   --action aggregate-confirmation
 ```
 
-Every JSON publication is atomic and write-once.  A partial campaign may be
-resumed by submitting only missing array indices; completed artifacts cannot
-be replaced.
+Every JSON publication is atomic and write-once.  Missing pilot indices may be
+resubmitted; completed pilot artifacts cannot be replaced.  Confirmation
+indices are never resubmitted after a claim.  A claimed failure retires this
+campaign tag rather than weakening the exactly-once test policy.

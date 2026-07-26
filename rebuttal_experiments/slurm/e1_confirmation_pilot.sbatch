@@ -1,16 +1,17 @@
 #!/bin/bash
 #SBATCH --job-name=e1-paired-pilot
-#SBATCH --account=marlowe-m000151
-#SBATCH --partition=preempt
+#SBATCH --account=marlowe-m000151-pm06
+#SBATCH --partition=batch
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=10
+#SBATCH --exclusive
 #SBATCH --hint=nomultithread
 #SBATCH --distribution=block:block
 #SBATCH --mem=32G
-#SBATCH --time=01:00:00
+#SBATCH --time=02:00:00
 #SBATCH --array=0-17%10
-#SBATCH --requeue
+#SBATCH --no-requeue
 #SBATCH --output=rebuttal_logs/e1-paired-pilot-%A_%a.out
 #SBATCH --error=rebuttal_logs/e1-paired-pilot-%A_%a.err
 
@@ -25,7 +26,9 @@ else
 fi
 
 package_dir="${PWD}/Cholesky-main-2/corrected_incremental_cholesky"
-export PYTHONPATH="${package_dir}:${PWD}:${PWD}/rebuttal_deps"
+export E1_TORCH_SITE=/users/arjo/.local/lib/python3.10/site-packages
+export PYTHONPATH="${package_dir}:${PWD}:${PWD}/rebuttal_deps:${E1_TORCH_SITE}"
+export PYTHONNOUSERSITE=1
 export PYTHONHASHSEED=0
 export OMP_NUM_THREADS="${thread_count}"
 export MKL_NUM_THREADS="${thread_count}"
@@ -39,4 +42,4 @@ srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=10 \
   --hint=nomultithread --distribution=block:block --cpu-bind=cores \
   /usr/bin/python3 rebuttal_experiments/e1_confirmation.py \
   --action run-pair --phase pilot --task-index "${task_index}" \
-  --campaign-tag e1-confirm-fastpositive-v1
+  --campaign-tag e1-confirm-fastpositive-v2

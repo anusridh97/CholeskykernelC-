@@ -40,7 +40,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CORRECTED_DIR = ROOT / "Cholesky-main-2" / "corrected_incremental_cholesky"
 DATA_PATH = ROOT / "Cholesky-main-2" / "data" / "protein.mat"
 DEFAULT_RESULTS = ROOT / "rebuttal_results" / "e1_confirmation"
-DEFAULT_CAMPAIGN = "e1-confirm-fastpositive-v1"
+DEFAULT_CAMPAIGN = "e1-confirm-fastpositive-v2"
+EXPECTED_SLURM_ACCOUNT = "marlowe-m000151-pm06"
+EXPECTED_SLURM_PARTITION = "batch"
+EXPECTED_TORCH_SITE = Path(
+    "/users/arjo/.local/lib/python3.10/site-packages"
+)
 
 # Resolve data_utils and fast_cholesky from the corrected package, not from
 # student_pkg or an extension elsewhere on PYTHONPATH.
@@ -49,9 +54,10 @@ if str(CORRECTED_DIR) not in sys.path:
 if str(ROOT) not in sys.path:
     sys.path.insert(1, str(ROOT))
 
+import numpy
+import scipy
 import torch
-
-from data_utils import load_uci_mat
+from scipy.io import loadmat
 from rebuttal_experiments.ng_sweep import (
     apply_first_layer_step,
     build_model,
@@ -65,6 +71,20 @@ CONFIRMATION_SEEDS = tuple(range(2000, 2010))
 RANKS = (256, 512, 1024)
 THREAD_COUNTS = (1, 10)
 METHODS = ("ours", "refact")
+EXPECTED_DATA_PARTITION = {
+    "train_examples": 36584,
+    "test_examples": 9146,
+    "features": 9,
+    "train_index_sha256": (
+        "6d8fd4e5f016310c1d005c6963740ec8dc9ff57886c9cf9a92077239b77bd301"
+    ),
+    "test_index_sha256": (
+        "8a6bdd65ada4b99d2e2ddc2ac368c8ce99fc17c64001c27928cc73f039b5f4a7"
+    ),
+    "training_tensor_sha256": (
+        "e17d77c799877dd560905f0a88217e703d16973af55368ed8e7a34897c987b95"
+    ),
+}
 
 FIXED_CONFIG: dict[str, Any] = {
     "dataset": "UCI Protein protein.mat",
@@ -88,14 +108,23 @@ FIXED_CONFIG: dict[str, Any] = {
     ),
     "test_policy": (
         "zero test evaluations in pilots; exactly one final test evaluation "
-        "per method in each confirmation pair"
+        "per method in each confirmation pair, after both methods finish "
+        "training and all pre-test checks pass"
     ),
+    "outcome_adaptive_changes": False,
+    "expected_data_partition": EXPECTED_DATA_PARTITION,
 }
 
 LOCKED_FILES = {
     "driver": "rebuttal_experiments/e1_confirmation.py",
     "protocol": "rebuttal_experiments/E1_CONFIRMATION_PROTOCOL.md",
+    "prior_outcome_audit": (
+        "rebuttal_experiments/E1_PRIOR_OUTCOME_AUDIT.md"
+    ),
     "pilot_sbatch": "rebuttal_experiments/slurm/e1_confirmation_pilot.sbatch",
+    "preflight_sbatch": (
+        "rebuttal_experiments/slurm/e1_confirmation_preflight.sbatch"
+    ),
     "confirmation_sbatch": (
         "rebuttal_experiments/slurm/e1_confirmation.sbatch"
     ),
@@ -143,6 +172,111 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _text_sha256(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _module_record(module: Any) -> dict[str, Any]:
+    path = Path(module.__file__).resolve()
+    return {
+        "version": str(module.__version__),
+        "path": str(path),
+        "bytes": path.stat().st_size,
+        "sha256": _sha256(path),
+    }
+
+
+def _file_record(path: Path) -> dict[str, Any]:
+    path = path.resolve()
+    return {
+        "path": str(path),
+        "bytes": path.stat().st_size,
+        "sha256": _sha256(path),
+    }
+
+
+def _runtime_manifest() -> dict[str, Any]:
+    """Return stable runtime fields that must match on every campaign task."""
+    if os.environ.get("PYTHONNOUSERSITE") != "1":
+        raise RuntimeError("runtime lock requires PYTHONNOUSERSITE=1")
+    configured_torch_site = os.environ.get("E1_TORCH_SITE")
+    if configured_torch_site != str(EXPECTED_TORCH_SITE):
+        raise RuntimeError(
+            f"E1_TORCH_SITE must be {str(EXPECTED_TORCH_SITE)!r}"
+        )
+    torch_root = Path(torch.__file__).resolve().parent
+    try:
+        torch_root.relative_to(EXPECTED_TORCH_SITE)
+    except ValueError as error:
+        raise RuntimeError(
+            f"torch loaded outside pinned site: {torch_root}"
+        ) from error
+    dependency_root = (ROOT / "rebuttal_deps").resolve()
+    for name, module in (("numpy", numpy), ("scipy", scipy)):
+        try:
+            Path(module.__file__).resolve().relative_to(dependency_root)
+        except ValueError as error:
+            raise RuntimeError(
+                f"{name} loaded outside campaign dependency root"
+            ) from error
+
+    import numpy._core._multiarray_umath as numpy_core
+    import scipy.linalg._fblas as scipy_blas
+    import scipy.linalg._flapack as scipy_lapack
+
+    python = Path(sys.executable).resolve()
+    extension = (ROOT / LOCKED_FILES["incremental_binary"]).resolve()
+    ldd_raw = subprocess.run(
+        ("ldd", str(extension)),
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ).stdout
+    ldd_lines = [
+        re.sub(r"\s+\(0x[0-9a-fA-F]+\)$", "", line.strip())
+        for line in ldd_raw.splitlines()
+        if line.strip()
+    ]
+    ldd = "\n".join(ldd_lines)
+    return {
+        "schema_version": 1,
+        "python": {
+            "executable": str(python),
+            "bytes": python.stat().st_size,
+            "sha256": _sha256(python),
+            "version": platform.python_version(),
+            "implementation": platform.python_implementation(),
+        },
+        "packages": {
+            "torch": _module_record(torch),
+            "numpy": _module_record(numpy),
+            "scipy": _module_record(scipy),
+        },
+        "critical_binary_files": {
+            "torch_C": _file_record(Path(torch._C.__file__)),
+            "torch_cpu": _file_record(
+                torch_root / "lib" / "libtorch_cpu.so"
+            ),
+            "numpy_core": _file_record(Path(numpy_core.__file__)),
+            "scipy_blas": _file_record(Path(scipy_blas.__file__)),
+            "scipy_lapack": _file_record(Path(scipy_lapack.__file__)),
+        },
+        "path_policy": {
+            "PYTHONNOUSERSITE": os.environ.get("PYTHONNOUSERSITE"),
+            "E1_TORCH_SITE": configured_torch_site,
+            "dependency_root": str(dependency_root),
+        },
+        "torch_config_sha256": _text_sha256(torch.__config__.show()),
+        "platform": {
+            "machine": platform.machine(),
+            "libc": list(platform.libc_ver()),
+        },
+        "extension_ldd_sha256": _text_sha256(ldd),
+        "extension_ldd": ldd_lines,
+    }
+
+
 def _git(*arguments: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ("git",) + arguments,
@@ -161,10 +295,14 @@ def _scoped_git_clean(relative_paths: list[str]) -> None:
             raise RuntimeError(
                 f"source-lock prerequisite is not tracked by git: {relative}"
             )
-    changed = _git(
+    unstaged = _git(
         "diff", "--quiet", "HEAD", "--", *relative_paths, check=False
     )
-    if changed.returncode != 0:
+    staged = _git(
+        "diff", "--cached", "--quiet", "HEAD", "--", *relative_paths,
+        check=False,
+    )
+    if unstaged.returncode != 0 or staged.returncode != 0:
         raise RuntimeError(
             "source-lock prerequisite has staged or unstaged changes; commit "
             "the E1 harness and all locked sources first"
@@ -289,7 +427,7 @@ def freeze_lock(args: argparse.Namespace) -> dict[str, Any]:
         }
 
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "experiment": "e1_paired_confirmation_source_lock",
         "campaign_tag": args.campaign_tag,
         "created_utc": _utc_now(),
@@ -310,6 +448,7 @@ def freeze_lock(args: argparse.Namespace) -> dict[str, Any]:
             ),
             "precision": "both methods use CPU torch.float32 throughout",
         },
+        "runtime": _runtime_manifest(),
         "files": files,
     }
     output = _lock_path(args)
@@ -330,7 +469,7 @@ def _verify_lock(
 ) -> tuple[dict[str, Any], str, str]:
     path = _lock_path(args)
     lock = _read_json(path)
-    if lock.get("schema_version") != 1:
+    if lock.get("schema_version") != 2:
         raise RuntimeError("unsupported or missing source-lock schema")
     if lock.get("campaign_tag") != args.campaign_tag:
         raise RuntimeError("campaign tag does not match source lock")
@@ -378,6 +517,11 @@ def _verify_lock(
             raise RuntimeError(f"locked byte size changed for {relative}")
         if _sha256(path_to_check) != record.get("sha256"):
             raise RuntimeError(f"locked SHA-256 changed for {relative}")
+    observed_runtime = _runtime_manifest()
+    if lock.get("runtime") != observed_runtime:
+        raise RuntimeError(
+            "Python/PyTorch/NumPy/SciPy/ABI runtime differs from source lock"
+        )
     return lock, _sha256(path), current_head
 
 
@@ -528,13 +672,82 @@ def _validate_slurm_task(spec: dict[str, Any]) -> dict[str, Any]:
         raise RuntimeError(
             f"each task must reserve exactly 10 CPUs, got {cpus!r}"
         )
+    if os.environ.get("SLURM_RESTART_COUNT", "0") != "0":
+        raise RuntimeError(
+            "requeued/restarted tasks are forbidden by the exactly-once policy"
+        )
+    required = {
+        "SLURM_JOB_ACCOUNT": EXPECTED_SLURM_ACCOUNT,
+        "SLURM_JOB_PARTITION": EXPECTED_SLURM_PARTITION,
+        "SLURM_NTASKS": "1",
+        "SLURM_JOB_NUM_NODES": "1",
+    }
+    for name, expected in required.items():
+        actual = os.environ.get(name)
+        if actual != expected:
+            raise RuntimeError(
+                f"{name} must be {expected!r}, got {actual!r}"
+            )
+    allocation = subprocess.run(
+        ("scontrol", "show", "job", "-o", job_id),
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ).stdout.strip()
+    if not re.search(r"(?:^|\s)Shared=(?:0|EXCLUSIVE)(?:\s|$)", allocation):
+        raise RuntimeError(
+            "Slurm allocation is not exclusive; expected #SBATCH --exclusive"
+        )
     return {
         "job_id": job_id,
         "array_job_id": os.environ.get("SLURM_ARRAY_JOB_ID"),
         "array_task_id": array_task,
         "cpus_per_task": cpus,
+        "account": os.environ.get("SLURM_JOB_ACCOUNT"),
+        "partition": os.environ.get("SLURM_JOB_PARTITION"),
+        "ntasks": os.environ.get("SLURM_NTASKS"),
+        "job_num_nodes": os.environ.get("SLURM_JOB_NUM_NODES"),
         "node_list": os.environ.get("SLURM_JOB_NODELIST"),
         "step_id": os.environ.get("SLURM_STEP_ID"),
+        "scontrol_job_sha256": _text_sha256(allocation),
+        "exclusive_allocation_verified": True,
+        "restart_count": os.environ.get("SLURM_RESTART_COUNT", "0"),
+    }
+
+
+def _validate_preflight_slurm() -> dict[str, Any]:
+    job_id = os.environ.get("SLURM_JOB_ID")
+    if not job_id or os.environ.get("SLURM_ARRAY_TASK_ID") is not None:
+        raise RuntimeError("preflight requires one non-array Slurm job")
+    required = {
+        "SLURM_JOB_ACCOUNT": EXPECTED_SLURM_ACCOUNT,
+        "SLURM_JOB_PARTITION": EXPECTED_SLURM_PARTITION,
+        "SLURM_NTASKS": "1",
+        "SLURM_JOB_NUM_NODES": "1",
+        "SLURM_CPUS_PER_TASK": "10",
+    }
+    for name, expected in required.items():
+        actual = os.environ.get(name)
+        if actual != expected:
+            raise RuntimeError(
+                f"{name} must be {expected!r}, got {actual!r}"
+            )
+    allocation = subprocess.run(
+        ("scontrol", "show", "job", "-o", job_id),
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ).stdout.strip()
+    if not re.search(r"(?:^|\s)Shared=(?:0|EXCLUSIVE)(?:\s|$)", allocation):
+        raise RuntimeError("preflight allocation is not exclusive")
+    return {
+        "job_id": job_id,
+        "account": os.environ["SLURM_JOB_ACCOUNT"],
+        "partition": os.environ["SLURM_JOB_PARTITION"],
+        "exclusive_allocation_verified": True,
+        "node_list": os.environ.get("SLURM_JOB_NODELIST"),
     }
 
 
@@ -549,6 +762,96 @@ def _tensor_digest_entries(
         digest.update(str(tuple(value.shape)).encode("ascii"))
         digest.update(value.numpy().tobytes(order="C"))
     return digest.hexdigest()
+
+
+def _fixed_split_indices(
+    examples: int,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    generator = torch.Generator(device="cpu")
+    generator.manual_seed(FIXED_CONFIG["split_seed"])
+    permutation = torch.randperm(examples, generator=generator)
+    split = int(FIXED_CONFIG["train_fraction"] * examples)
+    return permutation[:split], permutation[split:]
+
+
+def _load_training_partition(
+) -> tuple[torch.Tensor, torch.Tensor, dict[str, Any], dict[str, torch.Tensor]]:
+    """Load and transform training rows without constructing held-out tensors."""
+    raw = loadmat(DATA_PATH)
+    if "data" not in raw:
+        raise KeyError(f"{DATA_PATH} does not contain a 'data' matrix")
+    data = torch.as_tensor(raw["data"], dtype=torch.float32, device="cpu")
+    train_index, test_index = _fixed_split_indices(data.shape[0])
+    requested_threads = torch.get_num_threads()
+    torch.set_num_threads(1)
+    try:
+        train = data[train_index]
+        X_train, y_train = train[:, :-1], train[:, -1]
+        x_min = X_train.amin(dim=0)
+        x_range = (X_train.amax(dim=0) - x_min).clamp_min(1e-8)
+        y_mean = y_train.mean()
+        y_std = y_train.std(unbiased=False).clamp_min(1e-8)
+        X_train = ((X_train - x_min) / x_range).contiguous()
+        y_train = ((y_train - y_mean) / y_std).contiguous()
+    finally:
+        torch.set_num_threads(requested_threads)
+
+    metadata = {
+        "train_examples": int(train_index.numel()),
+        "test_examples": int(test_index.numel()),
+        "features": int(X_train.shape[1]),
+        "train_index_sha256": _tensor_digest_entries(
+            [("train_index", train_index)]
+        ),
+        "test_index_sha256": _tensor_digest_entries(
+            [("test_index", test_index)]
+        ),
+        "training_tensor_sha256": _tensor_digest_entries(
+            [("X_train", X_train), ("y_train", y_train)]
+        ),
+    }
+    if metadata != EXPECTED_DATA_PARTITION:
+        raise RuntimeError(
+            "fixed Protein split/preprocessing differs from predeclared manifest"
+        )
+    preprocessing = {
+        "x_min": x_min,
+        "x_range": x_range,
+        "y_mean": y_mean,
+        "y_std": y_std,
+        "test_index": test_index,
+    }
+    return X_train, y_train, metadata, preprocessing
+
+
+def _materialize_confirmation_test(
+    preprocessing: dict[str, torch.Tensor],
+    expected_metadata: dict[str, Any],
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Materialize held-out rows only after both confirmation trainings end."""
+    raw = loadmat(DATA_PATH)
+    data = torch.as_tensor(raw["data"], dtype=torch.float32, device="cpu")
+    train_index, test_index = _fixed_split_indices(data.shape[0])
+    if _tensor_digest_entries(
+        [("train_index", train_index)]
+    ) != expected_metadata["train_index_sha256"]:
+        raise RuntimeError("training split changed before test materialization")
+    if _tensor_digest_entries(
+        [("test_index", test_index)]
+    ) != expected_metadata["test_index_sha256"]:
+        raise RuntimeError("held-out split changed before test materialization")
+    if not torch.equal(test_index, preprocessing["test_index"]):
+        raise RuntimeError("held-out indices differ from predeclared split")
+    test = data[test_index]
+    X_test = (
+        (test[:, :-1] - preprocessing["x_min"])
+        / preprocessing["x_range"]
+    ).contiguous()
+    y_test = (
+        (test[:, -1] - preprocessing["y_mean"])
+        / preprocessing["y_std"]
+    ).contiguous()
+    return X_test, y_test
 
 
 def _relative_error(actual: torch.Tensor, expected: torch.Tensor) -> float:
@@ -735,8 +1038,6 @@ def _run_method(
     rank: int,
     X_train: torch.Tensor,
     y_train: torch.Tensor,
-    X_test: torch.Tensor,
-    y_test: torch.Tensor,
     initial: dict[str, Any],
     permutations: list[torch.Tensor],
     input_hashes: dict[str, str],
@@ -973,28 +1274,8 @@ def _run_method(
         )
     train_evaluation_seconds = time.perf_counter() - train_eval_start
 
-    test_prediction: torch.Tensor | None = None
-    final_test_mse: float | None = None
-    test_evaluation_seconds = 0.0
-    test_evaluations = 0
-    if phase == "confirmation":
-        test_eval_start = time.perf_counter()
-        with torch.no_grad():
-            test_prediction = model(X_test).squeeze(-1)
-            final_test_mse = float(
-                torch.nn.functional.mse_loss(
-                    test_prediction, y_test
-                ).item()
-            )
-        test_evaluation_seconds = time.perf_counter() - test_eval_start
-        test_evaluations = 1
-
-    for name, value in (
-        ("final_train_mse", final_train_mse),
-        ("final_test_mse", final_test_mse),
-    ):
-        if value is not None and not math.isfinite(value):
-            raise RuntimeError(f"{method} produced non-finite {name}")
+    if not math.isfinite(final_train_mse):
+        raise RuntimeError(f"{method} produced non-finite final_train_mse")
 
     model_entries = [
         (f"model.{key}", value)
@@ -1016,8 +1297,8 @@ def _run_method(
         "refresh_count": refresh_count,
         "refresh_fraction": refresh_count / total_steps,
         "final_train_mse": final_train_mse,
-        "final_test_mse": final_test_mse,
-        "test_evaluations": test_evaluations,
+        "final_test_mse": None,
+        "test_evaluations": 0,
         "timing": {
             "state_clone_seconds": clone_seconds,
             "training_wall_seconds": training_wall_seconds,
@@ -1030,7 +1311,7 @@ def _run_method(
                 raw["unaccounted_seconds"]
             ),
             "train_evaluation_seconds": train_evaluation_seconds,
-            "test_evaluation_seconds": test_evaluation_seconds,
+            "test_evaluation_seconds": 0.0,
         },
         "reset_drift_values": reset_drift,
         "max_reset_drift": max(reset_drift, default=None),
@@ -1049,12 +1330,39 @@ def _run_method(
     }
     private = {
         "model_vector": final_model_vector,
+        "model": model,
         "train_prediction": train_prediction,
-        "test_prediction": test_prediction,
+        "test_prediction": None,
         "refresh_trace": raw["refreshed"],
         "unexplained_trace": raw["unexplained_energy"],
     }
     return method_payload, private
+
+
+def _evaluate_confirmation_test_once(
+    methods: dict[str, dict[str, Any]],
+    private: dict[str, dict[str, Any]],
+    X_test: torch.Tensor,
+    y_test: torch.Tensor,
+) -> None:
+    """Perform the predeclared terminal test pass exactly once per method."""
+    for method in METHODS:
+        if methods[method]["test_evaluations"] != 0:
+            raise RuntimeError(f"{method} test set was accessed before final pass")
+        start = time.perf_counter()
+        with torch.no_grad():
+            prediction = private[method]["model"](X_test).squeeze(-1)
+            mse = float(
+                torch.nn.functional.mse_loss(prediction, y_test).item()
+            )
+        if not math.isfinite(mse):
+            raise RuntimeError(f"{method} produced non-finite final_test_mse")
+        methods[method]["final_test_mse"] = mse
+        methods[method]["test_evaluations"] = 1
+        methods[method]["timing"]["test_evaluation_seconds"] = (
+            time.perf_counter() - start
+        )
+        private[method]["test_prediction"] = prediction
 
 
 def _paired_diagnostics(
@@ -1155,6 +1463,43 @@ def _require_pilot_gate(
     return gate
 
 
+def _claim_confirmation_attempt(
+    directory: Path,
+    spec: dict[str, Any],
+    lock_sha256: str,
+    run_git_commit: str,
+    slurm: dict[str, Any],
+) -> dict[str, Any]:
+    """Permanently prevent a confirmation pair from touching test twice."""
+    claim = {
+        "schema_version": 1,
+        "experiment": "e1_confirmation_exactly_once_claim",
+        "campaign_tag": DEFAULT_CAMPAIGN,
+        "created_utc": _utc_now(),
+        "spec": spec,
+        "source_lock_sha256": lock_sha256,
+        "run_git_commit": run_git_commit,
+        "slurm": slurm,
+        "policy": (
+            "This task index may never be retried in this campaign. If it "
+            "fails before publishing its result, retire the campaign tag "
+            "rather than risk a second held-out evaluation."
+        ),
+    }
+    path = (
+        directory
+        / "confirmation_attempt_claims"
+        / f"{_artifact_path(directory, spec).stem}.claim.json"
+    )
+    try:
+        _write_once_json(claim, path)
+    except FileExistsError as error:
+        raise RuntimeError(
+            f"confirmation task already claimed and may not be retried: {path}"
+        ) from error
+    return {"path": str(path), "sha256": _sha256(path), "payload": claim}
+
+
 def run_pair(args: argparse.Namespace) -> dict[str, Any]:
     if args.task_index is None:
         raise ValueError("--task-index is required for run-pair")
@@ -1166,8 +1511,12 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
 
     directory = _campaign_dir(args)
     gate = None
+    confirmation_claim = None
     if args.phase == "confirmation":
         gate = _require_pilot_gate(directory, lock_sha256)
+        confirmation_claim = _claim_confirmation_attempt(
+            directory, spec, lock_sha256, run_git_commit, slurm
+        )
 
     import fast_cholesky
 
@@ -1183,13 +1532,8 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
 
     pair_start = time.perf_counter()
     data_start = time.perf_counter()
-    X_train, y_train, X_test, y_test = load_uci_mat(
-        "protein",
-        data_dir=DATA_PATH.parent,
-        train_fraction=FIXED_CONFIG["train_fraction"],
-        seed=FIXED_CONFIG["split_seed"],
-        dtype=torch.float32,
-        device="cpu",
+    X_train, y_train, data_metadata, preprocessing = (
+        _load_training_partition()
     )
     data_load_seconds = time.perf_counter() - data_start
     if X_train.shape[1] != FIXED_CONFIG["architecture"][0]:
@@ -1216,23 +1560,34 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
             spec["rank"],
             X_train,
             y_train,
-            X_test,
-            y_test,
             initial,
             permutations,
             input_hashes,
             fast_cholesky,
         )
 
-    paired = _paired_diagnostics(methods, private)
+    pre_test_paired = _paired_diagnostics(methods, private)
     for required in (
         "same_initial_state_hash",
         "same_permutation_hash",
         "same_step_count",
         "same_declared_precision",
     ):
-        if not paired[required]:
+        if not pre_test_paired[required]:
             raise RuntimeError(f"paired fairness invariant failed: {required}")
+    test_materialization_seconds = 0.0
+    if spec["phase"] == "confirmation":
+        test_materialization_start = time.perf_counter()
+        X_test, y_test = _materialize_confirmation_test(
+            preprocessing, data_metadata
+        )
+        test_materialization_seconds = (
+            time.perf_counter() - test_materialization_start
+        )
+        _evaluate_confirmation_test_once(
+            methods, private, X_test, y_test
+        )
+    paired = _paired_diagnostics(methods, private)
 
     payload = {
         "schema_version": 1,
@@ -1244,11 +1599,12 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
         "data": {
             "path": str(DATA_PATH.resolve()),
             "sha256": lock["files"]["protein_data"]["sha256"],
-            "train_examples": X_train.shape[0],
-            "test_examples": X_test.shape[0],
-            "features": X_train.shape[1],
+            **data_metadata,
             "normalization": "fit on fixed training partition only",
             "split_seed": FIXED_CONFIG["split_seed"],
+            "heldout_tensors_materialized": (
+                spec["phase"] == "confirmation"
+            ),
         },
         "paired_inputs": {
             **input_hashes,
@@ -1262,6 +1618,7 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
             "locked_git_commit": lock["git_commit"],
             "run_git_commit": run_git_commit,
             "files": lock["files"],
+            "runtime": lock["runtime"],
         },
         "implementation": {
             "incremental_extension": str(extension_path),
@@ -1287,20 +1644,24 @@ def run_pair(args: argparse.Namespace) -> dict[str, Any]:
                 0 if spec["phase"] == "pilot" else 2
             ),
             "selection_using_test_values": False,
+            "terminal_after_both_methods_trained": True,
         },
         "timing_outside_measured_training": {
             "data_load_seconds": data_load_seconds,
             "paired_initialization_seconds": setup_seconds,
             "model_warmup_seconds": model_warmup_seconds,
+            "test_materialization_seconds": test_materialization_seconds,
             "pair_total_seconds": time.perf_counter() - pair_start,
         },
         "pilot_gate": gate,
+        "confirmation_exactly_once_claim": confirmation_claim,
         "environment": {
             "host": socket.gethostname(),
             "platform": platform.platform(),
             "python": sys.version,
             "torch": torch.__version__,
             "torch_config": torch.__config__.show(),
+            "runtime_lock": lock["runtime"],
             "deterministic_algorithms": (
                 torch.are_deterministic_algorithms_enabled()
             ),
@@ -1331,6 +1692,8 @@ def _validate_artifact(
         raise RuntimeError("artifact source lock mismatch")
     if payload["source_lock"]["files"] is None:
         raise RuntimeError("artifact omitted source and binary hashes")
+    if payload["source_lock"].get("runtime") is None:
+        raise RuntimeError("artifact omitted locked runtime manifest")
     expected_test_evaluations = (
         0 if expected_spec["phase"] == "pilot" else 1
     )
@@ -1359,6 +1722,13 @@ def _validate_artifact(
                 raise RuntimeError("pilot artifact contains a test MSE")
         elif result["final_test_mse"] is None:
             raise RuntimeError("confirmation artifact omitted final test MSE")
+    if expected_spec["phase"] == "pilot":
+        if payload["data"]["heldout_tensors_materialized"]:
+            raise RuntimeError("pilot materialized held-out tensors")
+        if payload["confirmation_exactly_once_claim"] is not None:
+            raise RuntimeError("pilot unexpectedly contains confirmation claim")
+    elif payload["confirmation_exactly_once_claim"] is None:
+        raise RuntimeError("confirmation omitted exactly-once attempt claim")
     paired = payload["paired_diagnostics"]
     for invariant in (
         "same_initial_state_hash",
@@ -1700,7 +2070,101 @@ def self_test() -> None:
             }
             if counts != {"ours": 5, "refact": 5}:
                 raise AssertionError("confirmation order is not balanced")
+    train_a, test_a = _fixed_split_indices(100)
+    train_b, test_b = _fixed_split_indices(100)
+    if not torch.equal(train_a, train_b) or not torch.equal(test_a, test_b):
+        raise AssertionError("fixed split is not deterministic")
+    if set(train_a.tolist()) & set(test_a.tolist()):
+        raise AssertionError("train/test split overlaps")
+    for relative in (
+        LOCKED_FILES["preflight_sbatch"],
+        LOCKED_FILES["pilot_sbatch"],
+        LOCKED_FILES["confirmation_sbatch"],
+    ):
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        required = (
+            "#SBATCH --account=marlowe-m000151-pm06",
+            "#SBATCH --partition=batch",
+            "#SBATCH --nodes=1",
+            "#SBATCH --ntasks=1",
+            "#SBATCH --cpus-per-task=10",
+            "#SBATCH --exclusive",
+            "#SBATCH --hint=nomultithread",
+            "#SBATCH --no-requeue",
+            "PYTHONNOUSERSITE=1",
+        )
+        for line in required:
+            if line not in text:
+                raise AssertionError(f"{relative} omitted {line!r}")
+        if "#SBATCH --requeue" in text:
+            raise AssertionError(f"{relative} enables requeue")
+    confirmation_text = (
+        ROOT / LOCKED_FILES["confirmation_sbatch"]
+    ).read_text(encoding="utf-8")
+    if "--action approve-pilot" in confirmation_text:
+        raise AssertionError("confirmation submission auto-approves pilots")
     print("E1 confirmation self-test passed", flush=True)
+
+
+def preflight(args: argparse.Namespace) -> dict[str, Any]:
+    self_test()
+    lock, lock_sha256, run_git_commit = _verify_lock(args)
+    slurm = _validate_preflight_slurm()
+    thread_report = configure_and_verify_threads(10)
+    torch.use_deterministic_algorithms(True)
+
+    directory = _campaign_dir(args)
+    existing_outcomes = [
+        *directory.glob("pilot_pair_*.json"),
+        *directory.glob("confirmation_pair_*.json"),
+        *directory.glob("confirmation_attempt_claims/*.json"),
+    ]
+    if existing_outcomes:
+        raise RuntimeError(
+            "preflight found outcomes or claims in the new campaign: "
+            + ", ".join(str(path) for path in existing_outcomes)
+        )
+
+    import fast_cholesky
+
+    extension_path = Path(fast_cholesky.__file__).resolve()
+    expected_extension = (
+        ROOT / LOCKED_FILES["incremental_binary"]
+    ).resolve()
+    if extension_path != expected_extension:
+        raise RuntimeError(
+            f"loaded {extension_path}, expected {expected_extension}"
+        )
+    X_train, y_train, data_metadata, _ = _load_training_partition()
+    if data_metadata["features"] != FIXED_CONFIG["architecture"][0]:
+        raise RuntimeError("Protein feature count failed preflight")
+    if not torch.isfinite(X_train).all() or not torch.isfinite(y_train).all():
+        raise RuntimeError("training partition contains non-finite values")
+    kernel_probes = [
+        _kernel_equivalence_probe(rank, fast_cholesky)
+        for rank in RANKS
+    ]
+    payload = {
+        "schema_version": 1,
+        "experiment": "e1_confirmation_preflight",
+        "campaign_tag": args.campaign_tag,
+        "created_utc": _utc_now(),
+        "source_lock_sha256": lock_sha256,
+        "locked_git_commit": lock["git_commit"],
+        "run_git_commit": run_git_commit,
+        "runtime": lock["runtime"],
+        "slurm": slurm,
+        "thread_verification": thread_report,
+        "data": data_metadata,
+        "kernel_probes": kernel_probes,
+        "pilot_outcomes_present_before_launch": False,
+        "confirmation_outcomes_present_before_launch": False,
+    }
+    output = directory / "preflight_receipt.json"
+    _write_once_json(payload, output)
+    print(json.dumps(payload, indent=2, sort_keys=True), flush=True)
+    print(f"wrote immutable preflight receipt {output}", flush=True)
+    return payload
 
 
 def parse_args() -> argparse.Namespace:
@@ -1712,6 +2176,7 @@ def parse_args() -> argparse.Namespace:
             "plan",
             "self-test",
             "freeze-lock",
+            "preflight",
             "run-pair",
             "summarize-pilot",
             "approve-pilot",
@@ -1749,6 +2214,8 @@ def main() -> None:
         self_test()
     elif args.action == "freeze-lock":
         freeze_lock(args)
+    elif args.action == "preflight":
+        preflight(args)
     elif args.action == "run-pair":
         run_pair(args)
     elif args.action == "summarize-pilot":
