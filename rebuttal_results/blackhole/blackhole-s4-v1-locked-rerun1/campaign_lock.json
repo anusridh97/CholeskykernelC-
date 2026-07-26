@@ -123,7 +123,7 @@
     },
     "warmup_transition": 64
   },
-  "created_utc": "2026-07-26T00:54:25Z",
+  "created_utc": "2026-07-26T01:05:38Z",
   "execution": {
     "array_concurrency_cap": 7,
     "cpus_per_task": 4,
@@ -135,19 +135,19 @@
   },
   "harness": {
     "rebuttal_experiments/BLACKHOLE_LOCKED_RERUN_PROTOCOL.md": {
-      "bytes": 5869,
-      "sha256": "3a9936456c7f90f0dac13781480e2186d4c74ca1eb8d2dfdf3146a177beb6496"
+      "bytes": 6179,
+      "sha256": "7bb3f94bfa200122d78d971cd0b9af8aca91ea3516cadf778e7bf61c56f7e522"
     },
     "rebuttal_experiments/blackhole_locked_rerun.py": {
-      "bytes": 55266,
-      "sha256": "71b6fb347c8913110bc752e7147fd19428cb52cf2ab3ff7bf8196c1a52a31a64"
+      "bytes": 58005,
+      "sha256": "729428c4c051c92900c7ccd3acb820c1bd23538d1686952afcec051d9b9b6833"
     },
     "rebuttal_experiments/slurm/cuda_blackhole_rank_scaling_locked.sbatch": {
       "bytes": 2554,
       "sha256": "553a7fee9ba2984376a6cf52916ff2acb299c4a3dbe750936e6a914209d01d04"
     }
   },
-  "harness_git_commit": "3d67bc4ca2c465c46f8d6a5cc7aa0a3d4a47c1dd",
+  "harness_git_commit": "e72389cc3d125455fcbf74c62cc1ac41a44dd846",
   "inner_campaign_tag": "blackhole-s4-v1",
   "inputs": {
     "feature_manifest": {
