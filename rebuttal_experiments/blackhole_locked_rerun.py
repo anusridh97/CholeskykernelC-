@@ -219,6 +219,14 @@ def _default_trace(control_repo: Path) -> Path:
     return control_repo / TRACE_RELATIVE
 
 
+def _validate_campaign_directory(campaign_dir: Path) -> None:
+    _equal(
+        campaign_dir.name,
+        OUTER_CAMPAIGN_TAG,
+        "campaign directory basename",
+    )
+
+
 def _validate_lock_shape(lock: dict[str, Any]) -> None:
     _equal(
         set(lock),
@@ -718,6 +726,7 @@ def prepare(args: argparse.Namespace) -> None:
     source_repo = args.source_repo.resolve()
     locked_worktree = args.locked_worktree.resolve()
     campaign_dir = args.campaign_dir.resolve()
+    _validate_campaign_directory(campaign_dir)
     lock_source = (args.lock_file or _default_lock(control_repo)).resolve()
     manifest_source = (args.manifest or _default_manifest(control_repo)).resolve()
     trace_source = (args.trace or _default_trace(control_repo)).resolve()
@@ -786,6 +795,7 @@ def verify_task(args: argparse.Namespace) -> None:
     source_repo = args.source_repo.resolve()
     locked_worktree = args.locked_worktree.resolve()
     campaign_dir = args.campaign_dir.resolve()
+    _validate_campaign_directory(campaign_dir)
     lock_path = campaign_dir / "campaign_lock.json"
     _load_and_verify_lock(
         lock_path=lock_path,
@@ -820,6 +830,7 @@ def attest_task(args: argparse.Namespace) -> None:
     source_repo = args.source_repo.resolve()
     locked_worktree = args.locked_worktree.resolve()
     campaign_dir = args.campaign_dir.resolve()
+    _validate_campaign_directory(campaign_dir)
     lock_path = campaign_dir / "campaign_lock.json"
     lock = _load_and_verify_lock(
         lock_path=lock_path,
@@ -1165,6 +1176,7 @@ def aggregate(args: argparse.Namespace) -> None:
     source_repo = args.source_repo.resolve()
     locked_worktree = args.locked_worktree.resolve()
     campaign_dir = args.campaign_dir.resolve()
+    _validate_campaign_directory(campaign_dir)
     expected_account = _string(args.expected_account, "expected account")
     expected_partition = _string(args.expected_partition, "expected partition")
     lock_path = campaign_dir / "campaign_lock.json"
@@ -1393,6 +1405,20 @@ def self_test(args: argparse.Namespace) -> None:
         except LockedRerunError:
             return
         raise AssertionError(f"self-test expected rejection: {label}")
+
+    with tempfile.TemporaryDirectory(prefix="blackhole-path-self-test-") as temporary:
+        root = Path(temporary)
+        _validate_campaign_directory(root / OUTER_CAMPAIGN_TAG)
+        expect_locked_error(
+            lambda: _validate_campaign_directory(
+                root / "blackhole-s4-v1-locked-rerun1"
+            ),
+            "rerun-1 campaign directory",
+        )
+        expect_locked_error(
+            lambda: _validate_campaign_directory(root / "arbitrary-output"),
+            "arbitrary campaign directory",
+        )
 
     slurm_environment = {
         "SLURM_JOB_ID": "800",

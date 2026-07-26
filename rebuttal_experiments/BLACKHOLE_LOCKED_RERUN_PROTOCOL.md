@@ -29,7 +29,10 @@ correction only and does not alter the unmodified numerical driver or any
 frozen experimental choice.
 The outer verifier now rejects any account other than
 `marlowe-m000151-pm06`, any partition other than `batch`, and any allocated
-CPU count other than 12 before invoking the numerical driver.
+CPU count other than 12 before invoking the numerical driver.  Preparation,
+task verification, attestation, and aggregation also require the campaign
+directory basename to be exactly `blackhole-s4-v1-locked-rerun2`, preventing
+failed rerun-1 claims from being mistaken for rerun-2 state.
 
 ## Frozen experiment
 
