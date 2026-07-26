@@ -1,15 +1,20 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import platform
 import socket
 import statistics
+import tempfile
 import time
+from pathlib import Path
 
+import numpy as np
 import torch
 
 from .common import (
+    RESULTS,
     add_student_pkg,
     atomic_json_dump,
     result_path,
@@ -61,6 +66,196 @@ def _finite(tensor: torch.Tensor, chunk_elements: int = 1 << 26) -> bool:
         if not bool(finite_chunk.all().item()):
             return False
     return True
+
+
+def _probe_matrix(rank: int, width: int, seed: int) -> torch.Tensor:
+    """Return the campaign's deterministic, cross-process sketch matrix."""
+    generator = np.random.Generator(np.random.PCG64(seed + rank))
+    values = generator.integers(
+        0,
+        2,
+        size=(rank, width),
+        dtype=np.int8,
+    )
+    values = values.astype(np.float32)
+    values *= 2.0
+    values -= 1.0
+    values *= rank**-0.5
+    return torch.from_numpy(values).to(device="cuda")
+
+
+def _relative_error(actual: torch.Tensor, expected: torch.Tensor) -> float:
+    denominator = torch.linalg.vector_norm(expected).clamp_min(
+        torch.finfo(expected.dtype).tiny
+    )
+    return float(
+        (torch.linalg.vector_norm(actual - expected) / denominator).item()
+    )
+
+
+def _sha256_file(path: Path, chunk_bytes: int = 8 << 20) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while block := handle.read(chunk_bytes):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _sha256_array(value: np.ndarray) -> str:
+    contiguous = np.ascontiguousarray(value)
+    digest = hashlib.sha256()
+    digest.update(str(contiguous.dtype).encode("ascii"))
+    digest.update(b"\0")
+    digest.update(",".join(str(item) for item in contiguous.shape).encode("ascii"))
+    digest.update(b"\0")
+    digest.update(contiguous.tobytes(order="C"))
+    return digest.hexdigest()
+
+
+def _probe_path(args: argparse.Namespace, mode: str) -> Path:
+    tuning_suffix = (
+        f"_tr{args.tile_rows}_tc{args.tile_cols}"
+        f"_setupw{args.setup_num_warps}_sweepw{args.sweep_num_warps}"
+        if mode == "inverse_inplace_recurrent"
+        else ""
+    )
+    stem = (
+        f"cuda_large_compare_{mode}_r{args.rank}_seed{args.seed}"
+        f"{tuning_suffix}_{os.environ.get('SLURM_JOB_ID', 'local')}"
+    )
+    if args.output_suffix:
+        stem += f"_{args.output_suffix}"
+    return RESULTS / "cuda_tuning" / f"{stem}_probes.npz"
+
+
+def _write_probe_actions(
+    args: argparse.Namespace,
+    mode: str,
+    probe: torch.Tensor,
+    inverse_factor_action: torch.Tensor,
+    whitened_operator_action: torch.Tensor,
+    residuals: dict[str, float],
+) -> dict:
+    """Write small O(rq) cross-method actions after the timed region."""
+    destination = _probe_path(args, mode)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{destination.name}.",
+        suffix=".npz",
+        dir=destination.parent,
+    )
+    os.close(descriptor)
+    temporary = Path(temporary_name)
+    probe_array = probe.detach().cpu().numpy()
+    inverse_factor_array = inverse_factor_action.detach().cpu().numpy()
+    whitened_operator_array = whitened_operator_action.detach().cpu().numpy()
+    try:
+        np.savez(
+            temporary,
+            probe=probe_array,
+            inverse_factor_action=inverse_factor_array,
+            whitened_operator_action=whitened_operator_array,
+        )
+        os.replace(temporary, destination)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+    return {
+        "probe_validation": True,
+        "probe_generator": "numpy.PCG64 Rademacher",
+        "probe_seed": args.probe_seed + args.rank,
+        "probe_width": args.probe_width,
+        "probe_tolerance": args.probe_tolerance,
+        "probe_identity_residuals": residuals,
+        "probe_artifact": str(destination.relative_to(RESULTS.parent)),
+        "probe_artifact_bytes": destination.stat().st_size,
+        "probe_artifact_sha256": _sha256_file(destination),
+        "probe_array_sha256": _sha256_array(probe_array),
+        "inverse_factor_action_sha256": _sha256_array(inverse_factor_array),
+        "whitened_operator_action_sha256": _sha256_array(
+            whitened_operator_array
+        ),
+        "probe_asymptotic_extra_storage": "O(r*q)",
+        "probe_excluded_from_timing": True,
+    }
+
+
+def _inverse_probe_validation(
+    args: argparse.Namespace,
+    G: torch.Tensor,
+    M: torch.Tensor,
+    Linv: torch.Tensor,
+    Aw: torch.Tensor,
+) -> dict:
+    probe = _probe_matrix(args.rank, args.probe_width, args.probe_seed)
+    inverse_factor_action = Linv @ probe
+    whitened_operator_action = Aw @ probe
+    inverse_transpose_action = Linv.mT @ probe
+    metric_identity_action = Linv @ (G @ inverse_transpose_action)
+    operator_definition_action = Linv @ (M @ inverse_transpose_action)
+    residuals = {
+        "inverse_metric_identity": _relative_error(
+            metric_identity_action,
+            probe,
+        ),
+        "whitened_operator_definition": _relative_error(
+            whitened_operator_action,
+            operator_definition_action,
+        ),
+    }
+    if max(residuals.values()) > args.probe_tolerance:
+        raise RuntimeError(
+            "inverse-factor sketch validation failed: "
+            f"{residuals!r}, tolerance={args.probe_tolerance}"
+        )
+    return _write_probe_actions(
+        args,
+        "inverse_inplace_recurrent",
+        probe,
+        inverse_factor_action,
+        whitened_operator_action,
+        residuals,
+    )
+
+
+def _refact_probe_validation(
+    args: argparse.Namespace,
+    G: torch.Tensor,
+    M: torch.Tensor,
+    L: torch.Tensor,
+    Aw: torch.Tensor,
+) -> dict:
+    probe = _probe_matrix(args.rank, args.probe_width, args.probe_seed)
+    inverse_factor_action = torch.linalg.solve_triangular(
+        L,
+        probe,
+        upper=False,
+    )
+    whitened_operator_action = Aw @ probe
+    factor_transpose_action = L.mT @ probe
+    residuals = {
+        "factor_metric_identity": _relative_error(
+            L @ factor_transpose_action,
+            G @ probe,
+        ),
+        "whitened_operator_definition": _relative_error(
+            L @ (Aw @ factor_transpose_action),
+            M @ probe,
+        ),
+    }
+    if max(residuals.values()) > args.probe_tolerance:
+        raise RuntimeError(
+            "fresh-refactor sketch validation failed: "
+            f"{residuals!r}, tolerance={args.probe_tolerance}"
+        )
+    return _write_probe_actions(
+        args,
+        "fresh_refact_recurrent",
+        probe,
+        inverse_factor_action,
+        whitened_operator_action,
+        residuals,
+    )
 
 
 def run_inverse(args: argparse.Namespace) -> dict:
@@ -145,7 +340,7 @@ def run_inverse(args: argparse.Namespace) -> dict:
                 "inverse-factor correctness failed: "
                 f"Linv={Linv_error:.3e}, Aw={Aw_error:.3e}"
             )
-    return {
+    payload = {
         "mode": "inverse_inplace_recurrent",
         "rank": rank,
         "seed": args.seed,
@@ -173,6 +368,11 @@ def run_inverse(args: argparse.Namespace) -> dict:
         "setup_num_warps": args.setup_num_warps,
         "sweep_num_warps": args.sweep_num_warps,
     }
+    if rank >= args.probe_min_rank:
+        payload.update(_inverse_probe_validation(args, G, M, Linv, Aw))
+    else:
+        payload["probe_validation"] = False
+    return payload
 
 
 def run_refact(args: argparse.Namespace) -> dict:
@@ -246,7 +446,7 @@ def run_refact(args: argparse.Namespace) -> dict:
         raise RuntimeError(f"Cholesky failed with info={info_value}")
     if not finite:
         raise RuntimeError("fresh-refactor output contains non-finite values")
-    return {
+    payload = {
         "mode": "fresh_refact_recurrent",
         "rank": rank,
         "seed": args.seed,
@@ -269,6 +469,11 @@ def run_refact(args: argparse.Namespace) -> dict:
         "peak_allocated_bytes": peak_allocated,
         "peak_reserved_bytes": peak_reserved,
     }
+    if rank >= args.probe_min_rank:
+        payload.update(_refact_probe_validation(args, G, M, L, Aw))
+    else:
+        payload["probe_validation"] = False
+    return payload
 
 
 def alias_check(rank: int, seed: int) -> dict:
@@ -383,6 +588,10 @@ def parse_args() -> argparse.Namespace:
     # Exact fresh-factor comparison remains comfortably within 80 GB through
     # r=32768. Larger rows retain full finite-output checks only.
     parser.add_argument("--correctness-max-rank", type=int, default=32768)
+    parser.add_argument("--probe-min-rank", type=int, default=49152)
+    parser.add_argument("--probe-width", type=int, default=16)
+    parser.add_argument("--probe-seed", type=int, default=29421)
+    parser.add_argument("--probe-tolerance", type=float, default=1e-3)
     return parser.parse_args()
 
 
