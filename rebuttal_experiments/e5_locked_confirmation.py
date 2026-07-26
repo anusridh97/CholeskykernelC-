@@ -28,7 +28,7 @@ import torch
 SCHEMA_LOCK = "e5_locked_confirmation_lock_v1"
 SCHEMA_PREFLIGHT = "e5_locked_confirmation_preflight_v1"
 SCHEMA_ATTESTATION = "e5_locked_confirmation_attestation_v1"
-CAMPAIGN_TAG = "e5-locked-confirm-v1"
+CAMPAIGN_TAG = "e5-locked-confirm-v2"
 SEEDS = tuple(range(5001, 5011))
 RANKS = (2048, 4096, 8192, 16384, 32768, 49152, 65536)
 PROBE_RANKS = (49152, 65536)
@@ -46,6 +46,7 @@ EXPECTED_GPU_MEMORY = 85_045_477_376
 EXPECTED_DRIVER = "565.57.01"
 EXPECTED_RUNTIME = {
     "python_executable": "/usr/bin/python3",
+    "python_resolved_executable": "/usr/bin/python3.10",
     "python_sha256": (
         "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86"
     ),
@@ -154,10 +155,12 @@ def git_text(repository: Path, *arguments: str) -> str:
 def current_runtime() -> dict[str, Any]:
     import triton
 
-    executable = Path(sys.executable).resolve()
+    executable = Path(sys.executable)
+    resolved_executable = executable.resolve()
     return {
         "python_executable": str(executable),
-        "python_sha256": sha256_file(executable),
+        "python_resolved_executable": str(resolved_executable),
+        "python_sha256": sha256_file(resolved_executable),
         "python_version": platform.python_version(),
         "torch": torch.__version__,
         "torch_cuda": torch.version.cuda,
