@@ -1101,6 +1101,8 @@ def audit_confirmation() -> tuple[dict[str, Any], Path]:
     }
     promoted_trajectories = 0
     pairing: dict[tuple[str, float, int], dict[str, dict[str, Any]]] = {}
+    probe_by_seed: dict[int, str] = {}
+    metric_updates_by_problem: dict[tuple[float, int], tuple[str, str]] = {}
     expected_steps = protocol["problem"]["steps"]
     for row in rows:
         identity = (
@@ -1117,6 +1119,23 @@ def audit_confirmation() -> tuple[dict[str, Any], Path]:
         fingerprints = row.get("input_fingerprints")
         if not isinstance(fingerprints, dict):
             raise ValueError(f"missing fingerprints for {identity}")
+        prior_probe = probe_by_seed.setdefault(
+            row["seed"], fingerprints["probe_sha256"]
+        )
+        if prior_probe != fingerprints["probe_sha256"]:
+            raise ValueError(f"probe pairing failed for seed {row['seed']}")
+        problem_key = (row["delta"], row["seed"])
+        metric_updates = (
+            fingerprints["base_metric_original_fp64_sha256"],
+            fingerprints["update_sequence_original_fp64_sha256"],
+        )
+        prior_metric_updates = metric_updates_by_problem.setdefault(
+            problem_key, metric_updates
+        )
+        if prior_metric_updates != metric_updates:
+            raise ValueError(
+                f"metric/update pairing failed for delta/seed {problem_key}"
+            )
         pair_key = (row["operator"], row["delta"], row["seed"])
         pairing.setdefault(pair_key, {})[row["starting_precision"]] = fingerprints
         if row["status"] != "ok":
@@ -1269,6 +1288,8 @@ def audit_confirmation() -> tuple[dict[str, Any], Path]:
             "journal_replay_exact": True,
             "journal_line_count": len(replay),
             "paired_original_inputs_and_probes": True,
+            "probe_matrix_paired_across_all_cells_for_each_seed": True,
+            "metric_and_updates_paired_across_operators_and_precisions": True,
             "all_failures_retained": True,
             "dispatch_has_no_exact_residual_argument": True,
             "confirmation_seed_set": protocol["problem"]["confirmation_seeds"],
