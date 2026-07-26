@@ -524,15 +524,21 @@ def run_cell(
     }
 
 
-def aggregate_rows(rows: list[dict[str, Any]], names: list[str]) -> dict[str, Any]:
+def aggregate_rows(
+    rows: list[dict[str, Any]],
+    names: list[str],
+    *,
+    expected_seed_count: int = 3,
+) -> dict[str, Any]:
     groups: dict[tuple[int, int], list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         groups[(row["rank"], row["factor_width"])].append(row)
     aggregate = []
     for (rank, width), items in sorted(groups.items()):
-        if len(items) != 3:
+        if len(items) != expected_seed_count:
             raise AssertionError(
-                f"expected three seeds for r={rank}, p={width}, found {len(items)}"
+                f"expected {expected_seed_count} seeds for r={rank}, "
+                f"p={width}, found {len(items)}"
             )
         path_stats = {
             name: scalar_stats(

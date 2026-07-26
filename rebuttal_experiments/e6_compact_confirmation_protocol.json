@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "campaign_tag": "e6-compact-confirm-v1",
+  "status": "frozen_before_confirmation",
+  "objective": "Confirm the exact compact rank-k CPU implementation against fresh refactorization with multi-seed, exclusive-node, single-thread timing.",
+  "ranks": [
+    256,
+    1024
+  ],
+  "ks": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "seeds": [
+    61001,
+    61002,
+    61003,
+    61004,
+    61005,
+    61006,
+    61007,
+    61008,
+    61009,
+    61010
+  ],
+  "threads": 1,
+  "timed_repeats_per_method": 30,
+  "implementation": "compact",
+  "dtype": "float64",
+  "methods": [
+    "legacy_sequential_rank_one",
+    "compact_rank_k",
+    "fresh_refactorization"
+  ],
+  "timing_order": "All six method permutations are repeated equally within every seed/rank/k cell.",
+  "timed_region": "Prepared mutable state cloning is outside timing. Compact timing includes two triangular solves, rank-k correction, compact factor construction, factor update, and both operator applications. Fresh timing includes G and M rank-k updates, Cholesky factorization, and complete double-sided rewhitening.",
+  "correctness_reference": "Fresh FP64 Cholesky factorization and double-sided whitening for the same G+ZZ^T and M+ZW^T.",
+  "relative_error_tolerance": 1e-9,
+  "resource_contract": {
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "qos": "medium",
+    "exclusive_node": true,
+    "processes": 1,
+    "physical_cpus_per_process": 1,
+    "omp_threads": 1,
+    "mkl_threads": 1,
+    "openblas_threads": 1
+  },
+  "statistical_unit": "One independently generated problem seed; repeat-level timings are summarized within seed and are not pseudoreplicated.",
+  "primary_estimand": "Within-seed fresh-refactorization median divided by compact-rank-k median, summarized across the ten seeds.",
+  "retain_all_rows": true,
+  "stopping_rule": "Run every declared rank, k, and seed. Do not tune, filter, stop, or rerun based on confirmation outcomes.",
+  "pilot_context": {
+    "path": "rebuttal_results/rank_k_pilot/rank_k_compact_pilot_r1024_seed1000_compact-v4-hybrid16-bs32.json",
+    "role": "implementation selection and debugging only",
+    "excluded_from_confirmation_statistics": true
+  },
+  "result_root": "rebuttal_results/rank_k_confirmation/e6-compact-confirm-v1",
+  "report_edit_authorized_after_complete_audit": true
+}

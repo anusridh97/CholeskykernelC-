@@ -118,6 +118,164 @@ def test_cpp_batched_matches_single():
         assert err < 1e-10, f"batched slice {t}: err={err:.2e}"
 
 
+@pytest.mark.parametrize(
+    ("dtype", "tolerance"),
+    [(torch.float64, 2e-15), (torch.float32, 3e-6)],
+)
+@pytest.mark.parametrize("k", [1, 2, 5])
+def test_cpp_native_multi_matches_sequential(dtype, tolerance, k):
+    """Allocation-free native rank-k path matches k legacy updates."""
+    try:
+        import fast_cholesky
+    except ImportError:
+        pytest.skip("fast_cholesky extension not built")
+
+    r = 33  # Exercise the scalar tails of every AVX-512 sweep.
+    _, L, _, Aw, _, _ = random_problem(r, dtype=dtype, seed=100 + k)
+    generator = torch.Generator().manual_seed(200 + k)
+    Z = torch.randn(r, k, dtype=dtype, generator=generator) * 0.05
+    W = torch.randn(r, k, dtype=dtype, generator=generator) * 0.05
+
+    L_legacy = L.clone()
+    Aw_legacy = Aw.clone()
+    vz_legacy = []
+    for column in range(k):
+        Aw_legacy, vz = fast_cholesky.fast_incremental_update(
+            L_legacy,
+            Aw_legacy,
+            Z[:, column].clone(),
+            W[:, column],
+        )
+        vz_legacy.append(vz)
+
+    L_native = L.clone()
+    Aw_native = Aw.clone()
+    workspace = torch.empty(7 * r, dtype=dtype)
+    vz_native = torch.empty(k, r, dtype=dtype)
+    Aw_pointer = Aw_native.data_ptr()
+    vz_pointer = vz_native.data_ptr()
+    Aw_result, vz_result = fast_cholesky.fast_incremental_update_multi_out(
+        L_native,
+        Aw_native,
+        Z.contiguous(),
+        W.contiguous(),
+        workspace,
+        vz_native,
+    )
+
+    assert Aw_result.data_ptr() == Aw_pointer
+    assert vz_result.data_ptr() == vz_pointer
+    expected_vz = torch.stack(vz_legacy)
+    for actual, expected in (
+        (L_native, L_legacy),
+        (Aw_native, Aw_legacy),
+        (vz_native, expected_vz),
+    ):
+        error = (torch.norm(actual - expected) / torch.norm(expected)).item()
+        assert error < tolerance
+
+
+def test_cpp_native_multi_convenience_preserves_operator_input():
+    """Convenience rank-k API retains legacy Aw ownership semantics."""
+    try:
+        import fast_cholesky
+    except ImportError:
+        pytest.skip("fast_cholesky extension not built")
+
+    r, k = 17, 3
+    _, L, _, Aw, _, _ = random_problem(r, dtype=torch.float64, seed=301)
+    generator = torch.Generator().manual_seed(302)
+    Z = torch.randn(r, k, dtype=torch.float64, generator=generator) * 0.05
+    W = torch.randn(r, k, dtype=torch.float64, generator=generator) * 0.05
+    Aw_before = Aw.clone()
+
+    Aw_result, vz_result = fast_cholesky.fast_incremental_update_multi(
+        L.clone(),
+        Aw,
+        Z,
+        W,
+    )
+    assert torch.equal(Aw, Aw_before)
+    assert Aw_result.shape == Aw.shape
+    assert vz_result.shape == (k, r)
+
+
+@pytest.mark.parametrize(
+    ("dtype", "tolerance"),
+    [(torch.float64, 2e-14), (torch.float32, 3e-6)],
+)
+@pytest.mark.parametrize(("r", "k"), [(17, 1), (33, 4), (64, 8), (65, 16)])
+def test_cpp_compact_factor_matches_fresh(dtype, tolerance, r, k):
+    """Compact rank-k C and C^-1 representations reproduce fresh Cholesky."""
+    try:
+        import fast_cholesky
+    except ImportError:
+        pytest.skip("fast_cholesky extension not built")
+
+    G, L, _, _, _, _ = random_problem(r, dtype=dtype, seed=400 + r + k)
+    generator = torch.Generator().manual_seed(500 + r + k)
+    Z = torch.randn(r, k, dtype=dtype, generator=generator) * 0.05
+    U = torch.linalg.solve_triangular(L, Z, upper=False).contiguous()
+    d = torch.empty(r, dtype=dtype)
+    Q = torch.empty_like(U)
+    workspace = torch.empty(k * k + 2 * k, dtype=dtype)
+    phase_seconds = torch.empty(2, dtype=torch.float64)
+
+    L_compact = L.clone()
+    pointer = L_compact.data_ptr()
+    result = fast_cholesky.fast_compact_factor_profile_out(
+        L_compact,
+        U,
+        d,
+        Q,
+        workspace,
+        phase_seconds,
+    )
+    assert result.data_ptr() == pointer
+    assert bool(torch.all(phase_seconds >= 0.0))
+
+    C = torch.zeros(r, r, dtype=dtype)
+    C.diagonal().copy_(d)
+    P = torch.zeros_like(C)
+    P.diagonal().copy_(d.reciprocal())
+    for row in range(r):
+        if row:
+            C[row, :row] = U[row] @ Q[:row].mT
+            P[row, :row] = -(Q[row] @ U[:row].mT)
+
+    X = torch.randn(
+        r,
+        k + 3,
+        dtype=dtype,
+        generator=generator,
+    ).contiguous()
+    compact_product = torch.empty_like(X)
+    apply_workspace = torch.empty(k * X.shape[1], dtype=dtype)
+    product_pointer = compact_product.data_ptr()
+    product_result = fast_cholesky.fast_compact_apply_left_out(
+        X,
+        U,
+        Q,
+        d,
+        compact_product,
+        apply_workspace,
+    )
+    assert product_result.data_ptr() == product_pointer
+
+    identity = torch.eye(r, dtype=dtype)
+    L_fresh = torch.linalg.cholesky(G + Z @ Z.mT)
+    comparisons = (
+        (C @ C.mT, identity + U @ U.mT),
+        (P @ C, identity),
+        (compact_product, P @ X),
+        (L_compact, L @ C),
+        (L_compact, L_fresh),
+    )
+    for actual, expected in comparisons:
+        error = (torch.norm(actual - expected) / torch.norm(expected)).item()
+        assert error < tolerance
+
+
 @pytest.mark.parametrize("r", [16, 64, 256])
 def test_triton_matches_ground_truth(r):
     """Triton kernel should match full re-factorization on GPU."""
