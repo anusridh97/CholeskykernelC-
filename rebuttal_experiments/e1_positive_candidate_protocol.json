@@ -1,0 +1,72 @@
+{
+  "aborted_predecessor": "v1 produced only pilot_t1.json; t10 refused before timing because OpenMP narrowed affinity before driver verification",
+  "campaign": "e1-positive-candidate-synthetic-v2",
+  "candidate_build_flags": [
+    "-O3",
+    "-std=c++17",
+    "-march=native",
+    "-mavx512f",
+    "-mavx512dq",
+    "-mavx512bw",
+    "-mavx512vl",
+    "-mprefer-vector-width=512",
+    "-fopenmp"
+  ],
+  "comparison": [
+    "source_locked_positive_extension",
+    "same_vector_candidate",
+    "fresh_factorization_same_outputs"
+  ],
+  "dtype": "float32",
+  "fresh_outputs": [
+    "L_plus",
+    "Aw_plus",
+    "vz"
+  ],
+  "input_construction": {
+    "damping": 1.0,
+    "metric": "G = I + B B^T",
+    "operator": "M = G - I",
+    "state_width": 64,
+    "state_scale": 0.05,
+    "update": "G_plus = G + z z^T; M_plus = M + z z^T",
+    "update_scale": 0.01
+  },
+  "method_order": "all six permutations, repeated cyclically",
+  "pilot_seeds": [
+    6100,
+    6101,
+    6102
+  ],
+  "protein_or_test_outcomes_used": false,
+  "ranks": [
+    256,
+    512,
+    1024
+  ],
+  "relative_error_tolerances": {
+    "Aw": 0.00005,
+    "L": 0.000005,
+    "vz": 0.00005
+  },
+  "required_cpu_flags": [
+    "avx512f",
+    "avx512dq",
+    "avx512bw",
+    "avx512vl"
+  ],
+  "repeats": 30,
+  "same_vector_identity": "w=z implies v_w=(L_plus)^-1 w=(L_plus)^-1 z=v_z exactly",
+  "thread_counts": [
+    1,
+    10
+  ],
+  "thread_policy": "one socket, distinct physical cores, exact process affinity, ATen/OpenMP/MKL runtime verification",
+  "timed_allocation_policy": {
+    "candidate": "caller-reused 4r workspace, vz output, and ping-pong Aw output; no timed allocation",
+    "fresh": "ordinary torch factorization/solve outputs",
+    "locked": "unchanged public API and its existing allocation behavior"
+  },
+  "tuning_seed_not_in_pilot": 7777,
+  "warmups": 3
+}

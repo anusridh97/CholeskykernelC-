@@ -1,0 +1,193 @@
+{
+  "analysis": {
+    "accuracy_equivalence": {
+      "confidence_interval": "paired Student-t 90% CI for TOST and 95% CI for estimation",
+      "equivalence_margin_absolute_normalized_mse": 0.01,
+      "margin_rationale": "Protein targets are standardized from development data; 0.01 MSE is one percent of one standardized target-variance unit.",
+      "primary_contrast": "final_test_mse(ours) - final_test_mse(refact)",
+      "success_rule": "the complete 20-pair 90% CI lies strictly inside [-0.01, +0.01]",
+      "superiority_is_not_the_estimand": true
+    },
+    "no_optional_stopping": "The strict aggregate refuses missing, duplicate, extra, or non-predeclared seeds and is run only after all 20 pairs for both confirmatory estimands exist.",
+    "throughput": {
+      "confidence_interval": "paired Student-t 95% CI",
+      "primary_contrast": "completed_batches(ours) - completed_batches(refact)",
+      "secondary_contrast": "geometric mean of paired completed-batch ratios, with a t interval on log ratios",
+      "test_outcomes_used": false
+    }
+  },
+  "campaign": "e2-positive-preregistered-v2",
+  "created_before_campaign_execution": true,
+  "dataset": {
+    "development_fraction": 0.8,
+    "inner_pilot_train_fraction": 0.9,
+    "inner_split_seed": 314159,
+    "name": "UCI Protein",
+    "normalization": {
+      "features": "per-feature min/range fitted only on the training partition available to that stage",
+      "targets": "mean/population-standard-deviation fitted only on the training partition available to that stage"
+    },
+    "path": "Cholesky-main-2/data/protein.mat",
+    "sha256": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13",
+    "historical_seed42_outcomes_viewed": true,
+    "split_seed": 381857132,
+    "split_seed_derivation": "SHA256('NeurIPS-29421|e2-positive-preregistered-v2|heldout-test-split') first 8 bytes big-endian modulo 2^31-1",
+    "split_seed_derivation_input": "NeurIPS-29421|e2-positive-preregistered-v2|heldout-test-split",
+    "split_seed_derivation_sha256": "42c28436913da4fee653e7f536c1118b535d4a44e5607e36b4f7b72d6e723b75",
+    "v2_heldout_outcomes_viewed_before_preregistration": false
+  },
+  "estimands": {
+    "A_fixed_epoch_accuracy_equivalence": {
+      "epochs": 10,
+      "methods": [
+        "ours",
+        "refact"
+      ],
+      "pairing": "Within each seed, both methods clone one shared initialization and consume byte-identical precomputed minibatch permutations.",
+      "rank": 1024,
+      "selection": "No checkpoint selection; use the state after exactly ten epochs of full-size drop-last minibatches.",
+      "test_evaluations_per_method_seed": 1,
+      "timing_is_not_primary": true
+    },
+    "B_time_budget_throughput": {
+      "budget_rule": "median over the five pilot seeds of (Ours ten-epoch pilot training seconds / Ours completed pilot batches), multiplied by the number of batches in ten full-development epochs",
+      "budget_scope": "application training loop: batch materialization, forward/backward, chart operations, preconditioning, optimizer update, refreshes, and periodic reset",
+      "methods": [
+        "ours",
+        "refact"
+      ],
+      "outcome": "reported counters from the last completed batch whose cumulative measured training-loop time is at or below the frozen budget; exactly one subsequent crossing batch is timed but excluded, and no selected model state or accuracy is materialized",
+      "rank": 1024,
+      "test_evaluations_per_method_seed": 0
+    }
+  },
+  "frozen_training": {
+    "batch_size": 256,
+    "damping": 1.0,
+    "drop_last_incomplete_batch": true,
+    "learning_rate": 0.1,
+    "max_throughput_epochs_safety_cap": 100,
+    "momentum": 0.9,
+    "ours_refactor_every": 50,
+    "pilot_epochs": 10,
+    "rank": 1024,
+    "refresh_threshold": 0.1
+  },
+  "implementation": {
+    "candidate_binary_sha256": "b94285904eb7cf7633ab955b5f3f0b63560b4b7c66ff396e59acf5b56e977c19",
+    "candidate_build_flags": [
+      "-O3",
+      "-std=c++17",
+      "-march=native",
+      "-mavx512f",
+      "-mavx512dq",
+      "-mavx512bw",
+      "-mavx512vl",
+      "-mprefer-vector-width=512",
+      "-fopenmp"
+    ],
+    "candidate_contract": "The optimized path is invoked only for the explicit positive same-vector update G+=G+aa^T and M+=M+aa^T; all chart refreshes use the common fresh factorization path.",
+    "candidate_source": "rebuttal_experiments/e1_positive_candidate_ext.cpp",
+    "candidate_source_sha256": "a0d7bba11f178b40fb5ab5c2674640ee8b2f7c5a63836eb931ac9749db0dc8b0",
+    "exact_arithmetic_identity": "Both methods update the same G and M. Ours uses the exact rank-one recurrence and v_w=v_z because w=z=a; Refact recomputes Cholesky and whitening from the same matrices.",
+    "ours": "allocation-free positive same-vector extension with caller-owned ping-pong Aw buffer, vz output, and 4r workspace",
+    "refact": "fresh Cholesky plus two triangular solves and full re-whitening after each non-refresh update"
+  },
+  "method_order": {
+    "balance": "Even task IDs run ours then refact; odd task IDs run refact then ours.",
+    "concurrency": "The two methods in a pair run sequentially, never concurrently."
+  },
+  "pilot": {
+    "allowed_outcomes": "training MSE and one inner-validation MSE evaluation per method",
+    "epochs": 10,
+    "purpose": "training-only implementation validation and time-budget calibration",
+    "same_pairing_as_accuracy": true,
+    "test_evaluations": 0,
+    "test_access_rule": "The source .mat must be parsed to access any row, but fixed test rows may not be indexed into feature/label tensors and no test prediction or metric may be computed."
+  },
+  "provenance": {
+    "campaign_tag_rule": "Any code, binary, protocol, data, hyperparameter, seed, resource, or analysis change after a pilot artifact exists requires a new campaign tag.",
+    "historical_split_disclosure": "Completed seed-42 E2 outcomes were viewed before this preregistration. Version 2 therefore uses a new split seed derived mechanically from the frozen campaign string, without inspecting any v2 held-out outcome.",
+    "manual_gate_rule": "Only the five pilot pairs are submitted initially. Confirmation requires a write-once gate containing exact pilot and budget hashes plus the frozen manual attestation.",
+    "execution_rule": "Run from a detached immutable commit; every artifact must match the lock manifest, requested commit, candidate binary, data hash, and runtime contract.",
+    "prior_completed_e2_outcomes_used_to_select_v2_split_or_protocol": false,
+    "prior_result_directories_read_by_driver": false,
+    "write_semantics": "atomic write-once; an existing destination is an error"
+  },
+  "resources": {
+    "affinity": "exactly ten distinct physical cores on one socket, one hardware thread per core",
+    "blas_threads": 10,
+    "exclusive_node": true,
+    "experimental_processes_per_node": 1,
+    "interop_threads": 1,
+    "openmp_threads": 10,
+    "pair_execution": "sequential in one process",
+    "one_attempt_per_stage_task": true,
+    "preflight": "before any Protein access, verify target-node AVX-512 flags, prove zmm instructions occur in candidate-core symbol regions, and compare against fresh factorization at rank 17 plus 64 cumulative rank-1024 positive same-vector updates with the production reset after update 50",
+    "rank1024_preflight_repeats": 64,
+    "rank1024_preflight_reset_after": 50,
+    "requeue": false,
+    "slurm_account": "marlowe-m000151-pm06",
+    "slurm_partition": "batch",
+    "warmup": "two untimed training-only forced-non-refresh steps per method, with both orders represented, on disposable state clones; no warmup state or outcome enters either estimand"
+  },
+  "schema_version": 1,
+  "seeds": {
+    "accuracy_confirmation": [
+      52001,
+      52002,
+      52003,
+      52004,
+      52005,
+      52006,
+      52007,
+      52008,
+      52009,
+      52010,
+      52011,
+      52012,
+      52013,
+      52014,
+      52015,
+      52016,
+      52017,
+      52018,
+      52019,
+      52020
+    ],
+    "pilot": [
+      51001,
+      51002,
+      51003,
+      51004,
+      51005
+    ],
+    "throughput_confirmation": [
+      53001,
+      53002,
+      53003,
+      53004,
+      53005,
+      53006,
+      53007,
+      53008,
+      53009,
+      53010,
+      53011,
+      53012,
+      53013,
+      53014,
+      53015,
+      53016,
+      53017,
+      53018,
+      53019,
+      53020
+    ]
+  },
+  "task_mapping": {
+    "accuracy-pair": "array task i in [0,19] maps only to accuracy_confirmation[i]",
+    "pilot-pair": "array task i in [0,4] maps only to pilot[i]",
+    "throughput-pair": "array task i in [0,19] maps only to throughput_confirmation[i]"
+  }
+}
