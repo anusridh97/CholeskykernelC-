@@ -1,0 +1,22 @@
+{
+  "audit_commit": "2cb6b3f45540c6fb0c8166b421f1137998ab6f38",
+  "campaign_tag": "e5-locked-confirm-v3",
+  "numeric_implementation_commit": "b3d5b066cd9b7c480de88bea7f8d3fcbb786cfb7",
+  "numeric_lock_sha256": "e9cbc1ec5ddc9f45efc64f6d6b8db9a8b3ae450e7b88fd010f6fa5bd01a85838",
+  "purpose": "attest already-complete v3 raw outputs after fail-closed metadata-location bug; never execute numerical code",
+  "schema_version": "e5_posthoc_attestation_lock_v1",
+  "sources": {
+    "rebuttal_experiments/aggregate_e5_locked.py": {
+      "bytes": 6285,
+      "sha256": "820944299af0a98edfb418285b0c600e7625f121aa90a579db2e98b072d4253b"
+    },
+    "rebuttal_experiments/e5_locked_confirmation.py": {
+      "bytes": 26144,
+      "sha256": "c76253ff92ca6614ca3eacaa46dcad1d970269e57c28bffd994b2ab5bdfad736"
+    },
+    "rebuttal_experiments/e5_posthoc_attest.py": {
+      "bytes": 10109,
+      "sha256": "f8b334ab605a5d24a14440af258ebb4022d8eeacc4afbba469ee215688575ec1"
+    }
+  }
+}
