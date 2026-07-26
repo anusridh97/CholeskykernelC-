@@ -1,11 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=bh-s4-locked
-#SBATCH --account=marlowe-m000151
-#SBATCH --partition=preempt
+#SBATCH --job-name=bh-s4-locked-r2
+#SBATCH --account=marlowe-m000151-pm06
+#SBATCH --partition=batch
+#SBATCH --qos=medium
 #SBATCH --array=0-6%7
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=12
 #SBATCH --gres=gpu:1
 #SBATCH --mem=192G
 #SBATCH --time=04:00:00
@@ -14,7 +15,7 @@
 
 set -euo pipefail
 
-readonly outer_tag="blackhole-s4-v1-locked-rerun1"
+readonly outer_tag="blackhole-s4-v1-locked-rerun2"
 readonly inner_tag="blackhole-s4-v1"
 readonly control_repo="${BLACKHOLE_CONTROL_REPO:?set BLACKHOLE_CONTROL_REPO}"
 readonly locked_worktree="${BLACKHOLE_LOCKED_WORKTREE:?set BLACKHOLE_LOCKED_WORKTREE}"

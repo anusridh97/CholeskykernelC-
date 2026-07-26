@@ -24,14 +24,19 @@ import sys
 import tempfile
 from pathlib import Path
 from typing import Any, Sequence
+from unittest.mock import patch
 
 
 CONTROL_ROOT = Path(__file__).resolve().parents[1]
 LOCK_SCHEMA = "blackhole_locked_rerun_lock_v1"
 ATTESTATION_SCHEMA = "blackhole_locked_rerun_attestation_v1"
 AGGREGATE_SCHEMA = "blackhole_locked_rerun_aggregate_v1"
-OUTER_CAMPAIGN_TAG = "blackhole-s4-v1-locked-rerun1"
+OUTER_CAMPAIGN_TAG = "blackhole-s4-v1-locked-rerun2"
 INNER_CAMPAIGN_TAG = "blackhole-s4-v1"
+OUTER_ACCOUNT = "marlowe-m000151-pm06"
+OUTER_PARTITION = "batch"
+OUTER_CPUS_PER_TASK = "12"
+INNER_V1_AUDIT_CPUS_PER_TASK = "4"
 LOCKED_COMMIT = "96c8018cdd0b56ffe1fd93bddf48fa4affb34697"
 RANKS = (2_048, 4_096, 8_192, 16_384, 32_768, 49_152, 65_536)
 TASK_TO_RANK = dict(enumerate(RANKS))
@@ -341,12 +346,14 @@ def _validate_lock_shape(lock: dict[str, Any]) -> None:
     _equal(
         execution,
         {
+            "account": OUTER_ACCOUNT,
             "array_concurrency_cap": 7,
-            "cpus_per_task": 4,
+            "cpus_per_task": int(OUTER_CPUS_PER_TASK),
             "gpus_per_task": 1,
             "immutable_mode": "detached_git_worktree",
             "inner_driver_is_unmodified": True,
             "outer_attestation_required": True,
+            "partition": OUTER_PARTITION,
             "result_publication": "atomic_claim_then_inner_driver_write-once",
         },
         "lock.execution",
@@ -588,7 +595,13 @@ def _slurm_metadata(rank: int) -> dict[str, Any]:
     _equal(values["array_task_min"], "0", "Slurm array task minimum")
     _equal(values["array_task_max"], "6", "Slurm array task maximum")
     _equal(values["array_task_step"], "1", "Slurm array task step")
-    _equal(values["cpus_per_task"], "4", "Slurm CPUs per task")
+    _equal(values["account"], OUTER_ACCOUNT, "Slurm account")
+    _equal(values["partition"], OUTER_PARTITION, "Slurm partition")
+    _equal(
+        values["cpus_per_task"],
+        OUTER_CPUS_PER_TASK,
+        "Slurm CPUs per task",
+    )
     values.update(
         {
             "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
@@ -991,7 +1004,11 @@ def _validate_attestation(
         expected_partition,
         f"{path} Slurm partition",
     )
-    _equal(slurm.get("cpus_per_task"), "4", f"{path} Slurm CPUs")
+    _equal(
+        slurm.get("cpus_per_task"),
+        OUTER_CPUS_PER_TASK,
+        f"{path} Slurm CPUs",
+    )
     host = _string(value.get("host"), f"{path} host")
     gpu = _object(value.get("gpu"), f"{path} GPU")
     _equal(set(gpu), {"uuid", "name", "memory_mib", "driver_version"}, f"{path} GPU keys")
@@ -1252,7 +1269,7 @@ def aggregate(args: argparse.Namespace) -> None:
                 "job_id": attestation["slurm"]["job_id"],
                 "array_job_id": None,
                 "array_task_id": None,
-                "cpus_per_task": "4",
+                "cpus_per_task": INNER_V1_AUDIT_CPUS_PER_TASK,
                 "job_partition": "preempt",
             }
             sanitized_path = temporary_dir / result_path.name
@@ -1376,6 +1393,34 @@ def self_test(args: argparse.Namespace) -> None:
         except LockedRerunError:
             return
         raise AssertionError(f"self-test expected rejection: {label}")
+
+    slurm_environment = {
+        "SLURM_JOB_ID": "800",
+        "SLURM_ARRAY_JOB_ID": "800",
+        "SLURM_ARRAY_TASK_ID": "0",
+        "SLURM_ARRAY_TASK_COUNT": "7",
+        "SLURM_ARRAY_TASK_MIN": "0",
+        "SLURM_ARRAY_TASK_MAX": "6",
+        "SLURM_ARRAY_TASK_STEP": "1",
+        "SLURM_JOB_ACCOUNT": OUTER_ACCOUNT,
+        "SLURM_JOB_PARTITION": OUTER_PARTITION,
+        "SLURM_CPUS_PER_TASK": OUTER_CPUS_PER_TASK,
+        "SLURM_JOB_NAME": "bh-s4-locked-r2",
+        "SLURM_JOB_NODELIST": "n01",
+    }
+    with patch.dict(os.environ, slurm_environment):
+        _equal(
+            _slurm_metadata(RANKS[0])["cpus_per_task"],
+            OUTER_CPUS_PER_TASK,
+            "self-test accepted CPU allocation",
+        )
+    wrong_cpu_environment = dict(slurm_environment)
+    wrong_cpu_environment["SLURM_CPUS_PER_TASK"] = INNER_V1_AUDIT_CPUS_PER_TASK
+    with patch.dict(os.environ, wrong_cpu_environment):
+        expect_locked_error(
+            lambda: _slurm_metadata(RANKS[0]),
+            "rerun-1 four-core allocation",
+        )
 
     with tempfile.TemporaryDirectory(prefix="blackhole-lock-self-test-") as temporary:
         root = Path(temporary)

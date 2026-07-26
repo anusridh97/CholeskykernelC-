@@ -1,8 +1,8 @@
-# Locked black-hole ladder rerun
+# Locked black-hole ladder rerun 2
 
 ## Purpose
 
-`blackhole-s4-v1-locked-rerun1` is a provenance-only rerun of the seven-rank
+`blackhole-s4-v1-locked-rerun2` is a provenance-only rerun of the seven-rank
 ladder from `blackhole-s4-v1`.  It exists because the original serial Slurm
 job read `git rev-parse HEAD` separately at each rank while unrelated commits
 were landing on `main`.  The driver, kernel, feature producer, feature trace,
@@ -16,6 +16,18 @@ result correctly retains `campaign_tag: blackhole-s4-v1` and the v1 schema.
 The outer directory, lock, attestations, and aggregate use the distinct rerun
 tag.  The v1 feature manifest is copied byte-for-byte; its embedded campaign
 tag is intentionally not edited.
+
+The first locked attempt, `blackhole-s4-v1-locked-rerun1` (Slurm array
+`393982`), failed closed before any numerical code ran.  Marlowe's `batch`
+partition allocated 12 CPU cores to each one-H100 task even though four were
+requested, so the four-core lock rejected every task after it created its
+persistent claim.  All seven failed claims and logs are retained and no result
+JSON exists for that attempt.  Rerun 2 records the scheduler's actual
+12-core allocation; this is an execution-metadata correction only and does
+not alter the unmodified numerical driver or any frozen experimental choice.
+The outer verifier now rejects any account other than
+`marlowe-m000151-pm06`, any partition other than `batch`, and any allocated
+CPU count other than 12 before invoking the numerical driver.
 
 ## Frozen experiment
 
@@ -56,7 +68,7 @@ Set paths appropriate for the submitting account:
 control_repo=/users/ravid/git/CholeskykernelC-
 source_repo=/path/to/submitters/CholeskykernelC-
 locked_worktree=/path/to/submitters/CholeskykernelC--blackhole-locked
-campaign_dir=/path/to/submitters/results/blackhole-s4-v1-locked-rerun1
+campaign_dir=/path/to/submitters/results/blackhole-s4-v1-locked-rerun2
 
 /usr/bin/python3 \
   "$control_repo/rebuttal_experiments/blackhole_locked_rerun.py" prepare \
@@ -88,9 +100,11 @@ the audit requires an identical environment across all seven tasks.
 
 ## Submission
 
-Choose the account and H100 partition before submission.  The examples below
-show placeholders because allocation names are account-specific.  The output
-and error paths must be writable by the submitting account.
+Rerun 2 is assigned to Alex's authorized `marlowe-m000151-pm06` allocation,
+the `batch` partition, and the `medium` QOS.  The partition allocates 12 CPU
+cores with one H100, and both the batch script and outer audit require the
+resulting `SLURM_CPUS_PER_TASK=12`.  The output and error paths must be
+writable by the submitting account.
 
 ```bash
 mkdir -p "$campaign_dir/logs"
@@ -100,16 +114,17 @@ BLACKHOLE_LOCKED_WORKTREE="$locked_worktree" \
 BLACKHOLE_CAMPAIGN_DIR="$campaign_dir" \
 BLACKHOLE_DEP_ROOT="$control_repo/rebuttal_deps" \
 sbatch \
-  --account="<authorized-account>" \
-  --partition="<authorized-h100-partition>" \
+  --account="marlowe-m000151-pm06" \
+  --partition="batch" \
+  --qos="medium" \
   --array=0-6%7 \
   --output="$campaign_dir/logs/ladder-%A_%a.out" \
   --error="$campaign_dir/logs/ladder-%A_%a.err" \
   "$control_repo/rebuttal_experiments/slurm/cuda_blackhole_rank_scaling_locked.sbatch"
 ```
 
-The same script can be used on the current account with its authorized H100
-partition.  Do not submit a second copy of an index whose claim exists.
+Do not submit this target-specific rerun script under a different account or
+partition, and do not submit a second copy of an index whose claim exists.
 The strict audit requires seven distinct H100 UUIDs and seven distinct Slurm
 element job IDs.  Submit only when the allocation can place all seven array
 elements without recycling one physical GPU; a staggered array that reuses a
@@ -128,8 +143,8 @@ PYTHONPATH="$dep_root:$locked_worktree" /usr/bin/python3 \
   --source-repo "$locked_worktree" \
   --locked-worktree "$locked_worktree" \
   --campaign-dir "$campaign_dir" \
-  --expected-account "<authorized-account>" \
-  --expected-partition "<authorized-h100-partition>"
+  --expected-account "marlowe-m000151-pm06" \
+  --expected-partition "batch"
 ```
 
 The audit accepts multiple hosts because the ladder is intentionally
