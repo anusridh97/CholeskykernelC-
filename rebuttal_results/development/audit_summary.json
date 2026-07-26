@@ -1,0 +1,123 @@
+{
+  "all_candidates_retained": true,
+  "balanced_timing_order": true,
+  "cell_count": 60,
+  "experiment": "e3_drag_fairness_development_audit",
+  "maximum_relative_error": 1.1062790799739834e-15,
+  "path_count": 7,
+  "pilot_id": "e3-drag-fairness-dev-v1",
+  "protocol_sha256": "a5244fd400672cbe72b68725b5e8670f912c122c976670b2c1973879a5c94f0b",
+  "report_use": "development_only_not_reportable",
+  "reserved_confirmation_seeds_evaluated": false,
+  "schema_version": 1,
+  "selection": {
+    "confirmation_pipeline": {
+      "materialization": "torch.mm_out_all_widths",
+      "update": "one_sided_fair.one_sided_update_"
+    },
+    "materializer_families": [
+      {
+        "eligible": true,
+        "geometric_mean_ratio_to_all_mkl": 1.0,
+        "maximum_cell_median_ratio_to_all_mkl": 1.0,
+        "name": "all_mkl",
+        "threshold": null
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 1.0342202004598393,
+        "maximum_cell_median_ratio_to_all_mkl": 1.4560990324152494,
+        "name": "custom_if_p_le_1_else_mkl",
+        "threshold": 1
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 1.1000870519116042,
+        "maximum_cell_median_ratio_to_all_mkl": 1.8871633491038808,
+        "name": "custom_if_p_le_4_else_mkl",
+        "threshold": 4
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 1.2167201343882879,
+        "maximum_cell_median_ratio_to_all_mkl": 2.7530722005697066,
+        "name": "custom_if_p_le_8_else_mkl",
+        "threshold": 8
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 1.3424303418724357,
+        "maximum_cell_median_ratio_to_all_mkl": 2.7530722005697066,
+        "name": "custom_if_p_le_16_else_mkl",
+        "threshold": 16
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 1.469229586543872,
+        "maximum_cell_median_ratio_to_all_mkl": 2.7530722005697066,
+        "name": "custom_if_p_le_32_else_mkl",
+        "threshold": 32
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 1.5971870187568733,
+        "maximum_cell_median_ratio_to_all_mkl": 2.7530722005697066,
+        "name": "custom_if_p_le_64_else_mkl",
+        "threshold": 64
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 1.7421032847393103,
+        "maximum_cell_median_ratio_to_all_mkl": 2.7530722005697066,
+        "name": "custom_if_p_le_128_else_mkl",
+        "threshold": 128
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 2.001167329835691,
+        "maximum_cell_median_ratio_to_all_mkl": 5.6794071626788565,
+        "name": "custom_if_p_le_256_else_mkl",
+        "threshold": 256
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 2.39129967062907,
+        "maximum_cell_median_ratio_to_all_mkl": 10.687730285532759,
+        "name": "custom_if_p_le_512_else_mkl",
+        "threshold": 512
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 2.6999130468395016,
+        "maximum_cell_median_ratio_to_all_mkl": 11.556337989791995,
+        "name": "custom_if_p_le_1024_else_mkl",
+        "threshold": 1024
+      },
+      {
+        "eligible": false,
+        "geometric_mean_ratio_to_all_mkl": 3.053466869334655,
+        "maximum_cell_median_ratio_to_all_mkl": 11.722778972067934,
+        "name": "custom_if_p_le_2048_else_mkl",
+        "threshold": 2048
+      }
+    ],
+    "selected_materializer": {
+      "eligible": true,
+      "geometric_mean_ratio_to_all_mkl": 1.0,
+      "maximum_cell_median_ratio_to_all_mkl": 1.0,
+      "name": "all_mkl",
+      "threshold": null
+    },
+    "update": {
+      "geometric_mean_fair_over_original": 0.5327129403630624,
+      "maximum_cell_median_fair_over_original": 0.7927954699288463,
+      "selected": "fair_drag_factor"
+    }
+  },
+  "slurm_job_id": "394475",
+  "source_commit": "0050862f8980bf442694be50f1fef1a02829c2a5",
+  "source_result": "rebuttal_results/development/e3_drag_fairness_dev_v1.json",
+  "source_result_sha256": "247ac9399769633450d5dbd3b0d80b29b4a3806f8a4001060b22179e5fd94292",
+  "status": "passed",
+  "timing_samples_per_path_per_cell": 21
+}

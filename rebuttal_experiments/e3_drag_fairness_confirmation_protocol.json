@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "campaign_tag": "e3-drag-fair-confirm-v1",
+  "status": "frozen_after_development_before_confirmation",
+  "objective": "Confirm the dense metric-only specialization against a fairly optimized one-sided drag-plus-materialization baseline while preserving the thin-factor output boundary.",
+  "dtype": "float64",
+  "threads": 1,
+  "seeds": [
+    76001,
+    76002,
+    76003,
+    76004,
+    76005,
+    76006,
+    76007,
+    76008,
+    76009,
+    76010
+  ],
+  "warmups_per_path": 5,
+  "timed_repeats_per_path": 30,
+  "ranks_and_widths": {
+    "256": [
+      1,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512
+    ],
+    "1024": [
+      1,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048
+    ]
+  },
+  "paths": {
+    "metric_only_specialized": {
+      "output_contract": "dense_same_output",
+      "description": "In-place L and Aw update; omits v_w, v_z, and the identically zero outer-product correction."
+    },
+    "generic_w0_ablation": {
+      "output_contract": "dense_same_output",
+      "description": "Same extension and ownership as the specialization, but executes the general zero-RHS solve and null dense correction."
+    },
+    "drag_materialize": {
+      "output_contract": "dense_same_output",
+      "description": "Selected fair row-major/caller-workspace one-sided update followed by single-thread MKL materialization into caller-owned dense output."
+    },
+    "fresh_materialize": {
+      "output_contract": "dense_same_output",
+      "description": "Fresh Cholesky, two thin triangular solves, and dense materialization."
+    },
+    "drag_factor_only": {
+      "output_contract": "thin_factor_only",
+      "description": "Selected fair row-major/caller-workspace one-sided update without materializing Aw."
+    },
+    "fresh_factor_only": {
+      "output_contract": "thin_factor_only",
+      "description": "Fresh Cholesky and two thin triangular solves without materializing Aw."
+    }
+  },
+  "timing_order": "Every repetition contains every path once. The six-path order is cyclically rotated by (seed + width_index + repetition) modulo six, so each path occupies every timing position exactly five times.",
+  "state_preparation": "All mutable input cloning, caller-owned update workspace creation, and caller-owned dense output creation occur before each timed interval.",
+  "steady_state_representation_boundary": "The dense metric path begins from stored (L, Aw); drag paths begin from stored (L, Vb, Vc). Initial factor solves, initial dense materialization, and conversion between these persistent representations are excluded. This is a steady-state representation comparison, not a same-input kernel dispatcher benchmark.",
+  "correctness_reference": "Fresh FP64 Cholesky of G+zz^T, fresh triangular solves for B and C, and direct double-sided whitening of M=B C^T.",
+  "relative_error_tolerance": 1e-11,
+  "resource_contract": {
+    "account": "marlowe-m000151-pm06",
+    "partition": "batch",
+    "qos": "medium",
+    "exclusive_node": true,
+    "processes": 1,
+    "physical_cpus_per_process": 1,
+    "omp_threads": 1,
+    "mkl_threads": 1,
+    "openblas_threads": 1
+  },
+  "statistical_unit": "One independently generated problem seed; repeat-level timings are summarized within seed and are not pseudoreplicated.",
+  "primary_estimands": [
+    "Within-seed median drag-plus-materialization time divided by within-seed median metric-only-specialized time; a ratio greater than one favors the metric-only specialization.",
+    "Within-seed median fresh-plus-materialization time divided by within-seed median metric-only-specialized time; a ratio greater than one favors the metric-only specialization."
+  ],
+  "crossover_definition": "For each rank, the crossover is the first tested factor width p for which the aggregate median metric-only-specialized time is no greater than the aggregate median alternative time. Equivalently, alternative/metric is at least one. Report both the first tested winning width and the bracketing interval from the previous tested width.",
+  "development_selection": {
+    "pilot_id": "e3-drag-fairness-dev-v1",
+    "source_commit": "0050862f8980bf442694be50f1fef1a02829c2a5",
+    "result_path": "rebuttal_results/development/e3_drag_fairness_dev_v1.json",
+    "result_sha256": "247ac9399769633450d5dbd3b0d80b29b4a3806f8a4001060b22179e5fd94292",
+    "audit_path": "rebuttal_results/development/audit_summary.json",
+    "audit_sha256": "89277f779f050efb3bb289277016fe21d010c20b7b5ccf314562d516d8f399c5",
+    "audit_status": "passed",
+    "maximum_relative_error": 1.1062790799739834e-15,
+    "selected_update": "one_sided_fair.one_sided_update_",
+    "selected_materialization": "single-thread torch.mm(out=...) for every tested width",
+    "fair_over_original_factor_update_geometric_ratio": 0.5327129403630624,
+    "fair_over_original_factor_update_maximum_cell_median_ratio": 0.7927954699288463,
+    "custom_materializer_selected": false,
+    "confirmation_seeds_evaluated_during_development": false
+  },
+  "retain_all_rows": true,
+  "stopping_rule": "Run every declared rank, width, seed, path, warmup, and timing repetition. Do not tune, filter, stop, or rerun based on confirmation outcomes.",
+  "confirmation_outcome_blinding": "Do not inspect or report partial confirmation outcomes. Inspect results only after the full grid and strict audit complete.",
+  "old_e3_preservation": {
+    "result_path": "rebuttal_results/e3_metric_only_confirmation/e3-metric-only-confirm-v1/result.json",
+    "audit_path": "rebuttal_results/e3_metric_only_confirmation/e3-metric-only-confirm-v1/audit_summary.json",
+    "mutation_authorized": false
+  },
+  "result_path": "rebuttal_results/e3_drag_fairness_confirmation/e3-drag-fair-confirm-v1/result.json",
+  "audit_path": "rebuttal_results/e3_drag_fairness_confirmation/e3-drag-fair-confirm-v1/audit_summary.json",
+  "report_edit_authorized_after_complete_audit": true
+}
