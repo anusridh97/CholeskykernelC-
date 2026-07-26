@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "pilot_id": "e3-drag-fairness-dev-v1",
+  "recorded_at": "2026-07-25T22:25:16-07:00",
+  "submitting_identity": "ravid",
+  "attempts": [
+    {
+      "order": 1,
+      "worktree_head": "d9f03d17d0250b243bd5f41e511b2574b9060ef4",
+      "declared_source_commit": "d9f03d1fd4f311572bab87751589280011073914",
+      "declared_source_commit_matched_head": false,
+      "account": "marlowe-m000151-pm06",
+      "partition": "batch",
+      "qos": "medium",
+      "slurm_response": "Batch job submission failed: Invalid account or account/partition combination specified",
+      "job_created": false
+    },
+    {
+      "order": 2,
+      "worktree_head": "fe0f65dcc4f21681f875bd5f8314269af0630081",
+      "declared_source_commit": "fe0f65dcc4f21681f875bd5f8314269af0630081",
+      "declared_source_commit_matched_head": true,
+      "account": "marlowe-m000151",
+      "partition": "batch",
+      "qos": "normal",
+      "slurm_response": "Batch job submission failed: Invalid qos specification",
+      "job_created": false
+    }
+  ],
+  "development_timings_observed": false,
+  "reserved_confirmation_seeds_evaluated": false,
+  "scientific_outcomes_observed": false,
+  "resolution": "The resource-only amendment was reverted. Execute the unchanged frozen pm06/medium protocol from an authorized arjo-owned detached checkout."
+}
