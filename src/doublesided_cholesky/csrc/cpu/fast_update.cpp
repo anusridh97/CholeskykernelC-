@@ -169,13 +169,14 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
     auto opts = L.options();
 
     scalar_t* L_rm = L.data_ptr<scalar_t>();
-    scalar_t* z_d = z.data_ptr<scalar_t>();
-    std::vector<scalar_t> scratch(5 * r, scalar_t(0));
+    std::vector<scalar_t> scratch(6 * r, scalar_t(0));
     scalar_t* cs = scratch.data();
     scalar_t* ss = cs + r;
     scalar_t* row_pad = ss + r;
     scalar_t* col_pad = row_pad + r;
     scalar_t* vw_d = col_pad + r;
+    scalar_t* z_d = vw_d + r;
+    std::copy_n(z.data_ptr<scalar_t>(), r, z_d);
 
     // Phase 1: Rank-1 Cholesky update via paired Givens rotations.
     // Each rotation k zeros z_d[k] using L[k,k], then both L's k-th column
@@ -298,10 +299,29 @@ std::tuple<torch::Tensor, torch::Tensor> update_impl(
     return {Aw_out, vz};
 }
 
+
+void check_inputs(torch::Tensor L, torch::Tensor Aw, torch::Tensor z, torch::Tensor w, bool batched) {
+    TORCH_CHECK(L.is_contiguous(), "L must be row-major contiguous; call contiguous() before storing the state");
+    TORCH_CHECK(L.dim() == (batched ? 3 : 2), "incorrect L dimensions");
+    TORCH_CHECK(L.size(-1) >= 1 && L.size(-2) == L.size(-1), "L must be nonempty and square");
+    TORCH_CHECK(!batched || L.size(0) >= 1, "batch must be nonempty");
+    TORCH_CHECK(L.scalar_type() == torch::kFloat32 || L.scalar_type() == torch::kFloat64, "CPU update requires float32 or float64");
+    for (const auto& tensor : {L, Aw, z, w}) {
+        TORCH_CHECK(tensor.device().is_cpu(), "all inputs must be on CPU");
+        TORCH_CHECK(tensor.scalar_type() == L.scalar_type(), "all inputs must share dtype");
+    }
+    TORCH_CHECK(Aw.sizes() == L.sizes(), "Aw must match L");
+    TORCH_CHECK(z.dim() == L.dim()-1 && w.sizes() == z.sizes(), "z and w shapes must match");
+    TORCH_CHECK(z.size(-1) == L.size(-1), "vector rank mismatch");
+    TORCH_CHECK(!batched || z.size(0) == L.size(0), "vector batch mismatch");
+}
+
 std::tuple<torch::Tensor, torch::Tensor> fast_incremental_update(
     torch::Tensor L, torch::Tensor Aw, torch::Tensor z, torch::Tensor w
 ) {
-    L = L.contiguous(); Aw = Aw.contiguous();
+    torch::NoGradGuard no_grad;
+    check_inputs(L, Aw, z, w, false);
+    Aw = Aw.contiguous();
     z = z.contiguous(); w = w.contiguous();
     TORCH_CHECK(L.dim() == 2 && L.size(0) == L.size(1), "L must be square 2D");
     TORCH_CHECK(Aw.sizes() == L.sizes(), "Aw must match L shape");
@@ -318,7 +338,9 @@ std::tuple<torch::Tensor, torch::Tensor> fast_incremental_update(
 std::tuple<torch::Tensor, torch::Tensor> fast_incremental_update_batched(
     torch::Tensor L, torch::Tensor Aw, torch::Tensor z, torch::Tensor w
 ) {
-    L = L.contiguous(); Aw = Aw.contiguous();
+    torch::NoGradGuard no_grad;
+    check_inputs(L, Aw, z, w, true);
+    Aw = Aw.contiguous();
     z = z.contiguous(); w = w.contiguous();
     const int T = L.size(0);
     const int r = L.size(1);
@@ -329,8 +351,9 @@ std::tuple<torch::Tensor, torch::Tensor> fast_incremental_update_batched(
     const bool is_double = (L.scalar_type() == torch::kFloat64);
 
     at::parallel_for(0, T, 1, [&](int begin, int end) {
+        torch::NoGradGuard thread_no_grad;
         for (int t = begin; t < end; t++) {
-            auto L_t = L[t].clone();
+            auto L_t = L[t];
             auto z_t = z[t].clone();
             auto Aw_t = Aw[t].contiguous();
             auto w_t = w[t].contiguous();
