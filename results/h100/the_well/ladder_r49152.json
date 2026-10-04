@@ -1,0 +1,2713 @@
+{
+  "campaign_tag": "blackhole-s4-v1",
+  "case_count": 10,
+  "cases": [
+    {
+      "case_index": 0,
+      "condition_number_exact": 51.844684006168485,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.1091806584317965e-07,
+          "max_relative_error": 1.1298540414372837e-07,
+          "median_relative_error": 1.1091198004464786e-07,
+          "per_probe_relative_errors": [
+            1.1084866713417796e-07,
+            1.1065214522432143e-07,
+            1.1298540414372837e-07,
+            1.1011007927663741e-07,
+            1.1111424669252301e-07,
+            1.1102807917495738e-07,
+            1.1130408239523604e-07,
+            1.1102756047876028e-07,
+            1.0919042381374311e-07,
+            1.1219623274882906e-07,
+            1.1099526631141998e-07,
+            1.1097529295511777e-07,
+            1.1030301294567835e-07,
+            1.1064859961606999e-07,
+            1.10788363372194e-07,
+            1.1047388426277394e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.701859218883328e-05,
+          "max_relative_error": 2.476373265380971e-05,
+          "median_relative_error": 1.7724719327816274e-05,
+          "per_probe_relative_errors": [
+            1.506656099081738e-05,
+            2.476373265380971e-05,
+            1.7157773982034996e-05,
+            1.67238376889145e-05,
+            1.5417726899613626e-05,
+            1.5184842595772352e-05,
+            2.2771684598410502e-05,
+            2.0969571778550744e-05,
+            1.1847275345644448e-05,
+            2.4333727196790278e-05,
+            1.9541601432138123e-05,
+            2.1559269953286275e-05,
+            1.5817602616152726e-05,
+            1.937146225827746e-05,
+            1.4767735592613462e-05,
+            1.8291664673597552e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.844684006168485,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "inverse",
+        "fresh_refact"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.68971337890625,
+          "event_seconds_samples": [
+            5.68653759765625,
+            5.69204296875,
+            5.68971337890625
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018276065005920827,
+          "state_restoration_seconds_samples": [
+            0.018265752005390823,
+            0.018550143926404417,
+            0.018276065005920827
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17575577773519285,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.593642410734901e-06,
+                "max_relative_error": 6.761057193216402e-06,
+                "median_relative_error": 6.590299562958535e-06,
+                "per_probe_relative_errors": [
+                  6.594404112547636e-06,
+                  6.6028696892317384e-06,
+                  6.586195013369434e-06,
+                  6.761057193216402e-06,
+                  6.608291187149007e-06,
+                  6.6058491938747466e-06,
+                  6.442844096454792e-06,
+                  6.580364242836367e-06,
+                  6.684120762656676e-06,
+                  6.510060757136671e-06,
+                  6.616824521188391e-06,
+                  6.565105650224723e-06,
+                  6.546628810610855e-06,
+                  6.561452664755052e-06,
+                  6.578510692634154e-06,
+                  6.607025170524139e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 7.057134553178912e-06,
+                "max_relative_error": 1.905575663840864e-05,
+                "median_relative_error": 6.755959930160316e-06,
+                "per_probe_relative_errors": [
+                  1.905575663840864e-05,
+                  5.2531772780639585e-06,
+                  9.231705917045474e-06,
+                  6.70697136229137e-06,
+                  9.473477803112473e-06,
+                  7.218091013783123e-06,
+                  6.460235454142094e-06,
+                  9.992185368901119e-06,
+                  8.311110832437407e-06,
+                  6.414036306523485e-06,
+                  7.92782157077454e-06,
+                  6.804948498029262e-06,
+                  5.814679298055125e-06,
+                  5.136599611432757e-06,
+                  4.830737452721223e-06,
+                  5.800835424452089e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.6897883280180395,
+          "wall_seconds_samples": [
+            5.6865913030924276,
+            5.692130793002434,
+            5.6897883280180395
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11386109161376953,
+          "event_seconds_samples": [
+            0.11386109161376953,
+            0.11393612670898437,
+            0.11371529388427734
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.1652760399738327,
+          "state_restoration_seconds_samples": [
+            2.4293601020472124,
+            2.115966788958758,
+            2.1652760399738327
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.782631413653752,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.817532499146182e-06,
+                "max_relative_error": 4.853435257246019e-06,
+                "median_relative_error": 4.823728659175686e-06,
+                "per_probe_relative_errors": [
+                  4.819282821699744e-06,
+                  4.8289898586517666e-06,
+                  4.781029474543175e-06,
+                  4.827251359529328e-06,
+                  4.853435257246019e-06,
+                  4.787626494362485e-06,
+                  4.815375632460928e-06,
+                  4.826340500585502e-06,
+                  4.84010797663359e-06,
+                  4.787437319464516e-06,
+                  4.824474217457464e-06,
+                  4.798891040991293e-06,
+                  4.8269034778058995e-06,
+                  4.789888862433145e-06,
+                  4.8497217903786805e-06,
+                  4.822983100893907e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.780833139899187e-05,
+                "max_relative_error": 6.381629646057263e-05,
+                "median_relative_error": 3.834902418020647e-05,
+                "per_probe_relative_errors": [
+                  4.3287695007165894e-05,
+                  5.100970156490803e-05,
+                  4.184730278211646e-05,
+                  4.0633593016536906e-05,
+                  2.3898643121356145e-05,
+                  2.62839221250033e-05,
+                  4.369580346974544e-05,
+                  3.071166429435834e-05,
+                  3.786750676226802e-05,
+                  6.381629646057263e-05,
+                  4.794884807779454e-05,
+                  3.743095294339582e-05,
+                  3.202864536433481e-05,
+                  3.308583836769685e-05,
+                  2.5230741812265478e-05,
+                  3.883054159814492e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11397147993557155,
+          "wall_seconds_samples": [
+            0.11397147993557155,
+            0.11398823501076549,
+            0.11376916500739753
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.844684006168485,
+      "small_gram_min_eigenvalue": 0.019706951691313694,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        80,
+        81
+      ],
+      "transition_index": 80,
+      "w_l2_norm": 0.7979385283928606,
+      "z_l2_norm": 0.8263487324592291
+    },
+    {
+      "case_index": 1,
+      "condition_number_exact": 51.78198379086961,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.0916749459966013e-07,
+          "max_relative_error": 1.1140960509692377e-07,
+          "median_relative_error": 1.0910731873536861e-07,
+          "per_probe_relative_errors": [
+            1.09327125130676e-07,
+            1.1140960509692377e-07,
+            1.1096521745912469e-07,
+            1.0809431216785015e-07,
+            1.0943910666583179e-07,
+            1.0843383790870575e-07,
+            1.0986486387309924e-07,
+            1.0830336094613813e-07,
+            1.095736408274206e-07,
+            1.0866855859603675e-07,
+            1.0812092909873172e-07,
+            1.0755398704986874e-07,
+            1.0923519511152335e-07,
+            1.1014631695616117e-07,
+            1.0897944235921386e-07,
+            1.0848714282474248e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.6620941096334718e-05,
+          "max_relative_error": 2.5622361135901883e-05,
+          "median_relative_error": 1.7354253031953704e-05,
+          "per_probe_relative_errors": [
+            1.6042204151744954e-05,
+            2.519295048841741e-05,
+            1.7076876247301698e-05,
+            1.763162981660571e-05,
+            1.5971718312357552e-05,
+            1.4592969819204882e-05,
+            2.2093276129453443e-05,
+            1.832465386542026e-05,
+            9.13145049707964e-06,
+            2.544078597566113e-05,
+            1.6009051250875928e-05,
+            2.5622361135901883e-05,
+            1.8787583030643873e-05,
+            1.889741724880878e-05,
+            1.4372134501172695e-05,
+            1.6108446288853884e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.78198379086961,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "fresh_refact",
+        "inverse"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.69215966796875,
+          "event_seconds_samples": [
+            5.688849609375,
+            5.69387939453125,
+            5.69215966796875
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018296116963028908,
+          "state_restoration_seconds_samples": [
+            0.018296116963028908,
+            0.018288405030034482,
+            0.01868603704497218
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17568024411318922,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.561471764143789e-06,
+                "max_relative_error": 6.633636076003313e-06,
+                "median_relative_error": 6.591250212295563e-06,
+                "per_probe_relative_errors": [
+                  6.597061201318866e-06,
+                  6.633636076003313e-06,
+                  6.614498943235958e-06,
+                  6.380299055308569e-06,
+                  6.621663033001823e-06,
+                  6.624728484894149e-06,
+                  6.481246145995101e-06,
+                  6.61155536363367e-06,
+                  6.398627192538697e-06,
+                  6.612867764488328e-06,
+                  6.5827430262288544e-06,
+                  6.557618235092377e-06,
+                  6.582823971257312e-06,
+                  6.580456101801246e-06,
+                  6.58543922327226e-06,
+                  6.603160272788955e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 6.1723499129584525e-06,
+                "max_relative_error": 1.9684466678882018e-05,
+                "median_relative_error": 6.775026577088283e-06,
+                "per_probe_relative_errors": [
+                  1.9684466678882018e-05,
+                  8.926825103117153e-06,
+                  9.96578728518216e-06,
+                  5.392481853050413e-06,
+                  6.5460699261166155e-06,
+                  7.5067018769914284e-06,
+                  5.891700766369468e-06,
+                  5.511411472980399e-06,
+                  5.824822892463999e-06,
+                  5.89874025536119e-06,
+                  7.93860453995876e-06,
+                  6.0436909734562505e-06,
+                  7.003983228059951e-06,
+                  7.382580406556372e-06,
+                  5.705163857783191e-06,
+                  7.543097581219627e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.692270871018991,
+          "wall_seconds_samples": [
+            5.688920993939973,
+            5.694063607021235,
+            5.692270871018991
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11406742095947266,
+          "event_seconds_samples": [
+            0.11413894653320313,
+            0.11406742095947266,
+            0.11370793914794922
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.4032840830041096,
+          "state_restoration_seconds_samples": [
+            3.612207697937265,
+            2.4032840830041096,
+            2.226100265979767
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.766745066983612,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.814437488676049e-06,
+                "max_relative_error": 4.846013325732201e-06,
+                "median_relative_error": 4.816684167963103e-06,
+                "per_probe_relative_errors": [
+                  4.816081855096854e-06,
+                  4.827910288440762e-06,
+                  4.8047095333458856e-06,
+                  4.822460141440388e-06,
+                  4.8154838623304386e-06,
+                  4.846013325732201e-06,
+                  4.7930943765095435e-06,
+                  4.803470801562071e-06,
+                  4.8172864808293525e-06,
+                  4.822483333555283e-06,
+                  4.779515165864723e-06,
+                  4.805439402844058e-06,
+                  4.82110181110329e-06,
+                  4.822848950425396e-06,
+                  4.82094264953048e-06,
+                  4.8117963160621e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.691544407047331e-05,
+                "max_relative_error": 5.394906474975869e-05,
+                "median_relative_error": 3.803321669693105e-05,
+                "per_probe_relative_errors": [
+                  4.975132833351381e-05,
+                  4.873377474723384e-05,
+                  3.7203575629973784e-05,
+                  4.3339656258467585e-05,
+                  2.2321897631627508e-05,
+                  2.6153686121688224e-05,
+                  4.3702581024263054e-05,
+                  3.17033045575954e-05,
+                  3.776652738451958e-05,
+                  5.394906474975869e-05,
+                  3.9999977161642164e-05,
+                  3.829990600934252e-05,
+                  3.098508022958413e-05,
+                  3.083479532506317e-05,
+                  2.1868889234610833e-05,
+                  3.907877180608921e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11411587905604392,
+          "wall_seconds_samples": [
+            0.1142075969837606,
+            0.11411587905604392,
+            0.11376045702490956
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.78198379086961,
+      "small_gram_min_eigenvalue": 0.019430380343796405,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        91,
+        92
+      ],
+      "transition_index": 91,
+      "w_l2_norm": 0.7760039239479143,
+      "z_l2_norm": 0.7880519395676933
+    },
+    {
+      "case_index": 2,
+      "condition_number_exact": 51.731854735087424,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.0939342587334977e-07,
+          "max_relative_error": 1.1139846378682705e-07,
+          "median_relative_error": 1.0930587635016309e-07,
+          "per_probe_relative_errors": [
+            1.1139846378682705e-07,
+            1.0941630534944125e-07,
+            1.1030630986397227e-07,
+            1.0848872733504322e-07,
+            1.089486332261913e-07,
+            1.0919544735088493e-07,
+            1.1035359648303711e-07,
+            1.0905769443070312e-07,
+            1.0859589139045056e-07,
+            1.105054465710964e-07,
+            1.0850212817103966e-07,
+            1.0832359720325258e-07,
+            1.094386519184809e-07,
+            1.0960820873151533e-07,
+            1.0820338758321668e-07,
+            1.0989514720449733e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.6840887838043272e-05,
+          "max_relative_error": 2.714308720896952e-05,
+          "median_relative_error": 1.8290951629751362e-05,
+          "per_probe_relative_errors": [
+            1.533354770799633e-05,
+            2.714308720896952e-05,
+            1.8370159523328766e-05,
+            1.8429311239742674e-05,
+            1.4649445802206174e-05,
+            1.4415383702726103e-05,
+            2.2914980945643038e-05,
+            1.866509956016671e-05,
+            9.252744348486885e-06,
+            2.3588130716234446e-05,
+            1.7936064978130162e-05,
+            2.4947508791228756e-05,
+            1.674607119639404e-05,
+            2.0901539755868725e-05,
+            1.4288552847574465e-05,
+            1.8211743736173958e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.731854735087424,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "inverse",
+        "fresh_refact"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.693314453125,
+          "event_seconds_samples": [
+            5.69479638671875,
+            5.693314453125,
+            5.68914501953125
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018283083918504417,
+          "state_restoration_seconds_samples": [
+            0.01825041603296995,
+            0.018289459985680878,
+            0.018283083918504417
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17564461057497197,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.595882041438017e-06,
+                "max_relative_error": 6.668379683105741e-06,
+                "median_relative_error": 6.596934554181644e-06,
+                "per_probe_relative_errors": [
+                  6.601869245059788e-06,
+                  6.559269422723446e-06,
+                  6.637136721110437e-06,
+                  6.494209628726821e-06,
+                  6.5823660406749696e-06,
+                  6.6241218519280665e-06,
+                  6.536338332807645e-06,
+                  6.573157406819519e-06,
+                  6.664116881438531e-06,
+                  6.668379683105741e-06,
+                  6.632647910009837e-06,
+                  6.639300863753306e-06,
+                  6.591999863303499e-06,
+                  6.60384512229939e-06,
+                  6.581532488780795e-06,
+                  6.551771093654679e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 7.119357178453356e-06,
+                "max_relative_error": 1.866677303041797e-05,
+                "median_relative_error": 8.155386240105145e-06,
+                "per_probe_relative_errors": [
+                  1.866677303041797e-05,
+                  5.602815690508578e-06,
+                  1.242288726643892e-05,
+                  6.446915904234629e-06,
+                  6.290423243626719e-06,
+                  9.349819265480619e-06,
+                  5.7551560530555435e-06,
+                  8.63385503180325e-06,
+                  7.770190677547362e-06,
+                  6.637565547862323e-06,
+                  1.2440483260434121e-05,
+                  8.540581802662928e-06,
+                  8.78209903021343e-06,
+                  9.811257768888026e-06,
+                  7.399203695968026e-06,
+                  6.061269232304767e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.693390976055525,
+          "wall_seconds_samples": [
+            5.6948516729753464,
+            5.693390976055525,
+            5.689215374994092
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11415638732910156,
+          "event_seconds_samples": [
+            0.11415638732910156,
+            0.11418739318847657,
+            0.11373734283447266
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.225791697972454,
+          "state_restoration_seconds_samples": [
+            2.2260099629638717,
+            2.2231131331063807,
+            2.225791697972454
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.759912812562114,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.817060471395962e-06,
+                "max_relative_error": 4.844933300773846e-06,
+                "median_relative_error": 4.815968850380159e-06,
+                "per_probe_relative_errors": [
+                  4.832629201700911e-06,
+                  4.839144821744412e-06,
+                  4.790477760252543e-06,
+                  4.794756023329683e-06,
+                  4.811132384929806e-06,
+                  4.798426743946038e-06,
+                  4.813235591427656e-06,
+                  4.805102889804402e-06,
+                  4.832985723624006e-06,
+                  4.81910137750674e-06,
+                  4.820774393010652e-06,
+                  4.839062967221253e-06,
+                  4.806520792044466e-06,
+                  4.818702109332662e-06,
+                  4.80554263049271e-06,
+                  4.844933300773846e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.8051974115660414e-05,
+                "max_relative_error": 6.136317824712023e-05,
+                "median_relative_error": 3.766246300074272e-05,
+                "per_probe_relative_errors": [
+                  4.7860561608104035e-05,
+                  5.42079760634806e-05,
+                  3.831240610452369e-05,
+                  4.730614091386087e-05,
+                  2.0649324142141268e-05,
+                  2.5394989279448055e-05,
+                  4.2013125494122505e-05,
+                  3.2370342523790896e-05,
+                  3.701251989696175e-05,
+                  6.136317824712023e-05,
+                  4.23981218773406e-05,
+                  3.668768840725534e-05,
+                  3.6209785321261734e-05,
+                  3.399749766686e-05,
+                  2.5477515009697527e-05,
+                  4.261754293111153e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11420826194807887,
+          "wall_seconds_samples": [
+            0.11420826194807887,
+            0.11423611606005579,
+            0.11379104293882847
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.731854735087424,
+      "small_gram_min_eigenvalue": 0.019659348389861976,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        102,
+        103
+      ],
+      "transition_index": 102,
+      "w_l2_norm": 0.797140757146759,
+      "z_l2_norm": 0.7612112514881197
+    },
+    {
+      "case_index": 3,
+      "condition_number_exact": 51.665292001088254,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.0816233242394446e-07,
+          "max_relative_error": 1.0959860929915521e-07,
+          "median_relative_error": 1.0830224894675666e-07,
+          "per_probe_relative_errors": [
+            1.076250839560089e-07,
+            1.0776762593422973e-07,
+            1.0851348974938446e-07,
+            1.0829710817006344e-07,
+            1.0793772275974334e-07,
+            1.0740210143467266e-07,
+            1.0959860929915521e-07,
+            1.0837215569381442e-07,
+            1.083703153881288e-07,
+            1.0927132620963675e-07,
+            1.0661787541721424e-07,
+            1.064415329210533e-07,
+            1.0919664106268101e-07,
+            1.078075655414068e-07,
+            1.0901587188527628e-07,
+            1.0830738972344989e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.6579893781454302e-05,
+          "max_relative_error": 2.5094705051742494e-05,
+          "median_relative_error": 1.7749198377714492e-05,
+          "per_probe_relative_errors": [
+            1.589410203450825e-05,
+            2.5094705051742494e-05,
+            1.772347604855895e-05,
+            1.958213579200674e-05,
+            1.5501578673138283e-05,
+            1.4453791663981974e-05,
+            2.2401409296435304e-05,
+            1.946654447237961e-05,
+            9.156279702438042e-06,
+            2.4688386474736035e-05,
+            1.7774920706870034e-05,
+            2.2745318347006105e-05,
+            1.711692675598897e-05,
+            2.0220944861648604e-05,
+            1.4150496099318843e-05,
+            1.5013129996077623e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.665292001088254,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "fresh_refact",
+        "inverse"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.69108984375,
+          "event_seconds_samples": [
+            5.69108984375,
+            5.6892255859375,
+            5.69252685546875
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018291327985934913,
+          "state_restoration_seconds_samples": [
+            0.018291327985934913,
+            0.018280716030858457,
+            0.018542210920713842
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17571326889140712,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.5611461650405545e-06,
+                "max_relative_error": 6.706570729875239e-06,
+                "median_relative_error": 6.573254495378933e-06,
+                "per_probe_relative_errors": [
+                  6.6277948462811764e-06,
+                  6.706570729875239e-06,
+                  6.569978268089471e-06,
+                  6.5765307226683944e-06,
+                  6.569708602910396e-06,
+                  6.600190772587666e-06,
+                  6.43639987174538e-06,
+                  6.579472028533928e-06,
+                  6.3945090005290695e-06,
+                  6.568048320332309e-06,
+                  6.598458185180789e-06,
+                  6.594845217477996e-06,
+                  6.545335509144934e-06,
+                  6.619945907004876e-06,
+                  6.516634130093735e-06,
+                  6.522461717395345e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 6.114639290899504e-06,
+                "max_relative_error": 2.1154874048079364e-05,
+                "median_relative_error": 6.3966153902583756e-06,
+                "per_probe_relative_errors": [
+                  2.1154874048079364e-05,
+                  9.041882549354341e-06,
+                  1.3425215001916513e-05,
+                  5.670281552738743e-06,
+                  5.737336778111057e-06,
+                  8.31833494885359e-06,
+                  4.6736195145058446e-06,
+                  6.727366326231277e-06,
+                  6.0658644542854745e-06,
+                  5.748511739511741e-06,
+                  7.139741683204193e-06,
+                  7.133588042051997e-06,
+                  5.424716164270649e-06,
+                  8.816676199785434e-06,
+                  6.037948878656607e-06,
+                  5.665948719979497e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.6911655340809375,
+          "wall_seconds_samples": [
+            5.6911655340809375,
+            5.689294541021809,
+            5.692606218042783
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.1136269760131836,
+          "event_seconds_samples": [
+            0.1136732177734375,
+            0.11356582641601562,
+            0.1136269760131836
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.219124640105292,
+          "state_restoration_seconds_samples": [
+            5.131240583024919,
+            2.094003986916505,
+            2.219124640105292
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.800727037600426,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.816924501938047e-06,
+                "max_relative_error": 4.844487648369977e-06,
+                "median_relative_error": 4.816956561626284e-06,
+                "per_probe_relative_errors": [
+                  4.844487648369977e-06,
+                  4.832157628698042e-06,
+                  4.802804596693022e-06,
+                  4.811542567040306e-06,
+                  4.79614982396015e-06,
+                  4.83107442050823e-06,
+                  4.8174629228014965e-06,
+                  4.815178272110643e-06,
+                  4.8373212848673575e-06,
+                  4.778778929903638e-06,
+                  4.821874881599797e-06,
+                  4.822564278583741e-06,
+                  4.816450200451072e-06,
+                  4.8202186917478684e-06,
+                  4.812058705283562e-06,
+                  4.810268364963122e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.870730142807588e-05,
+                "max_relative_error": 5.925445293541998e-05,
+                "median_relative_error": 3.982357156928629e-05,
+                "per_probe_relative_errors": [
+                  4.574293052428402e-05,
+                  5.4007326980354264e-05,
+                  4.212148633087054e-05,
+                  4.399555109557696e-05,
+                  2.072632014460396e-05,
+                  2.47254574787803e-05,
+                  4.349423397798091e-05,
+                  3.417184416321106e-05,
+                  4.2805233533727005e-05,
+                  5.925445293541998e-05,
+                  3.543842467479408e-05,
+                  3.7525656807702035e-05,
+                  3.4427226637490094e-05,
+                  3.3347998396493495e-05,
+                  2.3801630959496833e-05,
+                  4.331963282311335e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11368185002356768,
+          "wall_seconds_samples": [
+            0.11376633401960135,
+            0.11361868295352906,
+            0.11368185002356768
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.665292001088254,
+      "small_gram_min_eigenvalue": 0.019711173153840224,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        113,
+        114
+      ],
+      "transition_index": 113,
+      "w_l2_norm": 0.7348041058949343,
+      "z_l2_norm": 0.7359875573283474
+    },
+    {
+      "case_index": 4,
+      "condition_number_exact": 51.68987605152186,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.0780225068174332e-07,
+          "max_relative_error": 1.1009885980683976e-07,
+          "median_relative_error": 1.0774001424351809e-07,
+          "per_probe_relative_errors": [
+            1.0641907266517592e-07,
+            1.0715027798369192e-07,
+            1.1009885980683976e-07,
+            1.0722998666778949e-07,
+            1.0766424196617663e-07,
+            1.0708021136451862e-07,
+            1.0829995744643384e-07,
+            1.0786344262214698e-07,
+            1.0701334929308359e-07,
+            1.0797262461892387e-07,
+            1.0662259342097968e-07,
+            1.0781578652085955e-07,
+            1.0946688178137265e-07,
+            1.0813506179374599e-07,
+            1.0982437004258827e-07,
+            1.0608304990000761e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.6087717085611075e-05,
+          "max_relative_error": 2.4503913664375432e-05,
+          "median_relative_error": 1.6470034097437747e-05,
+          "per_probe_relative_errors": [
+            1.450029685656773e-05,
+            2.395164301560726e-05,
+            1.6806694475235417e-05,
+            1.686543873802293e-05,
+            1.4548388207913376e-05,
+            1.3569647308031563e-05,
+            2.4490153009537607e-05,
+            1.9304248780827038e-05,
+            9.606693311070558e-06,
+            2.4503913664375432e-05,
+            1.5734973203507252e-05,
+            2.1939400539849885e-05,
+            1.6133373719640076e-05,
+            1.9523564333212562e-05,
+            1.5314697520807385e-05,
+            1.4736926459590904e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.68987605152186,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "inverse",
+        "fresh_refact"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.69089794921875,
+          "event_seconds_samples": [
+            5.68880029296875,
+            5.69089794921875,
+            5.69474462890625
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018287721904926002,
+          "state_restoration_seconds_samples": [
+            0.01823800301644951,
+            0.018287721904926002,
+            0.018322577001526952
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17571919386417403,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.570681307493942e-06,
+                "max_relative_error": 6.6389975472702645e-06,
+                "median_relative_error": 6.5892693328351015e-06,
+                "per_probe_relative_errors": [
+                  6.621516149607487e-06,
+                  6.557298092957353e-06,
+                  6.621784905291861e-06,
+                  6.323335583147127e-06,
+                  6.582445166714024e-06,
+                  6.626915819651913e-06,
+                  6.521399427583674e-06,
+                  6.567820491909515e-06,
+                  6.589250915567391e-06,
+                  6.5892877501028124e-06,
+                  6.562446287716739e-06,
+                  6.603406745853135e-06,
+                  6.6389975472702645e-06,
+                  6.5954272940871306e-06,
+                  6.572686288564e-06,
+                  6.605035650864011e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 7.420341717079282e-06,
+                "max_relative_error": 1.9417906514718197e-05,
+                "median_relative_error": 6.68492339173099e-06,
+                "per_probe_relative_errors": [
+                  1.9417906514718197e-05,
+                  5.650987077387981e-06,
+                  1.0726867003540974e-05,
+                  5.470036740007345e-06,
+                  5.874716407561209e-06,
+                  8.764724952925462e-06,
+                  5.23864491697168e-06,
+                  6.021368790243287e-06,
+                  1.0006732736655977e-05,
+                  7.525049568357645e-06,
+                  1.0866718184843194e-05,
+                  7.295826890185708e-06,
+                  5.935748959018383e-06,
+                  5.95014716964215e-06,
+                  8.282653652713634e-06,
+                  6.074019893276272e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.690969385905191,
+          "wall_seconds_samples": [
+            5.6888658970128745,
+            5.690969385905191,
+            5.694826733903028
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11395635223388671,
+          "event_seconds_samples": [
+            0.11395635223388671,
+            0.11358460998535157,
+            0.1140537567138672
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.2406181569676846,
+          "state_restoration_seconds_samples": [
+            2.3426255619851872,
+            2.2406181569676846,
+            2.2212807219475508
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.775289664832167,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.809353868040489e-06,
+                "max_relative_error": 4.83125404571183e-06,
+                "median_relative_error": 4.80883886666561e-06,
+                "per_probe_relative_errors": [
+                  4.823550170840463e-06,
+                  4.79568325317814e-06,
+                  4.81719280287507e-06,
+                  4.829175395570928e-06,
+                  4.8230622269329615e-06,
+                  4.806962806469528e-06,
+                  4.789480044564698e-06,
+                  4.783508757100208e-06,
+                  4.821478796657175e-06,
+                  4.805625394510571e-06,
+                  4.810714926861692e-06,
+                  4.805684511666186e-06,
+                  4.794398591911886e-06,
+                  4.795069344254443e-06,
+                  4.816487944481196e-06,
+                  4.83125404571183e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.727085641003214e-05,
+                "max_relative_error": 5.9358881117077544e-05,
+                "median_relative_error": 3.808721339737531e-05,
+                "per_probe_relative_errors": [
+                  4.431699198903516e-05,
+                  5.07734548591543e-05,
+                  4.1425300878472626e-05,
+                  4.776008063345216e-05,
+                  2.0125848095631227e-05,
+                  2.86648119072197e-05,
+                  4.503374657360837e-05,
+                  2.8587721317308024e-05,
+                  3.6518744309432805e-05,
+                  5.9358881117077544e-05,
+                  4.257164619048126e-05,
+                  3.443878085818142e-05,
+                  3.265868508606218e-05,
+                  3.159234984195791e-05,
+                  2.4906479666242376e-05,
+                  3.965568248531781e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11400395107921213,
+          "wall_seconds_samples": [
+            0.11400395107921213,
+            0.11363326502032578,
+            0.11410019104368985
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.68987605152186,
+      "small_gram_min_eigenvalue": 0.019690133540757722,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        124,
+        125
+      ],
+      "transition_index": 124,
+      "w_l2_norm": 0.7424712154103909,
+      "z_l2_norm": 0.7373654193956088
+    },
+    {
+      "case_index": 5,
+      "condition_number_exact": 51.662584714388316,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.078684164212973e-07,
+          "max_relative_error": 1.0877322154101421e-07,
+          "median_relative_error": 1.0794511595690892e-07,
+          "per_probe_relative_errors": [
+            1.0774429881621472e-07,
+            1.0840044240012503e-07,
+            1.0877322154101421e-07,
+            1.077082387723749e-07,
+            1.0796468785656543e-07,
+            1.0698425256805422e-07,
+            1.0818623508157543e-07,
+            1.061098657828552e-07,
+            1.0806188299739006e-07,
+            1.0757943869066366e-07,
+            1.0767129055011537e-07,
+            1.0828411944885374e-07,
+            1.0801561955986472e-07,
+            1.0862132171496341e-07,
+            1.0792554405725241e-07,
+            1.0783615778109379e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.5736775822006166e-05,
+          "max_relative_error": 2.406476232863497e-05,
+          "median_relative_error": 1.6622155271761585e-05,
+          "per_probe_relative_errors": [
+            1.3461013622872997e-05,
+            2.406476232863497e-05,
+            1.6362228052457795e-05,
+            1.6882082491065376e-05,
+            1.5004107808636036e-05,
+            1.2833287655666936e-05,
+            2.1290672520990483e-05,
+            2.0295985450502485e-05,
+            8.288872777484357e-06,
+            2.3274451450561173e-05,
+            1.614853499631863e-05,
+            2.1158348317840137e-05,
+            1.7448737708036788e-05,
+            2.0175448298687115e-05,
+            1.4432421266974416e-05,
+            1.5695633919676766e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.662584714388316,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "fresh_refact",
+        "inverse"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.6968017578125,
+          "event_seconds_samples": [
+            5.69443505859375,
+            5.6968017578125,
+            5.70072216796875
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018301899079233408,
+          "state_restoration_seconds_samples": [
+            0.018294300069101155,
+            0.018301899079233408,
+            0.018323234980925918
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17553708949563088,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.598818799830042e-06,
+                "max_relative_error": 7.060084044496762e-06,
+                "median_relative_error": 6.582153901035781e-06,
+                "per_probe_relative_errors": [
+                  6.642887456109747e-06,
+                  7.060084044496762e-06,
+                  6.6161069298686925e-06,
+                  6.4809032664925326e-06,
+                  6.578924967470812e-06,
+                  6.592787030967884e-06,
+                  6.779861450922908e-06,
+                  6.560864221683005e-06,
+                  6.294058948697057e-06,
+                  6.5941617322096135e-06,
+                  6.5761500991357025e-06,
+                  6.5433105191914365e-06,
+                  6.520599526993465e-06,
+                  6.58538283460075e-06,
+                  6.634402325289557e-06,
+                  6.5675703808665276e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 7.517739049944794e-06,
+                "max_relative_error": 2.4726728952373378e-05,
+                "median_relative_error": 8.147424978233175e-06,
+                "per_probe_relative_errors": [
+                  2.4726728952373378e-05,
+                  1.2012666047667153e-05,
+                  1.0006667253037449e-05,
+                  5.521877483261051e-06,
+                  5.790669547423022e-06,
+                  8.228256774600595e-06,
+                  5.30264560438809e-06,
+                  9.88500232779188e-06,
+                  8.575360880058724e-06,
+                  8.588787750340998e-06,
+                  9.089976629184093e-06,
+                  6.659419341303874e-06,
+                  7.764933798171114e-06,
+                  6.191036391101079e-06,
+                  5.834192052134313e-06,
+                  8.066593181865755e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.6968840199988335,
+          "wall_seconds_samples": [
+            5.694509192951955,
+            5.6968840199988335,
+            5.7007980949711055
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11368924713134766,
+          "event_seconds_samples": [
+            0.11363990020751953,
+            0.11409235382080078,
+            0.11368924713134766
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.2630791019182652,
+          "state_restoration_seconds_samples": [
+            5.268051068065688,
+            2.2388011729344726,
+            2.2630791019182652
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.795906607110155,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.820908088731812e-06,
+                "max_relative_error": 4.851790436077863e-06,
+                "median_relative_error": 4.8243318815366365e-06,
+                "per_probe_relative_errors": [
+                  4.828852070204448e-06,
+                  4.79680147691397e-06,
+                  4.826957137993304e-06,
+                  4.824100415135035e-06,
+                  4.8415467972517945e-06,
+                  4.821483798878035e-06,
+                  4.824563347938238e-06,
+                  4.812619408767205e-06,
+                  4.828053533856291e-06,
+                  4.834571882383898e-06,
+                  4.798751888301922e-06,
+                  4.7975845518521965e-06,
+                  4.795598670170875e-06,
+                  4.809385700355051e-06,
+                  4.851790436077863e-06,
+                  4.84138536194223e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.8105725252535194e-05,
+                "max_relative_error": 6.103302803239785e-05,
+                "median_relative_error": 3.9775590266799554e-05,
+                "per_probe_relative_errors": [
+                  4.685172825702466e-05,
+                  5.072687054052949e-05,
+                  4.3952222767984495e-05,
+                  4.1711584344739094e-05,
+                  2.2741936845704913e-05,
+                  2.3816201064619236e-05,
+                  3.9613671106053516e-05,
+                  3.064771954086609e-05,
+                  3.759787432500161e-05,
+                  6.103302803239785e-05,
+                  4.2424358980497345e-05,
+                  3.993750942754559e-05,
+                  3.939505040762015e-05,
+                  3.182788714184426e-05,
+                  2.8053169444319792e-05,
+                  4.184959834674373e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11373499594628811,
+          "wall_seconds_samples": [
+            0.11369237105827779,
+            0.11414501501712948,
+            0.11373499594628811
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.662584714388316,
+      "small_gram_min_eigenvalue": 0.019742302178483096,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        135,
+        136
+      ],
+      "transition_index": 135,
+      "w_l2_norm": 0.7428750125454328,
+      "z_l2_norm": 0.7385186692885553
+    },
+    {
+      "case_index": 6,
+      "condition_number_exact": 51.653194684255595,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.0801750249811448e-07,
+          "max_relative_error": 1.0987274379203882e-07,
+          "median_relative_error": 1.0792579274720993e-07,
+          "per_probe_relative_errors": [
+            1.085526477595522e-07,
+            1.0987274379203882e-07,
+            1.0779224624002381e-07,
+            1.0906243375075064e-07,
+            1.0815737283564886e-07,
+            1.076228031138271e-07,
+            1.091149783860601e-07,
+            1.064825241314793e-07,
+            1.0703650588084201e-07,
+            1.097832225127604e-07,
+            1.076063966820584e-07,
+            1.0805933925439604e-07,
+            1.0907339031973606e-07,
+            1.0722224885739706e-07,
+            1.0682310858101118e-07,
+            1.0592363963723983e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.621969568077475e-05,
+          "max_relative_error": 2.469801802362781e-05,
+          "median_relative_error": 1.704381065792404e-05,
+          "per_probe_relative_errors": [
+            1.4444886801356915e-05,
+            2.469801802362781e-05,
+            1.877830618468579e-05,
+            1.7549466065247543e-05,
+            1.4355737221194431e-05,
+            1.3826437680108938e-05,
+            2.1406151063274592e-05,
+            1.7777574612409808e-05,
+            1.029775921779219e-05,
+            2.3705046260147355e-05,
+            1.653815525060054e-05,
+            2.2349855498760007e-05,
+            1.5988885934348218e-05,
+            2.086978747684043e-05,
+            1.4671485587314237e-05,
+            1.5578425518469885e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.653194684255595,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "inverse",
+        "fresh_refact"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.6908623046875,
+          "event_seconds_samples": [
+            5.69914599609375,
+            5.6908623046875,
+            5.690623046875
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018276509013958275,
+          "state_restoration_seconds_samples": [
+            0.01824316498823464,
+            0.018281416036188602,
+            0.018276509013958275
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.1757202944756388,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.5542808442842215e-06,
+                "max_relative_error": 6.626635695283767e-06,
+                "median_relative_error": 6.5838444243127014e-06,
+                "per_probe_relative_errors": [
+                  6.6029779191012494e-06,
+                  6.617358394578332e-06,
+                  6.572372058144538e-06,
+                  6.4875766838667914e-06,
+                  6.569478046003496e-06,
+                  6.60808245811495e-06,
+                  6.5032650127250236e-06,
+                  6.626635695283767e-06,
+                  6.2697072280570865e-06,
+                  6.625774858548539e-06,
+                  6.5899739638553e-06,
+                  6.5774515860539395e-06,
+                  6.534660769830225e-06,
+                  6.600369033549214e-06,
+                  6.591428700630786e-06,
+                  6.577714884770103e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 7.0383675847551785e-06,
+                "max_relative_error": 1.7251419194508344e-05,
+                "median_relative_error": 6.8093579557171324e-06,
+                "per_probe_relative_errors": [
+                  1.7251419194508344e-05,
+                  5.508774847839959e-06,
+                  8.552119652449619e-06,
+                  6.0922993725398555e-06,
+                  5.856140433024848e-06,
+                  7.38821745471796e-06,
+                  5.080909431853797e-06,
+                  5.888407486054348e-06,
+                  7.3180631261493545e-06,
+                  1.111954316002084e-05,
+                  1.3099193893140182e-05,
+                  9.419272828381509e-06,
+                  8.018861080927309e-06,
+                  6.08682285019313e-06,
+                  5.172641067474615e-06,
+                  6.30065278528491e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.690931691089645,
+          "wall_seconds_samples": [
+            5.699210079968907,
+            5.690931691089645,
+            5.690703244996257
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11406771087646485,
+          "event_seconds_samples": [
+            0.11406771087646485,
+            0.11413391876220703,
+            0.11380841827392578
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.0599145879969,
+          "state_restoration_seconds_samples": [
+            2.179800161975436,
+            2.039957708097063,
+            2.0599145879969
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.766722785232346,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.822456503461581e-06,
+                "max_relative_error": 4.842705038754502e-06,
+                "median_relative_error": 4.820209824174526e-06,
+                "per_probe_relative_errors": [
+                  4.8164856707444414e-06,
+                  4.836791958950926e-06,
+                  4.829680619877763e-06,
+                  4.83686108054826e-06,
+                  4.841289410251193e-06,
+                  4.83574240206508e-06,
+                  4.820287358597852e-06,
+                  4.821637048735283e-06,
+                  4.842705038754502e-06,
+                  4.803894626093097e-06,
+                  4.814343355974415e-06,
+                  4.810533937416039e-06,
+                  4.811659891856834e-06,
+                  4.8201322897512e-06,
+                  4.811094640899682e-06,
+                  4.805902335647261e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.637775080278516e-05,
+                "max_relative_error": 5.6337692512897775e-05,
+                "median_relative_error": 3.874863432429265e-05,
+                "per_probe_relative_errors": [
+                  4.258511035004631e-05,
+                  4.740629447042011e-05,
+                  4.214611544739455e-05,
+                  4.268457996658981e-05,
+                  2.0243369363015518e-05,
+                  2.5861321773845702e-05,
+                  4.0903825720306486e-05,
+                  3.0133447580737993e-05,
+                  3.582908175303601e-05,
+                  5.6337692512897775e-05,
+                  4.049661583849229e-05,
+                  3.6925273889210075e-05,
+                  3.792927964241244e-05,
+                  3.446740811341442e-05,
+                  2.321828287676908e-05,
+                  3.9567989006172866e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11415146302897483,
+          "wall_seconds_samples": [
+            0.11415146302897483,
+            0.11419092596042901,
+            0.11386593396309763
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.653194684255595,
+      "small_gram_min_eigenvalue": 0.019735325908110224,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        146,
+        147
+      ],
+      "transition_index": 146,
+      "w_l2_norm": 0.7432137850766078,
+      "z_l2_norm": 0.7594704946034523
+    },
+    {
+      "case_index": 7,
+      "condition_number_exact": 51.632218002248806,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.0532242811223114e-07,
+          "max_relative_error": 1.0683411488798811e-07,
+          "median_relative_error": 1.0550228068950673e-07,
+          "per_probe_relative_errors": [
+            1.0683411488798811e-07,
+            1.0466472133430216e-07,
+            1.058836076595071e-07,
+            1.0591961085992807e-07,
+            1.0530634142469353e-07,
+            1.0386364834857886e-07,
+            1.062597689838185e-07,
+            1.0571213948651348e-07,
+            1.0483373813485741e-07,
+            1.0548073703375849e-07,
+            1.035105583468976e-07,
+            1.0615266177183003e-07,
+            1.048014794946539e-07,
+            1.0552382434525498e-07,
+            1.0583333676095208e-07,
+            1.0452163223817479e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.623912430659402e-05,
+          "max_relative_error": 2.419557495159097e-05,
+          "median_relative_error": 1.739676281431457e-05,
+          "per_probe_relative_errors": [
+            1.5813051504665054e-05,
+            2.419557495159097e-05,
+            1.8475595425115898e-05,
+            1.7290487448917702e-05,
+            1.4378008927451447e-05,
+            1.3968596249469556e-05,
+            2.2221795006771572e-05,
+            1.775616874510888e-05,
+            8.921296284825075e-06,
+            2.2845115381642245e-05,
+            1.7114682123064995e-05,
+            2.1913170712650754e-05,
+            1.6667219824739732e-05,
+            1.9386125131859444e-05,
+            1.5159593203861732e-05,
+            1.750303817971144e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.632218002248806,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "fresh_refact",
+        "inverse"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.69107763671875,
+          "event_seconds_samples": [
+            5.689634765625,
+            5.6911982421875,
+            5.69107763671875
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018288600025698543,
+          "state_restoration_seconds_samples": [
+            0.018299854011274874,
+            0.018288600025698543,
+            0.018274727975949645
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17571364578617144,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.650222076132195e-06,
+                "max_relative_error": 6.93413903718465e-06,
+                "median_relative_error": 6.6300233356741956e-06,
+                "per_probe_relative_errors": [
+                  6.641409527219366e-06,
+                  6.677367764496012e-06,
+                  6.6494153543317225e-06,
+                  6.805559223721502e-06,
+                  6.5803274083009455e-06,
+                  6.602995654247934e-06,
+                  6.533251962537179e-06,
+                  6.589238182641566e-06,
+                  6.93413903718465e-06,
+                  6.70432473270921e-06,
+                  6.548114924953552e-06,
+                  6.544229108840227e-06,
+                  6.618637144129025e-06,
+                  6.643641427217517e-06,
+                  6.560476322192699e-06,
+                  6.654127446381608e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 7.760279913782142e-06,
+                "max_relative_error": 2.8106373065384105e-05,
+                "median_relative_error": 7.6206426911085146e-06,
+                "per_probe_relative_errors": [
+                  2.8106373065384105e-05,
+                  7.38126118449145e-06,
+                  1.3100672731525265e-05,
+                  8.59301599120954e-06,
+                  7.055523383314721e-06,
+                  8.366413567273412e-06,
+                  6.472002951340983e-06,
+                  7.860024197725579e-06,
+                  8.36071831145091e-06,
+                  8.245691788033582e-06,
+                  9.286801287089474e-06,
+                  6.911255695740692e-06,
+                  5.692048489436274e-06,
+                  6.197160473675467e-06,
+                  5.966353910480393e-06,
+                  6.2165322560758796e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.691144586075097,
+          "wall_seconds_samples": [
+            5.689703534939326,
+            5.69127824192401,
+            5.691144586075097
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11414873504638672,
+          "event_seconds_samples": [
+            0.11399814605712891,
+            0.11418585968017578,
+            0.11414873504638672
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.2317353419493884,
+          "state_restoration_seconds_samples": [
+            5.2952016240451485,
+            2.230566454003565,
+            2.2317353419493884
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.760500058048205,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.823243216378614e-06,
+                "max_relative_error": 4.854080088989576e-06,
+                "median_relative_error": 4.823573817702709e-06,
+                "per_probe_relative_errors": [
+                  4.831926617043791e-06,
+                  4.810953214473557e-06,
+                  4.836406333197374e-06,
+                  4.854080088989576e-06,
+                  4.82929408462951e-06,
+                  4.796409029950155e-06,
+                  4.831896603718633e-06,
+                  4.804731815966079e-06,
+                  4.847464879276231e-06,
+                  4.833102138945833e-06,
+                  4.814597559743561e-06,
+                  4.805499429494375e-06,
+                  4.843299393542111e-06,
+                  4.815369720745366e-06,
+                  4.798522695637075e-06,
+                  4.817853550775908e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.740804459084757e-05,
+                "max_relative_error": 5.895435606362298e-05,
+                "median_relative_error": 3.869924694299698e-05,
+                "per_probe_relative_errors": [
+                  4.5533422962762415e-05,
+                  5.266396692604758e-05,
+                  4.1622057324275374e-05,
+                  4.383232953841798e-05,
+                  2.0368572222650982e-05,
+                  2.4790004317765124e-05,
+                  4.160356184002012e-05,
+                  2.9577029636129737e-05,
+                  3.8531481550307944e-05,
+                  5.895435606362298e-05,
+                  3.886701233568601e-05,
+                  3.6916466342518106e-05,
+                  3.74072405975312e-05,
+                  2.9873794119339436e-05,
+                  2.5324390662717633e-05,
+                  4.049419658258557e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11419949098490179,
+          "wall_seconds_samples": [
+            0.11405227100476623,
+            0.11423306493088603,
+            0.11419949098490179
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.632218002248806,
+      "small_gram_min_eigenvalue": 0.01972190716340157,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        157,
+        158
+      ],
+      "transition_index": 157,
+      "w_l2_norm": 0.7198878091070323,
+      "z_l2_norm": 0.7287002694347257
+    },
+    {
+      "case_index": 8,
+      "condition_number_exact": 51.59142044272869,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.0561213059645524e-07,
+          "max_relative_error": 1.0735659117244722e-07,
+          "median_relative_error": 1.0549373286039554e-07,
+          "per_probe_relative_errors": [
+            1.0533930350220544e-07,
+            1.0569289088380174e-07,
+            1.0672909667164276e-07,
+            1.0549536000326043e-07,
+            1.0701419483893915e-07,
+            1.0450521870097873e-07,
+            1.0606833455995002e-07,
+            1.0549210571753065e-07,
+            1.0480293610726221e-07,
+            1.0735659117244722e-07,
+            1.0587351084723196e-07,
+            1.0505857517273398e-07,
+            1.0469222644360343e-07,
+            1.0600678024275112e-07,
+            1.0527183036401766e-07,
+            1.0434037989170974e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.5819101463421248e-05,
+          "max_relative_error": 2.4311866582138464e-05,
+          "median_relative_error": 1.781820992619032e-05,
+          "per_probe_relative_errors": [
+            1.3474359548126813e-05,
+            2.342273910471704e-05,
+            1.8558928786660545e-05,
+            1.94252952496754e-05,
+            1.3557623788074125e-05,
+            1.3218420463090297e-05,
+            2.1266030671540648e-05,
+            1.9345479813637212e-05,
+            7.993362487468403e-06,
+            2.4311866582138464e-05,
+            1.7077491065720096e-05,
+            2.0630952349165455e-05,
+            1.5506277122767642e-05,
+            2.1109950466779992e-05,
+            1.4135451237962116e-05,
+            1.5571104086120613e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.59142044272869,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "inverse",
+        "fresh_refact"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.712375,
+          "event_seconds_samples": [
+            5.712375,
+            5.71343701171875,
+            5.7109658203125
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.018416979000903666,
+          "state_restoration_seconds_samples": [
+            0.018416979000903666,
+            0.018688317039050162,
+            0.018404437112621963
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17505853519770673,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.562945600308012e-06,
+                "max_relative_error": 6.633448265347397e-06,
+                "median_relative_error": 6.57418672744825e-06,
+                "per_probe_relative_errors": [
+                  6.611361641262192e-06,
+                  6.50852643957478e-06,
+                  6.612626748392358e-06,
+                  6.417561507987557e-06,
+                  6.611955996049801e-06,
+                  6.59031229588436e-06,
+                  6.511723768198863e-06,
+                  6.633448265347397e-06,
+                  6.539290097862249e-06,
+                  6.619668511120835e-06,
+                  6.570848199771717e-06,
+                  6.566472166014137e-06,
+                  6.586955805687467e-06,
+                  6.57606142340228e-06,
+                  6.522065632452723e-06,
+                  6.572312031494221e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 7.011034995230148e-06,
+                "max_relative_error": 1.9374772818991914e-05,
+                "median_relative_error": 6.896346576468204e-06,
+                "per_probe_relative_errors": [
+                  1.9374772818991914e-05,
+                  5.725386472477112e-06,
+                  1.3129698345437646e-05,
+                  7.949472092150245e-06,
+                  7.377904239547206e-06,
+                  7.972463208716363e-06,
+                  5.512865755008534e-06,
+                  6.352439868351212e-06,
+                  6.592921181436395e-06,
+                  7.046260179777164e-06,
+                  8.01966234575957e-06,
+                  9.555643373460043e-06,
+                  6.120247235230636e-06,
+                  6.15610724707949e-06,
+                  6.746432973159244e-06,
+                  6.546473287016852e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.712546788039617,
+          "wall_seconds_samples": [
+            5.712546788039617,
+            5.713563083903864,
+            5.711057379026897
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11386540985107421,
+          "event_seconds_samples": [
+            0.11382701110839843,
+            0.1142688980102539,
+            0.11386540985107421
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.2444624269846827,
+          "state_restoration_seconds_samples": [
+            2.2446578280068934,
+            2.2444624269846827,
+            2.2284793329890817
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.78229834071568,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.816758973902324e-06,
+                "max_relative_error": 4.848461685469374e-06,
+                "median_relative_error": 4.815264901480987e-06,
+                "per_probe_relative_errors": [
+                  4.84141628476209e-06,
+                  4.825732048630016e-06,
+                  4.7809744501137175e-06,
+                  4.848461685469374e-06,
+                  4.815703505300917e-06,
+                  4.831064416066511e-06,
+                  4.814753538084915e-06,
+                  4.842180260311579e-06,
+                  4.827064458368113e-06,
+                  4.8119472921825945e-06,
+                  4.810360223928001e-06,
+                  4.814826297661057e-06,
+                  4.803125648322748e-06,
+                  4.818975412490545e-06,
+                  4.790950242750114e-06,
+                  4.7900302888592705e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.742810076801106e-05,
+                "max_relative_error": 5.4760268540121615e-05,
+                "median_relative_error": 3.944037052860949e-05,
+                "per_probe_relative_errors": [
+                  4.541716771200299e-05,
+                  5.4087307944428176e-05,
+                  4.045136665808968e-05,
+                  3.883235694956966e-05,
+                  2.3998323740670457e-05,
+                  2.3131122361519374e-05,
+                  4.131275636609644e-05,
+                  3.19516948366072e-05,
+                  3.944847048842348e-05,
+                  5.4760268540121615e-05,
+                  4.0588587580714375e-05,
+                  3.94322705687955e-05,
+                  3.635578104876913e-05,
+                  3.4226155548822135e-05,
+                  2.4628927349112928e-05,
+                  3.9833717892179266e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11393213691189885,
+          "wall_seconds_samples": [
+            0.11388079402968287,
+            0.11431380803696811,
+            0.11393213691189885
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.59142044272869,
+      "small_gram_min_eigenvalue": 0.019736822917435264,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        168,
+        169
+      ],
+      "transition_index": 168,
+      "w_l2_norm": 0.7185740990899523,
+      "z_l2_norm": 0.7087358905446456
+    },
+    {
+      "case_index": 9,
+      "condition_number_exact": 51.57016908324023,
+      "cross_method_probe_comparison": {
+        "count": 16,
+        "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+        "factor": {
+          "frobenius_relative_error": 1.0492895796687662e-07,
+          "max_relative_error": 1.0614532186536962e-07,
+          "median_relative_error": 1.0500826519432849e-07,
+          "per_probe_relative_errors": [
+            1.044541946271238e-07,
+            1.0458957433456817e-07,
+            1.0482627033070457e-07,
+            1.057405256688071e-07,
+            1.0580485110267546e-07,
+            1.0498223446120392e-07,
+            1.0545393536176562e-07,
+            1.0518992610286659e-07,
+            1.031272418572371e-07,
+            1.0513026182934482e-07,
+            1.0418117568633534e-07,
+            1.0520426485527423e-07,
+            1.0503429592745306e-07,
+            1.0483820744866534e-07,
+            1.0614532186536962e-07,
+            1.0412186668418144e-07
+          ]
+        },
+        "factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+        "operator": {
+          "frobenius_relative_error": 1.552684261696413e-05,
+          "max_relative_error": 2.432180190226063e-05,
+          "median_relative_error": 1.645410156925209e-05,
+          "per_probe_relative_errors": [
+            1.4903705960023217e-05,
+            2.432180190226063e-05,
+            1.6557296476094052e-05,
+            1.686910036369227e-05,
+            1.5192527826002333e-05,
+            1.2261030860827304e-05,
+            2.113612208631821e-05,
+            1.8353021005168557e-05,
+            8.042198714974802e-06,
+            2.2430045646615326e-05,
+            1.6350906662410125e-05,
+            1.9905994122382253e-05,
+            1.5462541341548786e-05,
+            2.0612053049262613e-05,
+            1.4371261386258993e-05,
+            1.592574881215114e-05
+          ]
+        },
+        "operator_identity": "Aw_incremental P vs Aw_fresh P",
+        "passed": true,
+        "seed": 29421,
+        "threshold": 0.001
+      },
+      "lambda_max_from_small_gram": 51.57016908324023,
+      "lambda_min_exact": 1.0,
+      "method_order": [
+        "fresh_refact",
+        "inverse"
+      ],
+      "methods": {
+        "fresh_refact": {
+          "event_seconds_median": 5.71184814453125,
+          "event_seconds_samples": [
+            5.71184814453125,
+            5.7102705078125,
+            5.713927734375
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "fresh_refact",
+          "peak_allocated_bytes": 38744687616,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 0.01841026498004794,
+          "state_restoration_seconds_samples": [
+            0.018401743029244244,
+            0.018413780024275184,
+            0.01841026498004794
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 0.17507468243136676,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 6.591336841665907e-06,
+                "max_relative_error": 6.829880931036314e-06,
+                "median_relative_error": 6.582416745004593e-06,
+                "per_probe_relative_errors": [
+                  6.6489669734437484e-06,
+                  6.526348443003371e-06,
+                  6.5828030528791714e-06,
+                  6.295997536653886e-06,
+                  6.574669441761216e-06,
+                  6.628293249377748e-06,
+                  6.601831046282314e-06,
+                  6.600157121283701e-06,
+                  6.829880931036314e-06,
+                  6.573052814928815e-06,
+                  6.591489636775805e-06,
+                  6.727494110236876e-06,
+                  6.582030437130015e-06,
+                  6.535028660437092e-06,
+                  6.580973604286555e-06,
+                  6.565987860085443e-06
+                ]
+              },
+              "factor_identity": "L L^T Q = G Q",
+              "operator": {
+                "frobenius_relative_error": 9.130109901889227e-06,
+                "max_relative_error": 2.9716500648646615e-05,
+                "median_relative_error": 9.372939075547038e-06,
+                "per_probe_relative_errors": [
+                  2.9716500648646615e-05,
+                  6.960353402973851e-06,
+                  1.540520133858081e-05,
+                  6.225479864951922e-06,
+                  7.919305062387139e-06,
+                  7.0760497692390345e-06,
+                  6.135121566330781e-06,
+                  1.0394115633971523e-05,
+                  1.270483699045144e-05,
+                  6.337257673294516e-06,
+                  1.0037197171186563e-05,
+                  9.288771252613515e-06,
+                  9.674709872342646e-06,
+                  1.2216676623211242e-05,
+                  9.45710689848056e-06,
+                  5.18854130859836e-06
+                ]
+              },
+              "operator_identity": "L Aw L^T Q = M Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 5.711925472947769,
+          "wall_seconds_samples": [
+            5.711925472947769,
+            5.7103514490881935,
+            5.714001271990128
+          ]
+        },
+        "inverse": {
+          "event_seconds_median": 0.11400281524658203,
+          "event_seconds_samples": [
+            0.11416214752197265,
+            0.11400281524658203,
+            0.11385238647460938
+          ],
+          "includes_G_M_outer_updates": true,
+          "mode": "inverse",
+          "peak_allocated_bytes": 38735250944,
+          "peak_reserved_bytes": 39292239872,
+          "repeats": 3,
+          "state_restoration_seconds_median": 2.351922402973287,
+          "state_restoration_seconds_samples": [
+            4.8995682309614494,
+            2.351922402973287,
+            2.282526727998629
+          ],
+          "state_restoration_timed": false,
+          "updates_per_second_from_event_median": 8.771713205827885,
+          "validation": {
+            "finite_full": true,
+            "full_dense": null,
+            "passed": true,
+            "probe": {
+              "count": 16,
+              "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank)), one fixed rank-by-16 matrix reused for every transition and method",
+              "factor": {
+                "frobenius_relative_error": 4.818237357540056e-06,
+                "max_relative_error": 4.857497060584137e-06,
+                "median_relative_error": 4.818987235921668e-06,
+                "per_probe_relative_errors": [
+                  4.823349627258722e-06,
+                  4.8331917241739575e-06,
+                  4.807838649867335e-06,
+                  4.81486404169118e-06,
+                  4.8295305532519706e-06,
+                  4.8231104301521555e-06,
+                  4.857497060584137e-06,
+                  4.803665888175601e-06,
+                  4.785224518855102e-06,
+                  4.837882443098351e-06,
+                  4.834142600884661e-06,
+                  4.778440597874578e-06,
+                  4.808341145690065e-06,
+                  4.809053734788904e-06,
+                  4.834982519241748e-06,
+                  4.810043265024433e-06
+                ]
+              },
+              "factor_identity": "Linv G Linv^T Q = Q",
+              "operator": {
+                "frobenius_relative_error": 3.8214726373553276e-05,
+                "max_relative_error": 5.740537017118186e-05,
+                "median_relative_error": 3.941806426155381e-05,
+                "per_probe_relative_errors": [
+                  5.2563649660442024e-05,
+                  5.161752415006049e-05,
+                  4.247726974426769e-05,
+                  3.954360363422893e-05,
+                  2.200588096457068e-05,
+                  2.2494734366773628e-05,
+                  4.452409120858647e-05,
+                  2.9775947041343898e-05,
+                  3.9846614527050406e-05,
+                  5.740537017118186e-05,
+                  3.970553370891139e-05,
+                  3.534564166329801e-05,
+                  3.747599112102762e-05,
+                  3.20225371979177e-05,
+                  2.8209306037751958e-05,
+                  3.929252488887869e-05
+                ]
+              },
+              "operator_identity": "Aw Q = Linv M Linv^T Q",
+              "seed": 29421
+            },
+            "threshold": 0.001
+          },
+          "wall_seconds_median": 0.11405223002657294,
+          "wall_seconds_samples": [
+            0.11421219806652516,
+            0.11405223002657294,
+            0.11390199896413833
+          ]
+        }
+      },
+      "small_gram_columns": 49152,
+      "small_gram_max_eigenvalue": 50.57016908324023,
+      "small_gram_min_eigenvalue": 0.019703097314012184,
+      "small_gram_rows": 65,
+      "snapshot_pair": [
+        179,
+        180
+      ],
+      "transition_index": 179,
+      "w_l2_norm": 0.6937839126943499,
+      "z_l2_norm": 0.6968292024686311
+    }
+  ],
+  "created_utc": "2026-07-26T01:50:50.703312+00:00",
+  "dataset": {
+    "bytes": 14109638656,
+    "relative_path": "data/train/post_neutron_star_merger_scenario_4.hdf5",
+    "repository": "polymathic-ai/post_neutron_star_merger",
+    "revision": "1fd582f3e29749ac4d0c14bc816bddb2394258cc",
+    "scenario": 4,
+    "scenario_name": "torus_MBH_10",
+    "sha256": "21e587c90c006c4b7d37e2b04899bd7e928967ae506e9ceb5afd05dfca6909fd"
+  },
+  "experiment": "cuda_blackhole_rank_scaling",
+  "feature_manifest": {
+    "path": "benchmarks/the_well/reference_feature_manifest.json",
+    "producer_source_sha256": "4c6b9ad11892a028784b11ff856be4b2681931a683b392fcf9b2f7139e5e9776",
+    "schema_version": "blackhole_features_v1",
+    "sha256": "3b8c6e32da3842b8a9f21ee722e8b9fb1093899744d283d4e939427dd116a5c2"
+  },
+  "full_dense_correctness_max_rank": 32768,
+  "hardware": {
+    "allow_tf32_matmul": false,
+    "compute_capability": [
+      9,
+      0
+    ],
+    "cuda": "12.6",
+    "cudnn": 91002,
+    "float32_matmul_precision": "highest",
+    "gpu": "NVIDIA H100 80GB HBM3",
+    "gpu_total_memory": 85045477376,
+    "torch": "2.12.0+cu126",
+    "visible_device_count": 1
+  },
+  "initial_state": {
+    "cholesky_output_stride": [
+      1,
+      49152
+    ],
+    "condition_number_exact": 51.3300721721721,
+    "condition_number_method": "FP64 eigvalsh of the 64-by-64 small Gram; because rank>64, lambda_min(G0)=ridge exactly",
+    "construction_wall_seconds": 19.232715278980322,
+    "definition_G": "I + sum_{t=0}^{63} z_t z_t^T",
+    "definition_M": "sum_{t=0}^{63} z_t w_t^T",
+    "factor_storage_stride": [
+      49152,
+      1
+    ],
+    "inverse_factor_host_backup_bytes": 9663676416,
+    "lambda_max_from_small_gram": 51.3300721721721,
+    "lambda_min_exact": 1.0,
+    "operator_host_backup_bytes": 9663676416,
+    "operator_stride": [
+      49152,
+      1
+    ],
+    "ridge": 1.0,
+    "small_gram_columns": 49152,
+    "small_gram_max_eigenvalue": 50.3300721721721,
+    "small_gram_min_eigenvalue": 0.0197440456985044,
+    "small_gram_rows": 64,
+    "transitions": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+    ]
+  },
+  "method_order_policy": "zero-based even case indices run inverse then fresh_refact; odd case indices reverse that order",
+  "platform": "Linux-5.15.0-1106-nvidia-x86_64-with-glibc2.35",
+  "probe": {
+    "count": 16,
+    "cross_method_comparison_required": true,
+    "cross_method_factor_identity": "Linv_incremental P vs solve(L_fresh, P)",
+    "cross_method_operator_identity": "Aw_incremental P vs Aw_fresh P",
+    "distribution": "NumPy PCG64 Rademacher (+/-1/sqrt(rank))",
+    "seed": 29421,
+    "threshold": 0.001
+  },
+  "protocol_version": "blackhole_s4_ladder_v1",
+  "python": "3.10.12 (main, Jun 22 2026, 18:55:27) [GCC 11.4.0]",
+  "rank": 49152,
+  "repeats_per_method_per_case": 3,
+  "schema_version": "cuda_blackhole_rank_scaling_v1",
+  "source": {
+    "driver_path": "rebuttal_experiments/cuda_blackhole_rank_scaling.py",
+    "driver_sha256": "1f267c106df2e1b458f56b22b3309670c5b2e163c4a9af436a9d6c7b80d9f026",
+    "feature_source_path": "rebuttal_experiments/blackhole_features.py",
+    "feature_source_sha256": "4c6b9ad11892a028784b11ff856be4b2681931a683b392fcf9b2f7139e5e9776",
+    "git_commit": "96c8018cdd0b56ffe1fd93bddf48fa4affb34697",
+    "git_dirty": false,
+    "kernel_path": "student_pkg/doublesided_cholesky.py",
+    "kernel_sha256": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa"
+  },
+  "tile_config": {
+    "setup_num_warps": 4,
+    "sweep_num_warps": 1,
+    "tile_cols": 32,
+    "tile_rows": 32
+  },
+  "timing_region": {
+    "cuda_event_unit": "seconds",
+    "excludes": [
+      "feature I/O",
+      "host-to-device feature transfer",
+      "common-state construction",
+      "state restoration",
+      "CUDA synchronization before timing",
+      "correctness checks"
+    ],
+    "includes": [
+      "G += z z^T",
+      "M += z w^T",
+      "method core"
+    ],
+    "wall_unit": "seconds"
+  },
+  "trace": {
+    "consumer_operation": "trace[t, :rank] / rank_scale",
+    "consumer_scaling_dtype": "float32",
+    "dtype": "float32",
+    "path": "data/the_well/processed/post_neutron_star_merger_scenario_4_dct65536.npy",
+    "rank_scale": 4177.061537147446,
+    "sha256": "bdf1619a70af70585af317d25aa69452fcb8e94d8417e525de9d50f878e530b4",
+    "shape": [
+      181,
+      65536
+    ]
+  },
+  "warmup": {
+    "excluded_from_timing": true,
+    "method_order": [
+      "inverse",
+      "fresh_refact"
+    ],
+    "methods": {
+      "fresh_refact": {
+        "execution_wall_seconds": 5.683270600042306
+      },
+      "inverse": {
+        "execution_wall_seconds": 0.8603515509748831
+      }
+    },
+    "snapshot_pair": [
+      64,
+      65
+    ],
+    "transition_index": 64
+  }
+}
