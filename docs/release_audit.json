@@ -1,0 +1,23 @@
+{
+  "tracked_files": 76,
+  "python_310_syntax": "passed",
+  "excluded_material_review": "passed",
+  "identifying_path_review": "passed",
+  "cpu_tests_passed": 28,
+  "cuda_tests_skipped": 43,
+  "cpu_golden_cases_bitwise_equal": 6,
+  "static_python_sections_equivalent": 35,
+  "static_cuda_kernel_bodies_equivalent": true,
+  "editable_install": "passed",
+  "macos_arm64_wheel_install": "passed",
+  "pending": [
+    "CUDA compilation and GPU tests",
+    "GPU golden equivalence",
+    "The Well feature regeneration",
+    "B200 symmetric remeasurement and default/tuned asymmetric comparisons",
+    "Ruff formatting pass",
+    "clean Linux/macOS CI",
+    "owner license/authorship/citation",
+    "owner snapshot preservation branch"
+  ]
+}
