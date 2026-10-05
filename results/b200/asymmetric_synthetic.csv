@@ -1,0 +1,5 @@
+# Archived original-kernel baseline used library defaults, not the tuned rank-ladder configuration.
+rank,inplace_default_ms,optimized_hybrid_ms,speedup
+8192,13.8415,4.8910,2.830
+32768,123.0665,28.5312,4.313
+65536,477.1596,109.7262,4.349

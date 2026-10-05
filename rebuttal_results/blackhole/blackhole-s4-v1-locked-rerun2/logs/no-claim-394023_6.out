@@ -1,4 +1,0 @@
-job_id=394023 array_job_id=394023 task=6 rank=65536 account=marlowe-m000151-pm06 partition=batch cpus=12 node=n02 visible_gpu=0
-GPU-2856ad6f-b9db-8bf9-9682-7ec6b27a8aa6, NVIDIA H100 80GB HBM3, 565.57.01, 81559
-verified immutable task 6 -> rank 65536
-no_claim_preflight=pass task=6 rank=65536

@@ -1,0 +1,35 @@
+{
+  "archive_sha256": "fd47ea950a367b7cdc8c2ec6aaf50517063b17d4d65232d8984da08cd08da531",
+  "missing_optional_document": "flop_analysis.md",
+  "source_aliases": {
+    "B": "B200 snapshot, 2026-07-27",
+    "O": "original checkout, commit 6e3e226"
+  },
+  "verified_sha256": {
+    "B/rebuttal_experiments/blackhole_features.py": "4c6b9ad11892a028784b11ff856be4b2681931a683b392fcf9b2f7139e5e9776",
+    "B/rebuttal_experiments/cuda_blackhole_rank_scaling_b200.py": "afe078ec2fa7a1ff0101ba6a8e166543aa39ca299dafb2df871ea0b2b91d722d",
+    "B/rebuttal_results/b200_afternoon_summary/RESULTS.md": "5c85d0c1c3c2a5d794aef2fe3d266611b0c7aab1ff6176d3e4eadb521b0115be",
+    "B/rebuttal_results/b200_afternoon_summary/asymmetric_synthetic_b200.csv": "9eb6e8e90458deedc972dfaaf8d9bcfab2f5079b99bca5c8fbb30293a64fadce",
+    "B/rebuttal_results/b200_afternoon_summary/symmetric_best_b200.csv": "496a0815e9d93525cfd45a396410983217b58722237a4f251a22f402d54c7bf0",
+    "B/rebuttal_results/blackhole/blackhole-s4-b200-v1/aggregate_b200.csv": "6bc64ca910b8f6963266d398ddc9b979f16095415744beacbdd36e98d5cfeaea",
+    "B/student_pkg/asym_descriptor_ext.cu": "92045f4110f4b11e0dc6abd6197b14361ef298c7c6f7c67f39ac71bb68ebf253",
+    "B/student_pkg/descriptor_ext.cu": "ec32c428557902af5d41a8f3f4b2900b44d5fdae886bea80c0f818e9bcd5698d",
+    "B/student_pkg/doublesided_cholesky.py": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa",
+    "B/student_pkg/doublesided_cholesky_asym_b200.py": "7281ad9dbf9fe9d84d89553e6c773ccdfff036a897b4555f2b588005c928cb9a",
+    "B/student_pkg/doublesided_cholesky_chunked.py": "b047a9da1d15f8125ccf98e05541bc04d91b011709366988985ba50cfe1baa9f",
+    "B/student_pkg/doublesided_cholesky_packed.py": "ee95c7122a8ba8fe6e18bf109bb95a609ab8aa7ec44d2061ead96dcc1abb2072",
+    "B/student_pkg/doublesided_cholesky_t2.py": "5e09db41a61b5cd487e2fa096389ab7fb2faee1afd53224567b6ab648cdb3565",
+    "B/student_pkg/doublesided_cholesky_tile.py": "af544e1ca2efe212b5d025cec6e19af41cacaf4f96825d844e1574ef3427de37",
+    "B/student_pkg/p_tile_ext.cu": "6d7f7cfdba0fdd3eda5a9e4ce6c427cbdd5f23370f0a47acd68a99b038d22374",
+    "B/student_pkg/tests/bench_asym_b200.py": "6012d2bc25e84110aae0d24e8cae4c94a34ce11e62fe715484607d70d3e2a226",
+    "B/student_pkg/tests/bench_t2_refact.py": "94fcad9450edb3af8d5b07c6e3a89f85358bbc80b62cc8bb6be880a4526bb97c",
+    "B/student_pkg/tests/check_asym_b200.py": "f5e2520ed226a3b1ab471db18870ffa4b7220132363f95fa360d4281c62f7ecb",
+    "B/student_pkg/tests/profile_descriptor_phases.py": "576026918187fd0d4fc554e9684cd939461323cfb5521a2785e713329061d43b",
+    "O/rebuttal_results/blackhole/blackhole-s4-v1-locked-rerun2/feature_manifest.json": "3b8c6e32da3842b8a9f21ee722e8b9fb1093899744d283d4e939427dd116a5c2",
+    "O/student_pkg/doublesided_cholesky.py": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa",
+    "O/student_pkg/fast_update.cpp": "e16604755c375aafbb594624bdc333b8a928c61eb4c6e29bdb4f17a0b8b693df",
+    "O/student_pkg/setup_ext.py": "c383270601ce7859a3eb63f466b4fe339b57803444c20b408ed463bee26930f5",
+    "O/student_pkg/tests/bench_timing.py": "ba74cb49b2677d1f82910df215d9560de9bda66d092f91b5b8d3970a298e486e",
+    "O/student_pkg/tests/test_correctness.py": "e08f49609f13cf1b0475f97efd4a248efe280922864b895fb2e9d86d615de987"
+  }
+}

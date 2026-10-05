@@ -1,0 +1,31 @@
+{
+  "python": "3.14.2",
+  "torch": "2.11.0",
+  "flags": "same flags; native CPU architecture, no forced AVX512",
+  "cases": [
+    {
+      "case": "cpu r=33 torch.float32",
+      "bitwise_equal": true
+    },
+    {
+      "case": "cpu r=33 torch.float64",
+      "bitwise_equal": true
+    },
+    {
+      "case": "cpu r=128 torch.float32",
+      "bitwise_equal": true
+    },
+    {
+      "case": "cpu r=128 torch.float64",
+      "bitwise_equal": true
+    },
+    {
+      "case": "cpu r=1024 torch.float32",
+      "bitwise_equal": true
+    },
+    {
+      "case": "cpu r=1024 torch.float64",
+      "bitwise_equal": true
+    }
+  ]
+}

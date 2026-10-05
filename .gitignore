@@ -1,40 +1,12 @@
-# Python environments, caches, and native build products
-/.venv/
-/rebuttal_deps/
-**/__pycache__/
-**/.pytest_cache/
-**/build/
-*.py[cod]
+.venv/
+.cache/
+.dev/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
 *.so
-*.o
 *.egg-info/
-
-# Local datasets and copied source artifacts.  The small UCI Protein CSV used
-# by E1 is versioned for reproducibility; unrelated local datasets are not.
-/data/*
-!/data/uci_protein/
-/data/uci_protein/*
-!/data/uci_protein/CASP.csv
-!/data/uci_protein/README.md
-/Cholesky-main/
-
-# Scheduler and profiling output
-/rebuttal_logs/
-slurm-*.out
-*.nsys-rep
-*.sqlite
-
-# Generated LaTeX intermediates (the source and final PDF are versioned)
-/rebuttal_results/rebuttal_experiment_report.aux
-/rebuttal_results/rebuttal_experiment_report.log
-/rebuttal_results/rebuttal_experiment_report.out
-
-# Local copy of the submitted paper
-/29421_It_Cancels_O_r_Cholesky_.pdf
-
-# Historical planning and locally generated aggregate snapshots
-/TODO.md
-/rebuttal_results/summary.json
-/rebuttal_results/SUMMARY.md
-/rebuttal_results/worker_cpu_summary.json
-/rebuttal_results/worker_gpu_summary.json
+data/
+results/local/

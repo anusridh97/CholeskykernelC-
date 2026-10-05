@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=69", "wheel", "torch>=2.8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doublesided-cholesky"
+version = "0.1.0"
+description = "Rank-one double-sided Cholesky propagation in quadratic time"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["torch>=2.8", "numpy"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+the-well = ["h5py", "scipy", "huggingface_hub"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+doublesided_cholesky = ["csrc/cpu/*.cpp", "csrc/cuda/*.cu", "csrc/cuda/*.cpp", "csrc/cuda/*.cuh"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["cuda: requires CUDA and Triton", "large: opt-in large-memory GPU test", "needs_ext: requires native extension"]
+
+[tool.ruff]
+line-length = 100
