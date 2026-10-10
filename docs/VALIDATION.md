@@ -95,3 +95,12 @@ The benchmark now additionally reports `tiled_tuned_ms`, using the existing
 rank-ladder inverse-factor settings. All historical columns, timed operations,
 state restoration and production kernels are unchanged; the new measurement
 and raw-artifact import are pending.
+
+## The Well reporting import fix
+
+A pre-run inspection found that the rank-ladder driver used `statistics.median`
+without importing `statistics`. The import is restored. Two CPU regression
+checks pass: known probe errors and their median, and conversion/aggregation of
+unsorted timing samples using mocked CUDA events. Python 3.10 syntax and a
+global-name check also pass. Numerical kernels and the timing protocol are
+unchanged; these reporting checks do not constitute a GPU ladder run.
