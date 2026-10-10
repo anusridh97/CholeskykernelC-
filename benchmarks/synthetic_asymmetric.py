@@ -28,6 +28,28 @@ def run_rank(rank, repeats, warmups, seed, fresh):
     methods['inplace_default'] = measure(lambda: update_inplace(P, A, z, w, workspace=iw), prepare, repeats, warmups)
     methods['inplace_tuned'] = measure(lambda: update_inplace(P, A, z, w, workspace=iw, config=InplaceConfig.for_rank(rank)), prepare, repeats, warmups)
     methods['tiled'] = measure(lambda: update_tiled(P, A, z, w, workspace=tw), prepare, repeats, warmups)
+    # Preserve the archived default column and also compare the rank-ladder
+    # inverse-factor settings used by the tuned in-place baseline and The Well.
+    tuned = InplaceConfig.for_rank(rank)
+    methods['tiled_tuned'] = measure(
+        lambda: update_tiled(
+            P, A, z, w, workspace=tw,
+            p_tile_cols=tuned.tile, p_num_warps=tuned.sweep_num_warps,
+        ),
+        prepare, repeats, warmups,
+    )
+    method_configs = {
+        'inplace_default': {'tile': 8, 'setup_num_warps': 4, 'sweep_num_warps': 4},
+        'inplace_tuned': {
+            'tile': tuned.tile, 'setup_num_warps': tuned.setup_num_warps,
+            'sweep_num_warps': tuned.sweep_num_warps,
+        },
+        'tiled': {'p_tile_cols': 8, 'p_num_warps': 4, 'descriptor_tile': 64},
+        'tiled_tuned': {
+            'p_tile_cols': tuned.tile, 'p_num_warps': tuned.sweep_num_warps,
+            'descriptor_tile': 64,
+        },
+    }
     if fresh:
         info = torch.zeros((), device='cuda', dtype=torch.int32)
 
@@ -46,7 +68,7 @@ def run_rank(rank, repeats, warmups, seed, fresh):
         methods['fresh'] = measure(fresh_update, prepare_fresh, repeats, warmups)
         if info.item():
             raise RuntimeError('fresh Cholesky failed')
-    return {'rank': rank, 'seed': seed, 'repeats': repeats, 'warmups': warmups, 'workspace_bytes': tw.nbytes, 'peak_allocated_bytes': torch.cuda.max_memory_allocated(), 'methods': methods, 'incremental_region': 'core only (archived B2 protocol)', 'fresh_region': 'G/M outer updates and refactorization' if fresh else None}
+    return {'rank': rank, 'seed': seed, 'repeats': repeats, 'warmups': warmups, 'workspace_bytes': tw.nbytes, 'peak_allocated_bytes': torch.cuda.max_memory_allocated(), 'methods': methods, 'method_configs': method_configs, 'incremental_region': 'core only (archived B2 protocol)', 'fresh_region': 'G/M outer updates and refactorization' if fresh else None}
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

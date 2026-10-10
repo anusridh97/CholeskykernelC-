@@ -6,10 +6,12 @@ fresh O(r³) Cholesky factorization and two triangular solves. This repository
 combines the original reference/CPU/Triton implementations and the tiled CUDA
 implementations tuned on B200.
 
-**Release candidate:** CPU correctness and CPU golden equivalence have passed
-locally. CUDA compilation, GPU correctness/golden tests and B200 remeasurement
-are pending. The archived symmetric 239.55× result is superseded because its
-rank-65,536 tile offsets can overflow int32. See [validation](docs/VALIDATION.md).
+**Release candidate:** CPU golden equivalence and all 71 existing tests on B200,
+including the rank-65,536 overflow regression, have passed. GPU snapshot
+equivalence, complete reproduction and final timing-artifact import remain
+pending. The archived symmetric 239.55× row predates the int64 offset fix and
+remains flagged until the replacement result is finalized.
+See [validation](docs/VALIDATION.md).
 The owner must select a license before publication.
 
 ## Install

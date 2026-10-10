@@ -11,10 +11,9 @@
   "editable_install": "passed",
   "macos_arm64_wheel_install": "passed",
   "pending": [
-    "Completion of GPU correctness tests",
     "GPU golden equivalence",
     "The Well feature regeneration",
-    "B200 symmetric remeasurement and default/tuned asymmetric comparisons",
+    "B200 timing artifact import, small-rank investigation and tiled-tuned comparison",
     "Ruff formatting pass",
     "clean Linux/macOS CI",
     "owner license/authorship/citation",
@@ -35,6 +34,12 @@
       300
     ],
     "packed_rounding_matches_fp64_rounded_to_fp32": true,
-    "corrected_gpu_suite": "pending"
+    "corrected_gpu_suite": "71 tests passed on B200 (owner-provided logs)",
+    "corrected_suite_commit": "b07b0e2217b7f90ed032455581760bef6f1890cf",
+    "corrected_suite_results": {
+      "standard_passed": 69,
+      "large_passed": 2,
+      "skipped": 0
+    }
   }
 }

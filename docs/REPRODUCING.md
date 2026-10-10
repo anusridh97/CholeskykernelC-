@@ -106,7 +106,12 @@ python -m benchmarks.profile_symmetric_phases --rank 65536 \
 
 At rank 65,536, B2 retains four dense matrices (~68.7 GB) plus tiled workspace
 (~1.08 GB), so allow an 80 GB class GPU. Both default and tuned in-place baselines
-are reported. The archived default comparison was 477.1596 / 109.7262 ms,
+are reported. `tiled_ms` retains the archived tile-8/4-warp inverse-factor settings;
+`tiled_tuned_ms` uses `InplaceConfig.for_rank` for that factor pass (the descriptor
+tile remains 64). Compare `inplace_tuned_ms` with `tiled_tuned_ms` to use the same
+rank-ladder settings; JSON records all method configurations. The additional
+measurement restores the same state and uses the same warmups/repeats.
+The archived default comparison was 477.1596 / 109.7262 ms,
 about 4.35×. Allow ±5% on B200 or explain changes. The optional fresh region
 includes G/M outer updates; incremental B2 regions remain core-only to preserve
 the archived protocol. Whole-run time is unmeasured, likely dominated by JIT

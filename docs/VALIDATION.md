@@ -6,9 +6,9 @@ See `cpu_golden.json`. The local test environment is Python 3.14.2, PyTorch 2.11
 macOS arm64. Dependencies were reused from local installations because network
 package installation was unavailable.
 
-The B200 CPU/CUDA extension build has now succeeded; see the hardware check below.
-Completion of GPU correctness tests, GPU golden comparisons, full The Well feature
-regeneration, and B200 remeasurement remain pending. Skipped GPU tests are not
+The B200 CPU/CUDA build and all 71 existing tests have now passed; see below.
+GPU golden comparisons, full The Well feature regeneration, investigation of
+small-rank timing changes and final result import remain pending. Skipped GPU tests are not
 validation of the CUDA implementations. The development-only golden comparison
 tool was excluded from Git and distributions and must be restored separately.
 
@@ -71,3 +71,27 @@ T-SYM-5 reference assumption in the release plan; no kernel, compilation flag,
 or numerical tolerance changed. The corrected test and remainder of the suite
 still need to run on the B200. Large-rank correctness, golden equivalence and
 performance claims remain unvalidated.
+
+## B200 suite completion and initial timings (2026-10-10 UTC)
+
+Owner-provided output at `b07b0e2217b7f90ed032455581760bef6f1890cf` records
+69 standard passes (16.50 seconds) and both large-rank passes (3.01 seconds),
+including the rank-65536 overflow regression and tuned asymmetric comparison.
+No selected tests were skipped. GPU snapshot equivalence remains outstanding.
+
+The first symmetric sweep reports 43.559265 ms incremental and 10439.061523 ms
+fresh at rank 65536: 239.651920x, with 120993612800 peak allocated bytes. The
+full raw JSON/sample artifact has not yet been imported. Ranks 8192 through
+32768 reproduce archived medians within 5%; smaller incremental ranks differ
+by 7-73% and require investigation. These observations do not replace the
+archived results table or finalize the release claim.
+
+The asymmetric default comparison reproduces all three archived ranks within
+4%. At rank 65536, default in-place is 469.628845 ms, tuned in-place is
+105.233505 ms, and default tiled is 107.807266 ms. Thus the default-baseline
+ratio is 4.356189x, while the tuned in-place path is slightly faster than tiled
+at its defaults in this run. No statistical significance is inferred.
+The benchmark now additionally reports `tiled_tuned_ms`, using the existing
+rank-ladder inverse-factor settings. All historical columns, timed operations,
+state restoration and production kernels are unchanged; the new measurement
+and raw-artifact import are pending.
