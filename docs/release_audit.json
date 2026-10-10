@@ -11,7 +11,7 @@
   "editable_install": "passed",
   "macos_arm64_wheel_install": "passed",
   "pending": [
-    "CUDA compilation and GPU tests",
+    "Completion of GPU correctness tests",
     "GPU golden equivalence",
     "The Well feature regeneration",
     "B200 symmetric remeasurement and default/tuned asymmetric comparisons",
@@ -19,5 +19,22 @@
     "clean Linux/macOS CI",
     "owner license/authorship/citation",
     "owner snapshot preservation branch"
-  ]
+  ],
+  "b200_bringup": {
+    "evidence": "owner-provided console output",
+    "tested_commit": "92aee085d49175c03e296fb4c614e536fd525963",
+    "cpu_cuda_extension_build": "passed",
+    "standard_run_before_test_reference_correction": {
+      "passed": 35,
+      "failed": 1,
+      "deselected": 2
+    },
+    "packed_rounding_diagnostic_ranks": [
+      1,
+      65,
+      300
+    ],
+    "packed_rounding_matches_fp64_rounded_to_fp32": true,
+    "corrected_gpu_suite": "pending"
+  }
 }

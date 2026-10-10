@@ -85,7 +85,10 @@ def test_packed_outer(rank):
     gp = layouts.pack_symmetric_lower(G)
     mp = layouts.pack_symmetric_lower(M)
     packed_symmetric_rank1_update_(gp, mp, z, rank=rank)
-    expected = torch.addr(G, z, z)
+    # Triton fuses the multiply/add on the observed B200 stack. torch.addr
+    # rounds differently there, so it is not a bitwise oracle for this kernel.
+    # Keep exact equality against a once-rounded FP64 reference for these inputs.
+    expected = (G.double() + torch.outer(z.double(), z.double())).float()
     assert torch.equal(layouts.unpack_symmetric_lower(gp, rank), expected)
     assert torch.equal(gp, mp)
 
