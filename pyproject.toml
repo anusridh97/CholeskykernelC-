@@ -12,6 +12,8 @@ dependencies = ["torch>=2.8", "numpy"]
 
 [project.optional-dependencies]
 test = ["pytest"]
+mlx = ["mlx>=0.29.3; sys_platform == 'darwin' and platform_machine == 'arm64'"]
+applications = ["scipy"]
 the-well = ["h5py", "scipy", "huggingface_hub"]
 
 [tool.setuptools.packages.find]

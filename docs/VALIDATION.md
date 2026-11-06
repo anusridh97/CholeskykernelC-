@@ -6,10 +6,13 @@ See `cpu_golden.json`. The local test environment is Python 3.14.2, PyTorch 2.11
 macOS arm64. Dependencies were reused from local installations because network
 package installation was unavailable.
 
-The B200 CPU/CUDA build and all 71 existing tests have now passed; see below.
-GPU golden comparisons, full The Well feature regeneration, investigation of
-small-rank timing changes and final result import remain pending. Skipped GPU tests are not
-validation of the CUDA implementations. The development-only golden comparison
+The final B200 record at c24a9d2 contains 73 passing tests with zero skips,
+22 bitwise snapshot comparison cases, a matching regenerated Well feature digest
+and both complete seven-rank Well ladders. The verified raw records are now
+imported under results/reproduced/b200-20261010. Earlier sections below record
+intermediate stages; their pending statements are superseded by the final
+record at the end of this document. Skipped GPU tests are not validation of
+the CUDA implementations. The development-only golden comparison
 tool was excluded from Git and distributions and must be restored separately.
 
 The supplied `flop_analysis.md` was absent; roofline discussion uses the formulas
@@ -19,7 +22,7 @@ The batched original CPU entry point cloned L without writing it back. The relea
 updates each caller-owned L slice, in addition to F2's dtype/device/contiguity checks
 and scratch copy of z. Its arithmetic loop remains unchanged.
 
-Final local verification:
+Initial local verification (before B200 and application work):
 
 - 28 CPU tests passed, including float64 descriptor emulation, CPU mutation/shape
   checks, bounded-memory layout actions, exact large-rank memory formulas, frozen
@@ -104,3 +107,63 @@ checks pass: known probe errors and their median, and conversion/aggregation of
 unsorted timing samples using mocked CUDA events. Python 3.10 syntax and a
 global-name check also pass. Numerical kernels and the timing protocol are
 unchanged; these reporting checks do not constitute a GPU ladder run.
+
+## Completed hardware evidence and reproduction entry points
+
+The final RunPod archive SHA-256 is
+b50fe8391ec65060218bf06e746f66ef3c7988de90fef9cbf0bde5780c1eaa9d.
+[Imported artifacts](../results/reproduced/b200-20261010/manifest.json) retain
+their original hashes and source revisions. The symmetric and asymmetric
+samples precede c24a9d2; their original commit identifiers remain intact.
+
+At rank 65,536 the symmetric rerun reports 239.651920x, the matched tuned
+asymmetric ratio is 1.557856x, and The Well transition-median speedups are
+113.398879x tiled and 80.043484x in-place on the same B200. All 140 Well cases
+pass; ranks above 32,768 use probes. Twenty-two snapshot cases passed exact
+torch.equal comparisons on the tested configurations.
+
+Paired same-GPU small-rank measurements do not support a release-code speedup:
+the release has roughly 20 microseconds additional overhead at the smallest
+symmetric ranks and is similar at large ranks. The cause of the difference
+from older archived absolute timings has not been established.
+
+The new scripts preserve the benchmark timing regions and run each Well rank
+in its own process. They retain logs, refuse overwrites and reject missing or
+failed correctness evidence. Offline tables regenerate from raw samples.
+The combined GPU wrapper has not been run after the pod was stopped.
+
+CPU BO/NG routines were recovered from a separate corrected snapshot, with
+numerical functions and C++ source preserved and hashes recorded. Both Python
+and native backends pass signed-update, cyclic-transport, GP/refactor and
+NG/direct-solve tests. Native smoke runs and a real Protein run also complete;
+see [CPU application evidence](../results/reproduced/cpu-applications-20261010).
+The first handoff had no real GB1 data. A subsequent public-data reconstruction
+now pins the original measured supplement and its 80-feature encoding. Native
+GB1 BO completed at ranks 64/128, 15 rounds, batch 96, seeds 0–4. Corrected
+Protein NG completed all five ranks 64–1,024 with hidden widths 512,512,128,
+ten epochs and seed 42, using one CPU thread. These results are preserved in
+[real-data CPU evidence](../results/reproduced/cpu-real-applications-20261010).
+The data/model/orchestration tests passed (48 cases). The downloader was tested
+both online and from the pinned local XLSX. Prepared arrays matched byte for byte.
+The [application audit](APPLICATION_AUDIT.md) details the verified recipe and
+historical table discrepancies; exact original-paper reproduction remains unproven.
+Full commands are in [REPRODUCING.md](REPRODUCING.md).
+
+Final CPU regression run: **78 passed, 43 deselected, zero selected skips**.
+All seven commands in the fixed application sweep passed dry-run.
+
+## Main integration, 2026-11-06
+
+Both CPU extensions built from this combined checkout. The selected CPU suite
+passed **83 tests**, with 43 CUDA/large tests deselected and zero selected skips.
+The integrated MLX validation command passed all 18 rank/batch cells on the
+local Apple M4. The packaged MLX kernel is byte-identical to the corrected
+October snapshot; the driver now locates it under `src/doublesided_cholesky`.
+This integration check collects correctness only and does not replace the
+October timing measurements. CUDA kernels were not rerun on new hardware.
+
+The application sweep dry-run passed. All 117 pending release files were
+carried into the combined checkout, and the later MLX/AMD evidence was added.
+Raw integration checks and their manifest are saved under
+[main integration evidence](../results/reproduced/main-integration-20261106).
+The historical AMD transcription does not supply a missing AMD backend.

@@ -1,0 +1,10 @@
+seed= 0    ours: 0.841s, best=8.0452, fallbacks=0
+seed= 0  refact: 0.625s, best=8.0452, fallbacks=0
+seed= 1    ours: 0.874s, best=8.0452, fallbacks=0
+seed= 1  refact: 0.610s, best=8.0452, fallbacks=0
+seed= 2    ours: 0.834s, best=8.7620, fallbacks=0
+seed= 2  refact: 0.569s, best=8.7620, fallbacks=0
+seed= 3    ours: 0.887s, best=7.5569, fallbacks=0
+seed= 3  refact: 0.701s, best=7.5569, fallbacks=0
+seed= 4    ours: 0.897s, best=8.7620, fallbacks=0
+seed= 4  refact: 0.689s, best=8.7620, fallbacks=0

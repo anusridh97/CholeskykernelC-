@@ -1,0 +1,56 @@
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/git/CholeskykernelC-/student_pkg/.venv-mac/lib/python3.9/site-packages/numpy/__config__.py:155: UserWarning: Install `pyyaml` for better output
+  warnings.warn("Install `pyyaml` for better output", stacklevel=1)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:58: RuntimeWarning: divide by zero encountered in matmul
+  G = A @ A.swapaxes(-1, -2) + rank * np.eye(rank, dtype=np.float32)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:58: RuntimeWarning: overflow encountered in matmul
+  G = A @ A.swapaxes(-1, -2) + rank * np.eye(rank, dtype=np.float32)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:58: RuntimeWarning: invalid value encountered in matmul
+  G = A @ A.swapaxes(-1, -2) + rank * np.eye(rank, dtype=np.float32)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:126: RuntimeWarning: divide by zero encountered in matmul
+  initial = {'factor': errors(np, L64 @ L64.swapaxes(-1, -2), G64),
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:126: RuntimeWarning: overflow encountered in matmul
+  initial = {'factor': errors(np, L64 @ L64.swapaxes(-1, -2), G64),
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:126: RuntimeWarning: invalid value encountered in matmul
+  initial = {'factor': errors(np, L64 @ L64.swapaxes(-1, -2), G64),
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:127: RuntimeWarning: divide by zero encountered in matmul
+  'operator': errors(np, L64 @ Aw64 @ L64.swapaxes(-1, -2), M64)}
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:127: RuntimeWarning: overflow encountered in matmul
+  'operator': errors(np, L64 @ Aw64 @ L64.swapaxes(-1, -2), M64)}
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:127: RuntimeWarning: invalid value encountered in matmul
+  'operator': errors(np, L64 @ Aw64 @ L64.swapaxes(-1, -2), M64)}
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:151: RuntimeWarning: divide by zero encountered in matmul
+  return lp, inv @ mp @ inv.swapaxes(-1, -2)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:151: RuntimeWarning: overflow encountered in matmul
+  return lp, inv @ mp @ inv.swapaxes(-1, -2)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:151: RuntimeWarning: invalid value encountered in matmul
+  return lp, inv @ mp @ inv.swapaxes(-1, -2)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:105: RuntimeWarning: divide by zero encountered in matmul
+  'factor_identity': errors(np, L @ L.swapaxes(-1, -2), gp),
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:105: RuntimeWarning: overflow encountered in matmul
+  'factor_identity': errors(np, L @ L.swapaxes(-1, -2), gp),
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:105: RuntimeWarning: invalid value encountered in matmul
+  'factor_identity': errors(np, L @ L.swapaxes(-1, -2), gp),
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:106: RuntimeWarning: divide by zero encountered in matmul
+  'operator_identity': errors(np, L @ Aw @ L.swapaxes(-1, -2), mp)}
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:106: RuntimeWarning: overflow encountered in matmul
+  'operator_identity': errors(np, L @ Aw @ L.swapaxes(-1, -2), mp)}
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:106: RuntimeWarning: invalid value encountered in matmul
+  'operator_identity': errors(np, L @ Aw @ L.swapaxes(-1, -2), mp)}
+r=64 batch=1: passed
+r=64 batch=4: passed
+r=64 batch=16: passed
+r=128 batch=1: passed
+r=128 batch=4: passed
+r=128 batch=16: passed
+r=256 batch=1: passed
+r=256 batch=4: passed
+r=256 batch=16: passed
+r=512 batch=1: passed
+r=512 batch=4: passed
+r=512 batch=16: passed
+r=768 batch=1: passed
+r=768 batch=4: passed
+r=768 batch=16: passed
+r=1024 batch=1: passed
+r=1024 batch=4: passed
+r=1024 batch=16: passed

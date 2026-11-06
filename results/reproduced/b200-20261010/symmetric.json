@@ -1,0 +1,430 @@
+{
+  "environment": {
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "git_commit": "b07b0e2217b7f90ed032455581760bef6f1890cf",
+    "gpu": {
+      "compute_capability": [
+        10,
+        0
+      ],
+      "driver_version": "595.91.07",
+      "name": "NVIDIA B200",
+      "total_memory_bytes": 191495471104
+    },
+    "kernel_sha256": {
+      "__init__.py": "0252d578c5b37b31a98409baef6b97df96f908a03ce287917d346cb9888f256f",
+      "_validation.py": "8547c4d7c8fefa4fddb59122113b4aef5781c876507aa0692228a0bf53a4010f",
+      "cpu.py": "3347959766fe5d3fc26c6fb47d3527e81f136d76b90b6ecde83e4feb0a981f05",
+      "csrc/cpu/fast_update.cpp": "ff63bd06c97d6d09b828c3807376a52e190379e8e63a69ae6afb344b560e82d9",
+      "csrc/cuda/asymmetric_descriptor.cu": "d1b656182407d4d0ac0d1f444a119fb32ae2dedec8c9d95cf4e757fc3e2c69d1",
+      "csrc/cuda/bindings.cpp": "61a5c0ea6b69a859d480a0f2b9138aa62fcb3a1626e99ff17a1597181d4f92e9",
+      "csrc/cuda/common.cuh": "4e78a7d9e6f19b84127f755430b3e5af543d61d7b5837e4c14d4b266c505e3ee",
+      "csrc/cuda/p_tile.cu": "4508ff20acb2099a2440cf8ed65f697e45fcd46824da532e2758268371d0810c",
+      "csrc/cuda/symmetric_descriptor.cu": "c8f26c2b02acca95a100bea32bfb49a1073f7684887a6b37710ef1085c1f1925",
+      "cuda/__init__.py": "d81a6d3abdd7ce699a09c00acfaeb8a080bee78bb1b4ac43b7c5522b697af3a9",
+      "cuda/_layout_kernels.py": "a11bc78fbb088debe9423ce7318a872c1cf09522a57ba03823275b239a1e828b",
+      "cuda/_vector_kernels.py": "7bf7430414e234f6c92c3bbc034ebf05d20d343d123ce5c47699c2b27f085ab1",
+      "cuda/inplace.py": "ca34f36183b40357490d0f426c376a895e1fc42bf62a2b967efecabe8036ebff",
+      "cuda/symmetric_tiled.py": "808c17ceb3fcc71ef3b67c1a7a2b105d005f2778a86b7f05e9b98e2187e3c0af",
+      "cuda/tiled.py": "bf983cfc4c17532e2f085cb244057f93c704a5c643465cad62324f8c00941ca6",
+      "layouts.py": "02a346c99b1e2312b9a1d41a21b1c1b58d3717b7746e224cd51a0cbbee5482cc",
+      "reference.py": "173803d4568b010ece1245820b75971b84ef5348d9906fde45f5e6413141687e"
+    },
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Fri_Feb_21_20:23:50_PST_2025\nCuda compilation tools, release 12.8, V12.8.93\nBuild cuda_12.8.r12.8/compiler.35583870_0",
+    "package_version": "0.1.0",
+    "platform": "Linux 6.8.0-138-generic x86_64",
+    "python": "3.12.3",
+    "versions": {
+      "numpy": "2.1.2",
+      "torch": "2.8.0+cu128",
+      "triton": "3.4.0"
+    }
+  },
+  "rows": [
+    {
+      "fresh_state_bytes": 262148,
+      "incremental_state_bytes": 164352,
+      "methods": {
+        "fresh": {
+          "median_ms": 0.1122559979557991,
+          "samples_ms": [
+            0.11584000289440155,
+            0.11299200356006622,
+            0.11247999966144562,
+            0.110944002866745,
+            0.11023999750614166,
+            0.11161600053310394,
+            0.1122559979557991
+          ]
+        },
+        "incremental": {
+          "median_ms": 0.12803199887275696,
+          "samples_ms": [
+            0.1542080044746399,
+            0.1456640064716339,
+            0.132192000746727,
+            0.12803199887275696,
+            0.12495999783277512,
+            0.1271039992570877,
+            0.12611199915409088
+          ]
+        }
+      },
+      "peak_allocated_bytes": 9026048,
+      "peak_reserved_bytes": 23068672,
+      "rank": 128,
+      "repeats": 7,
+      "seed": 0,
+      "speedup": 0.8767807965519883,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 512,
+      "warmups": 2,
+      "workspace_bytes": 7936
+    },
+    {
+      "fresh_state_bytes": 1048580,
+      "incremental_state_bytes": 590848,
+      "methods": {
+        "fresh": {
+          "median_ms": 0.21667200326919556,
+          "samples_ms": [
+            0.21689599752426147,
+            0.21513600647449493,
+            0.21663999557495117,
+            0.2178560048341751,
+            0.21753600239753723,
+            0.2157440036535263,
+            0.21667200326919556
+          ]
+        },
+        "incremental": {
+          "median_ms": 0.1358720064163208,
+          "samples_ms": [
+            0.14339199662208557,
+            0.13971200585365295,
+            0.13580800592899323,
+            0.14214399456977844,
+            0.1358720064163208,
+            0.133215993642807,
+            0.13491199910640717
+          ]
+        }
+      },
+      "peak_allocated_bytes": 10450432,
+      "peak_reserved_bytes": 23068672,
+      "rank": 256,
+      "repeats": 7,
+      "seed": 0,
+      "speedup": 1.5946772921369707,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 1024,
+      "warmups": 2,
+      "workspace_bytes": 20992
+    },
+    {
+      "fresh_state_bytes": 4194308,
+      "incremental_state_bytes": 2230272,
+      "methods": {
+        "fresh": {
+          "median_ms": 0.434143990278244,
+          "samples_ms": [
+            0.43644800782203674,
+            0.43536001443862915,
+            0.4343999922275543,
+            0.434143990278244,
+            0.4339520037174225,
+            0.43347200751304626,
+            0.4336639940738678
+          ]
+        },
+        "incremental": {
+          "median_ms": 0.1491519957780838,
+          "samples_ms": [
+            0.1536639928817749,
+            0.15059199929237366,
+            0.15244799852371216,
+            0.14841599762439728,
+            0.14732800424098969,
+            0.14854399859905243,
+            0.1491519957780838
+          ]
+        }
+      },
+      "peak_allocated_bytes": 16071680,
+      "peak_reserved_bytes": 29360128,
+      "rank": 512,
+      "repeats": 7,
+      "seed": 0,
+      "speedup": 2.9107487835709978,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 2048,
+      "warmups": 2,
+      "workspace_bytes": 62464
+    },
+    {
+      "fresh_state_bytes": 16777220,
+      "incremental_state_bytes": 8654848,
+      "methods": {
+        "fresh": {
+          "median_ms": 0.8891519904136658,
+          "samples_ms": [
+            0.8914240002632141,
+            0.8891519904136658,
+            0.8885120153427124,
+            0.8864319920539856,
+            0.889631986618042,
+            0.8891839981079102,
+            0.8889600038528442
+          ]
+        },
+        "incremental": {
+          "median_ms": 0.18851199746131897,
+          "samples_ms": [
+            0.2027519941329956,
+            0.1945600062608719,
+            0.18851199746131897,
+            0.18464000523090363,
+            0.1847359985113144,
+            0.23241600394248962,
+            0.18777599930763245
+          ]
+        }
+      },
+      "peak_allocated_bytes": 38386688,
+      "peak_reserved_bytes": 44040192,
+      "rank": 1024,
+      "repeats": 7,
+      "seed": 0,
+      "speedup": 4.716686483554512,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 4096,
+      "warmups": 2,
+      "workspace_bytes": 206848
+    },
+    {
+      "fresh_state_bytes": 67108868,
+      "incremental_state_bytes": 34086912,
+      "methods": {
+        "fresh": {
+          "median_ms": 2.094496011734009,
+          "samples_ms": [
+            2.094464063644409,
+            2.094496011734009,
+            2.0976641178131104,
+            2.096479892730713,
+            2.0940799713134766,
+            2.097343921661377,
+            2.092736005783081
+          ]
+        },
+        "incremental": {
+          "median_ms": 0.3020800054073334,
+          "samples_ms": [
+            0.3047040104866028,
+            0.30272001028060913,
+            0.3038080036640167,
+            0.3020800054073334,
+            0.3004800081253052,
+            0.3012799918651581,
+            0.3020159900188446
+          ]
+        }
+      },
+      "peak_allocated_bytes": 127308800,
+      "peak_reserved_bytes": 148897792,
+      "rank": 2048,
+      "repeats": 7,
+      "seed": 0,
+      "speedup": 6.933580423205203,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 8192,
+      "warmups": 2,
+      "workspace_bytes": 741376
+    },
+    {
+      "fresh_state_bytes": 268435460,
+      "incremental_state_bytes": 135282688,
+      "methods": {
+        "fresh": {
+          "median_ms": 6.792831897735596,
+          "samples_ms": [
+            6.8027520179748535,
+            6.798304080963135,
+            6.791359901428223,
+            6.792831897735596,
+            6.788735866546631,
+            6.801695823669434,
+            6.792448043823242
+          ]
+        },
+        "incremental": {
+          "median_ms": 0.667136013507843,
+          "samples_ms": [
+            0.6695359945297241,
+            0.667136013507843,
+            0.669152021408081,
+            0.6653119921684265,
+            0.6645439863204956,
+            0.6670079827308655,
+            0.6676480174064636
+          ]
+        }
+      },
+      "peak_allocated_bytes": 482321408,
+      "peak_reserved_bytes": 503316480,
+      "rank": 4096,
+      "repeats": 7,
+      "seed": 0,
+      "speedup": 10.18207945635922,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 16384,
+      "warmups": 2,
+      "workspace_bytes": 2793472
+    },
+    {
+      "fresh_state_bytes": 1073741828,
+      "incremental_state_bytes": 539000832,
+      "methods": {
+        "fresh": {
+          "median_ms": 33.30009460449219,
+          "samples_ms": [
+            33.30009460449219,
+            33.290496826171875,
+            33.28780746459961,
+            33.29996871948242,
+            33.300350189208984,
+            33.30838394165039,
+            33.31708908081055
+          ]
+        },
+        "incremental": {
+          "median_ms": 1.6074559688568115,
+          "samples_ms": [
+            1.6119040250778198,
+            1.6107840538024902,
+            1.6059520244598389,
+            1.6074559688568115,
+            1.6055999994277954,
+            1.6098239421844482,
+            1.6056640148162842
+          ]
+        }
+      },
+      "peak_allocated_bytes": 1903117312,
+      "peak_reserved_bytes": 1910505472,
+      "rank": 8192,
+      "repeats": 7,
+      "seed": 0,
+      "speedup": 20.71602286448599,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 32768,
+      "warmups": 2,
+      "workspace_bytes": 10829824
+    },
+    {
+      "fresh_state_bytes": 4294967300,
+      "incremental_state_bytes": 2151743488,
+      "methods": {
+        "fresh": {
+          "median_ms": 199.4186553955078,
+          "samples_ms": [
+            199.4186553955078,
+            199.42095947265625,
+            199.3963165283203,
+            199.3897247314453,
+            199.4435577392578
+          ]
+        },
+        "incremental": {
+          "median_ms": 3.6086719036102295,
+          "samples_ms": [
+            3.646912097930908,
+            3.6184000968933105,
+            3.6085760593414307,
+            3.6086719036102295,
+            3.5994560718536377
+          ]
+        }
+      },
+      "peak_allocated_bytes": 7575110144,
+      "peak_reserved_bytes": 7589593088,
+      "rank": 16384,
+      "repeats": 5,
+      "seed": 0,
+      "speedup": 55.260954922502954,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 65536,
+      "warmups": 2,
+      "workspace_bytes": 43614208
+    },
+    {
+      "fresh_state_bytes": 17179869188,
+      "incremental_state_bytes": 8598454272,
+      "methods": {
+        "fresh": {
+          "median_ms": 1397.4071044921875,
+          "samples_ms": [
+            1397.4874267578125,
+            1397.4071044921875,
+            1397.3056640625,
+            1397.37890625,
+            1397.5240478515625
+          ]
+        },
+        "incremental": {
+          "median_ms": 12.026304244995117,
+          "samples_ms": [
+            12.028160095214844,
+            12.039360046386719,
+            12.026304244995117,
+            12.010111808776855,
+            12.023967742919922
+          ]
+        }
+      },
+      "peak_allocated_bytes": 30258037760,
+      "peak_reserved_bytes": 30280777728,
+      "rank": 32768,
+      "repeats": 5,
+      "seed": 0,
+      "speedup": 116.19588828161689,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 131072,
+      "warmups": 2,
+      "workspace_bytes": 171114496
+    },
+    {
+      "fresh_state_bytes": 68719476740,
+      "incremental_state_bytes": 34376777728,
+      "methods": {
+        "fresh": {
+          "median_ms": 10439.0615234375,
+          "samples_ms": [
+            10439.0615234375,
+            10439.609375,
+            10438.9755859375
+          ]
+        },
+        "incremental": {
+          "median_ms": 43.55926513671875,
+          "samples_ms": [
+            43.588382720947266,
+            43.55926513671875,
+            43.55110549926758
+          ]
+        }
+      },
+      "peak_allocated_bytes": 120993612800,
+      "peak_reserved_bytes": 121024544768,
+      "rank": 65536,
+      "repeats": 3,
+      "seed": 0,
+      "speedup": 239.65191999159282,
+      "status": "unvalidated-measurement",
+      "vector_bytes": 262144,
+      "warmups": 2,
+      "workspace_bytes": 690356224
+    }
+  ]
+}

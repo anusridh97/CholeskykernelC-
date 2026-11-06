@@ -1,0 +1,258 @@
+{
+  "hardware": "Apple M4",
+  "memory_bytes": 25769803776,
+  "library_versions": {
+    "numpy": "2.0.2",
+    "torch": "2.8.0",
+    "mlx": "0.29.3"
+  },
+  "source": {
+    "driver": {
+      "original_path": "/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py",
+      "sha256": "1d3d266d12e84baddde5d4423a33f97f5b8014b69169672e52bf80e8bbba0c42",
+      "snapshot": "executed_validate_comparison.py"
+    },
+    "kernel": {
+      "original_path": "/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/kernel_snapshot.py",
+      "sha256": "68a4455163f7874c5cc7e03b9827b88d419b28212506bab93772b155da998389",
+      "snapshot": "executed_kernel_snapshot.py"
+    }
+  },
+  "statistic": "ratio of arithmetic mean latencies; not mean of paired ratios",
+  "cpu_thread_limit_requested": 1,
+  "repeats": 100,
+  "warmups": 5,
+  "cells": [
+    {
+      "rank": 64,
+      "batch": 1,
+      "mean_ms": {
+        "mlx_batched_update": 0.38620292,
+        "numpy_lapack_refactor": 0.06199337,
+        "torch_linalg_refactor_cpu": 0.04745126
+      },
+      "numpy_over_mlx": 0.16052020010620324,
+      "torch_over_mlx": 0.12286613472523719,
+      "raw_file": "mlx-matched-fixed/r64_b1.json"
+    },
+    {
+      "rank": 64,
+      "batch": 4,
+      "mean_ms": {
+        "mlx_batched_update": 0.30273455,
+        "numpy_lapack_refactor": 0.18316212,
+        "torch_linalg_refactor_cpu": 0.09625787
+      },
+      "numpy_over_mlx": 0.605025491804619,
+      "torch_over_mlx": 0.3179612964559215,
+      "raw_file": "mlx-matched-fixed/r64_b4.json"
+    },
+    {
+      "rank": 64,
+      "batch": 16,
+      "mean_ms": {
+        "mlx_batched_update": 0.73369664,
+        "numpy_lapack_refactor": 0.69524875,
+        "torch_linalg_refactor_cpu": 0.32600795
+      },
+      "numpy_over_mlx": 0.9475970204797448,
+      "torch_over_mlx": 0.4443361632404368,
+      "raw_file": "mlx-matched-fixed/r64_b16.json"
+    },
+    {
+      "rank": 128,
+      "batch": 1,
+      "mean_ms": {
+        "mlx_batched_update": 0.45449919,
+        "numpy_lapack_refactor": 0.22899671,
+        "torch_linalg_refactor_cpu": 0.11141715
+      },
+      "numpy_over_mlx": 0.5038440442545123,
+      "torch_over_mlx": 0.245142681112369,
+      "raw_file": "mlx-matched-fixed/r128_b1.json"
+    },
+    {
+      "rank": 128,
+      "batch": 4,
+      "mean_ms": {
+        "mlx_batched_update": 0.68031962,
+        "numpy_lapack_refactor": 0.6926029,
+        "torch_linalg_refactor_cpu": 0.32231833
+      },
+      "numpy_over_mlx": 1.0180551606023063,
+      "torch_over_mlx": 0.47377485600077207,
+      "raw_file": "mlx-matched-fixed/r128_b4.json"
+    },
+    {
+      "rank": 128,
+      "batch": 16,
+      "mean_ms": {
+        "mlx_batched_update": 1.22073795,
+        "numpy_lapack_refactor": 3.09291924,
+        "torch_linalg_refactor_cpu": 1.27172083
+      },
+      "numpy_over_mlx": 2.5336471599002883,
+      "torch_over_mlx": 1.0417639838263406,
+      "raw_file": "mlx-matched-fixed/r128_b16.json"
+    },
+    {
+      "rank": 256,
+      "batch": 1,
+      "mean_ms": {
+        "mlx_batched_update": 1.1145691,
+        "numpy_lapack_refactor": 1.053835,
+        "torch_linalg_refactor_cpu": 0.43278705
+      },
+      "numpy_over_mlx": 0.9455088966668824,
+      "torch_over_mlx": 0.3882998819902687,
+      "raw_file": "mlx-matched-fixed/r256_b1.json"
+    },
+    {
+      "rank": 256,
+      "batch": 4,
+      "mean_ms": {
+        "mlx_batched_update": 2.2539125,
+        "numpy_lapack_refactor": 4.16799838,
+        "torch_linalg_refactor_cpu": 1.73048336
+      },
+      "numpy_over_mlx": 1.849228122209713,
+      "torch_over_mlx": 0.7677686511787835,
+      "raw_file": "mlx-matched-fixed/r256_b4.json"
+    },
+    {
+      "rank": 256,
+      "batch": 16,
+      "mean_ms": {
+        "mlx_batched_update": 2.38424836,
+        "numpy_lapack_refactor": 17.36503962,
+        "torch_linalg_refactor_cpu": 7.23785625
+      },
+      "numpy_over_mlx": 7.283234377479031,
+      "torch_over_mlx": 3.0356972752620455,
+      "raw_file": "mlx-matched-fixed/r256_b16.json"
+    },
+    {
+      "rank": 512,
+      "batch": 1,
+      "mean_ms": {
+        "mlx_batched_update": 3.14741002,
+        "numpy_lapack_refactor": 6.4647608,
+        "torch_linalg_refactor_cpu": 2.20390369
+      },
+      "numpy_over_mlx": 2.0539938422131603,
+      "torch_over_mlx": 0.7002277034118358,
+      "raw_file": "mlx-matched-fixed/r512_b1.json"
+    },
+    {
+      "rank": 512,
+      "batch": 4,
+      "mean_ms": {
+        "mlx_batched_update": 3.84598339,
+        "numpy_lapack_refactor": 23.03054332,
+        "torch_linalg_refactor_cpu": 9.09310002
+      },
+      "numpy_over_mlx": 5.988206652135333,
+      "torch_over_mlx": 2.3643107881440955,
+      "raw_file": "mlx-matched-fixed/r512_b4.json"
+    },
+    {
+      "rank": 512,
+      "batch": 16,
+      "mean_ms": {
+        "mlx_batched_update": 5.71982086,
+        "numpy_lapack_refactor": 99.5455292,
+        "torch_linalg_refactor_cpu": 40.3610737
+      },
+      "numpy_over_mlx": 17.403609594864133,
+      "torch_over_mlx": 7.056352757872911,
+      "raw_file": "mlx-matched-fixed/r512_b16.json"
+    },
+    {
+      "rank": 768,
+      "batch": 1,
+      "mean_ms": {
+        "mlx_batched_update": 6.46516788,
+        "numpy_lapack_refactor": 14.42059961,
+        "torch_linalg_refactor_cpu": 5.74677667
+      },
+      "numpy_over_mlx": 2.230506597455904,
+      "torch_over_mlx": 0.888882822018846,
+      "raw_file": "mlx-matched-fixed/r768_b1.json"
+    },
+    {
+      "rank": 768,
+      "batch": 4,
+      "mean_ms": {
+        "mlx_batched_update": 6.47799,
+        "numpy_lapack_refactor": 54.71863422,
+        "torch_linalg_refactor_cpu": 24.37528537
+      },
+      "numpy_over_mlx": 8.4468537648252,
+      "torch_over_mlx": 3.762785272901008,
+      "raw_file": "mlx-matched-fixed/r768_b4.json"
+    },
+    {
+      "rank": 768,
+      "batch": 16,
+      "mean_ms": {
+        "mlx_batched_update": 9.78625834,
+        "numpy_lapack_refactor": 212.20621043,
+        "torch_linalg_refactor_cpu": 95.93008252999999
+      },
+      "numpy_over_mlx": 21.684100608976976,
+      "torch_over_mlx": 9.802529138015785,
+      "raw_file": "mlx-matched-fixed/r768_b16.json"
+    },
+    {
+      "rank": 1024,
+      "batch": 1,
+      "mean_ms": {
+        "mlx_batched_update": 6.96654706,
+        "numpy_lapack_refactor": 31.48153089,
+        "torch_linalg_refactor_cpu": 13.12378956
+      },
+      "numpy_over_mlx": 4.518957615424477,
+      "torch_over_mlx": 1.8838298868822974,
+      "raw_file": "mlx-matched-fixed/r1024_b1.json"
+    },
+    {
+      "rank": 1024,
+      "batch": 4,
+      "mean_ms": {
+        "mlx_batched_update": 8.55840328,
+        "numpy_lapack_refactor": 131.37054462,
+        "torch_linalg_refactor_cpu": 56.1557492
+      },
+      "numpy_over_mlx": 15.349889497144613,
+      "torch_over_mlx": 6.561475004482379,
+      "raw_file": "mlx-matched-fixed/r1024_b4.json"
+    },
+    {
+      "rank": 1024,
+      "batch": 16,
+      "mean_ms": {
+        "mlx_batched_update": 17.76929576,
+        "numpy_lapack_refactor": 541.61967243,
+        "torch_linalg_refactor_cpu": 232.10992709
+      },
+      "numpy_over_mlx": 30.48064930345895,
+      "torch_over_mlx": 13.062415653663477,
+      "raw_file": "mlx-matched-fixed/r1024_b16.json"
+    }
+  ],
+  "maximum_errors": {
+    "mlx_batched_update/factor_vs_fp64": 5.7139207395663935e-08,
+    "mlx_batched_update/operator_vs_fp64": 1.0011290982186717e-07,
+    "mlx_batched_update/factor_identity": 9.973250377831554e-08,
+    "mlx_batched_update/operator_identity": 1.471530387753288e-07,
+    "mlx_batched_update/auxiliary_vz": 5.275922866102108e-06,
+    "numpy_lapack_refactor/factor_vs_fp64": 3.5117487531565885e-08,
+    "numpy_lapack_refactor/operator_vs_fp64": 2.1386599033607195e-07,
+    "numpy_lapack_refactor/factor_identity": 5.863070837449433e-08,
+    "numpy_lapack_refactor/operator_identity": 2.3089266360228346e-07,
+    "torch_linalg_refactor_cpu/factor_vs_fp64": 3.0173537596521374e-07,
+    "torch_linalg_refactor_cpu/operator_vs_fp64": 5.89784235041332e-07,
+    "torch_linalg_refactor_cpu/factor_identity": 4.53794469814368e-07,
+    "torch_linalg_refactor_cpu/operator_identity": 3.15826474454846e-07
+  }
+}

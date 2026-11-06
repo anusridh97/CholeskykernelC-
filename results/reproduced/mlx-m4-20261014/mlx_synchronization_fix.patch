@@ -1,0 +1,14 @@
+--- a/kernel_snapshot.py
++++ b/kernel_snapshot.py
+@@ -317,6 +317,11 @@
+             ss[k] = s;
+         }
+ 
++        // Every SIMD group must finish reading Lkk and z_work[k] before
++        // lane k overwrites them below. The end-of-iteration barrier alone
++        // does not order these reads against writes in the SAME iteration.
++        SYNC_TG_DEV();
++
+         // Update column k for rows >= k. Rows < k stay zero (lower-triangular).
+         if (lane >= k && lane < R) {
+             float L_col = L_new[off_mat + lane * R + k];

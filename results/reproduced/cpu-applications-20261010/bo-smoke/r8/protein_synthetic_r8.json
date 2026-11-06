@@ -1,0 +1,71 @@
+{
+  "experiment": "adaptive_inducing_protein_bo",
+  "landscape": "synthetic",
+  "rank": 8,
+  "initial": 16,
+  "rounds": 2,
+  "batch_size": 4,
+  "candidate_count": 64,
+  "seeds": 1,
+  "summary": {
+    "ours": {
+      "mean_time": 0.014366582967340946,
+      "std_time": 0.0,
+      "mean_best": 3.5760498046875,
+      "std_best": 0.0,
+      "mean_curve": [
+        3.5760498046875,
+        3.5760498046875,
+        3.5760498046875
+      ],
+      "std_curve": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "fallbacks": [
+        0
+      ],
+      "raw_times": [
+        0.014366582967340946
+      ],
+      "raw_best_curves": [
+        [
+          3.5760498046875,
+          3.5760498046875,
+          3.5760498046875
+        ]
+      ]
+    },
+    "refact": {
+      "mean_time": 0.0030187080265022814,
+      "std_time": 0.0,
+      "mean_best": 3.5760498046875,
+      "std_best": 0.0,
+      "mean_curve": [
+        3.5760498046875,
+        3.5760498046875,
+        3.5760498046875
+      ],
+      "std_curve": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "fallbacks": [
+        0
+      ],
+      "raw_times": [
+        0.0030187080265022814
+      ],
+      "raw_best_curves": [
+        [
+          3.5760498046875,
+          3.5760498046875,
+          3.5760498046875
+        ]
+      ]
+    },
+    "speedup": 0.21012011230259872
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "archive_sha256": "b50fe8391ec65060218bf06e746f66ef3c7988de90fef9cbf0bde5780c1eaa9d",
+  "artifact_date_utc": "2026-10-10",
+  "artifacts": {
+    "symmetric.json": {
+      "original_archive_member": "results/local/symmetric-b200-b07b0e2.json",
+      "sha256": "a24e6839d613685bf5f75eb151283cfc305ab27a8e3d54299d4bef1db6d3bceb"
+    },
+    "asymmetric.json": {
+      "original_archive_member": "results/local/asymmetric-matched-b2d8b84.json",
+      "sha256": "5e5ed435df6bf3816005ac35ca79fc6a6081278326f6bf9a62592a80f795b658"
+    },
+    "validation/golden.json": {
+      "original_archive_member": "results/local/golden-c24a9d2.json",
+      "sha256": "bdd45f482018486a8280bec6a86728fb29c61d38d401da741fb290294a96ac88"
+    },
+    "validation/paired-small-ranks.json": {
+      "original_archive_member": "results/local/paired-small-ranks-c24a9d2.json",
+      "sha256": "da2feba75eab3d7cde40abd180fad41d1f3d20d0c2406eebba95ddb203ee5ad1"
+    },
+    "validation/feature_manifest.json": {
+      "original_archive_member": "data/the_well/processed/feature_manifest.json",
+      "sha256": "db68d8ffcdf12de36042ebd94d8cec596592f4a018994ec2199b14cbe8cab471"
+    },
+    "well-tiled/ladder_r2048.json": {
+      "original_archive_member": "results/local/well-b200-tiled-c24a9d2/ladder_r2048.json",
+      "sha256": "7748603b3d736b6f621b7b6d3a6cc4f1de688ff367fea2e9b9b07d39a862f4df"
+    },
+    "well-tiled/ladder_r4096.json": {
+      "original_archive_member": "results/local/well-b200-tiled-c24a9d2/ladder_r4096.json",
+      "sha256": "ec21795ab4903dccf065cf9e82912bcbd585c1ac0e80c0f6284c0305a6879ebd"
+    },
+    "well-tiled/ladder_r8192.json": {
+      "original_archive_member": "results/local/well-b200-tiled-c24a9d2/ladder_r8192.json",
+      "sha256": "0703cf533ddec597e1c8e46a77b64159f4e7de094ea59e4848220351c4464949"
+    },
+    "well-tiled/ladder_r16384.json": {
+      "original_archive_member": "results/local/well-b200-tiled-c24a9d2/ladder_r16384.json",
+      "sha256": "2da2e958ca6c37a63e36fc86b7febbbeca05438e398118a7176bceaa99ace7d4"
+    },
+    "well-tiled/ladder_r32768.json": {
+      "original_archive_member": "results/local/well-b200-tiled-c24a9d2/ladder_r32768.json",
+      "sha256": "153bed39a8a9c07fa82f849f8ddfe8f8933becc64723f53e2ccb30e70ff9ec9a"
+    },
+    "well-tiled/ladder_r49152.json": {
+      "original_archive_member": "results/local/well-b200-tiled-c24a9d2/ladder_r49152.json",
+      "sha256": "a30237b2117fc4cb9333f64a251315d7538db2bbe763a1353e2b0091dc9e5f65"
+    },
+    "well-tiled/ladder_r65536.json": {
+      "original_archive_member": "results/local/well-b200-tiled-c24a9d2/ladder_r65536.json",
+      "sha256": "a6031588476e6664fcbd50a1018bfda13898cd4500713201e67ddb2651369ec8"
+    },
+    "well-inplace/ladder_r2048.json": {
+      "original_archive_member": "results/local/well-b200-inplace-c24a9d2/ladder_r2048.json",
+      "sha256": "da9a1835449a2a42e3e5ecc4e600eb244d921963a6fcb8d70e286be8ad151bfa"
+    },
+    "well-inplace/ladder_r4096.json": {
+      "original_archive_member": "results/local/well-b200-inplace-c24a9d2/ladder_r4096.json",
+      "sha256": "65c2839ca967ffed57358b47d97589fe1cf3f3f580557cc35c6e200651dec963"
+    },
+    "well-inplace/ladder_r8192.json": {
+      "original_archive_member": "results/local/well-b200-inplace-c24a9d2/ladder_r8192.json",
+      "sha256": "6135502c856141d07a5bf7ba1afec115507889034f5be61bb4d1103818ff544a"
+    },
+    "well-inplace/ladder_r16384.json": {
+      "original_archive_member": "results/local/well-b200-inplace-c24a9d2/ladder_r16384.json",
+      "sha256": "74eff75379cb5f1476186b26eec90b3dd8f273ecec63fd703484a48def5bf557"
+    },
+    "well-inplace/ladder_r32768.json": {
+      "original_archive_member": "results/local/well-b200-inplace-c24a9d2/ladder_r32768.json",
+      "sha256": "43929069a5d4c60d9d6d0de5215870f6893a0de2de3f5d4cc4356b48ab293a77"
+    },
+    "well-inplace/ladder_r49152.json": {
+      "original_archive_member": "results/local/well-b200-inplace-c24a9d2/ladder_r49152.json",
+      "sha256": "275601a71358551964402304b8fde91a7ef09c78a2c3904d1baeb59be52cda7a"
+    },
+    "well-inplace/ladder_r65536.json": {
+      "original_archive_member": "results/local/well-b200-inplace-c24a9d2/ladder_r65536.json",
+      "sha256": "a4b3a0036d6010f2c5f05975d4fb9b387fee08a8d1e8c97c55bb6e817a79cee4"
+    }
+  }
+}

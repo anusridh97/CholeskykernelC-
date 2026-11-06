@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-06",
+  "cpu": {
+    "passed": 83,
+    "deselected": 43,
+    "selected_skipped": 0,
+    "extensions_built": [
+      "doublesided_cholesky._C_cpu",
+      "benchmarks.applications._corrected._C"
+    ]
+  },
+  "mlx": {
+    "passed_cells": 18,
+    "timing_requested": false,
+    "hardware": "Apple M4",
+    "kernel_sha256": "68a4455163f7874c5cc7e03b9827b88d419b28212506bab93772b155da998389"
+  },
+  "cuda_new_run": false,
+  "prior_pending_release_files_carried_forward": 117,
+  "artifacts": {
+    "application-dry-run.log": "a8a37a85c5abadc4feab3752877445348c6175304d513303499c5c7c6c814a98",
+    "cpu-tests.log": "93361a0c3cd27d023fb1a469daf123c303653b9fe95833df77d19cb555a71eab",
+    "cpu-tests.xml": "f6b02f4f339069dbfc8ce45c7bb0282daf049f59cdc65f5c9f2075166da1c4d9",
+    "mlx/environment.json": "286fc72971a6dd4ea75a5e42ca0498e06b35a04cb42ebc2aadfa0742851f9331",
+    "mlx/executed_mlx.py": "68a4455163f7874c5cc7e03b9827b88d419b28212506bab93772b155da998389",
+    "mlx/executed_validate_comparison.py": "3de797afa52f3c6a6b40e1cc5cc79cae5bc2a48a510ee9711c0568dd955f7f02",
+    "mlx/manifest.json": "97d711890c2b45683795665b5b03172f9f544eaa4763b037c8895ffbbd286c14",
+    "mlx/r1024_b1.json": "edd049814a1574ed63169c410d780b0d0c6cdd7860e71fcd47aeef02e28f1941",
+    "mlx/r1024_b16.json": "ae159c46a98af25e4003a638f021506d8abfb662e900c85e1add78d100bf2ec8",
+    "mlx/r1024_b4.json": "6ef62f83a14aeaf5ae3f79eb76895640c48d699fc8feff8e588830c5804ea056",
+    "mlx/r128_b1.json": "9a8f1608cebc5330c7efc4081610b2f9ae026b6ec2568ede0599f9851dcf5fd9",
+    "mlx/r128_b16.json": "2981742a976cd7377a7a9852775a16c96aecd0805ea449292efd6cce6d847bf2",
+    "mlx/r128_b4.json": "5bd1065a18923dbb710e15e857861ac3e633c216f4f83fe5cf8fa55a17973668",
+    "mlx/r256_b1.json": "703354a134bac30b73c5c9fd9280dc615958519082d4cabf3b7e0974c1cd1d26",
+    "mlx/r256_b16.json": "d55f1294a065e13377b5548aab10cbdfcdcfc1f68de3ca9081b03cf416bb4f76",
+    "mlx/r256_b4.json": "7c1b519492f3bedb55ad6feed618f0f1335267db2f5875d195927c20b0eebeb4",
+    "mlx/r512_b1.json": "e50001629e01ab9537e38e36dff9b9c4199c27e05cd5d40c67bd94cded5ea160",
+    "mlx/r512_b16.json": "ce9c456958ffd03ce5bd66d3c1f497170638a257520aa4355aebc3cdff825503",
+    "mlx/r512_b4.json": "ffe4804975e2bc2f82c093bb49698dbf51b9dd1bdf0ccfd9915510a1dbb359bf",
+    "mlx/r64_b1.json": "d133f30d0e8847824b38d6b8ea42555387bc9adb2179c516c40a7cda2dc9caee",
+    "mlx/r64_b16.json": "aeb8fb2a39c434a87f6c5369f12b31c5ec7df5e518332420fd3c2c0d52142a7d",
+    "mlx/r64_b4.json": "77eeae9f3afd91af3d1493a88f90cd432340b7cf118d1a232e3122bb3b4b1a82",
+    "mlx/r768_b1.json": "cb44f892d5f89c3360c0d7afd28fc4815ad1989be57127ac7ff5cde0bdd67354",
+    "mlx/r768_b16.json": "6297dabe32bf2f847d242eb8fe2f8112048884273c44f22bcfc39196565d9434",
+    "mlx/r768_b4.json": "f83eda883d7cbddd94c91b08831ad09efdd1d7ca1ea0d79cbf1724bd9ae18222",
+    "mlx/source.json": "b9dce2e4a44757d966476b3d736651f650f8b8e94b6be226d010f1fecba28f5d",
+    "mlx-check.log": "3a84921d5e489f3b47da35041075063c0fe42bca93ab2ad91cc3f58a13e3bf34"
+  }
+}

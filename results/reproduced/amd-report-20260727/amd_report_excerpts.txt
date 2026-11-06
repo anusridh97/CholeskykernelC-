@@ -1,0 +1,368 @@
+Historical AMD report excerpts supplied by the user on 2026-10-14.
+These are chat evidence, not recovered original run artifacts.
+The two report bodies below are copied verbatim; unrelated conversation is omitted.
+
+Yes — here is the complete result summary.
+
+  ## Bottom line
+
+  The optimized general asymmetric update compiled and ran natively as pure Triton on the detected AMD gfx1011 GPU.
+
+  - Largest tested rank: 28,672
+  - Optimized time at rank 28,672: 624.67 ms
+  - Original Triton time: 6,862.88 ms
+  - Speedup over original: 10.99×
+  - One-step relative errors: approximately 5×10⁻⁸ for Linv/P and 7×10⁻⁸ for A_w
+  - 100-step A_w difference: 1.05×10⁻⁶
+  - Correctness tests: 4/4 passed
+  - Production path: Python, PyTorch tensors, and Triton only
+  - No CUDA, HIP C++, C++ extensions, or task-specific binary libraries
+
+  The requested PyTorch fresh-refactor baseline could not run on this GPU because the available PyTorch/ROCm wheels do not contain gfx1011 device kernels. Consequently, there is no defensible fresh-refactor timing
+  or speedup figure. I did not build PyTorch from source, per our agreed reduced scope.
+
+  ## Hardware and software
+
+   Item                            Detected value
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Operating system                Ubuntu 26.04 LTS “Resolute”
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Kernel                          7.0.0-1006-aws
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   GPU                             AMD Radeon Pro V520 / Navi12
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   AMD target                      gfx1011:xnack-
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   VRAM                            8,422,162,432 bytes, approximately 7.84 GiB
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Compute units                   36 reported by rocminfo; PyTorch reports 18 multiprocessors
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Wavefront size                  32 lanes
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   L2 cache                        4 MiB
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Host ROCm                       7.1
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   HIP runtime                     7.1.52801-9999
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   ROCm LLVM                       21.1.8
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Working Python                  3.12.13
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Working PyTorch                 2.6.0+rocm6.2.4
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   torch.version.hip               6.2.41134-65d174c3e
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Triton                          3.2.0
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Host RAM                        61 GiB
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Swap                            None
+  ──────────────────────────────  ─────────────────────────────────────────────────────────────
+   Available disk at completion    Approximately 463 GiB
+
+  torch.cuda.is_available() returned true. A Triton vector-add kernel compiled for gfx1011 and executed successfully.
+
+  The node initially lacked Navi12 firmware. I installed linux-firmware and reloaded the idle AMDGPU driver without rebooting. After that, the GPU initialized correctly.
+
+  No Git metadata was present in the supplied repository, so the commit and dirty state were unavailable. Exact source SHA-256 hashes were preserved instead.
+
+  ## Correctness
+
+  These tests used distinct z and w, so they exercise the full asymmetric path. The ranks intentionally produce partial tiles.
+
+  ### One-step optimized implementation
+
+    Rank    Linv/P rel. Frobenius    A_w rel. Frobenius    vz rel. L2    Factor residual    Operator residual    Finite
+  ━━━━━━━  ━━━━━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━  ━━━━━━━━
+     129               5.1413e-08            6.7946e-08    7.5952e-08         1.0469e-07           8.3709e-08     Yes
+  ───────  ───────────────────────  ────────────────────  ────────────  ─────────────────  ───────────────────  ────────
+     257               4.7106e-08            6.6822e-08    1.0383e-07         9.5351e-08           7.8525e-08     Yes
+  ───────  ───────────────────────  ────────────────────  ────────────  ─────────────────  ───────────────────  ────────
+   1,025               4.8762e-08            6.7973e-08    1.1062e-07         9.9157e-08           8.1300e-08     Yes
+
+  ### Original Triton cross-check
+
+  The original repository transport kernels were also compared with the dense reference. Because PyTorch matrix multiplication and cumulative-sum kernels fail on this unsupported GPU target, equivalent pure-Triton
+  setup kernels were used around the original update kernels.
+
+    Rank    Linv/P rel. Frobenius    A_w rel. Frobenius    vz rel. L2
+  ━━━━━━━  ━━━━━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━
+     129               4.7529e-08            7.1287e-08    1.0728e-07
+  ───────  ───────────────────────  ────────────────────  ────────────
+     257               4.6867e-08            7.2034e-08    9.2906e-08
+  ───────  ───────────────────────  ────────────────────  ────────────
+   1,025               4.7917e-08            8.1518e-08    9.7921e-08
+
+  ### 100-update trajectory, rank 129
+
+   Step    Linv/P difference    A_w difference    Factor residual    Operator residual    vz difference
+  ━━━━━━  ━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━
+      1           3.6718e-08        6.9210e-08         7.3503e-08           6.8090e-08       8.9887e-08
+  ──────  ───────────────────  ────────────────  ─────────────────  ───────────────────  ───────────────
+     10           1.0255e-07        2.2019e-07         2.0420e-07           1.8509e-07       1.1242e-07
+  ──────  ───────────────────  ────────────────  ─────────────────  ───────────────────  ───────────────
+     25           1.8021e-07        3.6139e-07         3.5933e-07           2.8538e-07       1.7999e-07
+  ──────  ───────────────────  ────────────────  ─────────────────  ───────────────────  ───────────────
+     50           3.2635e-07        6.3201e-07         6.5020e-07           3.8761e-07       3.2168e-07
+  ──────  ───────────────────  ────────────────  ─────────────────  ───────────────────  ───────────────
+    100           5.3774e-07        1.0520e-06         1.0667e-06           5.2013e-07       5.0497e-07
+
+  All trajectory states remained finite.
+
+  ## Kernel-only benchmark
+
+  These timings cover the Linv/P and A_w incremental update. They do not include G/M outer products.
+
+     Rank    Original Triton    Optimized Triton    Speedup    Estimated peak allocation
+  ━━━━━━━━  ━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━  ━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    2,048           7.130 ms            2.407 ms      2.96×                     0.03 GiB
+  ────────  ─────────────────  ──────────────────  ─────────  ───────────────────────────
+    4,096          25.951 ms            8.276 ms      3.14×                     0.14 GiB
+  ────────  ─────────────────  ──────────────────  ─────────  ───────────────────────────
+    8,192          81.126 ms           38.416 ms      2.11×                     0.55 GiB
+  ────────  ─────────────────  ──────────────────  ─────────  ───────────────────────────
+   16,384       1,095.340 ms          259.772 ms      4.22×                     2.19 GiB
+  ────────  ─────────────────  ──────────────────  ─────────  ───────────────────────────
+   24,576       3,634.049 ms          513.378 ms      7.08×                     4.92 GiB
+  ────────  ─────────────────  ──────────────────  ─────────  ───────────────────────────
+   28,672       6,862.878 ms          624.674 ms     10.99×                     6.71 GiB
+
+  ### Raw timing samples, milliseconds
+
+  rank 2048
+  original:  [6.891718, 8.927555, 7.862031, 7.005811, 7.045972, 7.130284, 7.511642]
+  optimized: [2.438916, 2.398445, 2.392695, 2.406805, 2.430095, 2.399595, 2.411075]
+
+  rank 4096
+  original:  [25.956896, 24.367669, 26.747404, 25.950846, 24.941033, 26.128930, 25.322511]
+  optimized: [8.272670, 8.317181, 8.281750, 8.275770, 8.206349, 8.301870, 8.221089]
+
+  rank 8192
+  original:  [82.570475, 81.125552, 84.226093, 79.219949, 81.064361, 82.009882, 80.330904]
+  optimized: [38.404471, 38.416482, 38.446492, 38.400611, 38.443022, 38.406781, 38.496103]
+
+  rank 16384
+  original:  [1095.339815, 1230.651540, 1195.379321, 980.165862, 934.985775]
+  optimized: [258.842330, 260.046208, 259.771611, 259.932345, 258.482652]
+
+  rank 24576
+  original:  [3634.048620, 3604.968075, 3670.643838, 3630.853827, 3667.929496]
+  optimized: [514.397590, 501.702869, 516.388435, 511.639326, 513.377956]
+
+  rank 28672
+  original:  [6731.726107, 6623.811040, 6862.878285, 7126.577036, 6869.322259]
+  optimized: [624.187126, 621.524976, 624.674108, 628.058029, 634.485746]
+
+  A timing caveat: torch.cuda.Event.elapsed_time() returned exactly zero on this unsupported PyTorch/GPU combination. The numbers above therefore use host time.perf_counter() around the launches with
+  torch.cuda.synchronize(). They are synchronized end-to-end launch timings, but not hardware GPU-event timings.
+
+  ## Ablations
+
+     Rank     A0 original    A1 separated P + old A_w    A2 descriptor B32    A3 descriptor B64      A4 final
+  ━━━━━━━━  ━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━
+    2,048        7.130 ms                    6.572 ms             2.565 ms             2.438 ms      2.407 ms
+  ────────  ──────────────  ──────────────────────────  ───────────────────  ───────────────────  ────────────
+    4,096       25.951 ms                           —             9.928 ms             8.490 ms      8.276 ms
+  ────────  ──────────────  ──────────────────────────  ───────────────────  ───────────────────  ────────────
+    8,192       81.126 ms                   69.649 ms            51.246 ms            39.694 ms     38.416 ms
+  ────────  ──────────────  ──────────────────────────  ───────────────────  ───────────────────  ────────────
+   16,384    1,095.340 ms                  708.382 ms           459.336 ms           322.846 ms    259.772 ms
+
+  Stage definitions:
+
+  - A0: original repository combined inverse-factor/left sweep plus original right sweep.
+  - A1: separated P-only update while retaining the old serial A_w transport.
+  - A2: descriptor transport with 32×32 tiles.
+  - A3: descriptor transport with 64×64 tiles before final P-kernel tuning.
+  - A4: 64×64 descriptor transport with P configuration tile_cols=16, chunk=32.
+
+  ### Tile-size comparison at rank 2,048
+
+   A_w tile      Median
+  ━━━━━━━━━━  ━━━━━━━━━━
+         32    2.565 ms
+  ──────────  ──────────
+         64    2.438 ms
+  ──────────  ──────────
+        128    4.126 ms
+
+  B=128 regressed substantially.
+
+  ### P-kernel tuning at rank 8,192
+
+   Tile columns    Chunk       Median
+  ━━━━━━━━━━━━━━  ━━━━━━━  ━━━━━━━━━━━
+              4       32    41.763 ms
+  ──────────────  ───────  ───────────
+              4       64    52.555 ms
+  ──────────────  ───────  ───────────
+              4      128    51.991 ms
+  ──────────────  ───────  ───────────
+              8       32    38.758 ms
+  ──────────────  ───────  ───────────
+              8       64    39.626 ms
+  ──────────────  ───────  ───────────
+              8      128    40.251 ms
+  ──────────────  ───────  ───────────
+             16       32    38.485 ms
+  ──────────────  ───────  ───────────
+             16       64    38.605 ms
+  ──────────────  ───────  ───────────
+             16      128    39.354 ms
+
+  The detected GPU uses wave32, so the final launch choices were tuned for this device instead of assuming AMD wave64.
+
+  ## Fresh PyTorch refactorization baseline
+
+  The requested sequence was tested conceptually and through individual runtime probes:
+
+  torch.addr(G, z, z, out=G)
+  torch.addr(M, z, w, out=M)
+  torch.linalg.cholesky_ex(...)
+  torch.linalg.solve_triangular(...)
+  torch.linalg.solve_triangular(...)
+
+  It could not execute on this gfx1011 device. Both the distro ROCm PyTorch and the downloaded torch 2.6.0+rocm6.2.4 wheel failed in ordinary ATen kernels with a HIP “invalid device function” error.
+
+  Binary target inspection showed that the packaged kernels begin at targets such as gfx1030; gfx1011 is absent. Triton succeeds because it JIT-compiles directly for the detected target.
+
+  Therefore:
+
+  - No CPU fallback was used.
+  - No gfx1030 compatibility override was used.
+  - No fabricated fresh-baseline number is reported.
+  - No PyTorch source build was performed.
+  - Fresh-refactor speedup: not measurable on this node with the available wheels.
+
+  ## Memory limit
+
+  Rank 28,672 was the largest successful asymmetric rank.
+
+  At rank 32,768, Linv and A_w alone require:
+
+  2 × 32768² × 4 bytes = 8,589,934,592 bytes
+
+  That already exceeds the physical 8,422,162,432 bytes of VRAM, before descriptors, carry buffers, vectors, allocator overhead, or baseline workspaces. Ranks 32,768, 49,152, and 65,536 were therefore impossible in
+  FP32 on this device without offload, which was prohibited.
+
+  ## Profiling and generated code
+
+  H
+ardware profiling tools were unavailable:
+
+  - No rocprofv3
+  - No usable rocprof
+  - No Omniperf
+
+  Consequently, no hardware-counter claims are made for LDS bank conflicts, HBM bandwidth, cache efficiency, or occupancy.
+
+  Triton compiler artifacts were preserved. For the final B=64 kernels:
+
+   Kernel         LDS/shared    VGPR    SGPR    Spills
+  ━━━━━━━━━━━━━  ━━━━━━━━━━━━  ━━━━━━  ━━━━━━  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Descriptor          8 KiB     254      42    None
+  ─────────────  ────────────  ──────  ──────  ───────────────────────────────────
+   Final apply         8 KiB     256      58    26 VGPR spills, 108 private bytes
+
+  The B=128 apply variant used more LDS and spill storage and was slower. This supports the timing-based decision to retain B=64, but is not presented as proof of eliminating bank conflicts.
+
+  The saved compiler outputs include TTIR, TTGIR, LLVM IR, AMDGCN assembly, and HSACO.
+
+  ## What was implemented
+
+  The production implementation contains:
+
+  - General asymmetric z,w update; it never assumes w=z
+  - Pure-Triton two-RHS Linv multiplication
+  - Hoisted coefficient construction
+  - P/Linv-only inverse-factor update
+  - Full asymmetric descriptor grid
+  - North carry scan
+  - West carry scan
+  - Final A_w apply with fused vz[:,None] * vw[None,:]
+  - Runtime rank with compile-time tile dimensions
+  - 64-bit matrix addressing
+  - No full-sized A_w intermediate
+  - B=64 A_w tiles
+  - Tuned P configuration of 16 columns × 32-element chunks
+
+  The optional packed symmetric specialization was not implemented because the asymmetric path, correctness protocol, tuning, and feasible rank ladder consumed the available scope.
+
+  Rejected or deliberately omitted:
+
+  - B=128: measured regression
+  - B=32: consistently slower than B=64
+  - Explicit float4: not repeated without an AMD-specific reason
+  - Four independent prefix chains: not repeated
+  - Synchronization-heavy cooperative scan: not repeated
+  - Stream overlap: not enabled without evidence
+  - Fake matrix/MFMA formulation for vector work: not used
+  - Native CUDA/HIP/C++ kernels: prohibited and not used
+
+  ## Installation actions
+
+  Principal installation commands were:
+
+  sudo apt-get install -y linux-firmware
+  sudo apt-get install -y rocminfo hip-utils python3-venv python3-pip ...
+  uv python install 3.12
+  uv pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/rocm6.2.4
+  uv pip install numpy pytest scipy pandas matplotlib
+
+  A partial PyTorch source checkout was started while investigating support and then stopped once we agreed not to pursue a source build. No PyTorch compilation was performed.
+
+  ## Artifacts
+
+  - CholeskykernelC-mixed tensorcore 2/rebuttal_results/amd_triton/final_20260727T054333Z/report.md
+  - CholeskykernelC-mixed tensorcore 2/rebuttal_results/amd_triton/final_20260727T054333Z/aggregate.json
+  - CholeskykernelC-mixed tensorcore 2/rebuttal_results/amd_triton/final_20260727T054333Z/aggregate.csv
+  - CholeskykernelC-mixed tensorcore 2/rebuttal_results/amd_triton/final_20260727T054333Z/environment.json
+  - CholeskykernelC-mixed tensorcore 2/rebuttal_results/amd_triton/final_20260727T054333Z/correctness.json
+  - CholeskykernelC-mixed tensorcore 2/rebuttal_results/amd_triton/final_20260727T054333Z/ablations.json
+  - CholeskykernelC-mixed tensorcore 2/student_pkg/doublesided_cholesky_triton_amd.py
+  - CholeskykernelC-mixed tensorcore 2/student_pkg/tests/test_triton_amd_correctness.py
+  - CholeskykernelC-mixed tensorcore 2/rebuttal_results/amd_triton/ir_snapshot_20260727T054000Z
+
+  In short: the AMD-native pure-Triton comparison is successful and shows up to 10.99× over the original Triton implementation, with documented FP32 correctness. The only major missing requested result is the fresh
+  PyTorch refactorization comparison, blocked by the lack of gfx1011 kernels in the available PyTorch/ROCm builds.
+
+--- SECOND HISTORICAL REPORT ---
+
+The exact PyTorch fresh-refactor baseline is implemented and tested, but this gfx1011 node still cannot produce valid GPU timings.
+
+  The measured sequence is exactly:
+
+  torch.addr(G, z, z, out=G)
+  torch.addr(M, z, w, out=M)
+  torch.linalg.cholesky_ex(G, check_errors=False, out=(L, info))
+  torch.linalg.solve_triangular(L, M, upper=False, left=True, out=Aw)
+  torch.linalg.solve_triangular(L.mT, Aw, upper=True, left=False, out=Aw)
+
+  It includes GPU-event timing, GPU-only enforcement, restoration outside timing, correctness checks, raw samples, and automatic speedup calculation against the saved Triton results.
+
+  Results:
+
+  - CPU validation of the exact sequence: passed, Aw relative error 1.79e-16
+  - Unit tests: 2/2 passed
+  - GPU probes at ranks 129, 2,048, 4,096, and 8,192: all fail with HIP error: invalid device function
+  - Direct rocBLAS matrix multiplication probe aborts with: Illegal seek for GPU arch: gfx1011
+  - Therefore no valid fresh-refactor timing or speedup was generated
+
+  Both layers lack this target:
+
+  - PyTorch wheel targets: gfx900 gfx906 gfx908 gfx90a gfx942 gfx1030 gfx1100 gfx1101
+  - Installed rocBLAS targets: gfx908 gfx90a gfx942 gfx1030 gfx1100 gfx1101 gfx1151 gfx1200 gfx1201
+  - Detected GPU: gfx1011
+
+  AMD’s current support matrices likewise do not list the Radeon Pro V520. ROCm GPU support matrix
+  (https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/compatibility/compatibilityrad/native_linux/native_linux_compatibility.html)
+
+  Artifacts:
+
+  - CholeskykernelC-mixed tensorcore 2/student_pkg/tests/bench_pytorch_refactor_amd.py:77
+  - CholeskykernelC-mixed tensorcore 2/student_pkg/tests/test_pytorch_refactor_baseline.py:14
+  - CholeskykernelC-mixed tensorcore 2/rebuttal_results/amd_triton/pytorch_refactor_20260727T062506Z/aggregate.json
+
+  To obtain a defensible refactor speedup, we need to rerun both implementations on the same supported AMD GPU—ideally an Instinct GPU or supported gfx1030+ Radeon. Rebuilding PyTorch alone on this V520 is
+  insufficient; rocBLAS/rocSOLVER would also need a custom gfx1011 build

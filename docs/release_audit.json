@@ -11,13 +11,13 @@
   "editable_install": "passed",
   "macos_arm64_wheel_install": "passed",
   "pending": [
-    "GPU golden equivalence",
-    "The Well feature regeneration",
-    "B200 timing artifact import, small-rank investigation and tiled-tuned comparison",
     "Ruff formatting pass",
     "clean Linux/macOS CI",
     "owner license/authorship/citation",
-    "owner snapshot preservation branch"
+    "owner snapshot preservation branch",
+    "explanation of older archived small-rank timing differences",
+    "historical BO/NG table equivalence: missing original preprocessing/drivers and inconsistent settings",
+    "new combined B200 wrapper end-to-end GPU execution"
   ],
   "b200_bringup": {
     "evidence": "owner-provided console output",
@@ -41,5 +41,49 @@
       "large_passed": 2,
       "skipped": 0
     }
+  },
+  "completed_b200": {
+    "tested_commit": "c24a9d2c402c0e3af20ce2078f6fb3f0e43246d2",
+    "tests_passed": 73,
+    "skipped": 0,
+    "golden_bitwise_cases": 22,
+    "well_rank_method_cases_passed": 140,
+    "evidence": "results/reproduced/b200-20261010/manifest.json",
+    "trace_regeneration": "hash matched",
+    "small_rank_comparison": "no release-code speedup established"
+  },
+  "cpu_applications": {
+    "protocol": "recovered-corrected-cpu-v1",
+    "native_smoke_runs": "passed",
+    "protein_rank64_seed42_epochs5_both_charts": "passed",
+    "real_gb1": "subsequently reconstructed; see cpu_real_applications",
+    "evidence": "results/reproduced/cpu-applications-20261010"
+  },
+  "initial_audit_note": "Top-level original counts describe the pre-B200 release audit; later evidence is recorded separately below.",
+  "reproduction_scripts": {
+    "cpu_full_runner": "63 selected tests passed, zero skips; CPU benchmark completed",
+    "final_orchestration_regressions": "14 passed",
+    "application_numerical_tests": "22 cases across torch and native extension included in CPU suite",
+    "well_table_comparison": "both new CSVs byte-identical to saved RunPod aggregates",
+    "python_310_syntax": "passed",
+    "shell_syntax": "passed",
+    "gpu_orchestration": "dry-run checked; no new GPU execution",
+    "application_input_limit": "resolved for corrected GB1 via pinned original supplement; historical encoding equivalence unknown"
+  },
+  "cpu_real_applications": {
+    "protocol": "corrected-applications-explicit-sweep-v1",
+    "dataset_preparation": "original supplement source hash and all three array hashes pinned; online/offline conversion verified",
+    "tests_passed": 48,
+    "bo": "native float32 CPU; ranks64/128; seeds0-4; 15 rounds; completed",
+    "ng": "native float32 CPU; ranks64/128/256/512/1024; seed42; 10 epochs; hidden512/512/128; completed",
+    "threads": 1,
+    "historical_tables": "not reproduced; see docs/APPLICATION_AUDIT.md",
+    "evidence": "results/reproduced/cpu-real-applications-20261010",
+    "full_cpu_tests": {
+      "passed": 78,
+      "deselected": 43,
+      "skipped": 0
+    },
+    "shared_gb1_stream": "1440 updates, 5000 probes, max sampled prediction differences below1e-4"
   }
 }

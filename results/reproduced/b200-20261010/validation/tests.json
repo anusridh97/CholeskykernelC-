@@ -1,0 +1,8 @@
+{
+  "tested_commit": "c24a9d2c402c0e3af20ce2078f6fb3f0e43246d2",
+  "tests": 73,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "evidence": "tests-all-c24a9d2.xml in checksum-verified source archive"
+}

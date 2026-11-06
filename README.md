@@ -4,15 +4,35 @@ Apply the rank-one edits `G+ = G + zzᵀ` and `M+ = M + zwᵀ` while maintaining
 `Aw = L⁻¹ M L⁻ᵀ`, where `G = LLᵀ`. The update takes O(r²) work instead of a
 fresh O(r³) Cholesky factorization and two triangular solves. This repository
 combines the original reference/CPU/Triton implementations and the tiled CUDA
-implementations tuned on B200.
+implementations tuned on B200, plus the validated MLX/Metal update for Apple Silicon.
 
-**Release candidate:** CPU golden equivalence and all 71 existing tests on B200,
-including the rank-65,536 overflow regression, have passed. GPU snapshot
-equivalence, complete reproduction and final timing-artifact import remain
-pending. The archived symmetric 239.55× row predates the int64 offset fix and
-remains flagged until the replacement result is finalized.
-See [validation](docs/VALIDATION.md).
+**Release candidate:** the completed B200 run passed 73 tests, including both
+rank-65,536 regressions, and all 140 The Well cases across both methods.
+Twenty-two tested CPU/GPU snapshot cases were bitwise equal. Raw rerun evidence
+and source revisions are in [results/reproduced/b200-20261010](results/reproduced/b200-20261010).
+See [validation](docs/VALIDATION.md) for scope and remaining checks.
 The owner must select a license before publication.
+
+## Simple reproduction scripts
+
+- Tables from saved B200 samples, no GPU: `bash scripts/summarize_results.sh`
+- CPU kernels and tests: `bash scripts/reproduce_cpu.sh`
+- Fresh B200 measurements: `bash scripts/reproduce_b200.sh`
+- CPU Bayesian optimization: `bash scripts/reproduce_bo.sh`
+- CPU natural-gradient/chart experiments: `bash scripts/reproduce_ng.sh`
+- Apple Silicon matched-output validation: `bash scripts/reproduce_mlx.sh --output-dir results/local/mlx`
+
+Start with [the setup and reproduction instructions](docs/REPRODUCING.md).
+The [MLX instructions and evidence](docs/MLX.md) cover the synchronization fix,
+all 18 validated rank/batch cells, and the new Apple M4 measurements.
+The BO/NG drivers preserve the recovered **corrected** implementation; they are
+not a claim to reproduce the original submitted tables. Real GB1 arrays can now be regenerated with `bash scripts/prepare_gb1.sh`. Both application scripts support `--smoke` for explicitly synthetic
+checks, and the CPU/CUDA experiment scripts support `--dry-run`. The MLX runner
+checks correctness by default and collects timings only with `--time`.
+
+The standalone package supersedes the earlier research layout. Historical
+scripts and results remain available at
+[the previous main revision](https://github.com/anusridh97/CholeskykernelC-/tree/6e3e2261cac6ec7d2f41179cca64cad45023bf44).
 
 ## Install
 
@@ -103,13 +123,13 @@ preserves the original library defaults.
 |---|---|---|---:|
 | The Well | B200 / tiled asymmetric | Median of transition speedups | 112.27× |
 | The Well | H100 / original in-place | Mean of transition speedups | 71.75× |
-| Symmetric synthetic | B200 / symmetric tiled | Ratio of sample medians | 239.55× — **superseded-F1; rerun required** |
+| Symmetric synthetic | B200 / symmetric tiled | Ratio of sample medians | 239.55× — **superseded-F1; historical only** |
 
-The symmetric rank-32,768 archived ratio is 115.98×. Symmetric publication requires
-one-step, trajectory and large-rank correctness gates plus a new B200 sweep.
-Comparing the two The Well rows changes both hardware and kernel; a new original
-kernel run on B200 separates those effects. Full tables, environments and
-baseline caveats are in [results/README.md](results/README.md).
+The symmetric rank-32,768 archived ratio is 115.98×. The completed rerun measured
+239.65× at rank 65,536 after the overflow fix. New The Well measurements on the
+same B200 give 113.40× for tiled and 80.04× for in-place.
+[New raw measurements](results/reproduced/b200-20261010) remain separate from the
+[historical tables and baseline caveats](results/README.md).
 
 ## Tests and reproduction
 
@@ -135,3 +155,18 @@ Dataset: Polymathic AI, *The Well*, NeurIPS 2024 Datasets & Benchmarks.
 [Post-neutron-star-merger dataset](https://huggingface.co/datasets/polymathic-ai/post_neutron_star_merger).
 The default workflow regenerates features locally; no dataset or derived trace
 is redistributed here.
+
+### Real-data BO/NG reproduction
+
+The CPU application handoff now includes a pinned GB1 data-preparation recipe:
+
+```bash
+bash scripts/setup.sh applications
+bash scripts/prepare_gb1.sh
+bash scripts/reproduce_applications.sh --dry-run
+```
+
+Run the printed sweep with `bash scripts/reproduce_applications.sh` after supplying
+the recovered Protein MAT (included in the private handoff). See
+[the application audit](docs/APPLICATION_AUDIT.md) for the settings, input hashes
+and explicit differences from the historical paper tables. No B200 is needed.

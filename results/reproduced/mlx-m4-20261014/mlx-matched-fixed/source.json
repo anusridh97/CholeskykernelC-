@@ -1,0 +1,12 @@
+{
+  "driver": {
+    "original_path": "/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py",
+    "sha256": "1d3d266d12e84baddde5d4423a33f97f5b8014b69169672e52bf80e8bbba0c42",
+    "snapshot": "executed_validate_comparison.py"
+  },
+  "kernel": {
+    "original_path": "/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/kernel_snapshot.py",
+    "sha256": "68a4455163f7874c5cc7e03b9827b88d419b28212506bab93772b155da998389",
+    "snapshot": "executed_kernel_snapshot.py"
+  }
+}

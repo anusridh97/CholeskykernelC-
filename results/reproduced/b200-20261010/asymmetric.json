@@ -1,0 +1,268 @@
+{
+  "environment": {
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "git_commit": "b2d8b84e98d60bbf6f55669dc6f19003e0111430",
+    "gpu": {
+      "compute_capability": [
+        10,
+        0
+      ],
+      "driver_version": "595.91.07",
+      "name": "NVIDIA B200",
+      "total_memory_bytes": 191495471104
+    },
+    "kernel_sha256": {
+      "__init__.py": "0252d578c5b37b31a98409baef6b97df96f908a03ce287917d346cb9888f256f",
+      "_validation.py": "8547c4d7c8fefa4fddb59122113b4aef5781c876507aa0692228a0bf53a4010f",
+      "cpu.py": "3347959766fe5d3fc26c6fb47d3527e81f136d76b90b6ecde83e4feb0a981f05",
+      "csrc/cpu/fast_update.cpp": "ff63bd06c97d6d09b828c3807376a52e190379e8e63a69ae6afb344b560e82d9",
+      "csrc/cuda/asymmetric_descriptor.cu": "d1b656182407d4d0ac0d1f444a119fb32ae2dedec8c9d95cf4e757fc3e2c69d1",
+      "csrc/cuda/bindings.cpp": "61a5c0ea6b69a859d480a0f2b9138aa62fcb3a1626e99ff17a1597181d4f92e9",
+      "csrc/cuda/common.cuh": "4e78a7d9e6f19b84127f755430b3e5af543d61d7b5837e4c14d4b266c505e3ee",
+      "csrc/cuda/p_tile.cu": "4508ff20acb2099a2440cf8ed65f697e45fcd46824da532e2758268371d0810c",
+      "csrc/cuda/symmetric_descriptor.cu": "c8f26c2b02acca95a100bea32bfb49a1073f7684887a6b37710ef1085c1f1925",
+      "cuda/__init__.py": "d81a6d3abdd7ce699a09c00acfaeb8a080bee78bb1b4ac43b7c5522b697af3a9",
+      "cuda/_layout_kernels.py": "a11bc78fbb088debe9423ce7318a872c1cf09522a57ba03823275b239a1e828b",
+      "cuda/_vector_kernels.py": "7bf7430414e234f6c92c3bbc034ebf05d20d343d123ce5c47699c2b27f085ab1",
+      "cuda/inplace.py": "ca34f36183b40357490d0f426c376a895e1fc42bf62a2b967efecabe8036ebff",
+      "cuda/symmetric_tiled.py": "808c17ceb3fcc71ef3b67c1a7a2b105d005f2778a86b7f05e9b98e2187e3c0af",
+      "cuda/tiled.py": "bf983cfc4c17532e2f085cb244057f93c704a5c643465cad62324f8c00941ca6",
+      "layouts.py": "02a346c99b1e2312b9a1d41a21b1c1b58d3717b7746e224cd51a0cbbee5482cc",
+      "reference.py": "173803d4568b010ece1245820b75971b84ef5348d9906fde45f5e6413141687e"
+    },
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Fri_Feb_21_20:23:50_PST_2025\nCuda compilation tools, release 12.8, V12.8.93\nBuild cuda_12.8.r12.8/compiler.35583870_0",
+    "package_version": "0.1.0",
+    "platform": "Linux 6.8.0-138-generic x86_64",
+    "python": "3.12.3",
+    "versions": {
+      "numpy": "2.1.2",
+      "torch": "2.8.0+cu128",
+      "triton": "3.4.0"
+    }
+  },
+  "rows": [
+    {
+      "fresh_region": null,
+      "incremental_region": "core only (archived B2 protocol)",
+      "method_configs": {
+        "inplace_default": {
+          "setup_num_warps": 4,
+          "sweep_num_warps": 4,
+          "tile": 8
+        },
+        "inplace_tuned": {
+          "setup_num_warps": 4,
+          "sweep_num_warps": 1,
+          "tile": 8
+        },
+        "tiled": {
+          "descriptor_tile": 64,
+          "p_num_warps": 4,
+          "p_tile_cols": 8
+        },
+        "tiled_tuned": {
+          "descriptor_tile": 64,
+          "p_num_warps": 1,
+          "p_tile_cols": 8
+        }
+      },
+      "methods": {
+        "inplace_default": {
+          "median_ms": 13.400223731994629,
+          "samples_ms": [
+            13.373087882995605,
+            13.400223731994629,
+            13.399295806884766,
+            13.40329647064209,
+            13.43171215057373
+          ]
+        },
+        "inplace_tuned": {
+          "median_ms": 8.037728309631348,
+          "samples_ms": [
+            8.037728309631348,
+            8.029919624328613,
+            8.036959648132324,
+            8.037983894348145,
+            8.336928367614746
+          ]
+        },
+        "tiled": {
+          "median_ms": 4.710239887237549,
+          "samples_ms": [
+            4.710048198699951,
+            4.713600158691406,
+            4.710239887237549,
+            4.703199863433838,
+            4.716288089752197
+          ]
+        },
+        "tiled_tuned": {
+          "median_ms": 4.705887794494629,
+          "samples_ms": [
+            4.731359958648682,
+            4.712287902832031,
+            4.701056003570557,
+            4.705887794494629,
+            4.695775985717773
+          ]
+        }
+      },
+      "peak_allocated_bytes": 1099760640,
+      "rank": 8192,
+      "repeats": 5,
+      "seed": 0,
+      "warmups": 2,
+      "workspace_bytes": 17137664
+    },
+    {
+      "fresh_region": null,
+      "incremental_region": "core only (archived B2 protocol)",
+      "method_configs": {
+        "inplace_default": {
+          "setup_num_warps": 4,
+          "sweep_num_warps": 4,
+          "tile": 8
+        },
+        "inplace_tuned": {
+          "setup_num_warps": 4,
+          "sweep_num_warps": 1,
+          "tile": 32
+        },
+        "tiled": {
+          "descriptor_tile": 64,
+          "p_num_warps": 4,
+          "p_tile_cols": 8
+        },
+        "tiled_tuned": {
+          "descriptor_tile": 64,
+          "p_num_warps": 1,
+          "p_tile_cols": 32
+        }
+      },
+      "methods": {
+        "inplace_default": {
+          "median_ms": 120.85517120361328,
+          "samples_ms": [
+            120.77788543701172,
+            120.95065307617188,
+            120.85302734375,
+            120.85517120361328,
+            121.30127716064453
+          ]
+        },
+        "inplace_tuned": {
+          "median_ms": 41.397151947021484,
+          "samples_ms": [
+            41.443519592285156,
+            41.397151947021484,
+            41.38886260986328,
+            41.35683059692383,
+            41.42329788208008
+          ]
+        },
+        "tiled": {
+          "median_ms": 28.153024673461914,
+          "samples_ms": [
+            28.153024673461914,
+            28.16054344177246,
+            28.15238380432129,
+            28.142208099365234,
+            28.175199508666992
+          ]
+        },
+        "tiled_tuned": {
+          "median_ms": 25.257152557373047,
+          "samples_ms": [
+            25.29692840576172,
+            25.274112701416016,
+            25.254688262939453,
+            25.25142478942871,
+            25.257152557373047
+          ]
+        }
+      },
+      "peak_allocated_bytes": 17459708928,
+      "rank": 32768,
+      "repeats": 5,
+      "seed": 0,
+      "warmups": 2,
+      "workspace_bytes": 269877248
+    },
+    {
+      "fresh_region": null,
+      "incremental_region": "core only (archived B2 protocol)",
+      "method_configs": {
+        "inplace_default": {
+          "setup_num_warps": 4,
+          "sweep_num_warps": 4,
+          "tile": 8
+        },
+        "inplace_tuned": {
+          "setup_num_warps": 4,
+          "sweep_num_warps": 1,
+          "tile": 32
+        },
+        "tiled": {
+          "descriptor_tile": 64,
+          "p_num_warps": 4,
+          "p_tile_cols": 8
+        },
+        "tiled_tuned": {
+          "descriptor_tile": 64,
+          "p_num_warps": 1,
+          "p_tile_cols": 32
+        }
+      },
+      "methods": {
+        "inplace_default": {
+          "median_ms": 469.875244140625,
+          "samples_ms": [
+            470.7479248046875,
+            469.875244140625,
+            469.7696838378906,
+            470.4815673828125,
+            469.1860046386719
+          ]
+        },
+        "inplace_tuned": {
+          "median_ms": 105.23292541503906,
+          "samples_ms": [
+            105.23292541503906,
+            105.22876739501953,
+            105.22799682617188,
+            105.26998138427734,
+            105.30220794677734
+          ]
+        },
+        "tiled": {
+          "median_ms": 107.69241333007812,
+          "samples_ms": [
+            107.16729736328125,
+            107.61734771728516,
+            107.69971466064453,
+            107.69241333007812,
+            107.87308502197266
+          ]
+        },
+        "tiled_tuned": {
+          "median_ms": 67.54985809326172,
+          "samples_ms": [
+            67.54985809326172,
+            67.55443572998047,
+            67.55280303955078,
+            67.52582550048828,
+            67.54512023925781
+          ]
+        }
+      },
+      "peak_allocated_bytes": 69807506432,
+      "rank": 65536,
+      "repeats": 5,
+      "seed": 0,
+      "warmups": 2,
+      "workspace_bytes": 1076625408
+    }
+  ]
+}

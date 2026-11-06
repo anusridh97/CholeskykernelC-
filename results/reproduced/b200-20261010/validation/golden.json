@@ -1,0 +1,602 @@
+{
+  "build_wall_seconds": 87.84628000482917,
+  "cases": [
+    {
+      "config": "default",
+      "method": "inplace",
+      "passed": true,
+      "rank": 129,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.8022758960723877
+    },
+    {
+      "config": "tuned",
+      "method": "inplace",
+      "passed": true,
+      "rank": 129,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.2540000923909247
+    },
+    {
+      "config": "default",
+      "method": "inplace",
+      "passed": true,
+      "rank": 1025,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.011371627915650606
+    },
+    {
+      "config": "tuned",
+      "method": "inplace",
+      "passed": true,
+      "rank": 1025,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.0026381523348391056
+    },
+    {
+      "config": "default",
+      "method": "inplace",
+      "passed": true,
+      "rank": 8192,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.312462795060128
+    },
+    {
+      "config": "tuned",
+      "method": "inplace",
+      "passed": true,
+      "rank": 8192,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.13861883990466595
+    },
+    {
+      "config": "default",
+      "method": "tiled",
+      "passed": true,
+      "rank": 129,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.07769217574968934
+    },
+    {
+      "config": "tuned",
+      "method": "tiled",
+      "passed": true,
+      "rank": 129,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.1178151248022914
+    },
+    {
+      "config": "default",
+      "method": "tiled",
+      "passed": true,
+      "rank": 1025,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.0021697618067264557
+    },
+    {
+      "config": "tuned",
+      "method": "tiled",
+      "passed": true,
+      "rank": 1025,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.001934932079166174
+    },
+    {
+      "config": "default",
+      "method": "tiled",
+      "passed": true,
+      "rank": 8192,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.07123164087533951
+    },
+    {
+      "config": "tuned",
+      "method": "tiled",
+      "passed": true,
+      "rank": 8192,
+      "tensors": [
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.07064097141847014
+    },
+    {
+      "config": "default",
+      "method": "symmetric",
+      "passed": true,
+      "rank": 129,
+      "tensors": [
+        {
+          "tensor": "layout_P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "layout_A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.26769795222207904
+    },
+    {
+      "config": "default",
+      "method": "symmetric",
+      "passed": true,
+      "rank": 1025,
+      "tensors": [
+        {
+          "tensor": "layout_P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "layout_A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.0018306407146155834
+    },
+    {
+      "config": "default",
+      "method": "symmetric",
+      "passed": true,
+      "rank": 8192,
+      "tensors": [
+        {
+          "tensor": "layout_P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "layout_A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.3033186779357493
+    },
+    {
+      "config": "default",
+      "method": "symmetric",
+      "passed": true,
+      "rank": 32768,
+      "tensors": [
+        {
+          "tensor": "layout_P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "layout_A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "P",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.04744046414270997
+    },
+    {
+      "config": "float32",
+      "method": "cpu",
+      "passed": true,
+      "rank": 33,
+      "tensors": [
+        {
+          "tensor": "L",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.0106200878508389
+    },
+    {
+      "config": "float64",
+      "method": "cpu",
+      "passed": true,
+      "rank": 33,
+      "tensors": [
+        {
+          "tensor": "L",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.004029962699860334
+    },
+    {
+      "config": "float32",
+      "method": "cpu",
+      "passed": true,
+      "rank": 128,
+      "tensors": [
+        {
+          "tensor": "L",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.006231493782252073
+    },
+    {
+      "config": "float64",
+      "method": "cpu",
+      "passed": true,
+      "rank": 128,
+      "tensors": [
+        {
+          "tensor": "L",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.010850746650248766
+    },
+    {
+      "config": "float32",
+      "method": "cpu",
+      "passed": true,
+      "rank": 1024,
+      "tensors": [
+        {
+          "tensor": "L",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.2847907249815762
+    },
+    {
+      "config": "float64",
+      "method": "cpu",
+      "passed": true,
+      "rank": 1024,
+      "tensors": [
+        {
+          "tensor": "L",
+          "torch_equal": true
+        },
+        {
+          "tensor": "A",
+          "torch_equal": true
+        },
+        {
+          "tensor": "vz",
+          "torch_equal": true
+        }
+      ],
+      "wall_seconds": 0.266880651935935
+    }
+  ],
+  "comparison": "strict torch.equal; no tolerance relaxation",
+  "driver_sha256": "14cfb1428838f8da339519501243ab66ca6c77465e038c867a3c9ff2d6ae73ed",
+  "environment": {
+    "architecture": "10.0",
+    "cuda": "12.8",
+    "cxx": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "gpu": "NVIDIA B200",
+    "numpy": "2.1.2",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Fri_Feb_21_20:23:50_PST_2025\nCuda compilation tools, release 12.8, V12.8.93\nBuild cuda_12.8.r12.8/compiler.35583870_0\n",
+    "python": "3.12.3",
+    "torch": "2.8.0+cu128",
+    "triton": "3.4.0"
+  },
+  "input_manifest": {
+    "bundle_files": {
+      "asym_descriptor_ext.cu": "92045f4110f4b11e0dc6abd6197b14361ef298c7c6f7c67f39ac71bb68ebf253",
+      "descriptor_ext.cu": "ec32c428557902af5d41a8f3f4b2900b44d5fdae886bea80c0f818e9bcd5698d",
+      "doublesided_cholesky.py": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa",
+      "doublesided_cholesky_asym_b200.py": "7281ad9dbf9fe9d84d89553e6c773ccdfff036a897b4555f2b588005c928cb9a",
+      "doublesided_cholesky_chunked.py": "ea88e27c58563af8071bacd84f7e51442ab2b463b3e107b598959c9e47b13504",
+      "doublesided_cholesky_t2.py": "5e09db41a61b5cd487e2fa096389ab7fb2faee1afd53224567b6ab648cdb3565",
+      "doublesided_cholesky_tile.py": "d711d0b845c93101596c8d557f9a6efcaa753553c53ffafa6107fe69a20acd66",
+      "fast_update.cpp": "e16604755c375aafbb594624bdc333b8a928c61eb4c6e29bdb4f17a0b8b693df",
+      "p_tile_ext.cu": "6d7f7cfdba0fdd3eda5a9e4ce6c427cbdd5f23370f0a47acd68a99b038d22374"
+    },
+    "inputs": {
+      "asym_descriptor_ext.cu": {
+        "sha256": "92045f4110f4b11e0dc6abd6197b14361ef298c7c6f7c67f39ac71bb68ebf253",
+        "source_tree": "b200"
+      },
+      "descriptor_ext.cu": {
+        "sha256": "ec32c428557902af5d41a8f3f4b2900b44d5fdae886bea80c0f818e9bcd5698d",
+        "source_tree": "b200"
+      },
+      "doublesided_cholesky.py": {
+        "sha256": "55f284a0c58e80199fa33b4608f3132193f8056df97c44a8fe7b5857c72a6bfa",
+        "source_tree": "original"
+      },
+      "doublesided_cholesky_asym_b200.py": {
+        "sha256": "7281ad9dbf9fe9d84d89553e6c773ccdfff036a897b4555f2b588005c928cb9a",
+        "source_tree": "b200"
+      },
+      "doublesided_cholesky_chunked.py": {
+        "sha256": "b047a9da1d15f8125ccf98e05541bc04d91b011709366988985ba50cfe1baa9f",
+        "source_tree": "b200",
+        "verbatim_symbols": [
+          "_single_rhs_u2_kernel",
+          "_single_rhs_parameter_finalize_kernel"
+        ]
+      },
+      "doublesided_cholesky_t2.py": {
+        "sha256": "5e09db41a61b5cd487e2fa096389ab7fb2faee1afd53224567b6ab648cdb3565",
+        "source_tree": "b200"
+      },
+      "doublesided_cholesky_tile.py": {
+        "sha256": "af544e1ca2efe212b5d025cec6e19af41cacaf4f96825d844e1574ef3427de37",
+        "source_tree": "b200",
+        "verbatim_symbols": [
+          "tile_count",
+          "tile_elements",
+          "tile_diagonal_offsets",
+          "_dense_to_tile",
+          "_tile_to_dense",
+          "dense_to_tile_lower",
+          "tile_lower_to_dense",
+          "_p_update_tilemajor"
+        ]
+      },
+      "fast_update.cpp": {
+        "sha256": "e16604755c375aafbb594624bdc333b8a928c61eb4c6e29bdb4f17a0b8b693df",
+        "source_tree": "original"
+      },
+      "p_tile_ext.cu": {
+        "sha256": "6d7f7cfdba0fdd3eda5a9e4ce6c427cbdd5f23370f0a47acd68a99b038d22374",
+        "source_tree": "b200"
+      }
+    },
+    "purpose": "Development-only snapshot equivalence; never publish this bundle."
+  },
+  "release_git_commit": "c24a9d2c402c0e3af20ce2078f6fb3f0e43246d2",
+  "release_kernel_sha256": {
+    "__init__.py": "0252d578c5b37b31a98409baef6b97df96f908a03ce287917d346cb9888f256f",
+    "_validation.py": "8547c4d7c8fefa4fddb59122113b4aef5781c876507aa0692228a0bf53a4010f",
+    "cpu.py": "3347959766fe5d3fc26c6fb47d3527e81f136d76b90b6ecde83e4feb0a981f05",
+    "csrc/cpu/fast_update.cpp": "ff63bd06c97d6d09b828c3807376a52e190379e8e63a69ae6afb344b560e82d9",
+    "csrc/cuda/asymmetric_descriptor.cu": "d1b656182407d4d0ac0d1f444a119fb32ae2dedec8c9d95cf4e757fc3e2c69d1",
+    "csrc/cuda/bindings.cpp": "61a5c0ea6b69a859d480a0f2b9138aa62fcb3a1626e99ff17a1597181d4f92e9",
+    "csrc/cuda/common.cuh": "4e78a7d9e6f19b84127f755430b3e5af543d61d7b5837e4c14d4b266c505e3ee",
+    "csrc/cuda/p_tile.cu": "4508ff20acb2099a2440cf8ed65f697e45fcd46824da532e2758268371d0810c",
+    "csrc/cuda/symmetric_descriptor.cu": "c8f26c2b02acca95a100bea32bfb49a1073f7684887a6b37710ef1085c1f1925",
+    "cuda/__init__.py": "d81a6d3abdd7ce699a09c00acfaeb8a080bee78bb1b4ac43b7c5522b697af3a9",
+    "cuda/_layout_kernels.py": "a11bc78fbb088debe9423ce7318a872c1cf09522a57ba03823275b239a1e828b",
+    "cuda/_vector_kernels.py": "7bf7430414e234f6c92c3bbc034ebf05d20d343d123ce5c47699c2b27f085ab1",
+    "cuda/inplace.py": "ca34f36183b40357490d0f426c376a895e1fc42bf62a2b967efecabe8036ebff",
+    "cuda/symmetric_tiled.py": "808c17ceb3fcc71ef3b67c1a7a2b105d005f2778a86b7f05e9b98e2187e3c0af",
+    "cuda/tiled.py": "bf983cfc4c17532e2f085cb244057f93c704a5c643465cad62324f8c00941ca6",
+    "layouts.py": "02a346c99b1e2312b9a1d41a21b1c1b58d3717b7746e224cd51a0cbbee5482cc",
+    "reference.py": "173803d4568b010ece1245820b75971b84ef5348d9906fde45f5e6413141687e"
+  },
+  "release_package_version": "0.1.0",
+  "state": "seed 29421+rank; random triangular inverse P with unit-plus-small diagonal; random Aw; symmetric Aw for C5",
+  "status": "passed",
+  "wall_seconds": 91.73019774490967
+}

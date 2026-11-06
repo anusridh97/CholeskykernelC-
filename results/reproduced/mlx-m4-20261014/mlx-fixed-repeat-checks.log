@@ -1,0 +1,9 @@
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:58: RuntimeWarning: divide by zero encountered in matmul
+  G = A @ A.swapaxes(-1, -2) + rank * np.eye(rank, dtype=np.float32)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:58: RuntimeWarning: overflow encountered in matmul
+  G = A @ A.swapaxes(-1, -2) + rank * np.eye(rank, dtype=np.float32)
+/Users/ravi/Documents/Stanford/Spring25-26/CS229/Final Project : CS 197/b200_kernel_results_2026-07-27/evidence_recovery_20261014/mlx-fixed-source/validate_comparison.py:58: RuntimeWarning: invalid value encountered in matmul
+  G = A @ A.swapaxes(-1, -2) + rank * np.eye(rank, dtype=np.float32)
+r=512, batch=16: 20/20 calls passed
+r=768, batch=16: 20/20 calls passed
+r=1024, batch=16: 20/20 calls passed

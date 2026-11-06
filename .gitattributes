@@ -1,0 +1,3 @@
+# Preserve archived evidence byte-for-byte, including CSV line endings and
+# generated SVG/patch whitespace; their manifests use exact SHA-256 hashes.
+results/reproduced/** -text -whitespace

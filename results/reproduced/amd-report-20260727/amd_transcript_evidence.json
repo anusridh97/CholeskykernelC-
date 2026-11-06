@@ -1,0 +1,271 @@
+{
+  "provenance": {
+    "kind": "user_supplied_historical_chat_transcript",
+    "received_date": "2026-10-14",
+    "source_file": "amd_report_excerpts.txt",
+    "source_sha256": "ddedacb07dfac6fc8f8840bbf3ccc7b5b1170bc23049128d040f0e88d7ee88fd",
+    "unabridged_supplied_transcript_sha256": "b8a98d49e3cd2870297e232c243f468af1e7cfc15f073877de4f4aef4119ed9d",
+    "original_archive_recovered": false,
+    "source_code_recovered": false,
+    "source_sha256_values_recovered": false,
+    "experiment_rerun": false,
+    "note": "Samples and settings were reported in the supplied chat. Original JSON/source/IR remain missing."
+  },
+  "hardware_software_reported": {
+    "gpu": "AMD Radeon Pro V520 / Navi12",
+    "target": "gfx1011:xnack-",
+    "vram_bytes": 8422162432,
+    "vram_gib": 7.84375,
+    "compute_units_rocminfo": 36,
+    "multiprocessors_torch": 18,
+    "wavefront_lanes": 32,
+    "l2_bytes": 4194304,
+    "os": "Ubuntu 26.04 LTS Resolute",
+    "kernel": "7.0.0-1006-aws",
+    "host_rocm": "7.1",
+    "host_hip_runtime": "7.1.52801-9999",
+    "rocm_llvm": "21.1.8",
+    "python": "3.12.13",
+    "torch": "2.6.0+rocm6.2.4",
+    "torch_version_hip": "6.2.41134-65d174c3e",
+    "triton": "3.2.0",
+    "host_ram_gib_reported": 61,
+    "swap": "none",
+    "git_commit": null,
+    "git_metadata_present": false
+  },
+  "measurement_reported": {
+    "region": "incremental Linv/P and Aw update only; excludes G/M outer products",
+    "timer": "time.perf_counter with torch.cuda.synchronize around launches",
+    "reason_host_timer": "GPU event elapsed_time returned exactly zero",
+    "statistic": "median of saved samples; speedup is ratio of method medians",
+    "baseline": "original Triton transport with pure-Triton setup replacing unavailable ATen matmul/cumsum",
+    "fresh_refactor_speedup": null,
+    "warmup_count": null,
+    "unknown_settings": [
+      "exact driver/source hashes",
+      "warmup count",
+      "complete input generation/seed and restoration protocol"
+    ]
+  },
+  "timing": [
+    {
+      "rank": 2048,
+      "original_ms_samples": [
+        6.891718,
+        8.927555,
+        7.862031,
+        7.005811,
+        7.045972,
+        7.130284,
+        7.511642
+      ],
+      "optimized_ms_samples": [
+        2.438916,
+        2.398445,
+        2.392695,
+        2.406805,
+        2.430095,
+        2.399595,
+        2.411075
+      ],
+      "original_median_ms": 7.130284,
+      "optimized_median_ms": 2.406805,
+      "median_ratio_speedup": 2.9625515984884525,
+      "sample_count": 7
+    },
+    {
+      "rank": 4096,
+      "original_ms_samples": [
+        25.956896,
+        24.367669,
+        26.747404,
+        25.950846,
+        24.941033,
+        26.12893,
+        25.322511
+      ],
+      "optimized_ms_samples": [
+        8.27267,
+        8.317181,
+        8.28175,
+        8.27577,
+        8.206349,
+        8.30187,
+        8.221089
+      ],
+      "original_median_ms": 25.950846,
+      "optimized_median_ms": 8.27577,
+      "median_ratio_speedup": 3.1357621103534776,
+      "sample_count": 7
+    },
+    {
+      "rank": 8192,
+      "original_ms_samples": [
+        82.570475,
+        81.125552,
+        84.226093,
+        79.219949,
+        81.064361,
+        82.009882,
+        80.330904
+      ],
+      "optimized_ms_samples": [
+        38.404471,
+        38.416482,
+        38.446492,
+        38.400611,
+        38.443022,
+        38.406781,
+        38.496103
+      ],
+      "original_median_ms": 81.125552,
+      "optimized_median_ms": 38.416482,
+      "median_ratio_speedup": 2.111738185708936,
+      "sample_count": 7
+    },
+    {
+      "rank": 16384,
+      "original_ms_samples": [
+        1095.339815,
+        1230.65154,
+        1195.379321,
+        980.165862,
+        934.985775
+      ],
+      "optimized_ms_samples": [
+        258.84233,
+        260.046208,
+        259.771611,
+        259.932345,
+        258.482652
+      ],
+      "original_median_ms": 1095.339815,
+      "optimized_median_ms": 259.771611,
+      "median_ratio_speedup": 4.216549340335731,
+      "sample_count": 5
+    },
+    {
+      "rank": 24576,
+      "original_ms_samples": [
+        3634.04862,
+        3604.968075,
+        3670.643838,
+        3630.853827,
+        3667.929496
+      ],
+      "optimized_ms_samples": [
+        514.39759,
+        501.702869,
+        516.388435,
+        511.639326,
+        513.377956
+      ],
+      "original_median_ms": 3634.04862,
+      "optimized_median_ms": 513.377956,
+      "median_ratio_speedup": 7.078700161407008,
+      "sample_count": 5
+    },
+    {
+      "rank": 28672,
+      "original_ms_samples": [
+        6731.726107,
+        6623.81104,
+        6862.878285,
+        7126.577036,
+        6869.322259
+      ],
+      "optimized_ms_samples": [
+        624.187126,
+        621.524976,
+        624.674108,
+        628.058029,
+        634.485746
+      ],
+      "original_median_ms": 6862.878285,
+      "optimized_median_ms": 624.674108,
+      "median_ratio_speedup": 10.986333829286869,
+      "sample_count": 5
+    }
+  ],
+  "correctness_reported": {
+    "tests_passed": 4,
+    "tests_total": 4,
+    "distinct_z_w": true,
+    "one_step": [
+      {
+        "rank": 129,
+        "P_relative_frobenius": 5.1413e-08,
+        "Aw_relative_frobenius": 6.7946e-08,
+        "vz_relative_l2": 7.5952e-08,
+        "factor_residual": 1.0469e-07,
+        "operator_residual": 8.3709e-08
+      },
+      {
+        "rank": 257,
+        "P_relative_frobenius": 4.7106e-08,
+        "Aw_relative_frobenius": 6.6822e-08,
+        "vz_relative_l2": 1.0383e-07,
+        "factor_residual": 9.5351e-08,
+        "operator_residual": 7.8525e-08
+      },
+      {
+        "rank": 1025,
+        "P_relative_frobenius": 4.8762e-08,
+        "Aw_relative_frobenius": 6.7973e-08,
+        "vz_relative_l2": 1.1062e-07,
+        "factor_residual": 9.9157e-08,
+        "operator_residual": 8.13e-08
+      }
+    ],
+    "trajectory": {
+      "rank": 129,
+      "steps": 100,
+      "P_difference": 5.3774e-07,
+      "Aw_difference": 1.052e-06,
+      "factor_residual": 1.0667e-06,
+      "operator_residual": 5.2013e-07,
+      "vz_difference": 5.0497e-07,
+      "all_states_finite": true
+    },
+    "does_not_establish_per_rank_correctness_for_timing_ladder": true
+  },
+  "fresh_baseline_reported": {
+    "status": "blocked; no valid GPU times",
+    "cpu_sequence_relative_error": 1.79e-16,
+    "cpu_unit_tests_passed": 2,
+    "gpu_probe_ranks": [
+      129,
+      2048,
+      4096,
+      8192
+    ],
+    "gpu_failure": "HIP invalid device function; rocBLAS lacks gfx1011",
+    "cpu_fallback_used_for_gpu_timings": false,
+    "source_build_performed": false
+  },
+  "implementation_reported": {
+    "general_asymmetric": true,
+    "pure_triton": true,
+    "Aw_tile": 64,
+    "P_tile_columns": 16,
+    "P_chunk": 32,
+    "matrix_address_bits": 64,
+    "packed_symmetric_implemented": false,
+    "hardware_profiler_counters_collected": false
+  },
+  "original_paths_reported_relative_to_remote_repository": [
+    "rebuttal_results/amd_triton/final_20260727T054333Z/report.md",
+    "rebuttal_results/amd_triton/final_20260727T054333Z/aggregate.json",
+    "rebuttal_results/amd_triton/final_20260727T054333Z/aggregate.csv",
+    "rebuttal_results/amd_triton/final_20260727T054333Z/environment.json",
+    "rebuttal_results/amd_triton/final_20260727T054333Z/correctness.json",
+    "rebuttal_results/amd_triton/final_20260727T054333Z/ablations.json",
+    "student_pkg/doublesided_cholesky_triton_amd.py",
+    "student_pkg/tests/test_triton_amd_correctness.py",
+    "rebuttal_results/amd_triton/ir_snapshot_20260727T054000Z",
+    "student_pkg/tests/bench_pytorch_refactor_amd.py",
+    "student_pkg/tests/test_pytorch_refactor_baseline.py",
+    "rebuttal_results/amd_triton/pytorch_refactor_20260727T062506Z/aggregate.json"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "origin": "Cholesky-main 2/corrected_incremental_cholesky, local recovered snapshot",
+  "scope": "Corrected CPU applications, not a reproduction claim for the original submitted tables",
+  "files": {
+    "core.py": {
+      "original_file": "doublesided_cholesky.py",
+      "original_sha256": "5df95a541c80521311e1b6fd3bbf493b77b34e2ec160231bd3983aebda1ebd9a",
+      "ported_sha256": "70b19335f51bfa051ef32cca79b31aa3377398c4f7fe6a8c38b9245f8bb95060",
+      "changes": [
+        "relative private native-extension import"
+      ]
+    },
+    "adaptive_svgp.py": {
+      "original_file": "adaptive_svgp.py",
+      "original_sha256": "bcb3cb4f1a8c39346981bdc02b6dfaf9f64cd6628a33a22526f22353148a8fea",
+      "ported_sha256": "da2ab21ae6354246b52798ab051adc817b9642d8fa8c6e8c22e7691311f7edab",
+      "changes": [
+        "relative core import"
+      ]
+    },
+    "refresh.py": {
+      "original_file": "refresh.py",
+      "original_sha256": "3c9643d3c58fdcd1789952aa33fbcd8f735ba19353438d6de22d6c655bb63552",
+      "ported_sha256": "86634d543e9e4e72a4ab0929068b6c5d7b29bd48c7e8aafd4e826a46c10dc437",
+      "changes": [
+        "relative core import"
+      ]
+    },
+    "data_utils.py": {
+      "original_file": "data_utils.py",
+      "original_sha256": "6b578b29e53a63e79780ddbce122cc9716bae035c7c022642b079af665672740",
+      "ported_sha256": "dd80e85980bad8828eaf7246bcead1450338cc7b68fe737ebca16871774293f2",
+      "changes": [
+        "defer scipy import until reading MAT data"
+      ]
+    },
+    "fast_update.cpp": {
+      "original_file": "fast_update.cpp",
+      "original_sha256": "8ec58b5c9074c805e0e379e9df5252c945b84c4b133ebbd94bd2ea22757398cd",
+      "ported_sha256": "8ec58b5c9074c805e0e379e9df5252c945b84c4b133ebbd94bd2ea22757398cd",
+      "changes": []
+    },
+    "experiments.py": {
+      "original_file": "run_experiments.py",
+      "original_sha256": "c79232b51a3ba78ca47c83ef7738510ba03f653d49f582552ca5980c0426813a",
+      "ported_sha256": "d5097add58bbe75994332d86dd6c131e9541ebb501754aba5cad048fe7bc081d",
+      "selected_functions": [
+        "_candidate_pool",
+        "run_protein_bo",
+        "run_ng"
+      ],
+      "changes": [
+        "relative imports",
+        "explicit output directory with overwrite/nonfinite refusal; numerical functions copied verbatim"
+      ]
+    }
+  }
+}

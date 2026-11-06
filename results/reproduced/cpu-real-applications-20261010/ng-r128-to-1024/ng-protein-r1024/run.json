@@ -1,0 +1,86 @@
+{
+  "protocol": "recovered-corrected-cpu-v1",
+  "experiment": "ng",
+  "scope": "Corrected CPU experiment; original submitted tables not asserted",
+  "profile": "full",
+  "configuration": {
+    "backend": "extension",
+    "dtype": "float32",
+    "threads": 1,
+    "dataset": "protein",
+    "ranks": [
+      1024
+    ],
+    "device": "cpu",
+    "epochs": 10,
+    "hidden_dims": [
+      512,
+      512,
+      128
+    ],
+    "chart_modes": [
+      "inverse"
+    ],
+    "seeds": [
+      42
+    ],
+    "batch_size": 256,
+    "learning_rate": 0.01,
+    "lam": 1.0,
+    "refresh_threshold": 0.1,
+    "refactor_every": 50,
+    "sandwich_beta": 0.9,
+    "train_fraction": 0.8
+  },
+  "created_utc": "2026-10-10T08:19:16.330245+00:00",
+  "git_commit": "c24a9d2c402c0e3af20ce2078f6fb3f0e43246d2",
+  "git_dirty": true,
+  "environment": {
+    "python": "3.14.2 (main, Dec  5 2025, 16:49:16) [Clang 17.0.0 (clang-1700.6.3.2)]",
+    "torch": "2.11.0",
+    "numpy": "2.5.3",
+    "platform": "macOS-15.6-arm64-arm-64bit-Mach-O"
+  },
+  "input_sha256": {
+    "protein.mat": "5ce538fa05f6834de3acc727e220e777a02fb1ebc3a7bfebcb5aaad9769fed13"
+  },
+  "dataset_provenance": null,
+  "input_manifest_sha256": null,
+  "source_sha256": {
+    "benchmarks/applications/__init__.py": "0f008854da6538c47499333fba1ebded31e4ad61cbb2d41ac550384616f4ab8d",
+    "benchmarks/applications/_corrected/__init__.py": "f3a60bfbf3771e89cca955960dae4f0b564e5c148f7abc392bd27321e792815d",
+    "benchmarks/applications/_corrected/adaptive_svgp.py": "da2ab21ae6354246b52798ab051adc817b9642d8fa8c6e8c22e7691311f7edab",
+    "benchmarks/applications/_corrected/core.py": "70b19335f51bfa051ef32cca79b31aa3377398c4f7fe6a8c38b9245f8bb95060",
+    "benchmarks/applications/_corrected/data_utils.py": "dd80e85980bad8828eaf7246bcead1450338cc7b68fe737ebca16871774293f2",
+    "benchmarks/applications/_corrected/experiments.py": "d5097add58bbe75994332d86dd6c131e9541ebb501754aba5cad048fe7bc081d",
+    "benchmarks/applications/_corrected/refresh.py": "86634d543e9e4e72a4ab0929068b6c5d7b29bd48c7e8aafd4e826a46c10dc437",
+    "benchmarks/applications/campaign.py": "7ccc01ac4a3d08ff3ceef7703ae185112b08b1037827f76ba23d71672125ff0a",
+    "benchmarks/applications/prepare_gb1.py": "848612a8f3ed0549b18dc0dc60a57adbe9fa5124cca6d718f87c3da46f7d3a9c",
+    "benchmarks/applications/run.py": "d1895a3f3fd641805382e4e6e94aa863d41535abf6b5f271065df9ae19aa5410",
+    "benchmarks/applications/_corrected/fast_update.cpp": "8ec58b5c9074c805e0e379e9df5252c945b84c4b133ebbd94bd2ea22757398cd"
+  },
+  "native_sha256": "a5c767efcb17a622d3fb50006f1a0f2f798c0296412a7116c5d5d5f2e944dbf0",
+  "ng_function_defaults": {
+    "hidden_dims": "None",
+    "chart_rank": "32",
+    "epochs": "20",
+    "batch_size": "256",
+    "learning_rate": "0.01",
+    "lam": "1.0",
+    "refresh_threshold": "0.1",
+    "refactor_every": "50",
+    "seed": "42",
+    "backend": "auto",
+    "chart_mode": "inverse",
+    "sandwich_beta": "0.9",
+    "methods": "('ours', 'refact', 'sgd')"
+  },
+  "status": "passed",
+  "runs": [
+    {
+      "name": "inverse-r1024-seed42",
+      "status": "passed",
+      "wall_seconds": 61.98798537498806
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "protocol": "mlx-consistent-dense-output-v1",
+  "created_utc": "2026-11-06T22:34:09.505756+00:00",
+  "status": "passed",
+  "seed": 0,
+  "ranks": [
+    64,
+    128,
+    256,
+    512,
+    768,
+    1024
+  ],
+  "batches": [
+    1,
+    4,
+    16
+  ],
+  "tolerance_per_item": 5e-05,
+  "full_paper_grid": true,
+  "timing_requested": false,
+  "repeats": 100,
+  "warmups": 5,
+  "timing_statistic": "arithmetic mean; sample SD and median also retained",
+  "contract": "Return L+ and Aw+ for G+zzT and M+zwT; auxiliary MLX vz also checked",
+  "reference": "Independent FP64 Cholesky and two solves on common quantized G/M/z/w",
+  "timing_excludes": [
+    "construction",
+    "input transfers",
+    "correctness",
+    "compilation warmup"
+  ],
+  "timing_includes": [
+    "output allocation",
+    "method computation",
+    "MLX eval/synchronization"
+  ],
+  "baseline": "Original inverse-plus-two-matmuls baseline, CPU NumPy and Torch",
+  "historical_runs_validated_retroactively": false,
+  "cells": [
+    {
+      "rank": 64,
+      "batch": 1,
+      "file": "r64_b1.json",
+      "sha256": "d133f30d0e8847824b38d6b8ea42555387bc9adb2179c516c40a7cda2dc9caee",
+      "status": "passed"
+    },
+    {
+      "rank": 64,
+      "batch": 4,
+      "file": "r64_b4.json",
+      "sha256": "77eeae9f3afd91af3d1493a88f90cd432340b7cf118d1a232e3122bb3b4b1a82",
+      "status": "passed"
+    },
+    {
+      "rank": 64,
+      "batch": 16,
+      "file": "r64_b16.json",
+      "sha256": "aeb8fb2a39c434a87f6c5369f12b31c5ec7df5e518332420fd3c2c0d52142a7d",
+      "status": "passed"
+    },
+    {
+      "rank": 128,
+      "batch": 1,
+      "file": "r128_b1.json",
+      "sha256": "9a8f1608cebc5330c7efc4081610b2f9ae026b6ec2568ede0599f9851dcf5fd9",
+      "status": "passed"
+    },
+    {
+      "rank": 128,
+      "batch": 4,
+      "file": "r128_b4.json",
+      "sha256": "5bd1065a18923dbb710e15e857861ac3e633c216f4f83fe5cf8fa55a17973668",
+      "status": "passed"
+    },
+    {
+      "rank": 128,
+      "batch": 16,
+      "file": "r128_b16.json",
+      "sha256": "2981742a976cd7377a7a9852775a16c96aecd0805ea449292efd6cce6d847bf2",
+      "status": "passed"
+    },
+    {
+      "rank": 256,
+      "batch": 1,
+      "file": "r256_b1.json",
+      "sha256": "703354a134bac30b73c5c9fd9280dc615958519082d4cabf3b7e0974c1cd1d26",
+      "status": "passed"
+    },
+    {
+      "rank": 256,
+      "batch": 4,
+      "file": "r256_b4.json",
+      "sha256": "7c1b519492f3bedb55ad6feed618f0f1335267db2f5875d195927c20b0eebeb4",
+      "status": "passed"
+    },
+    {
+      "rank": 256,
+      "batch": 16,
+      "file": "r256_b16.json",
+      "sha256": "d55f1294a065e13377b5548aab10cbdfcdcfc1f68de3ca9081b03cf416bb4f76",
+      "status": "passed"
+    },
+    {
+      "rank": 512,
+      "batch": 1,
+      "file": "r512_b1.json",
+      "sha256": "e50001629e01ab9537e38e36dff9b9c4199c27e05cd5d40c67bd94cded5ea160",
+      "status": "passed"
+    },
+    {
+      "rank": 512,
+      "batch": 4,
+      "file": "r512_b4.json",
+      "sha256": "ffe4804975e2bc2f82c093bb49698dbf51b9dd1bdf0ccfd9915510a1dbb359bf",
+      "status": "passed"
+    },
+    {
+      "rank": 512,
+      "batch": 16,
+      "file": "r512_b16.json",
+      "sha256": "ce9c456958ffd03ce5bd66d3c1f497170638a257520aa4355aebc3cdff825503",
+      "status": "passed"
+    },
+    {
+      "rank": 768,
+      "batch": 1,
+      "file": "r768_b1.json",
+      "sha256": "cb44f892d5f89c3360c0d7afd28fc4815ad1989be57127ac7ff5cde0bdd67354",
+      "status": "passed"
+    },
+    {
+      "rank": 768,
+      "batch": 4,
+      "file": "r768_b4.json",
+      "sha256": "f83eda883d7cbddd94c91b08831ad09efdd1d7ca1ea0d79cbf1724bd9ae18222",
+      "status": "passed"
+    },
+    {
+      "rank": 768,
+      "batch": 16,
+      "file": "r768_b16.json",
+      "sha256": "6297dabe32bf2f847d242eb8fe2f8112048884273c44f22bcfc39196565d9434",
+      "status": "passed"
+    },
+    {
+      "rank": 1024,
+      "batch": 1,
+      "file": "r1024_b1.json",
+      "sha256": "edd049814a1574ed63169c410d780b0d0c6cdd7860e71fcd47aeef02e28f1941",
+      "status": "passed"
+    },
+    {
+      "rank": 1024,
+      "batch": 4,
+      "file": "r1024_b4.json",
+      "sha256": "6ef62f83a14aeaf5ae3f79eb76895640c48d699fc8feff8e588830c5804ea056",
+      "status": "passed"
+    },
+    {
+      "rank": 1024,
+      "batch": 16,
+      "file": "r1024_b16.json",
+      "sha256": "ae159c46a98af25e4003a638f021506d8abfb662e900c85e1add78d100bf2ec8",
+      "status": "passed"
+    }
+  ],
+  "hardware_record_complete": true,
+  "finished_utc": "2026-11-06T22:34:23.384448+00:00"
+}
