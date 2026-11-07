@@ -5,7 +5,7 @@ from setuptools import setup
 from torch.utils.cpp_extension import BuildExtension, CppExtension
 
 root = Path(__file__).resolve().parents[1]
-flags = ["-O3", "-std=c++17"]
+flags = ["-O3", "-std=c++20"]
 if platform.machine().lower() in ("arm64", "aarch64"):
     flags.append("-mcpu=native")
 elif platform.machine().lower() in ("x86_64", "amd64"):
