@@ -1,17 +1,142 @@
 # Double-sided Cholesky
 
-Apply the rank-one edits `G+ = G + zzᵀ` and `M+ = M + zwᵀ` while maintaining
-`Aw = L⁻¹ M L⁻ᵀ`, where `G = LLᵀ`. The update takes O(r²) work instead of a
-fresh O(r³) Cholesky factorization and two triangular solves. This repository
-combines the original reference/CPU/Triton implementations and the tiled CUDA
-implementations tuned on B200, plus the validated MLX/Metal update for Apple Silicon.
+**Quadratic-time updates for operators expressed in a changing Cholesky-whitened basis.**
 
-**Release candidate:** the completed B200 run passed 73 tests, including both
-rank-65,536 regressions, and all 140 The Well cases across both methods.
-Twenty-two tested CPU/GPU snapshot cases were bitwise equal. Raw rerun evidence
-and source revisions are in [results/reproduced/b200-20261010](results/reproduced/b200-20261010).
-See [validation](docs/VALIDATION.md) for scope and remaining checks.
-The owner must select a license before publication.
+Many scientific algorithms work with two matrices: a positive-definite metric or Gram matrix `G`, and an operator or cross-moment matrix `M`. Rather than repeatedly forming the Cholesky factor and transforming the full operator when new data arrive, this package updates the whitened operator directly.
+
+For `G=LLᵀ`, the maintained state is
+
+\[
+A=L^{-1}ML^{-T}.
+\]
+
+Given a new pair of vectors `z,w`, the supported update is
+
+\[
+G^+=G+zz^T,\qquad M^+=M+zw^T,
+\qquad A^+=(L^+)^{-1}M^+(L^+)^{-T}.
+\]
+
+The Cholesky update induces a change of orthonormal coordinates. Instead of recomputing a dense factorization and applying its inverse from both sides, the algorithm transports the operator through structured rotations on the left and right. That **double-sided transport** is the central operation: the package maintains both the metric's factor state and the correctly transformed operator in **O(r²)** work per supported rank-one edit rather than the **O(r³)** work of dense recomputation.
+
+This is useful when a **dense whitened operator must be maintained through many compatible updates**. It is not a drop-in replacement for arbitrary matrix changes, an eigensolver, or a complete scientific simulation. See the application mappings below before choosing a kernel.
+
+**Implementations:** reference PyTorch, optimized CPU, original CUDA baseline, tiled CUDA (general and symmetric), and MLX/Metal for Apple Silicon. The repository also includes The Well and synthetic benchmarks, BO/NG application experiments, tests, and reproduction records.
+
+**Release candidate:** the completed B200 run passed 73 tests, including both rank-65,536 regressions, and all 140 The Well cases across both methods. Twenty-two tested CPU/GPU snapshot cases were bitwise equal. Raw rerun evidence and source revisions are in [results/reproduced/b200-20261010](results/reproduced/b200-20261010). See [validation](docs/VALIDATION.md) for scope and remaining checks. The owner must select a license before publication.
+
+### Navigate this README
+
+- [Scientific applications](#scientific-applications-where-this-kernel-fits): Koopman/EDMD, Hamiltonians, electronic structure/DFT, reduced-order modeling, and an integration checklist.
+- [Repository guide](#repository-guide): the purpose of each major source, benchmark, test, and documentation directory.
+- [Simple reproduction scripts](#simple-reproduction-scripts) and [Install](#install): start from a verified environment.
+- [Quickstart](#quickstart-requires-cuda-and-the-native-cuda-extension) and [Choose a path](#choose-a-path): run an update and select the appropriate API.
+- [State and mutation contracts](#state-and-mutation-contracts), [Archived results](#archived-results), and [Tests and reproduction](#tests-and-reproduction): correct integration and evidence.
+
+## Scientific applications: where this kernel fits
+
+The same operator-transport pattern appears in streaming estimation and scientific computing. The examples below show how to map each problem onto the kernel and distinguish **exact update matches** from **conditional integration opportunities**. The repository is a kernel library, not a completed DFT, EDMD, or PDE solver.
+
+### The required update pattern
+
+Maintain an SPD matrix `G=LLᵀ` and a possibly nonsymmetric `M`, with whitened operator
+
+\[
+A=L^{-1}ML^{-T}.
+\]
+
+Each supported step supplies `z,w ∈ R^r` such that
+
+\[
+G^+=G+zz^T,\qquad M^+=M+zw^T.
+\]
+
+It is worth checking **both** equalities before integrating the kernel. Merely having a low-rank change in `G`, or a symmetric `M`, is insufficient. In particular, the specialized symmetric tiled implementation assumes `w=z`, rather than handling all possible symmetric changes to `M`.
+
+The updates apply to real-valued tensors. Positive additions retain an SPD metric; deleting old observations, sliding windows, decays and arbitrary basis changes are not directly implemented.
+
+### 1. Koopman / extended dynamic mode decomposition (direct)
+
+Let `φ(x) ∈ R^r` be a dictionary of observables. For time-ordered state pairs `(x_i,y_i)` with `y_i` the one-step successor, define the unnormalized moments
+
+\[
+G_n=\lambda I+\sum_{i=1}^n z_i z_i^T,
+\qquad M_n=\sum_{i=1}^n z_iw_i^T,
+\qquad z_i=\phi(x_i),\;w_i=\phi(y_i).
+\]
+
+Adding one pair gives precisely `G⁺=G+zzᵀ`, `M⁺=M+zwᵀ`. This is the simplest way to use the asymmetric kernel on scientific time-series data, for example trajectory snapshots from simulations. A positive `λ` gives an initially invertible Gram matrix. If you use an averaged version of the moments, keep the scaling convention consistent (the formula above deliberately uses sums).
+
+EDMD usually represents the least-squares map as `K=G⁻¹M` (subject to feature orientation). This library instead maintains `A=L⁻¹ML⁻ᵀ`. Since `A=LᵀKL⁻ᵀ`, the two are similar in exact arithmetic; eigenvalues agree but eigenvectors and the action on coordinates must be transformed properly. Do not simply substitute `A` for `K` in a feature-space forecasting formula.
+
+**Pick:** `cuda.update_tiled` for large real nonsymmetric operators; `cpu.update` for CPU or float64 work. **Not included:** feature construction, Koopman mode decoding, spectrum tracking, sliding-window downdates or a production EDMD pipeline.
+
+### 2. Generalized eigenproblems and Hamiltonian operators (conditional)
+
+In a nonorthogonal basis the generalized eigenproblem is
+
+\[
+Hc=\varepsilon Sc,\qquad S=LL^T.
+\]
+
+By setting `u=Lᵀc`, this is equivalent to
+
+\[
+(L^{-1}HL^{-T})u=\varepsilon u.
+\]
+
+In this interpretation `G=S`, `M=H`, `A=L⁻¹HL⁻ᵀ`. The package maintains the expensive orthogonalized representation if the *pair* `(S,H)` has the required coupled edit. It does not diagonalize the transformed Hamiltonian; eigensolvers remain separate. A generic change in the Hamiltonian is not necessarily expressible as `zwᵀ`, and a generic symmetric Hamiltonian update is not necessarily `zzᵀ`.
+
+**Pick:** general asymmetric kernel only when its mathematical edit form actually applies; if `H` must remain symmetric, verify that the edit preserves symmetry. The symmetric tiled kernel is valid for the specialized `ΔH=zzᵀ` case. **Not included:** a generalized eigensolver, eigenvector tracking, arbitrary Hermitian complex operators or arbitrary SPD downdates.
+
+### 3. Nonorthogonal-basis electronic structure and DFT (conditional)
+
+Atom-centered basis calculations use an overlap `S_ij=⟨φ_i|φ_j⟩` and projected Hamiltonian `H_ij=⟨φ_i|Ĥ|φ_j⟩`. To solve the resulting generalized eigenproblem one often orthogonalizes with a two-sided transformation. Cholesky whitening uses `L⁻¹HL⁻ᵀ` (not the identical matrix representation as symmetric Löwdin `S⁻¹/² H S⁻¹/²`, although both lead to an orthonormal representation).
+
+This kernel is a candidate for *incrementally assembled or projected* Hamiltonian workflows when a sequence of contributions gives compatible updates to both matrices. It can reduce the cost of maintaining the orthogonalized **dense operator**, but cannot replace integral evaluation, Hamiltonian construction, self-consistent field iterations or the eigensolver. Ordinary DFT self-consistency updates typically modify `H` while `S` stays fixed; that is **not** the kernel's supported edit. Accordingly, this is a plausible integration point, **not a demonstrated linear-scaling DFT implementation**.
+
+### 4. Reduced modeling, Galerkin methods and scientific machine learning (conditional)
+
+In projected simulation, reduced mass/Gram matrices define a metric, while a reduced stiffness, dynamics or cross-moment matrix defines an operator. If contributions are accumulated from individual samples, basis evaluations or weighted observations and fit the coupled form, double-sided transport can save repeated dense refactor-and-rewhiten operations. It does **not** update an arbitrary Galerkin basis, differentiate through the solver, or solve the underlying ODE/PDE.
+
+Similar bookkeeping appears in streaming regression and covariance-normalized models. However, if a workflow needs only the solution of `Gx=b`, a matrix-free operator, or a few selected eigenpairs, maintaining a dense `A` may be unnecessary. Benchmark the *whole application* before adopting the kernel.
+
+### Integration checklist
+
+1. Identify `G`, `M` and the desired downstream coordinates. Is the required maintained state really `A=L⁻¹ML⁻ᵀ`?
+2. Prove that **each step** has `ΔG=zzᵀ` and `ΔM=zwᵀ` (or split a supported sum into sequential rank-one steps). If the metric edit is negative, independent or complex, this implementation does not apply directly.
+3. Choose `reference` for an initial correctness test, CPU for FP64, tiled asymmetric CUDA for large general operators, or the symmetric tiled special case only for `w=z`.
+4. Initialize a correctly gauged state, use contiguous tensors and disable TF32 on GPU.
+5. For small ranks and representative streams, compare `A` against a fresh double-precision factorization; monitor residuals over many updates and plan periodic refreshes.
+6. Include the costs of feature generation, matrix bookkeeping, eigen/singular-value computations, transfers and refreshes in application-level timings.
+
+### Further reading and scientific references
+
+- Nonorthogonal atomic-orbital Hamiltonian and overlap matrices: [Deep-learning density functional theory Hamiltonian for efficient *ab initio* electronic-structure calculation](https://pmc.ncbi.nlm.nih.gov/articles/PMC11499279/).
+- Transforming a generalized Kohn–Sham eigenproblem by a two-sided congruence: [Quantum Perturbation Theory Using Tensor Cores and a Deep Neural Network](https://pubs.acs.org/doi/10.1021/acs.jctc.2c00274).
+- EDMD Gram / cross-covariance and finite dictionary Koopman operators: [Extended dynamic mode decomposition with dictionary learning](https://pubs.aip.org/aip/cha/article/27/10/103111/151485/Extended-dynamic-mode-decomposition-with).
+- Kernel derivation and actual implementation: [ALGORITHM.md](docs/ALGORITHM.md).
+- Testing, benchmark methods and hardware conditions: [REPRODUCING.md](docs/REPRODUCING.md).
+
+## Repository guide
+
+| Location | What you will find |
+|---|---|
+| `src/doublesided_cholesky/reference.py` | Dense, readable reference operations and initialization; use to check numerical correctness. |
+| `src/doublesided_cholesky/cpu.py` | Native CPU updates and batched CPU entry points, including FP64 paths. |
+| `src/doublesided_cholesky/cuda/inplace.py` | Original in-place CUDA baseline and tunable rank-dependent configuration. |
+| `src/doublesided_cholesky/cuda/tiled.py` | Tiled CUDA update for general (possibly asymmetric) operators. |
+| `src/doublesided_cholesky/cuda/symmetric_tiled.py` | Specialized tiled CUDA path for `w=z` and symmetric operator state. |
+| `src/doublesided_cholesky/mlx.py` | Apple Silicon implementation via MLX/Metal. |
+| `src/doublesided_cholesky/layouts.py` | Packed and tiled storage layouts shared by the implementations. |
+| `benchmarks/` | CPU, CUDA, synthetic, and The Well experiments; result summarization and timing harnesses. |
+| `benchmarks/applications/` | Bayesian optimization / natural-gradient experiment drivers and GB1 data handling; not turnkey DFT or EDMD code. |
+| `benchmarks/mlx/` | Matched-output checks and Apple Silicon measurement harness. |
+| `scripts/` | Reproduction entry points, setup commands, and data preparation helpers. |
+| `tests/` | Unit, numerical, reproducibility, and large-rank regression tests. |
+| `results/` | Archived and reproduced measurements, with methodology caveats in `results/README.md`. |
+| `docs/ALGORITHM.md` | Derivation, state representations, complexity, memory, and migration notes. |
+| `docs/REPRODUCING.md`, `docs/VALIDATION.md`, `docs/MLX.md`, `docs/APPLICATION_AUDIT.md` | Setup, evidence, hardware requirements, and application reproduction limits. |
 
 ## Simple reproduction scripts
 
@@ -148,8 +273,7 @@ for equations, memory formulas and migration names. Tests import the installed
 
 ## Citation and license
 
-Package authorship and paper citation: **owner to supply**. `LICENSE` is a
-placeholder and grants no open-source license yet.
+Package authorship and citation: 
 
 Dataset: Polymathic AI, *The Well*, NeurIPS 2024 Datasets & Benchmarks.
 [Post-neutron-star-merger dataset](https://huggingface.co/datasets/polymathic-ai/post_neutron_star_merger).
